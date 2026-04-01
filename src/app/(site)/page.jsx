@@ -190,7 +190,7 @@ export default function HomePage() {
     <main className="overflow-hidden">
 
       {/* ── Hero ── */}
-      <section className="relative pt-40 pb-0 bg-[#0a0a0a]">
+      <section className="relative pt-40 pb-0 bg-[#c60000]">
         {/* Grid background */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -211,7 +211,7 @@ export default function HomePage() {
               Trusted by 15,000+ donors worldwide
             </div>
 
-            <h1 className="text-5xl lg:text-[3.8rem] font-extrabold tracking-[-0.04em] leading-[1.05] mb-5 text-white">
+            <h1 className="text-5xl lg:text-[3.8rem] font-bold tracking-[-0.04em] leading-[1.05] mb-5 text-white">
               Give with purpose.
               <br />
               <span className="text-yellow-400">Transform lives.</span>
@@ -320,7 +320,7 @@ export default function HomePage() {
       </section>
 
       {/* ── How It Works ── */}
-      <section className="py-24 bg-[#111111]" id="how-it-works">
+      <section className="py-24 bg-[#f51010]" id="how-it-works">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">
