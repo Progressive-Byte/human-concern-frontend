@@ -124,7 +124,7 @@ function CampaignCard({ campaign }) {
 
   return (
     <article
-      className={`bg-[#f10000] border border-white/[0.08] rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex flex-col ${
+      className={`bg-[#161616] border border-white/[0.08] rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex flex-col ${
         isCompleted ? "opacity-75" : ""
       }`}
     >
@@ -187,7 +187,7 @@ function CampaignCard({ campaign }) {
 
 export default function HomePage() {
   return (
-    <main className="bg-[#0e0e0e] text-white overflow-hidden">
+    <main className="overflow-hidden">
 
       {/* ── Hero ── */}
       <section className="relative pt-40 pb-0 bg-[#0a0a0a]">
