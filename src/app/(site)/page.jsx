@@ -1,7 +1,6 @@
 import Link from "next/link";
 
-/* ─── Static data ─────────────────────────────────── */
-
+/* ─── Static data ────────────────────────────────── */
 const stats = [
   { value: "$1.4M", label: "Raised to Date" },
   { value: "15K+", label: "Active Donors" },
@@ -109,8 +108,7 @@ const waysToGive = [
   },
 ];
 
-/* ─── Sub-components ──────────────────────────────── */
-
+/* ─── Campaign Card ──────────────────────────────── */
 function CampaignCard({ campaign }) {
   const pct = Math.min(100, Math.round((campaign.raised / campaign.goal) * 100));
   const isCompleted = campaign.tag === "Completed";
@@ -128,49 +126,28 @@ function CampaignCard({ campaign }) {
         isCompleted ? "opacity-75" : ""
       }`}
     >
-      {/* Image area */}
       <div className="relative h-44 bg-[#1e1e1e] flex items-center justify-center">
         <span className="text-4xl opacity-20">📷</span>
-        <span
-          className={`absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded ${tagClass}`}
-        >
+        <span className={`absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded ${tagClass}`}>
           {campaign.tag}
         </span>
       </div>
-
       <div className="p-5 flex flex-col flex-1">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-yellow-400 mb-1">
-          {campaign.category}
-        </p>
-        <h3 className="text-base font-bold text-white tracking-tight leading-snug mb-2">
-          {campaign.title}
-        </h3>
-        <p className="text-[13px] text-white/55 leading-relaxed mb-4 flex-1">
-          {campaign.description}
-        </p>
-
-        {/* Progress */}
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-yellow-400 mb-1">{campaign.category}</p>
+        <h3 className="text-base font-bold text-white tracking-tight leading-snug mb-2">{campaign.title}</h3>
+        <p className="text-[13px] text-white/55 leading-relaxed mb-4 flex-1">{campaign.description}</p>
         <div className="mb-4">
           <div className="h-1 bg-white/[0.08] rounded-full overflow-hidden mb-2">
-            <div
-              className="h-full bg-yellow-400 rounded-full transition-all duration-500"
-              style={{ width: `${pct}%` }}
-            />
+            <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${pct}%` }} />
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-[12px] text-white/55 font-medium">
-              ${campaign.raised.toLocaleString()} raised
-            </span>
+            <span className="text-[12px] text-white/55 font-medium">${campaign.raised.toLocaleString()} raised</span>
             <span className="text-[12px] text-yellow-400 font-semibold">{pct}%</span>
           </div>
         </div>
-
-        {/* Footer */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[11px] text-white/35 flex-1">👥 {campaign.donors} donors</span>
-          {!isCompleted && (
-            <span className="text-[11px] text-white/35">⏳ {campaign.daysLeft} days left</span>
-          )}
+          {!isCompleted && <span className="text-[11px] text-white/35">⏳ {campaign.daysLeft} days left</span>}
           <Link
             href={`/campaigns/${campaign.id}`}
             className="text-[12px] font-semibold text-yellow-400 px-3 py-1.5 border border-yellow-400/25 rounded-md hover:bg-yellow-400/10 transition-colors no-underline"
@@ -183,111 +160,99 @@ function CampaignCard({ campaign }) {
   );
 }
 
-/* ─── Page ────────────────────────────────────────── */
-
+/* ─── Page ───────────────────────────────────────── */
 export default function HomePage() {
   return (
-    <main className="overflow-hidden">
+    <main className="overflow-hidden bg-[#0e0e0e] text-white">
 
-      {/* ── Hero ── */}
-      <section className="relative pt-40 pb-0 bg-[#c60000]">
-        {/* Grid background */}
+      {/* ── Hero ───────────────────────────────────────
+          Fixed header = 52px (notice) + ~88px (navbar pill + padding) = ~140px total.
+          Hero is a full-viewport section; content is vertically centered below header.
+      ── */}
+      <section className="relative w-full min-h-screen overflow-hidden">
+        {/* Background photo */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/images/hero-bg.jpg')" }}
+          aria-hidden="true"
+        />
+        {/* Left-side gradient so glass card is readable */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage:
-              "linear-gradient(rgba(245,197,24,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(245,197,24,0.03) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-            maskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent)",
+            background:
+              "linear-gradient(105deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.08) 55%, transparent 100%)",
           }}
           aria-hidden="true"
         />
 
-        <div className="relative max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center pb-20">
-          {/* Copy */}
-          <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-yellow-400/8 border border-yellow-400/20 rounded-full text-[13px] text-yellow-400 font-medium mb-6">
-              <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse" />
-              Trusted by 15,000+ donors worldwide
-            </div>
+        {/* Hero content — pinned to bottom-left of the viewport */}
+        <div className="relative h-screen flex items-end">
+          <div className="w-full max-w-6xl mx-auto px-5 pb-14">
+            {/* Frosted glass card */}
+            <div className="w-full max-w-[500px] bg-white/88 backdrop-blur-xl rounded-3xl p-9 shadow-[0_8px_48px_rgba(0,0,0,0.18)]">
+              <h1 className="text-[2.5rem] leading-[1.1] font-bold text-gray-900 tracking-tight mb-4">
+                Give with{" "}
+                <em className="not-italic font-bold" style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}>
+                  Purpose.
+                </em>
+                <br />
+                <em className="not-italic font-bold" style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}>
+                  Transform
+                </em>{" "}
+                lives.
+              </h1>
 
-            <h1 className="text-5xl lg:text-[3.8rem] font-bold tracking-[-0.04em] leading-[1.05] mb-5 text-white">
-              Give with purpose.
-              <br />
-              <span className="text-yellow-400">Transform lives.</span>
-            </h1>
+              <p className="text-[15px] text-gray-500 leading-relaxed mb-7 max-w-[360px]">
+                Your trusted platform for Zakat, Sadaqah, and humanitarian giving.
+              </p>
 
-            <p className="text-lg text-white/55 leading-relaxed max-w-[480px] mb-8">
-              HumanConcern connects compassionate people to verified campaigns that
-              provide education, healthcare, clean water, and hope to communities in need.
-            </p>
-
-            <div className="flex gap-3 flex-wrap mb-7">
-              <Link
-                href="/campaigns"
-                className="px-7 py-3.5 bg-yellow-400 text-black font-semibold text-[15px] rounded-lg hover:bg-yellow-300 hover:-translate-y-0.5 transition-all duration-200 no-underline"
-              >
-                Browse Campaigns
-              </Link>
-              <Link
-                href="/donate"
-                className="px-7 py-3.5 border border-white/10 text-white/75 font-medium text-[15px] rounded-lg hover:text-white hover:bg-white/5 hover:border-white/20 transition-all duration-200 no-underline"
-              >
-                Donate Now
-              </Link>
-            </div>
-
-            <div className="flex gap-5 flex-wrap">
-              {["100% Secure", "Tax-deductible", "Verified causes"].map((t) => (
-                <span key={t} className="text-[13px] text-white/35 font-medium">
-                  ✔ {t}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Visual */}
-          <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-full max-w-[460px] aspect-[4/3] bg-[#161616] border border-white/[0.08] rounded-2xl flex items-center justify-center flex-col gap-2">
-              <span className="text-5xl opacity-20">🌍</span>
-              <p className="text-[13px] text-white/30">Making a global impact</p>
-
-              {/* Float card 1 */}
-              <div className="absolute -top-4 -right-6 bg-[#141414]/90 border border-white/10 backdrop-blur-xl rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-2xl">
-                <span className="text-xl">🎉</span>
-                <div>
-                  <strong className="block text-white text-[13px] font-semibold">Goal reached!</strong>
-                  <p className="text-white/40 text-[11px] m-0">Clean Water Project</p>
-                </div>
+              {/* Buttons */}
+              <div className="flex items-center gap-3 flex-wrap mb-6">
+                <Link
+                  href="/campaigns"
+                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold text-[15px] rounded-full transition-all duration-200 hover:-translate-y-0.5 no-underline shadow-md"
+                >
+                  All campaigns
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-6 py-3 bg-white hover:bg-gray-50 text-gray-800 font-semibold text-[15px] rounded-full border border-gray-200 transition-all duration-200 hover:-translate-y-0.5 no-underline shadow-sm"
+                >
+                  Get started
+                </Link>
               </div>
 
-              {/* Float card 2 */}
-              <div className="absolute -bottom-4 -left-6 bg-[#141414]/90 border border-white/10 backdrop-blur-xl rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-2xl">
-                <span className="text-xl">❤</span>
-                <div>
-                  <strong className="block text-white text-[13px] font-semibold">+128 donors</strong>
-                  <p className="text-white/40 text-[11px] m-0">joined today</p>
-                </div>
+              {/* Trust badges */}
+              <div className="flex items-center gap-5 flex-wrap">
+                {["Secure Payments", "100% Zakat Compliant", "Tax Deductible"].map((label) => (
+                  <span key={label} className="flex items-center gap-1.5 text-[12px] text-gray-500 font-medium">
+                    <span className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center text-[9px]">
+                      ✓
+                    </span>
+                    {label}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Stat bar */}
-        <div className="max-w-6xl mx-auto px-6 border-t border-white/[0.08] grid grid-cols-2 lg:grid-cols-4">
-          {stats.map(({ value, label }, i) => (
-            <div
-              key={label}
-              className={`py-8 px-6 flex flex-col gap-1 ${
-                i < stats.length - 1 ? "border-r border-white/[0.08]" : ""
-              }`}
-            >
-              <span className="text-3xl lg:text-4xl font-extrabold text-yellow-400 tracking-tight leading-none">
-                {value}
-              </span>
-              <span className="text-[13px] text-white/35 font-medium">{label}</span>
-            </div>
-          ))}
+        {/* Watch Video — floating right */}
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block">
+          <button className="group flex items-center gap-3 px-6 py-3.5 rounded-full border-2 border-white text-white font-semibold text-[15px] hover:bg-white/15 transition-all duration-300 backdrop-blur-sm shadow-lg cursor-pointer bg-transparent">
+            Watch Video
+            <span className="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center group-hover:bg-white group-hover:text-gray-900 transition-all duration-300">
+              <svg width="9" height="11" viewBox="0 0 9 11" fill="currentColor">
+                <path d="M0 0l9 5.5-9 5.5V0z" />
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        {/* Decorative avatar dot */}
+        <div className="absolute right-6 top-[40%] hidden lg:flex w-10 h-10 rounded-full bg-yellow-400 items-center justify-center text-sm font-bold text-black shadow-xl">
+          F
         </div>
       </section>
 
@@ -296,50 +261,30 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-end justify-between mb-12 gap-4">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">
-                Active Campaigns
-              </p>
-              <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white m-0">
-                Featured Campaigns
-              </h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">Active Campaigns</p>
+              <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white m-0">Featured Campaigns</h2>
             </div>
-            <Link
-              href="/campaigns"
-              className="shrink-0 px-5 py-2.5 border border-white/10 text-white/70 text-sm font-medium rounded-lg hover:text-white hover:bg-white/5 transition-all no-underline"
-            >
+            <Link href="/campaigns" className="shrink-0 px-5 py-2.5 border border-white/10 text-white/70 text-sm font-medium rounded-lg hover:text-white hover:bg-white/5 transition-all no-underline">
               View All →
             </Link>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {campaigns.map((c) => (
-              <CampaignCard key={c.id} campaign={c} />
-            ))}
+            {campaigns.map((c) => <CampaignCard key={c.id} campaign={c} />)}
           </div>
         </div>
       </section>
 
       {/* ── How It Works ── */}
-      <section className="py-24 bg-[#f51010]" id="how-it-works">
+      <section className="py-24 bg-[#111111]" id="how-it-works">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">
-              Simple Process
-            </p>
-            <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white m-0">
-              How It Works
-            </h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">Simple Process</p>
+            <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white m-0">How It Works</h2>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {steps.map(({ number, title, description }) => (
-              <div
-                key={number}
-                className="p-8 bg-[#0e0e0e] border border-white/[0.08] rounded-2xl"
-              >
-                <div className="text-5xl font-extrabold text-yellow-400/15 tracking-tighter leading-none mb-5">
-                  {number}
-                </div>
+              <div key={number} className="p-8 bg-[#0e0e0e] border border-white/[0.08] rounded-2xl">
+                <div className="text-5xl font-extrabold text-yellow-400/15 tracking-tighter leading-none mb-5">{number}</div>
                 <h3 className="text-lg font-bold text-white tracking-tight mb-3">{title}</h3>
                 <p className="text-[14px] text-white/55 leading-relaxed m-0">{description}</p>
               </div>
@@ -352,35 +297,21 @@ export default function HomePage() {
       <section className="py-24 bg-[#050505] border-y border-white/[0.08]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            {/* Copy */}
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-3">
-                Why HumanConcern
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-3">Why HumanConcern</p>
               <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight mb-4">
-                Turn Awareness
-                <br />
-                into Action
+                Turn Awareness<br />into Action
               </h2>
               <p className="text-[15px] text-white/45 leading-relaxed max-w-sm mb-8">
-                We built a platform where generosity is simple, safe, and traceable — so
-                you can give with full confidence.
+                We built a platform where generosity is simple, safe, and traceable — so you can give with full confidence.
               </p>
-              <Link
-                href="/register"
-                className="inline-flex items-center px-6 py-3 bg-yellow-400 text-black font-semibold text-[15px] rounded-lg hover:bg-yellow-300 hover:-translate-y-0.5 transition-all duration-200 no-underline"
-              >
+              <Link href="/register" className="inline-flex items-center px-6 py-3 bg-yellow-400 text-black font-semibold text-[15px] rounded-lg hover:bg-yellow-300 hover:-translate-y-0.5 transition-all duration-200 no-underline">
                 Start Giving Today
               </Link>
             </div>
-
-            {/* Feature cards */}
             <div className="grid grid-cols-2 gap-4">
               {features.map(({ icon, title, desc }) => (
-                <div
-                  key={title}
-                  className="p-5 bg-[#161616] border border-white/[0.08] rounded-xl hover:border-yellow-400/20 transition-colors duration-200"
-                >
+                <div key={title} className="p-5 bg-[#161616] border border-white/[0.08] rounded-xl hover:border-yellow-400/20 transition-colors duration-200">
                   <span className="text-2xl block mb-3">{icon}</span>
                   <h4 className="text-[14px] font-bold text-white mb-1.5">{title}</h4>
                   <p className="text-[13px] text-white/55 m-0 leading-snug">{desc}</p>
@@ -395,20 +326,12 @@ export default function HomePage() {
       <section className="py-24 bg-[#0e0e0e]" id="ways-to-give">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">
-              Flexible Giving
-            </p>
-            <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white m-0">
-              Ways to Give
-            </h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">Flexible Giving</p>
+            <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white m-0">Ways to Give</h2>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {waysToGive.map(({ icon, title, description }) => (
-              <div
-                key={title}
-                className="p-7 bg-[#161616] border border-white/[0.08] rounded-2xl hover:border-yellow-400/20 hover:-translate-y-1 transition-all duration-250"
-              >
+              <div key={title} className="p-7 bg-[#161616] border border-white/[0.08] rounded-2xl hover:border-yellow-400/20 hover:-translate-y-1 transition-all duration-200">
                 <span className="text-3xl block mb-4">{icon}</span>
                 <h4 className="text-[15px] font-bold text-white tracking-tight mb-2">{title}</h4>
                 <p className="text-[13px] text-white/55 leading-relaxed m-0">{description}</p>
@@ -423,25 +346,16 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 p-10 lg:p-12 bg-gradient-to-br from-yellow-400/[0.06] to-yellow-400/[0.02] border border-yellow-400/15 rounded-2xl">
             <div>
-              <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-3">
-                Ready to Make a Difference?
-              </h2>
+              <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-3">Ready to Make a Difference?</h2>
               <p className="text-[15px] text-white/55 leading-relaxed m-0 max-w-lg">
-                Join thousands of donors changing lives today. Your first donation could
-                be someone's turning point.
+                Join thousands of donors changing lives today. Your first donation could be someone's turning point.
               </p>
             </div>
             <div className="flex gap-3 flex-wrap shrink-0">
-              <Link
-                href="/donate"
-                className="px-7 py-3.5 bg-yellow-400 text-black font-semibold text-[15px] rounded-lg hover:bg-yellow-300 hover:-translate-y-0.5 transition-all no-underline"
-              >
+              <Link href="/donate" className="px-7 py-3.5 bg-yellow-400 text-black font-semibold text-[15px] rounded-lg hover:bg-yellow-300 hover:-translate-y-0.5 transition-all no-underline">
                 Donate Now
               </Link>
-              <Link
-                href="/register"
-                className="px-7 py-3.5 border border-white/10 text-white/75 font-medium text-[15px] rounded-lg hover:text-white hover:bg-white/5 hover:border-white/20 transition-all no-underline"
-              >
+              <Link href="/register" className="px-7 py-3.5 border border-white/10 text-white/75 font-medium text-[15px] rounded-lg hover:text-white hover:bg-white/5 hover:border-white/20 transition-all no-underline">
                 Create Account
               </Link>
             </div>
