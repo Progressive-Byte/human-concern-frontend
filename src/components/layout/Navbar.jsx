@@ -71,11 +71,6 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Avatar */}
-          <div className="hidden md:flex w-8 h-8 rounded-full bg-yellow-400 items-center justify-center text-xs font-bold text-black shrink-0">
-            F
-          </div>
-
           {/* Mobile hamburger */}
           <button
             className="md:hidden ml-auto flex flex-col justify-center gap-[5px] w-8 h-8 bg-transparent border-none cursor-pointer"

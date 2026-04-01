@@ -249,11 +249,6 @@ export default function HomePage() {
             </span>
           </button>
         </div>
-
-        {/* Decorative avatar dot */}
-        <div className="absolute right-6 top-[40%] hidden lg:flex w-10 h-10 rounded-full bg-yellow-400 items-center justify-center text-sm font-bold text-black shadow-xl">
-          F
-        </div>
       </section>
 
       {/* ── Featured Campaigns ── */}
