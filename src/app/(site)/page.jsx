@@ -4,6 +4,7 @@ import { useState } from "react";
 import VideoModal from "@/components/common/VideoModal";
 import { CheckIcon, VideoIcon } from "@/components/common/SvgIcon";
 import Link from "next/link";
+import Activity from "./components/home/Activity";
 
 
 /* ─── Static data ────────────────────────────────── */
@@ -289,6 +290,9 @@ export default function HomePage() {
             </button>
           </div>
         </section>
+
+        {/* Activity */}
+        <Activity />
 
         {/* ── Featured Campaigns ── */}
         <section className="py-24" id="campaigns">
