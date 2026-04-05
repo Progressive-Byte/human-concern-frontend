@@ -163,7 +163,7 @@ function CampaignCard({ campaign }) {
 /* ─── Page ───────────────────────────────────────── */
 export default function HomePage() {
   return (
-    <main className="overflow-hidden bg-[#0e0e0e] text-white">
+    <main className="overflow-hidden text-white">
 
       {/* ── Hero ───────────────────────────────────────
           Fixed header = 52px (notice) + ~88px (navbar pill + padding) = ~140px total.
@@ -172,8 +172,7 @@ export default function HomePage() {
       <section className="relative w-full min-h-screen overflow-hidden">
         {/* Background photo */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/images/hero-bg.jpg')" }}
+          className="absolute inset-0 bg-[url('/images/hero.png')] bg-cover bg-center bg-no-repeat"
           aria-hidden="true"
         />
         {/* Left-side gradient so glass card is readable */}
