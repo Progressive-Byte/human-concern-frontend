@@ -223,7 +223,7 @@ export default function HomePage() {
           aria-hidden="true"
         />
 
-        {/* ── Frosted glass card — left side ── */}
+        {/* ── Frosted glass card — */}
         <div className="absolute inset-0 flex items-center">
           <div className="w-full max-w-[1611px] mt-[-200px] mx-auto">
             <div className="w-full max-w-[652px] bg-[#FFFFFFB2] backdrop-blur-[100px] px-[77px] py-[60px] rounded-3xl">
@@ -269,23 +269,25 @@ export default function HomePage() {
         </div>
 
         {/* ── Watch Video ── */}
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block">
-          <button className="group flex items-center gap-3 pl-5 pr-3 py-2.5 rounded-full bg-white/20 hover:bg-white/30 border border-white/60 hover:border-white backdrop-blur-sm text-white font-semibold text-[15px] transition-all duration-250 shadow-lg cursor-pointer">
+        <div className="absolute left-10/12 top-[250px] hidden lg:block">
+          <button className="group flex items-center gap-3 pl-5 pr-3 py-2.5 rounded-full bg-white/20 hover:bg-white/30 border border-white/60 hover:border-white backdrop-blur-sm text-white font-semibold text-[15px] transition-all duration-300 shadow-lg cursor-pointer rotate-[12deg] hover:rotate-[0deg]">
+            
             Watch Video
-            <span className="w-8 h-8 rounded-full bg-white/25 group-hover:bg-white flex items-center justify-center transition-all duration-250 shrink-0">
+            
+            <span className="w-8 h-8 rounded-full bg-white/25 group-hover:bg-white flex items-center justify-center transition-all duration-300 shrink-0">
               <svg
                 width="10"
                 height="12"
                 viewBox="0 0 10 12"
                 fill="currentColor"
-                className="text-white group-hover:text-gray-900 transition-colors duration-250 translate-x-[1px]"
+                className="text-white group-hover:text-gray-900 transition-colors duration-300 translate-x-[1px]"
               >
                 <path d="M0 0l10 6-10 6V0z" />
               </svg>
             </span>
+            
           </button>
         </div>
-
       </section>
 
       {/* ── Featured Campaigns ── */}
