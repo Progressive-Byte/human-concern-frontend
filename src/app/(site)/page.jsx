@@ -1,4 +1,4 @@
-import { CheckIcon } from "@/components/common/SvgIcon";
+import { CheckIcon, VideoIcon } from "@/components/common/SvgIcon";
 import Link from "next/link";
 
 /* ─── Static data ────────────────────────────────── */
@@ -269,21 +269,13 @@ export default function HomePage() {
         </div>
 
         {/* ── Watch Video ── */}
-        <div className="absolute left-10/12 top-[250px] hidden lg:block">
-          <button className="group flex items-center gap-3 pl-5 pr-3 py-2.5 rounded-full bg-white/20 hover:bg-white/30 border border-white/60 hover:border-white backdrop-blur-sm text-white font-semibold text-[15px] transition-all duration-300 shadow-lg cursor-pointer rotate-[12deg] hover:rotate-[0deg]">
+        <div className="absolute left-9/12 top-[250px] hidden lg:block">
+          <button className="group flex items-center gap-3 px-[20px] py-[15px] rounded-full backdrop-blur-[30px] hover:bg-white/30 border border-white/60 hover:border-white backdrop-blur-sm text-white font-normal text-[26px] transition-all duration-300 shadow-lg cursor-pointer rotate-[12deg] hover:rotate-[0deg]">
             
             Watch Video
             
-            <span className="w-8 h-8 rounded-full bg-white/25 group-hover:bg-white flex items-center justify-center transition-all duration-300 shrink-0">
-              <svg
-                width="10"
-                height="12"
-                viewBox="0 0 10 12"
-                fill="currentColor"
-                className="text-white group-hover:text-gray-900 transition-colors duration-300 translate-x-[1px]"
-              >
-                <path d="M0 0l10 6-10 6V0z" />
-              </svg>
+            <span className="">
+              {VideoIcon}
             </span>
             
           </button>
