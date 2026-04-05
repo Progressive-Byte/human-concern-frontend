@@ -225,19 +225,13 @@ export default function HomePage() {
         {/* ── Frosted glass card — left side ── */}
         <div className="absolute inset-0 flex items-center">
           <div className="w-full max-w-[1611px] mt-[-200px] mx-auto">
-            <div className="w-full max-w-[725px] bg-[#FFFFFFB2] backdrop-blur-[100px] rounded-3xl p-8">
-
-              {/* Headline */}
-              <h1 className="text-[56px] leading-[1.1] font-semibold text-[#383838] pt-8 mb-4 shadow-[0px_4px_25px_0px_rgba(255,255,255,0.25)">
+            <div className="w-full max-w-[652px] bg-[#FFFFFFB2] backdrop-blur-[100px] px-[77px] py-[60px] rounded-3xl">
+              <h1 className="text-[56px] leading-[1.1] font-semibold text-[#383838] [text-shadow:0px_4px_25px_rgba(255,255,255,0.25)]">
                 Give with <span className="font-bold font-playfair italic">Purpose. Transform</span> lives.
               </h1>
-
-              {/* Subtitle */}
-              <p className="text-[14.5px] text-gray-500 leading-relaxed mb-7 max-w-[340px]">
+              <p className="text-[#383838] font-medium py-7 text-2xl [text-shadow:0px_0px_3px_rgba(255,255,255,1)]">
                 Your trusted platform for Zakat, Sadaqah, and humanitarian giving.
               </p>
-
-              {/* Buttons */}
               <div className="flex items-center gap-3 flex-wrap mb-6">
                 <Link
                   href="/campaigns"
