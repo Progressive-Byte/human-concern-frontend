@@ -42,8 +42,6 @@ const Activity = () => {
                     {item.label}
                     </p>
                 </div>
-
-                {/* Icon — pinned to bottom-right */}
                 <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6 w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center opacity-100">
                     {item.icon}
                 </div>
