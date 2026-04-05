@@ -39,7 +39,7 @@ const Activity = () => {
                 <h3 className="text-lg sm:text-xl lg:text-[40px] font-bold text-[#383838]">
                   {item.value}
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-500 font-medium">
+                <p className="text-xs sm:text-sm text-[#737373] font-normal mt-3">
                   {item.label}
                 </p>
               </div>
