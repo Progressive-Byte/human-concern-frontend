@@ -43,13 +43,11 @@ const Activity = () => {
                   {item.label}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl">
+              <div className="mt-5 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center">
                 {item.icon}
               </div>
-
             </div>
           ))}
-
         </div>
       </div>
     </section>
