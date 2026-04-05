@@ -31,3 +31,9 @@
     background: rgba(255, 255, 255, 0.2);
   }
 }
+
+@layer utilities {
+  .font-playfair {
+    font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
+  }
+}

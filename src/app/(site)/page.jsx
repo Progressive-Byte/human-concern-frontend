@@ -211,40 +211,25 @@ export default function HomePage() {
   return (
     <main className="overflow-hidden text-white">
       {/* ── Hero ── */}
-      <section className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden">
-
-        {/* Background photo */}
+      <section className="relative w-full h-[1200px] overflow-hidden">
         <div
           className="absolute inset-0 bg-[url('/images/hero.png')] bg-center bg-cover bg-no-repeat"
           aria-hidden="true"
         />
 
-        {/* Soft left-side vignette so card stays readable */}
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(0,0,0,0.18) 0%, transparent 60%)",
-          }}
+          className="absolute inset-0 pointer-events-none bg-[linear-gradient(90deg, rgba(0,0,0,0.3) 0%, transparent 60%)]"
           aria-hidden="true"
         />
 
-        {/* ── Frosted glass card — left side, vertically centered ── */}
+        {/* ── Frosted glass card — left side ── */}
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full max-w-[1611px] mx-auto px-6">
-            <div className="w-full max-w-[540px] bg-white/78 backdrop-blur-2xl rounded-3xl p-8 shadow-[0_8px_40px_rgba(0,0,0,0.12)]">
+          <div className="w-full max-w-[1611px] mt-[-200px] mx-auto">
+            <div className="w-full max-w-[725px] bg-[#FFFFFFB2] backdrop-blur-[100px] rounded-3xl p-8">
 
               {/* Headline */}
-              <h1 className="text-[2.6rem] leading-[1.1] font-bold text-gray-900 tracking-tight mb-4">
-                Give with{" "}
-                <em style={{ fontFamily: "Georgia,'Times New Roman',serif", fontStyle: "italic" }}>
-                  Purpose.
-                </em>
-                <br />
-                <em style={{ fontFamily: "Georgia,'Times New Roman',serif", fontStyle: "italic" }}>
-                  Transform
-                </em>{" "}
-                lives.
+              <h1 className="text-[56px] leading-[1.1] font-semibold text-[#383838] pt-8 mb-4 shadow-[0px_4px_25px_0px_rgba(255,255,255,0.25)">
+                Give with <span className="font-bold font-playfair italic">Purpose. Transform</span> lives.
               </h1>
 
               {/* Subtitle */}
@@ -288,7 +273,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ── Watch Video — simple pill, right side, vertically centered ── */}
+        {/* ── Watch Video — simple pill, right side ── */}
         <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block">
           <button className="group flex items-center gap-3 pl-5 pr-3 py-2.5 rounded-full bg-white/20 hover:bg-white/30 border border-white/60 hover:border-white backdrop-blur-sm text-white font-semibold text-[15px] transition-all duration-250 shadow-lg cursor-pointer">
             Watch Video
