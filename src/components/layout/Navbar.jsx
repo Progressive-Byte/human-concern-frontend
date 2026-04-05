@@ -20,7 +20,7 @@ export default function Navbar() {
         isHome ? "top-[100px]" : "top-0"
       }`}
     >
-      <div className="max-w-[1411px] mx-auto">
+      <div className="max-w-[1611px] mx-auto">
         {/* Floating pill */}
         <nav className="bg-white/85 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-4 shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
 
