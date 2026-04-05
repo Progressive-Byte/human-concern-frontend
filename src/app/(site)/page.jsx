@@ -1,3 +1,4 @@
+import { CheckIcon } from "@/components/common/SvgIcon";
 import Link from "next/link";
 
 /* ─── Static data ────────────────────────────────── */
@@ -232,16 +233,16 @@ export default function HomePage() {
               <p className="text-[#383838] font-medium py-7 text-2xl [text-shadow:0px_0px_3px_rgba(255,255,255,1)]">
                 Your trusted platform for Zakat, Sadaqah, and humanitarian giving.
               </p>
-              <div className="flex items-center gap-3 flex-wrap mb-6">
+              <div className="flex items-center gap-3 flex-wrap mb-7">
                 <Link
                   href="/campaigns"
-                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold text-[15px] rounded-full transition-all duration-200 hover:-translate-y-0.5 no-underline shadow-md"
+                  className="px-6 py-3 bg-[#EA3335] hover:bg-red-700 text-white font-normal text-[18px] rounded-full transition-all duration-200 hover:-translate-y-0.5"
                 >
                   All campaigns
                 </Link>
                 <Link
                   href="/register"
-                  className="px-6 py-3 bg-white hover:bg-gray-50 text-gray-800 font-semibold text-[15px] rounded-full border border-gray-200 transition-all duration-200 hover:-translate-y-0.5 no-underline shadow-sm"
+                  className="px-6 py-3 text-[#383838] font-normal text-[18px] rounded-full border border-[#383838] transition-all duration-200 hover:-translate-y-0.5"
                 >
                   Get started
                 </Link>
@@ -253,10 +254,10 @@ export default function HomePage() {
                   (label) => (
                     <span
                       key={label}
-                      className="flex items-center gap-1.5 text-[12px] text-gray-500 font-medium"
+                      className="flex items-center gap-1.5 text-[14px] text-[#383838] font-medium"
                     >
-                      <span className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center text-[9px] shrink-0">
-                        ✓
+                      <span className="">
+                        {CheckIcon}
                       </span>
                       {label}
                     </span>
@@ -267,7 +268,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ── Watch Video — simple pill, right side ── */}
+        {/* ── Watch Video ── */}
         <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block">
           <button className="group flex items-center gap-3 pl-5 pr-3 py-2.5 rounded-full bg-white/20 hover:bg-white/30 border border-white/60 hover:border-white backdrop-blur-sm text-white font-semibold text-[15px] transition-all duration-250 shadow-lg cursor-pointer">
             Watch Video
