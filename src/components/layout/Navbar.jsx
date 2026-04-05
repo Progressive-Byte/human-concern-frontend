@@ -34,9 +34,9 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`px-4 py-1.5 text-sm font-medium rounded-full no-underline transition-all duration-200 ${
+                className={`px-4 py-1.5 text-lg font-normal rounded-full no-underline transition-all duration-200 ${
                   pathname === href
-                    ? "text-gray-900 bg-gray-100"
+                    ? "text-[#383838] bg-gray-100"
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
@@ -49,7 +49,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-2 ml-3">
             <Link
               href="/login"
-              className="px-5 py-2 text-sm font-semibold text-white bg-gray-900 hover:bg-gray-700 rounded-full transition-all duration-200 no-underline"
+              className="px-6 py-2 text-lg font-normal text-white bg-[#383838] hover:bg-gray-700 rounded-full transition-all duration-200 no-underline"
             >
               Sign In
             </Link>
