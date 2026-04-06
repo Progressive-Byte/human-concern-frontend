@@ -7,15 +7,6 @@ import Link from "next/link";
 import Activity from "./components/home/Activity";
 import HighlightCampaigns from "./components/home/HighlightCampaigns";
 
-
-/* ─── Static data ────────────────────────────────── */
-const stats = [
-  { value: "$1.4M", label: "Raised to Date" },
-  { value: "15K+", label: "Active Donors" },
-  { value: "40", label: "Countries Reached" },
-  { value: "2500+", label: "Lives Changed" },
-];
-
 const steps = [
   {
     number: "01",
