@@ -45,9 +45,12 @@ const HighlightCampaigns = () => {
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex items-end justify-between mb-12 gap-4">
           <div>
-            <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white m-0">
+            <h2 className="text-2xl lg:text-3xl font-bold text-[#1A1A1A] m-0">
               Featured Campaigns
             </h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">
+                Active Campaigns
+            </p>
           </div>
           <Link
             href="/campaigns"
