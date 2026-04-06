@@ -7,7 +7,6 @@ const CampaignCard = ({ campaign }) => {
 
   return (
     <div className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-      {/* Image */}
       <div className="relative h-[220px] overflow-hidden">
         <Image
           src={`/images/campaign-${campaign.id}.png`}
