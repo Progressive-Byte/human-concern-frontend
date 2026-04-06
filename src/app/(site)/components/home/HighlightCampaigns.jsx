@@ -42,27 +42,31 @@ const HighlightCampaigns = () => {
   ];
 
   return (
-    <section className="py-20 bg-[#F8F9FA]" id="campaigns">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-end justify-between mb-10">
+    <section className="py-[130px] bg-[#F6F6F6]" id="campaigns">
+      <div className="max-w-[1450px] mx-auto px-4 sm:px-6 lg:px-2">
+        <div className="flex items-end justify-between mb-12 gap-4">
           <div>
-            <span className="text-emerald-600 font-semibold text-sm tracking-widest">FEATURED</span>
-            <h2 className="text-4xl font-bold text-gray-900 mt-1">Featured Campaigns</h2>
-            <p className="text-gray-600 mt-2">Support causes that matter. Every donation makes a difference.</p>
+            <h2 className="text-2xl lg:text-3xl font-bold text-[#1A1A1A] m-0">
+              Featured Campaigns
+            </h2>
+              <p className="text-[11px] md:text-[16px] font-normal mt-[10px] text-[#737373]">
+                Support causes that matter. Every donation makes a difference.
+            </p>
           </div>
-
           <Link
             href="/campaigns"
-            className="text-gray-700 hover:text-black font-medium flex items-center gap-2 group"
+            className="group inline-flex items-center gap-2 bg-white text-[#383838] text-sm md:text-lg font-normal rounded-full px-5 py-3 transition-all duration-300 whitespace-nowrap hover:-translate-y-0.5 hover:bg-gray-50 active:translate-y-0"
           >
             View All Campaigns
-            <span className="group-hover:translate-x-1 transition">→</span>
+
+            <span className="flex items-center transition-transform duration-300 group-hover:translate-x-1">
+              {arrowIcon}
+            </span>
           </Link>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {campaigns.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {campaigns.map((c) => (
+            <CampaignCard key={c.id} campaign={c} />
           ))}
         </div>
       </div>
