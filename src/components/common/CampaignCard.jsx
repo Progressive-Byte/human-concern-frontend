@@ -10,7 +10,7 @@ const CampaignCard = ({ campaign }) => {
       {/* Image */}
       <div className="relative h-[220px] overflow-hidden">
         <Image
-          src={`/images-campaign-${campaign.id}.png`}
+          src={`/images/campaign-${campaign.id}.png`}
           alt={campaign.title}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
