@@ -9,7 +9,7 @@ const CampaignCard = ({ campaign }) => {
 
   return (
     <div className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1 mt-10 sm:mt-[57px]">
-      <div className="relative h-[220px] overflow-hidden">
+      <div className="relative h-[303px] overflow-hidden">
         <Image
           src={`/images/campaign-${campaign.id}.png`}
           alt={campaign.title}
@@ -30,28 +30,33 @@ const CampaignCard = ({ campaign }) => {
             ZAKAT ELIGIBLE
           </div>
         </div>
-
-        {/* Organization */}
-        <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-md px-3 py-1 rounded-xl flex items-center gap-2 text-sm">
-          <div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center text-white text-xs">✕</div>
-          <span className="font-semibold text-gray-800">MTWA LTD. Ca</span>
+      </div>
+      <div className="px-5 py-3 rounded-xl flex items-center text-sm gap-2">
+        <div className="w-[82px] h-[28px] rounded-full flex items-center justify-center text-white text-xs relative">
+          <Image
+            src="/images/organization.png"
+            alt="flag"
+            fill
+            className="object-contain"
+          />
         </div>
+        <span className="font-normal text-lg text-[#383838]">MTWA LTD. Ca</span>
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        <h3 className="font-bold text-[17px] leading-tight text-gray-900 mb-2 line-clamp-2">
+      <div className="px-5 pt-3">
+        <h3 className="font-semibold text-[26px] text-[#383838]">
           {campaign.title}
         </h3>
 
-        <p className="text-gray-600 text-[14.5px] leading-relaxed line-clamp-2 mb-5">
+        <p className="text-[#383838] pt-2 font-normal text-[15px] leading-relaxed">
           {campaign.description}
         </p>
 
-        <div className="mb-4">
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div className="mt-3">
+          <div className="h-[13px] bg-[#DDFFB4] rounded-full overflow-hidden">
             <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+              className="h-full bg-[#055A46] rounded-full transition-all duration-300"
               style={{ width: `${pct}%` }}
             />
           </div>

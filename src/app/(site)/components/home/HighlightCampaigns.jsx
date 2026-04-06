@@ -10,7 +10,7 @@ const HighlightCampaigns = () => {
       id: 1,
       category: "Emergency",
       title: "Ramadan Food Distribution",
-      description: "Urgent aid for families. Providing shelter, medical supplies, and food.",
+      description: "Urgent aid for earthquake victims. Providing shelter, medical supplies, and food to affected families.",
       raised: 45000,
       goal: 200000,
       donors: 1205,
