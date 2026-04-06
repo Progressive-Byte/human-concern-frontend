@@ -171,7 +171,7 @@ export default function HomePage() {
         {/* Activity */}
         <Activity />
 
-        {/* ── Featured Campaigns ── */}
+        {/* Featured Campaigns */}
         <HighlightCampaigns />
 
         {/* ── How It Works ── */}

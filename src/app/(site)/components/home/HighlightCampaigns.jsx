@@ -41,13 +41,10 @@ const HighlightCampaigns = () => {
   ];
 
   return (
-    <section className="py-24" id="campaigns">
+    <section className="py-[130px] bg-[#F6F6F6]" id="campaigns">
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex items-end justify-between mb-12 gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">
-              Active Campaigns
-            </p>
             <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white m-0">
               Featured Campaigns
             </h2>
