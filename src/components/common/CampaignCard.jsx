@@ -50,7 +50,7 @@ const CampaignCard = ({ campaign }) => {
           {campaign.title}
         </h3>
 
-        <p className="text-[#383838] pt-2 font-normal text-[15px] leading-relaxed">
+        <p className="text-[#383838] pt-2 font-normal text-[15px]">
           {campaign.description}
         </p>
 
@@ -80,15 +80,15 @@ const CampaignCard = ({ campaign }) => {
             <div className="font-bold text-[#383838] text-4xl">
               ${campaign.raised.toLocaleString()}
             </div>
-            <div className="text-gray-400 text-xs mt-4">
+            <div className="text-[#383838] pt-2 font-normal text-[15px]">
               raised of ${campaign.goal.toLocaleString()}
             </div>
           </div>
           <div className="flex items-center justify-between text-sm">
             <Link
-              href={`/campaigns/${campaign.id}`}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2.5 rounded-2xl text-sm transition-all active:scale-95"
-            >
+                href={`/campaigns/${campaign.id}`}
+                className="bg-[#F6F6F6] hover:bg-[#383838] border border-[#00000033] text-[#383838] hover:text-white font-semibold px-6 py-5 rounded-[18px] text-[18px] transition-all duration-300 active:scale-95"
+              >
               Donate Now
             </Link>
         </div>
