@@ -27,7 +27,6 @@ const SharedLove = () => {
             />
           </div>
 
-          {/* love-5 — top-right short landscape */}
           <div
             className="w-[381px] h-[323px] relative rounded-2xl overflow-hidden col-[1] row-[10/21] mt-[15px] ml-[-15px]"
           >
@@ -39,9 +38,6 @@ const SharedLove = () => {
               className="object-cover"
             />
           </div>
-
-          {/* love-2 — second column tall portrait
-              starts at row 3 (offset lower than love-1) */}
           <div
             className="relative h-[312px] w-[452px] rounded-2xl overflow-hidden col-[2] row-[3/15]"
           >
@@ -53,22 +49,17 @@ const SharedLove = () => {
               className="object-cover"
             />
           </div>
-
-          {/* love-6 — below love-2, no gap */}
           <div
-            className="w-[381px] h-[323px] relative rounded-2xl overflow-hidden col-[2] row-[16/21] mt-[-15px]"
+            className="w-[344px] h-[242px] relative rounded-2xl overflow-hidden col-[2] row-[16/21] mt-[-15px]"
           >
             <Image
-              src="/images/love-6.png"
-              alt="Shared love 6"
+              src="/images/love-7.png"
+              alt="Shared love 7"
               fill
               sizes="18vw"
               className="object-cover"
             />
           </div>
-
-          {/* love-7 — CENTER FEATURED with blue border + like counter
-              starts at row 6 — big empty space above it is intentional */}
           <div
             className="relative w-[295px] h-[392px] rounded-2xl overflow-hidden col-[3] row-[6/19]"
           >
@@ -80,8 +71,6 @@ const SharedLove = () => {
               className="object-cover"
             />
           </div>
-
-          {/* love-3 — top of fourth column, landscape */}
           <div
             className="relative w-[290px] h-[348px] rounded-2xl overflow-hidden col-[4] row-[1/9]"
           >
@@ -96,7 +85,7 @@ const SharedLove = () => {
 
           {/* love-8 — middle fourth column, small square */}
           <div
-            className="relative rounded-2xl overflow-hidden col-[4] row-[10/15]"
+            className="w-[178px] h-[242px] relative rounded-2xl overflow-hidden col-[4] row-[10/15]"
           >
             <Image
               src="/images/love-8.png"
@@ -106,8 +95,6 @@ const SharedLove = () => {
               className="object-cover"
             />
           </div>
-
-          {/* love-9 — bottom fourth column */}
           <div
             className="relative rounded-2xl overflow-hidden col-[4] row-[16/21]"
           >
@@ -119,8 +106,6 @@ const SharedLove = () => {
               className="object-cover"
             />
           </div>
-
-          {/* love-4 — far right, very tall, starts from top */}
           <div
             className="relative w-[425px] h-[433px] rounded-2xl overflow-hidden col-[5] row-[1/19] mr-[-15px]"
           >
