@@ -16,7 +16,6 @@ const SharedLove = () => {
           </h2>
         </div>
         <div className="grid grid-cols-[1fr_2fr_1.5fr_1.6fr_0.9fr] grid-rows-[repeat(20,_26px)] gap-4">
-        {/* <div className="grid gap-4"> */}
           <div className="relative w-[290px] h-[382px] rounded-r-2xl overflow-hidden col-[1] row-[1/10]">
             <Image
               src="/images/love-1.png"
