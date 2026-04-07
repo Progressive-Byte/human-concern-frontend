@@ -4,7 +4,7 @@ import React from "react";
 const SharedLove = () => {
   return (
     <section className="py-16 sm:py-20 lg:py-[116px] bg-white" id="shared-love">
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-1 ">
+      <div className="w-full mx-auto px-2 lg:px-0 ">
 
         {/* Heading */}
         <div className="text-center mb-10 sm:mb-14">
@@ -15,114 +15,123 @@ const SharedLove = () => {
             #Sharedlove
           </h2>
         </div>
-        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-3 sm:gap-4">
-            {/* Image 1 - Short landscape */}
-            <div className="mb-3 sm:mb-4 break-inside-avoid">
-                <div className="relative rounded-3xl overflow-hidden aspect-[4/3]">
-                    <Image
-                    src="/images/love-1.png"
-                    alt="Shared love 1"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            </div>
+        <div className="grid grid-cols-[1fr_2fr_1.5fr_1.6fr_0.9fr] grid-rows-[repeat(20,_26px)] gap-4">
+          {/* love-1 — top-left short landscape */}
+          <div className="relative w-[274px] h-[382px] rounded-2xl overflow-hidden col-[1] row-[1/10] ml-[-15px]">
+            <Image
+              src="/images/love-1.png"
+              alt="Shared love 1"
+              fill
+              sizes="10vw"
+              className="object-cover"
+            />
+          </div>
 
-            {/* Image 2 - Tall portrait */}
-            <div className="mb-3 sm:mb-4 break-inside-avoid">
-                <div className="relative rounded-3xl overflow-hidden aspect-[3/4]">
-                    <Image
-                    src="/images/love-2.png"
-                    alt="Shared love 2"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            </div>
+          {/* love-5 — top-right short landscape */}
+          <div
+            className="w-[381px] h-[323px] relative rounded-2xl overflow-hidden col-[1] row-[10/21] mt-[15px] ml-[-15px]"
+          >
+            <Image
+              src="/images/love-6.png"
+              alt="Shared love 6"
+              fill
+              sizes="10vw"
+              className="object-cover"
+            />
+          </div>
 
-            {/* Image 3 - Landscape */}
-            <div className="mb-3 sm:mb-4 break-inside-avoid">
-                <div className="relative rounded-3xl overflow-hidden aspect-video">
-                    <Image
-                    src="/images/love-3.png"
-                    alt="Shared love 3"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            </div>
+          {/* love-2 — second column tall portrait
+              starts at row 3 (offset lower than love-1) */}
+          <div
+            className="relative h-[312px] w-[452px] rounded-2xl overflow-hidden col-[2] row-[3/15]"
+          >
+            <Image
+              src="/images/love-2.png"
+              alt="Shared love 2"
+              fill
+              sizes="18vw"
+              className="object-cover"
+            />
+          </div>
 
-            {/* Image 4 - Very tall portrait (right side in screenshot) */}
-            <div className="mb-3 sm:mb-4 break-inside-avoid">
-                <div className="relative rounded-3xl overflow-hidden aspect-[2/3]">
-                    <Image
-                    src="/images/love-4.png"
-                    alt="Shared love 4"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            </div>
+          {/* love-6 — below love-2, no gap */}
+          <div
+            className="w-[381px] h-[323px] relative rounded-2xl overflow-hidden col-[2] row-[16/21] mt-[-15px]"
+          >
+            <Image
+              src="/images/love-6.png"
+              alt="Shared love 6"
+              fill
+              sizes="18vw"
+              className="object-cover"
+            />
+          </div>
 
-            {/* Image 5 - Short */}
-            <div className="mb-3 sm:mb-4 break-inside-avoid">
-                <div className="relative rounded-3xl overflow-hidden aspect-square">
-                    <Image
-                    src="/images/love-5.png"
-                    alt="Shared love 5"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            </div>
+          {/* love-7 — CENTER FEATURED with blue border + like counter
+              starts at row 6 — big empty space above it is intentional */}
+          <div
+            className="relative w-[295px] h-[392px] rounded-2xl overflow-hidden col-[3] row-[6/19]"
+          >
+            <Image
+              src="/images/love-3.png"
+              alt="Shared love 3"
+              fill
+              sizes="14vw"
+              className="object-cover"
+            />
+          </div>
 
-            {/* Image 6 */}
-            <div className="mb-3 sm:mb-4 break-inside-avoid">
-                <div className="relative rounded-3xl overflow-hidden aspect-[5/4]">
-                    <Image
-                    src="/images/love-6.png"
-                    alt="Shared love 6"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            </div>
+          {/* love-3 — top of fourth column, landscape */}
+          <div
+            className="relative w-[290px] h-[348px] rounded-2xl overflow-hidden col-[4] row-[1/9]"
+          >
+            <Image
+              src="/images/love-4.png"
+              alt="Shared love 4"
+              fill
+              sizes="15vw"
+              className="object-cover"
+            />
+          </div>
 
-            {/* Image 7 - Center featured style (you can add overlay if needed) */}
-            <div className="mb-3 sm:mb-4 break-inside-avoid">
-                <div className="relative rounded-3xl overflow-hidden aspect-[4/5]">
-                    <Image
-                    src="/images/love-7.png"
-                    alt="Shared love 7"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            </div>
+          {/* love-8 — middle fourth column, small square */}
+          <div
+            className="relative rounded-2xl overflow-hidden col-[4] row-[10/15]"
+          >
+            <Image
+              src="/images/love-8.png"
+              alt="Shared love 8"
+              fill
+              sizes="15vw"
+              className="object-cover"
+            />
+          </div>
 
-            {/* Image 8 - Small square */}
-            <div className="mb-3 sm:mb-4 break-inside-avoid">
-                <div className="relative rounded-3xl overflow-hidden aspect-square">
-                    <Image
-                    src="/images/love-8.png"
-                    alt="Shared love 8"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            </div>
+          {/* love-9 — bottom fourth column */}
+          <div
+            className="relative rounded-2xl overflow-hidden col-[4] row-[16/21]"
+          >
+            <Image
+              src="/images/love-9.png"
+              alt="Shared love 9"
+              fill
+              sizes="15vw"
+              className="object-cover"
+            />
+          </div>
 
-            {/* Image 9 */}
-            <div className="mb-3 sm:mb-4 break-inside-avoid">
-                <div className="relative rounded-3xl overflow-hidden aspect-[3/2]">
-                    <Image
-                    src="/images/love-9.png"
-                    alt="Shared love 9"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            </div>
+          {/* love-4 — far right, very tall, starts from top */}
+          <div
+            className="relative w-[425px] h-[433px] rounded-2xl overflow-hidden col-[5] row-[1/19] mr-[-15px]"
+          >
+            <Image
+              src="/images/love-5.png"
+              alt="Shared love 5"
+              fill
+              sizes="17vw"
+              className="object-cover"
+            />
+          </div>
         </div>
       </div>
     </section>
