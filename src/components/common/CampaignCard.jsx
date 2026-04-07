@@ -9,7 +9,7 @@ const CampaignCard = ({ campaign }) => {
   const isEmergency = campaign.category.toLowerCase().includes("emergency");
 
   return (
-    <div className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1 mt-10 sm:mt-[57px]">
+    <div className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1 mt-10 lg:mt-[57px] md:mt-[30px]">
       <div className="relative h-[303px] overflow-hidden">
         <Image
           src={`/images/campaign-${campaign.id}.png`}
@@ -75,23 +75,21 @@ const CampaignCard = ({ campaign }) => {
             {pct}%
           </div>
         </div>
-        <div className="flex justify-between items-center text-sm mt-7 mb-[18px]">
+        <div className="flex md:flex-row flex-col justify-between items-center mt-7 mb-[18px]">
           <div>
-            <div className="font-bold text-[#383838] text-4xl">
+            <div className="font-bold text-[#383838] xl:text-4xl md:text-3xl text-4xl">
               ${campaign.raised.toLocaleString()}
             </div>
             <div className="text-[#383838] pt-2 font-normal text-[15px]">
               raised of ${campaign.goal.toLocaleString()}
             </div>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <Link
-                href={`/campaigns/${campaign.id}`}
-                className="bg-[#F6F6F6] hover:bg-[#383838] border border-[#00000033] text-[#383838] hover:text-white font-semibold px-6 py-5 rounded-[18px] text-[18px] transition-all duration-300 active:scale-95"
-              >
-              Donate Now
-            </Link>
-        </div>
+          <Link
+              href={`/campaigns/${campaign.id}`}
+              className="w-full md:w-auto text-center bg-[#F6F6F6] hover:bg-[#383838] border border-[#00000033] text-[#383838] hover:text-white font-semibold xl:px-6 md:px-3 md:py-3 px-6 py-4 xl:py-5 rounded-[18px] text-[18px] transition-all duration-300 active:scale-95"
+            >
+            Donate Now
+          </Link>
         </div>
       </div>
     </div>
