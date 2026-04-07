@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 const CampaignCard = ({ campaign }) => {
+
   const pct = Math.min(100, Math.round((campaign.raised / campaign.goal) * 100));
 
   // Check if campaign is Emergency
@@ -61,8 +62,20 @@ const CampaignCard = ({ campaign }) => {
             />
           </div>
         </div>
-
-        <div className="flex justify-between items-center text-sm mb-5">
+        <div className="flex items-center justify-between gap-2 text-[#383838] mt-2">
+          <div className="flex items-center gap-2 text-[13px] font-normal">
+            <Image src="/images/donars.png" alt="donor" width={15} height={15} />
+            {campaign.donors} donors
+            <Image src="/images/calander.png" alt="calander" width={15} height={15} />
+              {campaign.daysLeft > 0 && (
+                <div>{campaign.daysLeft} days left</div>
+              )}
+          </div>
+          <div className="text-[#AEAEAE] font-semibold text-[15px]">
+            {pct}%
+          </div>
+        </div>
+        <div className="flex justify-between items-center text-sm mt-7">
           <div>
             <span className="font-semibold text-gray-900">
               ${campaign.raised.toLocaleString()}
@@ -71,25 +84,14 @@ const CampaignCard = ({ campaign }) => {
               raised of ${campaign.goal.toLocaleString()}
             </span>
           </div>
-          <div className="text-emerald-600 font-semibold text-xs">
-            {pct}% FUNDED
-          </div>
+          <div className="flex items-center justify-between text-sm">
+            <Link
+              href={`/campaigns/${campaign.id}`}
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2.5 rounded-2xl text-sm transition-all active:scale-95"
+            >
+              Donate Now
+            </Link>
         </div>
-
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-4 text-gray-500">
-            <div>👥 {campaign.donors} donors</div>
-            {campaign.daysLeft > 0 && (
-              <div>⏳ {campaign.daysLeft} days left</div>
-            )}
-          </div>
-
-          <Link
-            href={`/campaigns/${campaign.id}`}
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2.5 rounded-2xl text-sm transition-all active:scale-95"
-          >
-            Donate Now
-          </Link>
         </div>
       </div>
     </div>
