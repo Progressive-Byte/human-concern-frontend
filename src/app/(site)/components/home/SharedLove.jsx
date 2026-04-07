@@ -16,7 +16,7 @@ const SharedLove = () => {
           </h2>
         </div>
         <div className="grid grid-cols-[1fr_2fr_1.5fr_1.6fr_0.9fr] grid-rows-[repeat(20,_26px)] gap-4">
-          {/* love-1 — top-left short landscape */}
+        {/* <div className="grid gap-4"> */}
           <div className="relative w-[274px] h-[382px] rounded-2xl overflow-hidden col-[1] row-[1/10] ml-[-15px]">
             <Image
               src="/images/love-1.png"
@@ -39,7 +39,7 @@ const SharedLove = () => {
             />
           </div>
           <div
-            className="relative h-[312px] w-[452px] rounded-2xl overflow-hidden col-[2] row-[3/15]"
+            className="relative h-[312px] w-[452px] rounded-2xl overflow-hidden col-[2] row-[3/15] ml-[-110px] mt-[-15px]"
           >
             <Image
               src="/images/love-2.png"
@@ -61,7 +61,7 @@ const SharedLove = () => {
             />
           </div>
           <div
-            className="relative w-[295px] h-[392px] rounded-2xl overflow-hidden col-[3] row-[6/19]"
+            className="relative w-[295px] h-[392px] rounded-2xl overflow-hidden col-[3] row-[5/19] ml-[-75px]"
           >
             <Image
               src="/images/love-3.png"
@@ -72,7 +72,7 @@ const SharedLove = () => {
             />
           </div>
           <div
-            className="relative w-[290px] h-[348px] rounded-2xl overflow-hidden col-[4] row-[1/9]"
+            className="relative w-[290px] h-[348px] rounded-2xl overflow-hidden col-[4] row-[3/9] ml-[-96px]"
           >
             <Image
               src="/images/love-4.png"
@@ -107,7 +107,7 @@ const SharedLove = () => {
             />
           </div>
           <div
-            className="relative w-[425px] h-[433px] rounded-2xl overflow-hidden col-[5] row-[1/19] mr-[-15px]"
+            className="relative w-[425px] h-[433px] rounded-2xl overflow-hidden col-[5] row-[1/19]"
           >
             <Image
               src="/images/love-5.png"
