@@ -16,7 +16,6 @@ const SharedLove = () => {
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-[1fr_2fr_1.5fr_1.6fr_0.9fr] lg:grid-rows-[repeat(20,_26px)] gap-4" >
-
             <div className="relative w-full lg:w-[290px] h-[250px] lg:h-[382px] rounded-2xl lg:rounded-none lg:rounded-r-2xl overflow-hidden lg:col-[1] lg:row-[1/10]">
                 <Image src="/images/love-1.png" alt="" fill className="object-cover" />
             </div>
