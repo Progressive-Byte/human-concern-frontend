@@ -75,14 +75,14 @@ const CampaignCard = ({ campaign }) => {
             {pct}%
           </div>
         </div>
-        <div className="flex justify-between items-center text-sm mt-7">
+        <div className="flex justify-between items-center text-sm mt-7 mb-[18px]">
           <div>
-            <span className="font-semibold text-gray-900">
+            <div className="font-bold text-[#383838] text-4xl">
               ${campaign.raised.toLocaleString()}
-            </span>
-            <span className="text-gray-400 text-xs ml-1">
+            </div>
+            <div className="text-gray-400 text-xs mt-4">
               raised of ${campaign.goal.toLocaleString()}
-            </span>
+            </div>
           </div>
           <div className="flex items-center justify-between text-sm">
             <Link
