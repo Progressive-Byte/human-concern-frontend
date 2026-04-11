@@ -30,15 +30,10 @@ const steps = [
 ];
 
   return (
-    <section className="pt-[60px] pb-[80px] 
-      sm:pt-[80px] sm:pb-[100px] 
-      lg:pt-[140px] lg:pb-[170px] 
-      bg-[url('/images/bg/how-it-works.png')] bg-cover bg-center"
+    <section className="pt-[60px] pb-[80px] sm:pt-[80px] sm:pb-[100px] lg:pt-[140px] lg:pb-[170px] bg-[url('/images/bg/how-it-works.png')] bg-cover bg-center"
       id="how-it-works"
     >
       <div className="max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-0">
-        
-        {/* Header */}
         <div className="text-center mb-10 sm:mb-14">
           <h2 className="text-2xl sm:text-3xl lg:text-[40px] font-bold text-white">
             How It Works
@@ -47,17 +42,11 @@ const steps = [
             Simple, secure, and transparent donation process
           </p>
         </div>
-
-        {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-[18px]">
           {steps.map(({ signUpText, title, description, bg, responsiveBg }) => (
             <div
               key={signUpText}
-              className="group relative bg-cover bg-center bg-no-repeat 
-                        rounded-2xl overflow-hidden h-full
-                        px-5 py-6 
-                        sm:px-6 sm:py-8 
-                        lg:px-[57px] lg:py-[42px]"
+              className="group relative bg-cover bg-center bg-no-repeat rounded-2xl overflow-hidden h-full px-5 py-6 sm:px-6 sm:py-8 lg:px-[57px] lg:py-[42px]"
             >
               {/* Mobile BG */}
               <div
@@ -89,7 +78,6 @@ const steps = [
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );
