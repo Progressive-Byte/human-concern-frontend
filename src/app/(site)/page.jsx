@@ -9,27 +9,6 @@ import HighlightCampaigns from "./components/home/HighlightCampaigns";
 import SharedLove from "./components/home/SharedLove";
 import HowItWorks from "./components/home/HowItWorks";
 
-const steps = [
-  {
-    number: "01",
-    title: "Discover the Need",
-    description:
-      "Browse verified campaigns curated by our team. Every cause is vetted for transparency and real-world impact.",
-  },
-  {
-    number: "02",
-    title: "Choose Your Cause",
-    description:
-      "Select a campaign that resonates with your values — from education and healthcare to clean water and shelter.",
-  },
-  {
-    number: "03",
-    title: "Track Your Impact",
-    description:
-      "Receive updates directly from campaign organizers and see exactly how your donation is making a difference.",
-  },
-];
-
 const features = [
   {
     icon: "🛡",
@@ -180,7 +159,7 @@ export default function HomePage() {
         <SharedLove />
 
         {/* ── How It Works ── */}
-        <HowItWorks steps={steps} />
+        <HowItWorks />
 
         {/* ── Turn Awareness into Action ── */}
         <section className="py-24 bg-[#050505] border-y border-white/[0.08]">
