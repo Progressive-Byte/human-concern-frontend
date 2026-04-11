@@ -4,34 +4,31 @@ const HowItWorks = () => {
 
 const steps = [
   {
-    number: "01",
-    title: "Discover the Need",
-    description:
-      "Browse verified campaigns curated by our team.",
-    bg: "/images/cause-card.png",
-    bgHover: "/images/bg/how-it-works-card-hover.png",
-  },
-  {
-    number: "02",
+    signUpText: "Sign up &",
     title: "Choose Your Cause",
     description:
-      "Select a campaign that resonates with your values.",
-    bg: "/images/security-card.png",
-    bgHover: "/images/bg/how-it-works-card-hover.png",
+      "Select from Zakat, Sadaqah, emergency relief, or specific campaigns that align with your giving goals.",
+    bg: "/images/cause-card.png",
   },
   {
-    number: "03",
+    signUpText: "Sign up or Login to",
+    title: "Donate Securely",
+    description:
+      "SMake one-time or recurring donations with secure payment processing. Set up automated giving schedules.",
+    bg: "/images/security-card.png",
+  },
+  {
+    signUpText: "Login and",
     title: "Track Your Impact",
     description:
-      "Receive updates and track your donation impact.",
+      "Monitor your giving history, see where your donations go, and understand the real impact you're making.",
     bg: "/images/impact-card.png",
-    bgHover: "/images/bg/how-it-works-card-hover.png",
   },
 ];
 
   return (
     <section className="pt-[60px] pb-[80px] sm:pt-[80px] sm:pb-[100px] lg:py-[140px] lg:pb-[170px] bg-[url('/images/bg/how-it-works.png')] bg-cover bg-center" id="how-it-works">
-      <div className="max-w-[1291px] mx-auto px-6">
+      <div className="max-w-[1350px] mx-auto">
         <div className="text-center mb-10 sm:mb-14">
           <h2 className="text-3xl lg:text-[40px] font-bold text-[#FFFFFF] m-0">
             How It Works
@@ -41,29 +38,21 @@ const steps = [
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {steps.map(({ number, title, description, bg, bgHover }) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[18px]">
+          {steps.map(({ signUpText, title, description, bg }) => (
             <div
-              key={number}
+              key={signUpText}
               style={{ backgroundImage: `url(${bg})` }}
-              className="group relative p-8 bg-cover bg-center bg-no-repeat 
-                        flex flex-col items-start justify-between h-full 
-                        border border-white/[0.08] rounded-2xl 
-                        transition-all duration-300 hover:border-yellow-400/30 overflow-hidden"
+              className="group px-[57px] py-[42px] bg-cover bg-center bg-no-repeat h-full rounded-2xl overflow-hidden"
             >
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 
-                          transition duration-300 bg-cover bg-center rounded-2xl"
-                style={{ backgroundImage: `url(${bgHover})` }}
-              />
-              <div className="relative z-10">
-                <div className="text-5xl font-extrabold text-yellow-400/15 tracking-tighter leading-none mb-5">
-                  {number}
+              <div className="">
+                <div className="text-[14px] font-normal text-[#FFFFFF] mb-1">
+                  {signUpText}
                 </div>
-                <h3 className="text-lg font-bold text-white tracking-tight mb-3">
+                <h3 className="text-2xl font-bold text-white mb-3">
                   {title}
                 </h3>
-                <p className="text-[14px] text-white/55 leading-relaxed m-0">
+                <p className="text-[14px] text-[#A5A5A5] leading-relaxed pr-[90px]">
                   {description}
                 </p>
               </div>
