@@ -3,7 +3,7 @@ import React from "react";
 
 const SharedLove = () => {
   return (
-    <section className="py-16 sm:py-20 lg:py-[116px] bg-white" id="shared-love">
+    <section className="pt-16 pb-16 sm:pt-20 sm:pb-20 lg:pt-[116px] lg:pb-[70px] bg-white" id="shared-love">
       <div className="w-full mx-auto px-2 lg:px-0 ">
 
         {/* Heading */}

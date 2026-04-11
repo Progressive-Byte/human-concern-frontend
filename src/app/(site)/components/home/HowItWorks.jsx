@@ -2,7 +2,7 @@ import React from 'react';
 
 const HowItWorks = ({ steps }) => {
   return (
-    <section className="py-24 bg-[#111111]" id="how-it-works">
+    <section className="py-24 bg-[url('/images/bg/how-it-works.png')] bg-cover bg-center" id="how-it-works">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-14">
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">
