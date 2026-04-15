@@ -1,9 +1,11 @@
 import React from 'react'
 
 const WaysToGive = () => {
+
   return (
+
     <section className="py-20 bg-[#F6F6F6]" id="ways-to-give">
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-0">
 
         {/* Header */}
         <div className="text-center mb-12">
