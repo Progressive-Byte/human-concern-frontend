@@ -39,7 +39,7 @@ export default function Footer() {
   return (
     <footer className="-mt-10 relative z-10">
       {/* White card with rounded top corners overlapping CTA */}
-      <div className="bg-white rounded-t-[40px] px-6 sm:px-10 lg:px-20 pt-14 pb-0">
+      <div className="bg-white rounded-t-[100px] px-6 sm:px-10 lg:px-20 pt-14 pb-0">
 
         {/* 3-col grid */}
         <div className="max-w-[1350px] mx-auto">
