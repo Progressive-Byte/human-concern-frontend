@@ -82,16 +82,15 @@ const WaysToGive = () => {
               <img src="/images/food-aid.png" alt="Food Aid" className="w-full object-contain" />
             </div>
           </div>
-
-          {/* CHILD SPONSORSHIP — wide, lg: col-span-2 */}
-          <div className="bg-white rounded-[20px] overflow-hidden flex flex-row items-center sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3">
+          
+          <div className="bg-white rounded-[20px] overflow-hidden flex flex-row items-start sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3">
             <div className="p-7 flex-1">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Child Sponsorship</h4>
-              <p className="text-[13px] text-[#737373]">
+              <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Child Sponsorship</h4>
+              <p className="text-[13px] lg:text-[18px] font-semibold text-[#38383899]">
                 Provide education, healthcare, and daily essentials to transform an orphan's life.
               </p>
             </div>
-            <div className="w-[160px] sm:w-[190px] flex items-end justify-end pr-4 pt-4 shrink-0">
+            <div className="flex-1 flex items-end justify-end pt-4 shrink-0">
               <img src="/images/child-sponsorship.png" alt="Child Sponsorship" className="w-full object-contain" />
             </div>
           </div>
