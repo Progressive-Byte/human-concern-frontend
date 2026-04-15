@@ -1,89 +1,101 @@
 import Link from "next/link";
 
-const footerLinks = {
-  Explore: [
-    { label: "Campaigns", href: "/campaigns" },
-    { label: "Donate", href: "/donate" },
-    { label: "How It Works", href: "/#how-it-works" },
-    { label: "Ways to Give", href: "/#ways-to-give" },
-  ],
-  Account: [
-    { label: "Sign In", href: "/login" },
-    { label: "Register", href: "/register" },
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "My Donations", href: "/dashboard/donations" },
-  ],
-  Company: [
-    { label: "About Us", href: "/about" },
-    { label: "Contact", href: "/contact" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
-  ],
-};
+const contactItems = [
+  { icon: "✉", text: "info@humanconcernusa.org" },
+  { icon: "📞", text: "1-800-583-5841" },
+  { icon: "📍", text: "600 E Carmel Drive Suite 147 Carmel, IN 46032" },
+  { icon: "🪪", text: "Tax Exempt ID: 92-2388570" },
+];
 
-const socials = ["T", "F", "I", "L"];
+const socials = [
+  { label: "WhatsApp", href: "#", icon: "W" },
+  { label: "LinkedIn", href: "#", icon: "in" },
+  { label: "Instagram", href: "#", icon: "IG" },
+  { label: "X", href: "#", icon: "X" },
+  { label: "Facebook", href: "#", icon: "f" },
+  { label: "YouTube", href: "#", icon: "▶" },
+];
 
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#0a0a0a] border-t border-white/[0.07] pt-20 text-sm text-white/60">
-      <div className="max-w-6xl mx-auto px-6 pb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-12">
-        {/* Brand */}
-        <div>
-          <Link href="/" className="flex items-center gap-2 mb-4 no-underline">
-            <span className="text-yellow-400 text-lg">❤</span>
-            <span className="text-white font-bold text-base tracking-tight">
-              Human<span className="text-yellow-400">Concern</span>
-            </span>
-          </Link>
-          <p className="text-white/45 leading-relaxed mb-6 max-w-[280px]">
-            Connecting compassionate donors with causes that change lives around the world.
-          </p>
-          <div className="flex gap-2">
-            {["Twitter", "Facebook", "Instagram", "LinkedIn"].map((s, i) => (
-              <a
-                key={s}
-                href="#"
-                aria-label={s}
-                className="w-[34px] h-[34px] flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-white/60 text-xs font-semibold hover:bg-yellow-400/10 hover:border-yellow-400/30 hover:text-yellow-400 transition-all duration-200"
-              >
-                {socials[i]}
-              </a>
-            ))}
-          </div>
-        </div>
+    <footer className="bg-[#1a0a0a] px-4 sm:px-6 pt-6 pb-0">
+      {/* Main white card */}
+      <div className="max-w-[1350px] mx-auto bg-white rounded-t-[28px] px-8 sm:px-12 lg:px-16 pt-12 pb-10">
 
-        {/* Link groups */}
-        {Object.entries(footerLinks).map(([group, links]) => (
-          <div key={group}>
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/35 mb-5">
-              {group}
+        {/* 3-col grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.4fr_1.6fr_1.6fr] gap-10 lg:gap-8 pb-10 border-b border-[#E8E8E8]">
+
+          {/* Col 1 — Brand */}
+          <div>
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-3 mb-5 no-underline">
+              <div className="w-10 h-10 rounded-full bg-[#CC1F1F] flex items-center justify-center shrink-0">
+                <span className="text-white text-lg font-bold leading-none">✕</span>
+              </div>
+              <span className="text-[#1A1A1A] font-extrabold text-[17px] tracking-tight uppercase leading-tight">
+                Human Concern USA
+              </span>
+            </Link>
+
+            <p className="text-[13px] text-[#555555] leading-relaxed m-0">
+              Fighting poverty for over 40 years.<br />
+              HUMAN CONCERN USA is a<br />
+              501(C)3<br />
+              Tax Exempt Nonprofit.
+            </p>
+          </div>
+
+          {/* Col 2 — Contact Us */}
+          <div>
+            <h3 className="text-[18px] font-bold text-[#1A1A1A] mb-5 tracking-tight">
+              Contact Us
             </h3>
-            <ul className="flex flex-col gap-3 list-none p-0 m-0">
-              {links.map(({ label, href }) => (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    className="text-white/55 no-underline hover:text-yellow-400 transition-colors duration-200"
-                  >
-                    {label}
-                  </Link>
+            <ul className="flex flex-col gap-3.5 list-none p-0 m-0">
+              {contactItems.map(({ icon, text }) => (
+                <li key={text} className="flex items-start gap-3">
+                  <span className="text-[#CC1F1F] text-[15px] mt-0.5 shrink-0">{icon}</span>
+                  <span className="text-[13px] text-[#444444] leading-snug">{text}</span>
                 </li>
               ))}
             </ul>
           </div>
-        ))}
-      </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-white/[0.06]">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[13px] text-white/30 m-0">
-            © {year} HumanConcern. All rights reserved.
-          </p>
-          <p className="text-[13px] text-white/30 m-0">
-            Making the world better, one donation at a time.
+          {/* Col 3 — Subscribe + Socials */}
+          <div className="flex flex-col">
+            {/* Email input */}
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="w-full border border-[#E0E0E0] rounded-xl px-4 py-3 text-[13px] text-[#1A1A1A] placeholder:text-[#AAAAAA] outline-none focus:border-[#CC1F1F] transition-colors duration-200 mb-3"
+            />
+
+            {/* Subscribe button */}
+            <button className="w-full bg-[#2A2A2A] hover:bg-[#1A1A1A] text-white font-semibold text-[14px] rounded-xl py-3.5 transition-colors duration-200">
+              Subscribe
+            </button>
+
+            {/* Social icons */}
+            <div className="flex items-center gap-2.5 mt-6 flex-wrap">
+              {socials.map(({ label, href, icon }) => (
+                
+                <a key={label}
+                  href={href}
+                  aria-label={label}
+                  className="w-9 h-9 rounded-full border-2 border-[#CC1F1F] flex items-center justify-center text-[#CC1F1F] text-[11px] font-bold hover:bg-[#CC1F1F] hover:text-white transition-all duration-200 shrink-0"
+                >
+                  {icon}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright bar */}
+        <div className="pt-6 pb-2 text-center">
+          <p className="text-[13px] text-[#888888] m-0">
+            Copyright © {year} HC USA. All rights reserved.
           </p>
         </div>
       </div>
