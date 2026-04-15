@@ -3,7 +3,7 @@ import React from 'react'
 
 const CtaBanner = () => {
   return (
-    <section className="pt-[130px] pb-[80px] bg-[url('/images/bg/cta-bg2.png')] bg-center bg-cover bg-no-repeat">
+    <section className="pt-[100px] pb-[80px] md:pb-[200px] md:pt-[130px] pb-[80px] bg-[url('/images/bg/cta-bg.png')] bg-center bg-cover bg-no-repeat">
       <div className="max-w-[1350px] mx-auto px-6 md:px-3 xl:px-0">
         <div className="flex flex-col items-center justify-between gap-[50px]">
           <div className="text-center">

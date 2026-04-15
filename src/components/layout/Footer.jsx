@@ -37,7 +37,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="-mt-10 relative z-10">
+    <footer className="-mt-[93px] relative z-10">
       {/* White card with rounded top corners overlapping CTA */}
       <div className="bg-white rounded-t-[100px] px-6 sm:px-10 lg:px-20 pt-14 pb-0">
 
