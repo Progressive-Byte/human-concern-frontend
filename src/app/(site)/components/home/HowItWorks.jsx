@@ -9,7 +9,6 @@ const steps = [
     description:
       "Select from Zakat, Sadaqah, emergency relief, or specific campaigns that align with your giving goals.",
     bg: "/images/cause-card.png",
-    responsiveBg: "/images/responsive-card.png",
   },
   {
     signUpText: "Sign up or Login to",
@@ -17,7 +16,6 @@ const steps = [
     description:
       "SMake one-time or recurring donations with secure payment processing. Set up automated giving schedules.",
     bg: "/images/security-card.png",
-    responsiveBg: "/images/responsive-card.png",
   },
   {
     signUpText: "Login and",
@@ -25,7 +23,6 @@ const steps = [
     description:
       "Monitor your giving history, see where your donations go, and understand the real impact you're making.",
     bg: "/images/impact-card.png",
-    responsiveBg: "/images/responsive-card.png",
   },
 ];
 
@@ -43,22 +40,13 @@ const steps = [
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-[18px]">
-          {steps.map(({ signUpText, title, description, bg, responsiveBg }) => (
+          {steps.map(({ signUpText, title, description, bg }) => (
             <div
               key={signUpText}
               className="group relative bg-cover bg-center bg-no-repeat rounded-2xl overflow-hidden h-full px-5 py-6 sm:px-6 sm:py-8 lg:px-[57px] lg:py-[42px]"
+              style={{ backgroundImage: `url(${bg})` }}
             >
-              {/* Mobile BG */}
-              <div
-                className="absolute inset-0 bg-cover bg-center sm:hidden"
-                style={{ backgroundImage: `url(${responsiveBg})` }}
-              />
-
-              {/* Desktop BG */}
-              <div
-                className="absolute inset-0 bg-cover bg-center hidden sm:block"
-                style={{ backgroundImage: `url(${bg})` }}
-              />
+              <div className="absolute inset-0 bg-transparent md:bg-[#00000033] lg:bg-transparent" />
 
               {/* Content */}
               <div className="relative z-10">
@@ -70,8 +58,7 @@ const steps = [
                   {title}
                 </h3>
 
-                <p className="text-sm text-[#A5A5A5] leading-relaxed 
-                              pr-0 sm:pr-6 lg:pr-[90px]">
+                <p className="text-sm text-[#A5A5A5] leading-relaxed pr-[120px] sm:pr-9 lg:pr-[90px]">
                   {description}
                 </p>
               </div>
