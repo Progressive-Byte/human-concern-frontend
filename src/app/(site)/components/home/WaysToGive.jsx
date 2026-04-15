@@ -42,7 +42,7 @@ const WaysToGive = () => {
         ];
 
   return (
-    <section className="py-24 bg-[#0e0e0e]" id="ways-to-give">
+    <section className="py-24 bg-[#F6F6F6]" id="ways-to-give">
         <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-14">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">
