@@ -4,8 +4,8 @@ const WaysToGive = () => {
 
   return (
 
-    <section className="py-20 bg-[#F6F6F6]" id="ways-to-give">
-        <div className="max-w-[1350px] mx-auto px-6 md:px-3">
+    <section className="lg:py-[130px] md:py-[100px] py-20 bg-[#F6F6F6]" id="ways-to-give">
+        <div className="max-w-[1350px] mx-auto px-6 md:px-3 xl:px-0">
             <div className="text-center mb-12">
                 <h2 className="text-2xl lg:text-[28px] font-bold text-[#1A1A1A] m-0 tracking-tight">
                     Ways to Give
