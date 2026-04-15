@@ -62,18 +62,18 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="w-full border border-[#E2E2E2] rounded-2xl px-4 py-3.5 text-[13px] text-[#1A1A1A] placeholder:text-[#BBBBBB] outline-none focus:border-[#CC1F1F] transition-colors duration-200 mb-3"
+                className="w-full border border-[#DDDDDD] rounded-full px-4 py-3.5 text-[13px] text-[#1A1A1A] placeholder:text-[#BBBBBB] outline-none focus:border-[#CC1F1F] transition-colors duration-200 mb-3"
               />
-              <button className="w-full bg-[#2A2A2A] hover:bg-[#111111] text-white font-semibold text-[15px] rounded-2xl py-3.5 transition-colors duration-200">
+              <button className="w-full bg-[#383838] hover:bg-[#111111] text-white font-semibold text-[16px] rounded-full px-4 py-3.5 transition-colors duration-200 shadow-[0px_6px_18px_0px_#00000047,0px_18px_40px_0px_#00000073] cursor-pointer">
                 Subscribe
               </button>
-              <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+              <div className="flex items-center justify-center gap-[11px] mt-6 flex-wrap">
                 {socials.map(({ label, href, svg }) => (
-                  
-                  <a key={label}
+                  <a
+                    key={label}
                     href={href}
                     aria-label={label}
-                    className="w-9 h-9 flex items-center justify-center text-[#CC1F1F] hover:bg-[#CC1F1F] hover:text-white transition-all duration-200 shrink-0"
+                    className="group w-9 h-9 flex items-center justify-center text-[#E32226] hover:text-black"
                   >
                     {svg}
                   </a>
