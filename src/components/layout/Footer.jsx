@@ -44,21 +44,21 @@ export default function Footer() {
 
             {/* Col 2 — Contact Us */}
             <div className="w-full md:w-1/2 lg:w-[35%]">
-              <h3 className="text-[20px] font-bold text-[#1A1A1A] mb-5 tracking-tight">
+              <h3 className="text-xl md:text-2xl font-bold text-[#383838] mb-5">
                 Contact Us
               </h3>
-              <ul className="flex flex-col gap-4 list-none p-0 m-0">
+              <ul className="flex flex-col gap-[6px] list-none p-0 m-0">
                 {contactItems.map(({ icon, text }, i) => (
                   <li key={i} className="flex items-start gap-2">
                     {icon}
-                    <span className="text-[13px] text-[#444444] leading-snug">{text}</span>
+                    <span className="text-[16px] text-[#383838]">{text}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Col 3 — Subscribe + Socials */}
-            <div className="w-full md:w-full lg:w-[35%]">
+            <div className="w-full content-center md:w-full lg:w-[35%]">
               <input
                 type="email"
                 placeholder="Enter your email"
@@ -67,7 +67,7 @@ export default function Footer() {
               <button className="w-full bg-[#2A2A2A] hover:bg-[#111111] text-white font-semibold text-[15px] rounded-2xl py-3.5 transition-colors duration-200">
                 Subscribe
               </button>
-              <div className="flex items-center gap-2 mt-6 flex-wrap">
+              <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
                 {socials.map(({ label, href, svg }) => (
                   
                   <a key={label}
