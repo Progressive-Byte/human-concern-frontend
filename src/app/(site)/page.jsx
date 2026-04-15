@@ -8,69 +8,7 @@ import Activity from "./components/home/Activity";
 import HighlightCampaigns from "./components/home/HighlightCampaigns";
 import SharedLove from "./components/home/SharedLove";
 import HowItWorks from "./components/home/HowItWorks";
-
-const features = [
-  {
-    icon: "🛡",
-    title: "100% Secure",
-    desc: "Bank-grade encryption on all transactions.",
-  },
-  {
-    icon: "📊",
-    title: "Full Transparency",
-    desc: "See exactly where every dollar goes.",
-  },
-  {
-    icon: "⚡",
-    title: "Instant Receipts",
-    desc: "Tax-deductible receipts in seconds.",
-  },
-  {
-    icon: "🌍",
-    title: "Global Reach",
-    desc: "Support causes in 40+ countries.",
-  },
-];
-
-const waysToGive = [
-  {
-    icon: "💳",
-    title: "One-Time Donation",
-    description:
-      "Make a single contribution to any campaign, big or small — every amount counts.",
-  },
-  {
-    icon: "🔄",
-    title: "Monthly Giving",
-    description:
-      "Become a sustainer. Set up recurring donations and create lasting, consistent change.",
-  },
-  {
-    icon: "🎁",
-    title: "Give in Honor",
-    description:
-      "Celebrate someone special by donating in their name with a beautiful tribute card.",
-  },
-  {
-    icon: "🏢",
-    title: "Corporate Matching",
-    description:
-      "Double your impact. Many employers match employee donations — check if yours does.",
-  },
-  {
-    icon: "📦",
-    title: "In-Kind Goods",
-    description:
-      "Donate goods and supplies directly to campaigns that need physical resources.",
-  },
-  {
-    icon: "🤝",
-    title: "Volunteer",
-    description:
-      "Give your time, skills, and energy. Volunteer with local or remote campaign teams.",
-  },
-];
-
+import WaysToGive from "./components/home/WaysToGive";
 
 /* ─── Page ───────────────────────────────────────── */
 export default function HomePage() {
@@ -161,79 +99,7 @@ export default function HomePage() {
         {/* ── How It Works ── */}
         <HowItWorks />
 
-        {/* ── Turn Awareness into Action ── */}
-        <section className="py-24 bg-[#050505] border-y border-white/[0.08]">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-3">
-                  Why HumanConcern
-                </p>
-                <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight mb-4">
-                  Turn Awareness
-                  <br />
-                  into Action
-                </h2>
-                <p className="text-[15px] text-white/45 leading-relaxed max-w-sm mb-8">
-                  We built a platform where generosity is simple, safe, and
-                  traceable — so you can give with full confidence.
-                </p>
-                <Link
-                  href="/register"
-                  className="inline-flex items-center px-6 py-3 bg-yellow-400 text-black font-semibold text-[15px] rounded-lg hover:bg-yellow-300 hover:-translate-y-0.5 transition-all duration-200 no-underline"
-                >
-                  Start Giving Today
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                {features.map(({ icon, title, desc }) => (
-                  <div
-                    key={title}
-                    className="p-5 bg-[#161616] border border-white/[0.08] rounded-xl hover:border-yellow-400/20 transition-colors duration-200"
-                  >
-                    <span className="text-2xl block mb-3">{icon}</span>
-                    <h4 className="text-[14px] font-bold text-white mb-1.5">
-                      {title}
-                    </h4>
-                    <p className="text-[13px] text-white/55 m-0 leading-snug">
-                      {desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Ways to Give ── */}
-        <section className="py-24 bg-[#0e0e0e]" id="ways-to-give">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-14">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-yellow-400 mb-2">
-                Flexible Giving
-              </p>
-              <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-white m-0">
-                Ways to Give
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {waysToGive.map(({ icon, title, description }) => (
-                <div
-                  key={title}
-                  className="p-7 bg-[#161616] border border-white/[0.08] rounded-2xl hover:border-yellow-400/20 hover:-translate-y-1 transition-all duration-200"
-                >
-                  <span className="text-3xl block mb-4">{icon}</span>
-                  <h4 className="text-[15px] font-bold text-white tracking-tight mb-2">
-                    {title}
-                  </h4>
-                  <p className="text-[13px] text-white/55 leading-relaxed m-0">
-                    {description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <WaysToGive />
 
         {/* ── CTA Banner ── */}
         <section className="py-20 bg-[#111111] border-t border-white/[0.08]">
