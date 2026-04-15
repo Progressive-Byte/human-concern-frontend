@@ -73,13 +73,13 @@ const WaysToGive = () => {
           {/* FOOD AID — tall, lg: col-3 row-span-2 */}
           <div className="bg-white rounded-[20px] overflow-hidden flex flex-col lg:row-span-2 lg:col-start-3 lg:row-start-2">
             <div className="p-6">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Food Aid</h4>
-              <p className="text-[13px] text-[#737373]">
+              <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Food Aid</h4>
+              <p className="text-[13px] lg:text-[18px] mr-[80px] font-semibold text-[#38383899]">
                 Deliver life-saving meals and nutrition packs to families facing hunger and crisis.
               </p>
             </div>
             <div className="flex-1 flex items-center justify-center min-h-[200px] lg:min-h-[260px]">
-              <img src="/images/food-aid.png" alt="Food Aid" className="w-3/4 object-contain" />
+              <img src="/images/food-aid.png" alt="Food Aid" className="w-full object-contain" />
             </div>
           </div>
 
