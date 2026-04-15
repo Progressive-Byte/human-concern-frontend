@@ -19,26 +19,23 @@ const WaysToGive = () => {
         </div>
 
         {/* Bento Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
-          {/* ZAKAT — tall, lg: col-1 row-span-2 */}
-          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-200 sm:row-span-1 lg:row-span-2">
-            <div className="p-6">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A] m-0 mb-1.5 tracking-tight">Zakat</h4>
-              <p className="text-[13px] text-[#737373] leading-relaxed m-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col sm:row-span-1 lg:row-span-2">
+            <div className="p-6 mt-4 ml-1">
+              <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Zakat</h4>
+              <p className="text-[13px] lg:text-[18px] font-semibold text-[#38383899]">
                 Obligatory charity for eligible Muslims. Pay your Zakat to purify your wealth.
               </p>
             </div>
-            <div className="flex-1 flex items-end justify-center min-h-[200px] lg:min-h-[260px]">
-              <img src="/images/zakat.png" alt="Zakat" className="w-4/5 object-contain" />
+            <div className="py-9 flex-1 flex items-end justify-center min-h-[200px] lg:min-h-[260px]">
+              <img src="/images/zakat.png" alt="Zakat" className="w-full object-contain" />
             </div>
           </div>
 
-          {/* SADAQAH — col 2 row 1 */}
-          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-200">
+          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col">
             <div className="p-6">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A] m-0 mb-1.5 tracking-tight">Sadaqah</h4>
-              <p className="text-[13px] text-[#737373] leading-relaxed m-0">
+              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Sadaqah</h4>
+              <p className="text-[13px] text-[#737373]">
                 Voluntary charity that can be given at any time to aid those in need.
               </p>
             </div>
@@ -48,10 +45,10 @@ const WaysToGive = () => {
           </div>
 
           {/* EMERGENCY RELIEF — col 3 row 1 */}
-          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-200">
+          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col">
             <div className="p-6">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A] m-0 mb-1.5 tracking-tight">Emergency Relief</h4>
-              <p className="text-[13px] text-[#737373] leading-relaxed m-0">
+              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Emergency Relief</h4>
+              <p className="text-[13px] text-[#737373]">
                 Rapid responses and aid to disaster areas to help communities recover.
               </p>
             </div>
@@ -61,10 +58,10 @@ const WaysToGive = () => {
           </div>
 
           {/* WATER AID — col 2 row 2 */}
-          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-200">
+          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col">
             <div className="p-6">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A] m-0 mb-1.5 tracking-tight">Water Aid</h4>
-              <p className="text-[13px] text-[#737373] leading-relaxed m-0">
+              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Water Aid</h4>
+              <p className="text-[13px] text-[#737373]">
                 Build sustainable wells and systems to provide clean, safe water for entire villages.
               </p>
             </div>
@@ -74,10 +71,10 @@ const WaysToGive = () => {
           </div>
 
           {/* FOOD AID — tall, lg: col-3 row-span-2 */}
-          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-200 lg:row-span-2 lg:col-start-3 lg:row-start-2">
+          <div className="bg-white rounded-[20px] overflow-hidden flex flex-col lg:row-span-2 lg:col-start-3 lg:row-start-2">
             <div className="p-6">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A] m-0 mb-1.5 tracking-tight">Food Aid</h4>
-              <p className="text-[13px] text-[#737373] leading-relaxed m-0">
+              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Food Aid</h4>
+              <p className="text-[13px] text-[#737373]">
                 Deliver life-saving meals and nutrition packs to families facing hunger and crisis.
               </p>
             </div>
@@ -87,10 +84,10 @@ const WaysToGive = () => {
           </div>
 
           {/* CHILD SPONSORSHIP — wide, lg: col-span-2 */}
-          <div className="bg-white rounded-[20px] overflow-hidden flex flex-row items-center hover:-translate-y-1 transition-all duration-200 sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3">
+          <div className="bg-white rounded-[20px] overflow-hidden flex flex-row items-center sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3">
             <div className="p-7 flex-1">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A] m-0 mb-1.5 tracking-tight">Child Sponsorship</h4>
-              <p className="text-[13px] text-[#737373] leading-relaxed m-0">
+              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Child Sponsorship</h4>
+              <p className="text-[13px] text-[#737373]">
                 Provide education, healthcare, and daily essentials to transform an orphan's life.
               </p>
             </div>
