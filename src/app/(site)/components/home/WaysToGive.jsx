@@ -34,39 +34,39 @@ const WaysToGive = () => {
 
           <div className="bg-white rounded-[20px] overflow-hidden flex flex-col">
             <div className="p-6">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Sadaqah</h4>
-              <p className="text-[13px] text-[#737373]">
+              <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Sadaqah</h4>
+              <p className="text-[13px] lg:text-[18px] pr-[95px] font-semibold text-[#38383899]">
                 Voluntary charity that can be given at any time to aid those in need.
               </p>
             </div>
             <div className="flex-1 flex items-center justify-center pb-4 min-h-[100px]">
-              <img src="/images/sadaqah.png" alt="Sadaqah" className="w-[70px] object-contain" />
+              <img src="/images/sadaqah.png" alt="Sadaqah" className="w-3/6 object-contain" />
             </div>
           </div>
 
           {/* EMERGENCY RELIEF — col 3 row 1 */}
           <div className="bg-white rounded-[20px] overflow-hidden flex flex-col">
             <div className="p-6">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Emergency Relief</h4>
-              <p className="text-[13px] text-[#737373]">
+              <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Emergency Relief</h4>
+              <p className="text-[13px] lg:text-[18px] pr-[55px] font-semibold text-[#38383899]">
                 Rapid responses and aid to disaster areas to help communities recover.
               </p>
             </div>
             <div className="flex-1 flex items-center justify-center pb-4 min-h-[100px]">
-              <img src="/images/relief.png" alt="Emergency Relief" className="w-[80px] object-contain" />
+              <img src="/images/relief.png" alt="Emergency Relief" className="w-3/6 object-contain" />
             </div>
           </div>
 
           {/* WATER AID — col 2 row 2 */}
           <div className="bg-white rounded-[20px] overflow-hidden flex flex-col">
             <div className="p-6">
-              <h4 className="text-[17px] font-bold text-[#1A1A1A]">Water Aid</h4>
-              <p className="text-[13px] text-[#737373]">
+              <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Water Aid</h4>
+              <p className="text-[13px] lg:text-[18px] font-semibold text-[#38383899]">
                 Build sustainable wells and systems to provide clean, safe water for entire villages.
               </p>
             </div>
-            <div className="flex-1 flex items-center justify-center pb-4 min-h-[100px]">
-              <img src="/images/water-aid.png" alt="Water Aid" className="w-[70px] object-contain" />
+            <div className="flex-1 flex items-center justify-center mt-[70px] min-h-[100px]">
+              <img src="/images/water-aid.png" alt="Water Aid" className="w-3/6 object-contain" />
             </div>
           </div>
 
