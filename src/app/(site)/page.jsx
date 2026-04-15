@@ -9,6 +9,7 @@ import HighlightCampaigns from "./components/home/HighlightCampaigns";
 import SharedLove from "./components/home/SharedLove";
 import HowItWorks from "./components/home/HowItWorks";
 import WaysToGive from "./components/home/WaysToGive";
+import CtaBanner from "./components/home/CtaBanner";
 
 /* ─── Page ───────────────────────────────────────── */
 export default function HomePage() {
@@ -101,36 +102,8 @@ export default function HomePage() {
 
         <WaysToGive />
 
-        {/* ── CTA Banner ── */}
-        <section className="py-20 bg-[#111111] border-t border-white/[0.08]">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8 p-10 lg:p-12 bg-gradient-to-br from-yellow-400/[0.06] to-yellow-400/[0.02] border border-yellow-400/15 rounded-2xl">
-              <div>
-                <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-3">
-                  Ready to Make a Difference?
-                </h2>
-                <p className="text-[15px] text-white/55 leading-relaxed m-0 max-w-lg">
-                  Join thousands of donors changing lives today. Your first
-                  donation could be someone's turning point.
-                </p>
-              </div>
-              <div className="flex gap-3 flex-wrap shrink-0">
-                <Link
-                  href="/donate"
-                  className="px-7 py-3.5 bg-yellow-400 text-black font-semibold text-[15px] rounded-lg hover:bg-yellow-300 hover:-translate-y-0.5 transition-all no-underline"
-                >
-                  Donate Now
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-7 py-3.5 border border-white/10 text-white/75 font-medium text-[15px] rounded-lg hover:text-white hover:bg-white/5 hover:border-white/20 transition-all no-underline"
-                >
-                  Create Account
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
+        <CtaBanner />
+
       </main>
 
       {/* Video Modal */}
