@@ -3,11 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CampaignCard from "@/components/common/CampaignCard";
-import { SearchIcon, FilterIcon, ArrowDownIcon } from "@/components/common/SvgIcon";
+import CustomDropdown from "@/components/common/CustomDropdown";
+import { SearchIcon, FilterIcon } from "@/components/common/SvgIcon";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const CATEGORIES = [
+const CATEGORY_OPTIONS = [
   "All",
   "Sadaqa/General",
   "Zakat",
@@ -22,10 +23,10 @@ const CATEGORIES = [
   "Livelihoods",
   "Sadaqa Jariyah",
   "Food Aid",
-];
+].map((cat) => ({ label: cat, value: cat }));   // → [{ label, value }]
 
 const SORT_OPTIONS = [
-  { value: "newest", label: "Newest" },
+  { value: "newest",     label: "Newest"      },
   { value: "mostFunded", label: "Most Funded" },
   { value: "endingSoon", label: "Ending Soon" },
 ];
@@ -33,27 +34,25 @@ const SORT_OPTIONS = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CampaignsPage() {
-  const router = useRouter();
+  const router       = useRouter();
   const searchParams = useSearchParams();
 
-  // ── Read current URL params (single source of truth) ──────────────────────
-  const search = searchParams.get("s") ?? "";
-  const activeCategory = searchParams.get("cat") ?? "All";
-  const sortBy = searchParams.get("orderby") ?? "newest";
-  const page = Number(searchParams.get("page") ?? 1);
+  // ── Read URL (single source of truth) ─────────────────────────────────────
+  const search         = searchParams.get("s")       ?? "";
+  const activeCategory = searchParams.get("cat")     ?? "All";
+  const sortBy         = searchParams.get("orderby") ?? "newest";
+  const page           = Number(searchParams.get("page") ?? 1);
 
   // ── API data state ─────────────────────────────────────────────────────────
-  const [campaigns, setCampaigns] = useState([]);
+  const [campaigns,  setCampaigns]  = useState([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [loading,    setLoading]    = useState(false);
+  const [error,      setError]      = useState(null);
 
-  // ── UI-only state (not reflected in URL) ──────────────────────────────────
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  // ── Local UI-only state ────────────────────────────────────────────────────
   const [searchInput, setSearchInput] = useState(search);
 
-  // ── URL updater — merges new keys into existing params ────────────────────
+  // ── URL updater ────────────────────────────────────────────────────────────
   const updateParams = useCallback(
     (updates) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -62,18 +61,14 @@ export default function CampaignsPage() {
         const isDefault =
           value === "" ||
           value === null ||
-          (key === "cat" && value === "All") ||
+          (key === "cat"     && value === "All")    ||
           (key === "orderby" && value === "newest") ||
-          (key === "page" && value === 1);
+          (key === "page"    && value === 1);
 
-        if (isDefault) {
-          params.delete(key);
-        } else {
-          params.set(key, String(value));
-        }
+        isDefault ? params.delete(key) : params.set(key, String(value));
       });
 
-      // Reset to page 1 whenever filter / search / sort changes
+      // Reset to page 1 on any filter / search / sort change
       if (!("page" in updates)) params.delete("page");
 
       const qs = params.toString();
@@ -83,57 +78,39 @@ export default function CampaignsPage() {
   );
 
   // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleSearchSubmit = () => updateParams({ s: searchInput });
-
-  const handleSearchKeyDown = (e) => {
-    if (e.key === "Enter") handleSearchSubmit();
-  };
-
-  const handleCategorySelect = (cat) => {
-    updateParams({ cat });
-    setShowFilterDropdown(false);
-  };
-
-  const handleSortChange = (value) => {
-    updateParams({ orderby: value });
-    setShowSortDropdown(false);
-  };
+  const handleSearchSubmit  = ()      => updateParams({ s: searchInput });
+  const handleSearchKeyDown = (e)     => { if (e.key === "Enter") handleSearchSubmit(); };
+  const handleCategorySelect= (cat)   => updateParams({ cat });
+  const handleSortChange    = (value) => updateParams({ orderby: value });
+  const handleLoadMore      = ()      => updateParams({ page: page + 1 });
 
   const handleClearFilters = () => {
     setSearchInput("");
     updateParams({ s: "", cat: "All", orderby: "newest", page: 1 });
   };
 
-  const handleLoadMore = () => updateParams({ page: page + 1 });
-
-  const getSortLabel = () => {
-    return SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label || "Sort";
-  };
-
-  // ── Fetch from API whenever URL params change ─────────────────────────────
+  // ── Fetch on param change ──────────────────────────────────────────────────
   useEffect(() => {
     const controller = new AbortController();
 
     const fetchCampaigns = async () => {
       setLoading(true);
       setError(null);
-
       try {
         const params = new URLSearchParams();
-        if (search) params.set("s", search);
+        if (search)               params.set("s",       search);
         if (activeCategory !== "All") params.set("cat", activeCategory);
-        if (sortBy !== "newest") params.set("orderby", sortBy);
-        if (page > 1) params.set("page", String(page));
+        if (sortBy !== "newest")  params.set("orderby", sortBy);
+        if (page > 1)             params.set("page",    String(page));
 
-        const res = await fetch(`/api/campaigns?${params.toString()}`, {
+        const res  = await fetch(`/api/campaigns?${params.toString()}`, {
           signal: controller.signal,
         });
-
         if (!res.ok) throw new Error(`API error ${res.status}`);
 
         const data = await res.json();
         setCampaigns(data.campaigns ?? []);
-        setTotalCount(data.total ?? 0);
+        setTotalCount(data.total    ?? 0);
       } catch (err) {
         if (err.name !== "AbortError") setError(err.message);
       } finally {
@@ -145,20 +122,19 @@ export default function CampaignsPage() {
     return () => controller.abort();
   }, [search, activeCategory, sortBy, page]);
 
-  // Sync local search input if URL param changes externally (back/forward nav)
-  useEffect(() => {
-    setSearchInput(search);
-  }, [search]);
+  // Sync search input on back / forward navigation
+  useEffect(() => { setSearchInput(search); }, [search]);
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const hasFilters = activeCategory !== "All" || search;
-  const hasMore = campaigns.length < totalCount;
+  const hasMore    = campaigns.length < totalCount;
 
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
     <main className="bg-[#F6F6F6] min-h-screen">
-      {/* ── Dark hero banner ─────────────────────────────────────────── */}
+
+      {/* ── Hero banner ───────────────────────────────────────────────── */}
       <div className="bg-[url('/images/bg/cta-bg.png')] bg-cover bg-center bg-no-repeat w-full">
         <div className="max-w-[1611px] mx-auto pt-[140px] pb-[92px] px-4 sm:px-6">
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
@@ -168,9 +144,10 @@ export default function CampaignsPage() {
             Browse active campaigns and find causes you want to support
           </p>
 
-          {/* Search + Filter + Sort Row */}
-          <div className="flex items-center gap-2 sm:gap-3 relative">
-            {/* Search bar */}
+          {/* ── Search + Filter + Sort row ──────────────────────────── */}
+          <div className="flex items-center gap-2 sm:gap-3">
+
+            {/* Search */}
             <div className="flex-1 relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
                 {SearchIcon}
@@ -182,90 +159,41 @@ export default function CampaignsPage() {
                 onKeyDown={handleSearchKeyDown}
                 onBlur={handleSearchSubmit}
                 placeholder="Search campaigns..."
-                className="w-full bg-[#FFFFFF40] rounded-full pl-10 pr-4 py-2.5 text-sm font-normal text-white placeholder:text-white outline-none focus:border-white/25 transition-colors"
+                className="w-full bg-[#FFFFFF40] rounded-full pl-10 pr-4 py-2.5 text-sm font-normal text-white placeholder:text-white outline-none focus:ring-1 focus:ring-white/30 transition-all"
               />
             </div>
 
-            {/* Filter button */}
-            <div className="relative">
-              <button
-                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="flex items-center justify-between gap-5 px-6 py-2.5 cursor-pointer bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-white/70 text-sm"
-              >
-                {FilterIcon}
-                <span className="hidden sm:flex items-center gap-1 text-[#1A1A1A]">
-                  {activeCategory === "All" ? "All" : activeCategory}
-                </span>
-                <span>{ArrowDownIcon}</span>
-                {activeCategory !== "All" && (
-                  <span className="ml-1 text-[#EA3335] font-medium">•</span>
-                )}
-              </button>
+            {/* Category filter — 14 items, scrollable at 260px */}
+            <CustomDropdown
+              options={CATEGORY_OPTIONS}
+              value={activeCategory}
+              onChange={handleCategorySelect}
+              label="CAMPAIGN CAUSES"
+              icon={FilterIcon}
+              showDot={activeCategory !== "All"}
+              maxHeight="260px"
+              width="w-64"
+              align="right"
+            />
 
-              {showFilterDropdown && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 max-h-[70vh] overflow-auto">
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 border-b">
-                    CAMPAIGN CAUSES
-                  </div>
-                  {CATEGORIES.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => handleCategorySelect(cat)}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition-colors flex items-center justify-between ${
-                        activeCategory === cat
-                          ? "bg-gray-50 text-[#EA3335] font-medium"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {cat}
-                      {activeCategory === cat && <span className="text-[#EA3335]">✓</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Sort dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setShowSortDropdown(!showSortDropdown)}
-                className="flex items-center justify-between gap-5 px-6 py-2.5 cursor-pointer bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-sm"
-              >
-                <span className="flex items-center gap-1 text-[#1A1A1A]">
-                  {getSortLabel()}
-                </span>
-                <span>{ArrowDownIcon}</span>
-              </button>
-
-              {showSortDropdown && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 border-b">
-                    SORT BY
-                  </div>
-                  {SORT_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => handleSortChange(opt.value)}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition-colors flex items-center justify-between ${
-                        sortBy === opt.value
-                          ? "bg-gray-50 text-[#EA3335] font-medium"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {opt.label}
-                      {sortBy === opt.value && <span className="text-[#EA3335]">✓</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Sort — 3 items, no scroll needed but cap set for consistency */}
+            <CustomDropdown
+              options={SORT_OPTIONS}
+              value={sortBy}
+              onChange={handleSortChange}
+              label="SORT BY"
+              maxHeight="180px"
+              width="w-52"
+              align="right"
+            />
           </div>
         </div>
       </div>
 
-      {/* ── Results area ─────────────────────────────────────────────── */}
+      {/* ── Results area ──────────────────────────────────────────────── */}
       <div className="max-w-[1611px] mx-auto px-4 sm:px-6 py-8">
-        {/* Result count / status */}
+
+        {/* Status bar */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-[13px] text-[#737373]">
             {loading ? (
@@ -276,14 +204,12 @@ export default function CampaignsPage() {
                 <span className="font-semibold text-[#383838]">{campaigns.length}</span>{" "}
                 campaign{campaigns.length !== 1 ? "s" : ""}
                 {activeCategory !== "All" && (
-                  <>
-                    {" "}in{" "}
+                  <> in{" "}
                     <span className="font-semibold text-[#EA3335]">{activeCategory}</span>
                   </>
                 )}
                 {search && (
-                  <>
-                    {" "}matching{" "}
+                  <> matching{" "}
                     <span className="font-semibold text-[#383838]">"{search}"</span>
                   </>
                 )}
@@ -292,14 +218,14 @@ export default function CampaignsPage() {
           </p>
         </div>
 
-        {/* Error state */}
+        {/* Error */}
         {error && (
           <div className="text-center py-10 text-sm text-red-500">
             Something went wrong: {error}
           </div>
         )}
 
-        {/* Cards grid */}
+        {/* Cards */}
         {!error && campaigns.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {campaigns.map((c) => (
