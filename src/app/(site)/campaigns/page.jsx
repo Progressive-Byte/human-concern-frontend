@@ -156,6 +156,7 @@ export default function CampaignsPage() {
   const urlSearch = searchParams.get("s") || "";
   const urlCategory = searchParams.get("cat") || "All";
   const urlSort = searchParams.get("orderby") || "newest";
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   const [search, setSearch] = useState(urlSearch);
   const [activeCategory, setActiveCategory] = useState(urlCategory);
@@ -197,6 +198,16 @@ export default function CampaignsPage() {
     if (sortBy === "endingSoon") return a.daysLeft - b.daysLeft;
     return 0; // newest (you can improve later with real date)
   });
+
+  const SORT_OPTIONS = [
+  { label: "Newest", value: "newest" },
+  { label: "Most Funded", value: "mostFunded" },
+  { label: "Ending Soon", value: "endingSoon" },
+];
+
+const getSortLabel = () => {
+  return SORT_OPTIONS.find(opt => opt.value === sortBy)?.label || "Sort";
+};
 
   // Handle Search Input
   const handleSearchChange = (e) => {
@@ -288,15 +299,48 @@ export default function CampaignsPage() {
             </div>
 
             {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={handleSortChange}
-              className="px-4 py-2.5 bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-[#1A1A1A] text-sm outline-none cursor-pointer"
-            >
-              <option value="newest">Newest</option>
-              <option value="mostFunded">Most Funded</option>
-              <option value="endingSoon">Ending Soon</option>
-            </select>
+            <div className="relative">
+              {/* Sort Button */}
+              <button
+                onClick={() => setShowSortDropdown(!showSortDropdown)}
+                className="flex items-center justify-between gap-5 px-6 py-2.5 cursor-pointer bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-sm"
+              >
+                <span className="flex items-center gap-1 text-[#1A1A1A]">
+                  {getSortLabel()}
+                </span>
+
+                <span>{ArrowDownIcon}</span>
+              </button>
+
+              {/* Dropdown */}
+              {showSortDropdown && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 border-b">
+                    SORT BY
+                  </div>
+
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        handleSortChange({ target: { value: opt.value } });
+                        setShowSortDropdown(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition-colors flex items-center justify-between ${
+                        sortBy === opt.value
+                          ? "bg-gray-50 text-[#EA3335] font-medium"
+                          : "text-gray-700"
+                      }`}
+                    >
+                      {opt.label}
+                      {sortBy === opt.value && (
+                        <span className="text-[#EA3335]">✓</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
