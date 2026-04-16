@@ -227,7 +227,7 @@ export default function CampaignsPage() {
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
             All Campaigns
           </h1>
-          <p className="text-[13px] sm:text-sm text-white/50 mb-6">
+          <p className="text-[13px] sm:text-sm text-white mb-6">
             Browse active campaigns and find causes you want to support
           </p>
 
@@ -250,13 +250,20 @@ export default function CampaignsPage() {
             {/* Filter Dropdown Button */}
             <div className="relative">
               <button
-                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="flex items-center gap-2 px-8 py-2.5 bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-white/70 text-sm"
-              >
-                {FilterIcon}
-                <span className="hidden text-[#1A1A1A] sm:inline">All {ArrowDownIcon}</span>
-                {activeCategory !== "All" && <span className="ml-1 text-[#EA3335] font-medium">•</span>}
-              </button>
+                  onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                  className="flex items-center justify-between gap-5 px-6 py-2.5 cursor-pointer bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-white/70 text-sm"
+                >
+                  {FilterIcon}
+
+                  <span className="hidden sm:flex items-center gap-1 text-[#1A1A1A]">
+                    All
+                  </span>
+                  <span>{ArrowDownIcon}</span>
+
+                  {activeCategory !== "All" && (
+                    <span className="ml-1 text-[#EA3335] font-medium">•</span>
+                  )}
+                </button>
 
               {/* Dropdown */}
               {showFilterDropdown && (
@@ -284,7 +291,7 @@ export default function CampaignsPage() {
             <select
               value={sortBy}
               onChange={handleSortChange}
-              className="px-4 py-2.5 bg-[#2E2E2E] border border-white/10 rounded-lg text-white/70 text-sm outline-none hover:bg-[#3a3a3a] transition-colors cursor-pointer shrink-0"
+              className="px-4 py-2.5 bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-[#1A1A1A] text-sm outline-none cursor-pointer"
             >
               <option value="newest">Newest</option>
               <option value="mostFunded">Most Funded</option>
