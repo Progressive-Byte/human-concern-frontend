@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { AlertIcon, Spinner } from "@/components/common/SvgIcon";
+import { FormField, FormInput } from "@/components/common/FormInput";
 
 // ─── Validation ───────────────────────────────────────────────────────────────
 
@@ -45,96 +47,6 @@ function getPasswordStrength(password) {
   return { score, label: "Strong", color: "bg-emerald-500" };
 }
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function EyeIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function EyeOffIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
-  );
-}
-
-function AlertIcon({ size = 11 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
-    </svg>
-  );
-}
-
-function Spinner() {
-  return (
-    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-    </svg>
-  );
-}
-
-// ─── Field ─────────────────────────────────────────────────────────────────────
-
-function Field({ label, error, children }) {
-  return (
-    <div>
-      <label className="block text-[13px] font-medium text-white/80 mb-1.5">
-        {label}
-      </label>
-      {children}
-      {error && (
-        <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400">
-          <AlertIcon />
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function inputClass(hasError) {
-  return [
-    "w-full rounded-lg border px-4 py-3 text-sm text-gray-900 bg-white outline-none transition",
-    "placeholder:text-gray-400 focus:ring-2 focus:ring-offset-0",
-    hasError
-      ? "border-red-400 focus:border-red-400 focus:ring-red-200"
-      : "border-transparent focus:border-white/30 focus:ring-white/10",
-  ].join(" ");
-}
-
-function PasswordInput({ id, name, value, onChange, onBlur, placeholder, hasError, autoComplete }) {
-  const [show, setShow] = useState(false);
-  return (
-    <div className="relative">
-      <input
-        id={id} name={name} type={show ? "text" : "password"}
-        autoComplete={autoComplete} placeholder={placeholder}
-        value={value} onChange={onChange} onBlur={onBlur}
-        className={`${inputClass(hasError)} pr-11`}
-      />
-      <button
-        type="button"
-        onClick={() => setShow((v) => !v)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-        aria-label={show ? "Hide password" : "Show password"}
-      >
-        {show ? <EyeOffIcon /> : <EyeIcon />}
-      </button>
-    </div>
-  );
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 const INITIAL = { firstName: "", lastName: "", email: "", password: "", confirmPassword: "", terms: false };
@@ -147,6 +59,8 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const strength = getPasswordStrength(values.password);
 
@@ -203,34 +117,83 @@ export default function RegisterPage() {
 
         {/* Name row */}
         <div className="grid grid-cols-2 gap-3">
-          <Field label="First name" error={fieldError("firstName")}>
-            <input id="firstName" name="firstName" type="text" autoComplete="given-name"
-              placeholder="John" value={values.firstName} onChange={handleChange} onBlur={handleBlur}
-              className={inputClass(Boolean(fieldError("firstName")))}
+          <FormField label="First name" error={fieldError("firstName")}>
+            <FormInput
+              id="firstName"
+              name="firstName"
+              type="text"
+              autoComplete="given-name"
+              placeholder="John"
+              value={values.firstName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              hasError={Boolean(fieldError("firstName"))}
             />
-          </Field>
-          <Field label="Last name" error={fieldError("lastName")}>
-            <input id="lastName" name="lastName" type="text" autoComplete="family-name"
-              placeholder="Doe" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
-              className={inputClass(Boolean(fieldError("lastName")))}
+          </FormField>
+          <FormField label="Last name" error={fieldError("lastName")}>
+            <FormInput
+              id="lastName"
+              name="lastName"
+              type="text"
+              autoComplete="family-name"
+              placeholder="Doe"
+              value={values.lastName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              hasError={Boolean(fieldError("lastName"))}
             />
-          </Field>
+          </FormField>
         </div>
 
         {/* Email */}
-        <Field label="Email" error={fieldError("email")}>
-          <input id="email" name="email" type="email" autoComplete="email"
-            placeholder="you@example.com" value={values.email} onChange={handleChange} onBlur={handleBlur}
-            className={inputClass(Boolean(fieldError("email")))}
+        <FormField label="Email" error={fieldError("email")}>
+          <FormInput
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={values.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            hasError={Boolean(fieldError("email"))}
           />
-        </Field>
+        </FormField>
 
         {/* Password */}
-        <Field label="Password" error={fieldError("password")}>
-          <PasswordInput id="password" name="password" autoComplete="new-password"
-            placeholder="Min. 8 characters" value={values.password}
-            onChange={handleChange} onBlur={handleBlur} hasError={Boolean(fieldError("password"))}
-          />
+        <FormField label="Password" error={fieldError("password")}>
+          <div className="relative">
+            <FormInput
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              placeholder="Min. 8 characters"
+              value={values.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              hasError={Boolean(fieldError("password"))}
+              className="pr-11"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          </div>
           {values.password.length > 0 && (
             <div className="mt-2">
               <div className="flex gap-1 h-1">
@@ -248,15 +211,43 @@ export default function RegisterPage() {
               )}
             </div>
           )}
-        </Field>
+        </FormField>
 
         {/* Confirm password */}
-        <Field label="Confirm password" error={fieldError("confirmPassword")}>
-          <PasswordInput id="confirmPassword" name="confirmPassword" autoComplete="new-password"
-            placeholder="Re-enter your password" value={values.confirmPassword}
-            onChange={handleChange} onBlur={handleBlur} hasError={Boolean(fieldError("confirmPassword"))}
-          />
-        </Field>
+        <FormField label="Confirm password" error={fieldError("confirmPassword")}>
+          <div className="relative">
+            <FormInput
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              autoComplete="new-password"
+              placeholder="Re-enter your password"
+              value={values.confirmPassword}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              hasError={Boolean(fieldError("confirmPassword"))}
+              className="pr-11"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </FormField>
 
         {/* Terms */}
         <div>
