@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import CampaignCard from "@/components/common/CampaignCard";
-import { ArrowDownIcon, FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
+import CustomDropdown from "@/components/common/CustomDropdown";
+import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
+
+// ─── Static data (swap with API later) ────────────────────────────────────────
 
 const ALL_CAMPAIGNS = [
   {
@@ -128,7 +131,9 @@ const ALL_CAMPAIGNS = [
   },
 ];
 
-const CATEGORIES = [
+// ─── Dropdown option arrays ────────────────────────────────────────────────────
+
+const CATEGORY_OPTIONS = [
   "All",
   "Sadaqa/General",
   "Zakat",
@@ -143,97 +148,92 @@ const CATEGORIES = [
   "Livelihoods",
   "Sadaqa Jariyah",
   "Food Aid",
-];
+].map((cat) => ({ label: cat, value: cat }));
 
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-export default function CampaignsPage() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  // Get values from URL query string
-  const urlSearch = searchParams.get("s") || "";
-  const urlCategory = searchParams.get("cat") || "All";
-  const urlSort = searchParams.get("orderby") || "newest";
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
-
-  const [search, setSearch] = useState(urlSearch);
-  const [activeCategory, setActiveCategory] = useState(urlCategory);
-  const [sortBy, setSortBy] = useState(urlSort);
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-
-  // Update URL when filters change
-  const updateURL = (newSearch, newCategory, newSort) => {
-    const params = new URLSearchParams();
-
-    if (newSearch) params.set("s", newSearch);
-    if (newCategory && newCategory !== "All") params.set("cat", newCategory);
-    if (newSort && newSort !== "newest") params.set("orderby", newSort);
-
-    const queryString = params.toString();
-    router.replace(`${pathname}${queryString ? "?" + queryString : ""}`, { scroll: false });
-  };
-
-  // Sync state when URL changes (back/forward navigation)
-  useEffect(() => {
-    setSearch(urlSearch);
-    setActiveCategory(urlCategory);
-    setSortBy(urlSort);
-  }, [urlSearch, urlCategory, urlSort]);
-
-  // Filter + Search
-  const filtered = ALL_CAMPAIGNS.filter((c) => {
-    const matchCategory = activeCategory === "All" || c.category === activeCategory;
-    const matchSearch =
-      !search ||
-      c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.description.toLowerCase().includes(search.toLowerCase());
-    return matchCategory && matchSearch;
-  });
-
-  // Sorting
-  const sortedCampaigns = [...filtered].sort((a, b) => {
-    if (sortBy === "mostFunded") return b.raised - a.raised;
-    if (sortBy === "endingSoon") return a.daysLeft - b.daysLeft;
-    return 0; // newest (you can improve later with real date)
-  });
-
-  const SORT_OPTIONS = [
-  { label: "Newest", value: "newest" },
+const SORT_OPTIONS = [
+  { label: "Newest",      value: "newest"     },
   { label: "Most Funded", value: "mostFunded" },
   { label: "Ending Soon", value: "endingSoon" },
 ];
 
-const getSortLabel = () => {
-  return SORT_OPTIONS.find(opt => opt.value === sortBy)?.label || "Sort";
-};
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
-  // Handle Search Input
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearch(value);
-    updateURL(value, activeCategory, sortBy);
+export default function CampaignsPage() {
+  const router       = useRouter();
+  const pathname     = usePathname();
+  const searchParams = useSearchParams();
+
+  // ── Read from URL ────────────────────────────────────────────────────────
+  const urlSearch   = searchParams.get("s")       ?? "";
+  const urlCategory = searchParams.get("cat")     ?? "All";
+  const urlSort     = searchParams.get("orderby") ?? "newest";
+
+  // ── Local state (mirrors URL) ────────────────────────────────────────────
+  const [searchInput,    setSearchInput]    = useState(urlSearch);
+  const [activeCategory, setActiveCategory] = useState(urlCategory);
+  const [sortBy,         setSortBy]         = useState(urlSort);
+
+  // Sync state on back / forward navigation
+  useEffect(() => {
+    setSearchInput(urlSearch);
+    setActiveCategory(urlCategory);
+    setSortBy(urlSort);
+  }, [urlSearch, urlCategory, urlSort]);
+
+  // ── URL writer ───────────────────────────────────────────────────────────
+  const updateURL = (s, cat, sort) => {
+    const params = new URLSearchParams();
+    if (s)               params.set("s",       s);
+    if (cat !== "All")   params.set("cat",     cat);
+    if (sort !== "newest") params.set("orderby", sort);
+    const qs = params.toString();
+    router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   };
 
-  // Handle Category Change
+  // ── Handlers ─────────────────────────────────────────────────────────────
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearchInput(val);
+    updateURL(val, activeCategory, sortBy);
+  };
+
   const handleCategoryChange = (cat) => {
     setActiveCategory(cat);
-    setShowFilterDropdown(false);
-    updateURL(search, cat, sortBy);
+    updateURL(searchInput, cat, sortBy);
   };
 
-  // Handle Sort Change
-  const handleSortChange = (e) => {
-    const value = e.target.value;
-    setSortBy(value);
-    updateURL(search, activeCategory, value);
+  const handleSortChange = (val) => {
+    setSortBy(val);
+    updateURL(searchInput, activeCategory, val);
   };
+
+  const handleClearAll = () => {
+    setSearchInput("");
+    setActiveCategory("All");
+    setSortBy("newest");
+    router.replace(pathname);
+  };
+
+  // ── Filter + sort (replace with API later) ───────────────────────────────
+  const filtered = ALL_CAMPAIGNS.filter((c) => {
+    const matchCat    = activeCategory === "All" || c.category === activeCategory;
+    const matchSearch = !searchInput || c.title.toLowerCase().includes(searchInput.toLowerCase()) || c.description.toLowerCase().includes(searchInput.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  const sortedCampaigns = [...filtered].sort((a, b) => {
+    if (sortBy === "mostFunded") return b.raised - a.raised;
+    if (sortBy === "endingSoon") return a.daysLeft - b.daysLeft;
+    return 0;
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
 
   return (
     <main className="bg-[#F6F6F6] min-h-screen">
-      {/* Dark Hero Banner */}
-      <div className="bg-[url('/images/bg/cta-bg.png')] bg-cover bg-center bg-no-repeat w-full ">
+
+      {/* ── Hero banner ─────────────────────────────────────────────── */}
+      <div className="bg-[url('/images/bg/cta-bg.png')] bg-cover bg-center bg-no-repeat w-full">
         <div className="max-w-[1611px] mx-auto pt-[140px] pb-[92px] px-4 sm:px-6">
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
             All Campaigns
@@ -242,111 +242,52 @@ const getSortLabel = () => {
             Browse active campaigns and find causes you want to support
           </p>
 
-          {/* Search + Filter + Sort */}
-          <div className="flex items-center gap-2 sm:gap-3 relative">
-            {/* Search Bar */}
+          {/* Search + Filter + Sort row */}
+          <div className="flex items-center gap-2 sm:gap-3">
+
+            {/* Search input */}
             <div className="flex-1 relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
                 {SearchIcon}
               </span>
               <input
                 type="text"
-                value={search}
+                value={searchInput}
                 onChange={handleSearchChange}
                 placeholder="Search campaigns..."
-                className="w-full bg-[#FFFFFF40] rounded-full pl-10 pr-4 py-2.5 text-sm font-normal text-white placeholder:text-white outline-none focus:border-white/25 transition-colors"
+                className="w-full bg-[#FFFFFF40] rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white outline-none focus:ring-1 focus:ring-white/30 transition-all"
               />
             </div>
 
-            {/* Filter Dropdown Button */}
-            <div className="relative">
-              <button
-                  onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                  className="flex items-center justify-between gap-5 px-6 py-2.5 cursor-pointer bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-white/70 text-sm"
-                >
-                  {FilterIcon}
+            {/* Category filter dropdown */}
+            <CustomDropdown
+              options={CATEGORY_OPTIONS}
+              value={activeCategory}
+              onChange={handleCategoryChange}
+              label="CAMPAIGN CAUSES"
+              icon={FilterIcon}
+              showDot={activeCategory !== "All"}
+              maxHeight="260px"
+              width="w-64"
+            />
 
-                  <span className="hidden sm:flex items-center gap-1 text-[#1A1A1A]">
-                    All
-                  </span>
-                  <span>{ArrowDownIcon}</span>
-
-                  {activeCategory !== "All" && (
-                    <span className="ml-1 text-[#EA3335] font-medium">•</span>
-                  )}
-                </button>
-
-              {/* Dropdown */}
-              {showFilterDropdown && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 max-h-[70vh] overflow-auto">
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 border-b">
-                    CAMPAIGN CAUSES
-                  </div>
-                  {CATEGORIES.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => handleCategoryChange(cat)}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition-colors flex items-center justify-between ${
-                        activeCategory === cat ? "bg-gray-50 text-[#EA3335] font-medium" : "text-gray-700"
-                      }`}
-                    >
-                      {cat}
-                      {activeCategory === cat && <span className="text-[#EA3335]">✓</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Sort */}
-            <div className="relative">
-              {/* Sort Button */}
-              <button
-                onClick={() => setShowSortDropdown(!showSortDropdown)}
-                className="flex items-center justify-between gap-5 px-6 py-2.5 cursor-pointer bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-sm"
-              >
-                <span className="flex items-center gap-1 text-[#1A1A1A]">
-                  {getSortLabel()}
-                </span>
-
-                <span>{ArrowDownIcon}</span>
-              </button>
-
-              {/* Dropdown */}
-              {showSortDropdown && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 border-b">
-                    SORT BY
-                  </div>
-
-                  {SORT_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => {
-                        handleSortChange({ target: { value: opt.value } });
-                        setShowSortDropdown(false);
-                      }}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition-colors flex items-center justify-between ${
-                        sortBy === opt.value
-                          ? "bg-gray-50 text-[#EA3335] font-medium"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {opt.label}
-                      {sortBy === opt.value && (
-                        <span className="text-[#EA3335]">✓</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Sort dropdown */}
+            <CustomDropdown
+              options={SORT_OPTIONS}
+              value={sortBy}
+              onChange={handleSortChange}
+              label="SORT BY"
+              maxHeight="180px"
+              width="w-52"
+            />
           </div>
         </div>
       </div>
 
-      {/* Results Area */}
+      {/* ── Results area ─────────────────────────────────────────────── */}
       <div className="max-w-[1611px] mx-auto px-4 sm:px-6 py-8">
+
+        {/* Count bar */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-[13px] text-[#737373]">
             Viewing{" "}
@@ -355,43 +296,39 @@ const getSortLabel = () => {
             {activeCategory !== "All" && (
               <> in <span className="font-semibold text-[#EA3335]">{activeCategory}</span></>
             )}
-            {search && (
-              <> matching <span className="font-semibold text-[#383838]">"{search}"</span></>
+            {searchInput && (
+              <> matching <span className="font-semibold text-[#383838]">"{searchInput}"</span></>
             )}
           </p>
         </div>
 
+        {/* Grid */}
         {sortedCampaigns.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {sortedCampaigns.map((c) => (
-              <CampaignCard key={c.id} campaign={c} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {sortedCampaigns.map((c) => (
+                <CampaignCard key={c.id} campaign={c} />
+              ))}
+            </div>
+
+            <div className="flex justify-center mt-12">
+              <button className="px-8 py-3 border border-gray-300 rounded-full text-sm font-medium text-[#383838] hover:border-[#EA3335] hover:text-[#EA3335] transition-all duration-200">
+                Load more campaigns
+              </button>
+            </div>
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <span className="text-5xl mb-4">🔍</span>
             <h3 className="text-lg font-semibold text-[#383838] mb-2">No campaigns found</h3>
             <p className="text-sm text-[#737373] max-w-xs">
-              Try adjusting your search or filters.
+              Try adjusting your search or filters to find what you&apos;re looking for.
             </p>
             <button
-              onClick={() => {
-                setSearch("");
-                setActiveCategory("All");
-                setSortBy("newest");
-                router.replace(pathname);
-              }}
+              onClick={handleClearAll}
               className="mt-5 px-5 py-2.5 bg-[#EA3335] text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors"
             >
               Clear All
-            </button>
-          </div>
-        )}
-
-        {sortedCampaigns.length > 0 && (
-          <div className="flex justify-center mt-12">
-            <button className="px-8 py-3 border border-gray-300 rounded-full text-sm font-medium text-[#383838] hover:border-[#EA3335] hover:text-[#EA3335] transition-all duration-200">
-              Load more campaigns
             </button>
           </div>
         )}
