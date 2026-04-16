@@ -119,3 +119,17 @@ export const CountryReachIcon = (
         <path d="M15.3125 14.2163V20.318C15.3129 20.3965 15.3287 20.4742 15.3591 20.5466C15.3895 20.6189 15.4339 20.6846 15.4897 20.7399C15.5455 20.7952 15.6116 20.8389 15.6843 20.8686C15.757 20.8983 15.8348 20.9133 15.9133 20.913C16.0317 20.9144 16.1476 20.8798 16.2458 20.8138L20.876 17.7892C20.9584 17.7359 21.0262 17.6629 21.0733 17.5768C21.1204 17.4906 21.1453 17.3942 21.1457 17.296C21.1461 17.1979 21.1221 17.1012 21.0758 17.0147C21.0295 16.9281 20.9623 16.8545 20.8804 16.8005L16.2502 13.7234C16.1178 13.6348 15.9559 13.6019 15.7995 13.6319C15.643 13.662 15.5047 13.7525 15.4146 13.8838C15.3475 13.9817 15.3119 14.0977 15.3125 14.2163Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   )
+
+  export const EyeIcon = (
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )
+
+  export const EyeOffIcon = (
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  )
