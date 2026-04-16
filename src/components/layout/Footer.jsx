@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { EmailIcon, FacebookIcon, InstagramIcon, LinkedInIcon, LocationIcon, PhoneIcon, TaxIcon, WhatsAppIcon, XIcon, YoutubeIcon } from "../common/SvgIcon";
 
 const contactItems = [
@@ -20,9 +21,11 @@ const socials = [
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   return (
-    <footer className="-mt-[93px] relative z-10">
+    <footer className={`${pathname === "/" ? "-mt-[93px]" : ""} relative z-10`}>
       <div className="bg-white rounded-t-[100px] px-6 sm:px-10 lg:px-20 pt-14 pb-0">
         <div className="max-w-[1350px] mx-auto">
           <div className="flex flex-col md:flex-row flex-wrap lg:flex-nowrap gap-10 lg:gap-12 pb-12 border-b border-[#EBEBEB]">
