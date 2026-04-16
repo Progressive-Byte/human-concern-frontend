@@ -8,37 +8,24 @@ import { useAuth } from "@/context/AuthContext";
 
 function validate(values) {
   const errors = {};
-
-  if (!values.firstName || values.firstName.trim().length < 2) {
+  if (!values.firstName || values.firstName.trim().length < 2)
     errors.firstName = "First name must be at least 2 characters";
-  }
-
-  if (!values.lastName || values.lastName.trim().length < 2) {
+  if (!values.lastName || values.lastName.trim().length < 2)
     errors.lastName = "Last name must be at least 2 characters";
-  }
-
-  if (!values.email) {
+  if (!values.email)
     errors.email = "Email address is required";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email))
     errors.email = "Enter a valid email address";
-  }
-
-  if (!values.password) {
+  if (!values.password)
     errors.password = "Password is required";
-  } else if (values.password.length < 8) {
+  else if (values.password.length < 8)
     errors.password = "Password must be at least 8 characters";
-  }
-
-  if (!values.confirmPassword) {
+  if (!values.confirmPassword)
     errors.confirmPassword = "Please confirm your password";
-  } else if (values.confirmPassword !== values.password) {
+  else if (values.confirmPassword !== values.password)
     errors.confirmPassword = "Passwords do not match";
-  }
-
-  if (!values.terms) {
+  if (!values.terms)
     errors.terms = "You must accept the terms to continue";
-  }
-
   return errors;
 }
 
@@ -52,7 +39,6 @@ function getPasswordStrength(password) {
   if (/[A-Z]/.test(password)) score++;
   if (/[0-9]/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
-
   if (score <= 1) return { score, label: "Weak", color: "bg-red-400" };
   if (score <= 2) return { score, label: "Fair", color: "bg-orange-400" };
   if (score <= 3) return { score, label: "Good", color: "bg-yellow-400" };
@@ -63,17 +49,7 @@ function getPasswordStrength(password) {
 
 function EyeIcon() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
@@ -82,36 +58,16 @@ function EyeIcon() {
 
 function EyeOffIcon() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
   );
 }
 
-function AlertIcon({ size = 14 }) {
+function AlertIcon({ size = 11 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="shrink-0"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
       <circle cx="12" cy="12" r="10" />
       <line x1="12" y1="8" x2="12" y2="12" />
       <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -122,35 +78,24 @@ function AlertIcon({ size = 14 }) {
 function Spinner() {
   return (
     <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v8H4z"
-      />
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
     </svg>
   );
 }
 
-// ─── Field wrapper ─────────────────────────────────────────────────────────────
+// ─── Field ─────────────────────────────────────────────────────────────────────
 
 function Field({ label, error, children }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+      <label className="block text-[13px] font-medium text-white/80 mb-1.5">
         {label}
       </label>
       {children}
       {error && (
-        <p className="mt-1.5 flex items-center gap-1 text-xs text-red-500">
-          <AlertIcon size={12} />
+        <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400">
+          <AlertIcon />
           {error}
         </p>
       )}
@@ -160,29 +105,22 @@ function Field({ label, error, children }) {
 
 function inputClass(hasError) {
   return [
-    "w-full rounded-xl border px-4 py-3 text-sm text-gray-900 outline-none transition",
+    "w-full rounded-lg border px-4 py-3 text-sm text-gray-900 bg-white outline-none transition",
     "placeholder:text-gray-400 focus:ring-2 focus:ring-offset-0",
     hasError
-      ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100"
-      : "border-gray-200 bg-gray-50 focus:border-[#403DCE] focus:ring-[#403DCE]/10",
+      ? "border-red-400 focus:border-red-400 focus:ring-red-200"
+      : "border-transparent focus:border-white/30 focus:ring-white/10",
   ].join(" ");
 }
-
-// ─── Password field with show/hide toggle ─────────────────────────────────────
 
 function PasswordInput({ id, name, value, onChange, onBlur, placeholder, hasError, autoComplete }) {
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
       <input
-        id={id}
-        name={name}
-        type={show ? "text" : "password"}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
+        id={id} name={name} type={show ? "text" : "password"}
+        autoComplete={autoComplete} placeholder={placeholder}
+        value={value} onChange={onChange} onBlur={onBlur}
         className={`${inputClass(hasError)} pr-11`}
       />
       <button
@@ -199,14 +137,7 @@ function PasswordInput({ id, name, value, onChange, onBlur, placeholder, hasErro
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-const INITIAL = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-  terms: false,
-};
+const INITIAL = { firstName: "", lastName: "", email: "", password: "", confirmPassword: "", terms: false };
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -223,9 +154,7 @@ export default function RegisterPage() {
     const { name, value, type, checked } = e.target;
     const next = { ...values, [name]: type === "checkbox" ? checked : value };
     setValues(next);
-    if (touched[name]) {
-      setErrors((prev) => ({ ...prev, [name]: validate(next)[name] }));
-    }
+    if (touched[name]) setErrors((prev) => ({ ...prev, [name]: validate(next)[name] }));
   }
 
   function handleBlur(e) {
@@ -236,29 +165,16 @@ export default function RegisterPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    // Touch all fields
-    const allFields = Object.keys(INITIAL).reduce(
-      (acc, k) => ({ ...acc, [k]: true }),
-      {}
-    );
+    const allFields = Object.keys(INITIAL).reduce((acc, k) => ({ ...acc, [k]: true }), {});
     setTouched(allFields);
-
     const errs = validate(values);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
     setIsLoading(true);
     setServerError("");
-
     try {
-      await register({
-        firstName: values.firstName.trim(),
-        lastName: values.lastName.trim(),
-        email: values.email,
-        password: values.password,
-      });
-      // Redirect is handled inside register() via router.push
+      await register({ firstName: values.firstName.trim(), lastName: values.lastName.trim(), email: values.email, password: values.password });
     } catch (err) {
       setServerError(err.message || "Registration failed. Please try again.");
     } finally {
@@ -270,112 +186,62 @@ export default function RegisterPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-7">
-        <h2 className="font-playfair text-[2rem] font-bold text-gray-900 leading-tight">
-          Create an account
-        </h2>
-        <p className="mt-1.5 text-sm text-gray-500">
-          Join Human Concern USA and start making an impact
-        </p>
-      </div>
+      {/* Heading */}
+      <h2 className="text-[22px] font-semibold text-white mb-6">
+        Create an account
+      </h2>
 
-      {/* Server error banner */}
+      {/* Server error */}
       {serverError && (
-        <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-100 bg-red-50 px-4 py-3">
-          <AlertIcon size={16} />
-          <p className="text-sm text-red-600 leading-snug">{serverError}</p>
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5">
+          <AlertIcon size={14} />
+          <p className="text-sm text-red-400 leading-snug">{serverError}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
+
         {/* Name row */}
         <div className="grid grid-cols-2 gap-3">
           <Field label="First name" error={fieldError("firstName")}>
-            <input
-              id="firstName"
-              name="firstName"
-              type="text"
-              autoComplete="given-name"
-              placeholder="John"
-              value={values.firstName}
-              onChange={handleChange}
-              onBlur={handleBlur}
+            <input id="firstName" name="firstName" type="text" autoComplete="given-name"
+              placeholder="John" value={values.firstName} onChange={handleChange} onBlur={handleBlur}
               className={inputClass(Boolean(fieldError("firstName")))}
             />
           </Field>
-
           <Field label="Last name" error={fieldError("lastName")}>
-            <input
-              id="lastName"
-              name="lastName"
-              type="text"
-              autoComplete="family-name"
-              placeholder="Doe"
-              value={values.lastName}
-              onChange={handleChange}
-              onBlur={handleBlur}
+            <input id="lastName" name="lastName" type="text" autoComplete="family-name"
+              placeholder="Doe" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
               className={inputClass(Boolean(fieldError("lastName")))}
             />
           </Field>
         </div>
 
         {/* Email */}
-        <Field label="Email address" error={fieldError("email")}>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            value={values.email}
-            onChange={handleChange}
-            onBlur={handleBlur}
+        <Field label="Email" error={fieldError("email")}>
+          <input id="email" name="email" type="email" autoComplete="email"
+            placeholder="you@example.com" value={values.email} onChange={handleChange} onBlur={handleBlur}
             className={inputClass(Boolean(fieldError("email")))}
           />
         </Field>
 
         {/* Password */}
         <Field label="Password" error={fieldError("password")}>
-          <PasswordInput
-            id="password"
-            name="password"
-            autoComplete="new-password"
-            placeholder="Min. 8 characters"
-            value={values.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            hasError={Boolean(fieldError("password"))}
+          <PasswordInput id="password" name="password" autoComplete="new-password"
+            placeholder="Min. 8 characters" value={values.password}
+            onChange={handleChange} onBlur={handleBlur} hasError={Boolean(fieldError("password"))}
           />
-          {/* Strength meter (only when user has started typing) */}
           {values.password.length > 0 && (
             <div className="mt-2">
               <div className="flex gap-1 h-1">
-                {[1, 2, 3, 4].map((segment) => (
-                  <div
-                    key={segment}
-                    className={`flex-1 rounded-full transition-all duration-300 ${
-                      strength.score >= segment
-                        ? strength.color
-                        : "bg-gray-100"
-                    }`}
-                  />
+                {[1, 2, 3, 4].map((seg) => (
+                  <div key={seg} className={`flex-1 rounded-full transition-all duration-300 ${strength.score >= seg ? strength.color : "bg-white/10"}`} />
                 ))}
               </div>
               {strength.label && (
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 text-xs text-white/40">
                   Strength:{" "}
-                  <span
-                    className={
-                      strength.score <= 1
-                        ? "text-red-500"
-                        : strength.score <= 2
-                        ? "text-orange-500"
-                        : strength.score <= 3
-                        ? "text-yellow-600"
-                        : "text-emerald-600"
-                    }
-                  >
+                  <span className={strength.score <= 1 ? "text-red-400" : strength.score <= 2 ? "text-orange-400" : strength.score <= 3 ? "text-yellow-400" : "text-emerald-400"}>
                     {strength.label}
                   </span>
                 </p>
@@ -384,52 +250,31 @@ export default function RegisterPage() {
           )}
         </Field>
 
-        {/* Confirm Password */}
+        {/* Confirm password */}
         <Field label="Confirm password" error={fieldError("confirmPassword")}>
-          <PasswordInput
-            id="confirmPassword"
-            name="confirmPassword"
-            autoComplete="new-password"
-            placeholder="Re-enter your password"
-            value={values.confirmPassword}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            hasError={Boolean(fieldError("confirmPassword"))}
+          <PasswordInput id="confirmPassword" name="confirmPassword" autoComplete="new-password"
+            placeholder="Re-enter your password" value={values.confirmPassword}
+            onChange={handleChange} onBlur={handleBlur} hasError={Boolean(fieldError("confirmPassword"))}
           />
         </Field>
 
-        {/* Terms checkbox */}
+        {/* Terms */}
         <div>
-          <label className="flex items-start gap-3 cursor-pointer group">
-            <input
-              id="terms"
-              name="terms"
-              type="checkbox"
-              checked={values.terms}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-[#403DCE] accent-[#403DCE] cursor-pointer"
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input id="terms" name="terms" type="checkbox" checked={values.terms}
+              onChange={handleChange} onBlur={handleBlur}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/10 text-[#EA3335] accent-[#EA3335] cursor-pointer"
             />
-            <span className="text-sm text-gray-600 leading-snug">
+            <span className="text-[13px] text-white/60 leading-snug">
               I agree to the{" "}
-              <Link
-                href="/terms"
-                className="font-medium text-[#403DCE] hover:text-[#201F68] transition-colors"
-              >
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link
-                href="/privacy"
-                className="font-medium text-[#403DCE] hover:text-[#201F68] transition-colors"
-              >
-                Privacy Policy
-              </Link>
+              <Link href="/terms" className="text-white/80 hover:text-white font-medium transition-colors">Terms of Service</Link>
+              {" "}and{" "}
+              <Link href="/privacy" className="text-white/80 hover:text-white font-medium transition-colors">Privacy Policy</Link>
             </span>
           </label>
           {fieldError("terms") && (
-            <p className="mt-1.5 flex items-center gap-1 text-xs text-red-500">
-              <AlertIcon size={12} />
+            <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400">
+              <AlertIcon />
               {errors.terms}
             </p>
           )}
@@ -439,17 +284,10 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="mt-1 w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
-          style={{
-            background:
-              "linear-gradient(103.99deg, #403DCE 5.42%, #201F68 83.13%)",
-          }}
+          className="w-full rounded-lg py-3 text-[15px] font-semibold text-white bg-[#EA3335] hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
         >
           {isLoading ? (
-            <span className="flex items-center justify-center gap-2">
-              <Spinner />
-              Creating account…
-            </span>
+            <span className="flex items-center justify-center gap-2"><Spinner />Creating account…</span>
           ) : (
             "Create account"
           )}
@@ -458,18 +296,29 @@ export default function RegisterPage() {
 
       {/* Divider */}
       <div className="my-5 flex items-center gap-3">
-        <div className="flex-1 h-px bg-gray-100" />
-        <span className="text-xs text-gray-400">or</span>
-        <div className="flex-1 h-px bg-gray-100" />
+        <div className="flex-1 h-px bg-white/10" />
+        <span className="text-xs text-white/40">or</span>
+        <div className="flex-1 h-px bg-white/10" />
       </div>
 
+      {/* Google sign-up */}
+      <button
+        type="button"
+        className="w-full flex items-center justify-center gap-3 rounded-lg py-3 text-[14px] font-medium text-white/80 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+      >
+        <svg width="18" height="18" viewBox="0 0 48 48">
+          <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.1-4z" />
+          <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4c-7.9 0-14.7 4.4-17.7 10.7z" />
+          <path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36 24 36c-5.2 0-9.7-3.3-11.4-8H6.3C9.2 38.9 16 44 24 44z" />
+          <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.5l6.2 5.2C41 35.1 44 30 44 24c0-1.3-.1-2.7-.4-4z" />
+        </svg>
+        Sign up with Google
+      </button>
+
       {/* Login link */}
-      <p className="text-center text-sm text-gray-500">
+      <p className="text-center text-[13px] text-white/50 mt-5">
         Already have an account?{" "}
-        <Link
-          href="/login"
-          className="font-medium text-[#403DCE] hover:text-[#201F68] transition-colors"
-        >
+        <Link href="/login" className="text-white/80 font-medium hover:text-white transition-colors">
           Sign in
         </Link>
       </p>

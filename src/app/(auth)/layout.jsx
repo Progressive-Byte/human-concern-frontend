@@ -2,78 +2,41 @@ import Link from "next/link";
 
 export default function AuthLayout({ children }) {
   return (
-    <div className="min-h-screen flex">
-      {/* ── Left panel (desktop only) ────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-2/5 relative flex-col items-center justify-center overflow-hidden">
-        {/* Background image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/images/bg/registration-bg.png')" }}
-        />
+    <div className="min-h-screen relative flex items-center justify-center px-4 py-10">
 
-        {/* Gradient overlay */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(103.99deg, rgba(64,61,206,0.90) 5.42%, rgba(32,31,104,0.97) 83.13%)",
-          }}
-        />
+      {/* ── Full-screen background image ── */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/images/bg/registration-bg.png')" }}
+      />
+      {/* Dark overlay so card is readable */}
+      <div className="absolute inset-0 bg-black/40" />
 
-        {/* Decorative blurred circles */}
-        <div className="absolute top-[-80px] left-[-80px] w-72 h-72 rounded-full bg-white/5 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-[-60px] right-[-60px] w-56 h-56 rounded-full bg-white/5 blur-3xl pointer-events-none" />
-
-        {/* Content */}
-        <div className="relative z-10 flex flex-col items-center text-center px-10 xl:px-14 max-w-lg">
-          {/* Logo */}
-          <Link href="/" className="mb-10 inline-block">
+      {/* ── Centered auth card ── */}
+      <div className="relative z-10 w-full max-w-[480px] rounded-2xl overflow-hidden shadow-2xl"
+        style={{ background: "rgba(40, 38, 38, 0.97)" }}
+      >
+        {/* Logo strip */}
+        <div className="flex items-center gap-3 px-8 pt-8 pb-6 border-b border-white/10">
+          <Link href="/" className="flex items-center gap-3">
             <img
               src="/icons/hcu-icon.png"
               alt="Human Concern USA"
-              className="h-12 w-auto object-contain brightness-0 invert"
+              className="h-9 w-9 object-contain"
             />
-          </Link>
-
-          {/* Headline */}
-          <h1 className="font-playfair text-4xl xl:text-[2.75rem] font-bold text-white leading-tight mb-5">
-            Making a difference,
-            <br />
-            one act at a time.
-          </h1>
-
-          <p className="text-white/70 text-base xl:text-lg leading-relaxed">
-            Join thousands of donors and volunteers working together to build
-            a better world through compassion and action.
-          </p>
-
-          {/* Decorative pill dots */}
-          <div className="flex items-center gap-2 mt-10">
-            <div className="w-8 h-2 rounded-full bg-white" />
-            <div className="w-2 h-2 rounded-full bg-white/40" />
-            <div className="w-2 h-2 rounded-full bg-white/40" />
-          </div>
-        </div>
-      </div>
-
-      {/* ── Right panel (form area) ──────────────────────────────────── */}
-      <div className="flex-1 flex flex-col items-center justify-center bg-white px-6 py-12 sm:px-10 lg:px-14 xl:px-20 overflow-y-auto">
-        {/* Mobile-only logo */}
-        <div className="lg:hidden mb-8 self-start">
-          <Link href="/">
-            <img
-              src="/icons/hcu-icon.png"
-              alt="Human Concern USA"
-              className="h-9 w-auto object-contain"
-            />
+            <span className="text-white font-bold text-[15px] tracking-widest uppercase">
+              Human Concern USA
+            </span>
           </Link>
         </div>
 
-        {/* Form slot */}
-        <div className="w-full max-w-[440px]">{children}</div>
+        {/* Form content */}
+        <div className="px-8 py-7">
+          {children}
+        </div>
 
-        {/* Footer note */}
-        <p className="mt-10 text-xs text-gray-400 text-center">
+        {/* Footer */}
+        <p className="text-center text-[11px] text-white/25 pb-5">
           &copy; {new Date().getFullYear()} Human Concern USA. All rights reserved.
         </p>
       </div>
