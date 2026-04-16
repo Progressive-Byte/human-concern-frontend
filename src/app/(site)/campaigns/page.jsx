@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import CampaignCard from "@/components/common/CampaignCard";
-
-// ─── Static data ──────────────────────────────────────────────────────────────
+import { ArrowDownIcon, FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
 
 const ALL_CAMPAIGNS = [
   {
@@ -145,39 +145,45 @@ const CATEGORIES = [
   "Food Aid",
 ];
 
-// ─── Icons ──────────────────────────────────────────────────────────────
-
-function SearchIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  );
-}
-
-function FilterIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="4" y1="6" x2="20" y2="6" />
-      <line x1="8" y1="12" x2="16" y2="12" />
-      <line x1="11" y1="18" x2="13" y2="18" />
-    </svg>
-  );
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function CampaignsPage() {
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [sortBy, setSortBy] = useState("newest");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Get values from URL query string
+  const urlSearch = searchParams.get("s") || "";
+  const urlCategory = searchParams.get("cat") || "All";
+  const urlSort = searchParams.get("orderby") || "newest";
+
+  const [search, setSearch] = useState(urlSearch);
+  const [activeCategory, setActiveCategory] = useState(urlCategory);
+  const [sortBy, setSortBy] = useState(urlSort);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
-  // Filter + search
+  // Update URL when filters change
+  const updateURL = (newSearch, newCategory, newSort) => {
+    const params = new URLSearchParams();
+
+    if (newSearch) params.set("s", newSearch);
+    if (newCategory && newCategory !== "All") params.set("cat", newCategory);
+    if (newSort && newSort !== "newest") params.set("orderby", newSort);
+
+    const queryString = params.toString();
+    router.replace(`${pathname}${queryString ? "?" + queryString : ""}`, { scroll: false });
+  };
+
+  // Sync state when URL changes (back/forward navigation)
+  useEffect(() => {
+    setSearch(urlSearch);
+    setActiveCategory(urlCategory);
+    setSortBy(urlSort);
+  }, [urlSearch, urlCategory, urlSort]);
+
+  // Filter + Search
   const filtered = ALL_CAMPAIGNS.filter((c) => {
-    const matchCategory =
-      activeCategory === "All" || c.category === activeCategory;
+    const matchCategory = activeCategory === "All" || c.category === activeCategory;
     const matchSearch =
       !search ||
       c.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -189,15 +195,35 @@ export default function CampaignsPage() {
   const sortedCampaigns = [...filtered].sort((a, b) => {
     if (sortBy === "mostFunded") return b.raised - a.raised;
     if (sortBy === "endingSoon") return a.daysLeft - b.daysLeft;
-    return 0; // newest
+    return 0; // newest (you can improve later with real date)
   });
+
+  // Handle Search Input
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    updateURL(value, activeCategory, sortBy);
+  };
+
+  // Handle Category Change
+  const handleCategoryChange = (cat) => {
+    setActiveCategory(cat);
+    setShowFilterDropdown(false);
+    updateURL(search, cat, sortBy);
+  };
+
+  // Handle Sort Change
+  const handleSortChange = (e) => {
+    const value = e.target.value;
+    setSortBy(value);
+    updateURL(search, activeCategory, value);
+  };
 
   return (
     <main className="bg-[#F6F6F6] min-h-screen">
-
-      {/* ── Dark hero banner ─────────────────────────────────────────── */}
-      <div className="bg-[#1A1A1A] pt-[120px] pb-8 px-4 sm:px-6">
-        <div className="max-w-[1200px] mx-auto">
+      {/* Dark Hero Banner */}
+      <div className="bg-[url('/images/bg/cta-bg.png')] bg-cover bg-center bg-no-repeat w-full ">
+        <div className="max-w-[1611px] mx-auto pt-[140px] pb-[92px] px-4 sm:px-6">
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
             All Campaigns
           </h1>
@@ -205,48 +231,43 @@ export default function CampaignsPage() {
             Browse active campaigns and find causes you want to support
           </p>
 
-          {/* Search + Filter + Sort Row */}
+          {/* Search + Filter + Sort */}
           <div className="flex items-center gap-2 sm:gap-3 relative">
-            {/* Search bar */}
+            {/* Search Bar */}
             <div className="flex-1 relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
-                <SearchIcon />
+                {SearchIcon}
               </span>
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={handleSearchChange}
                 placeholder="Search campaigns..."
-                className="w-full bg-[#2E2E2E] border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/25 transition-colors"
+                className="w-full bg-[#FFFFFF40] rounded-full pl-10 pr-4 py-2.5 text-sm font-normal text-white placeholder:text-white outline-none focus:border-white/25 transition-colors"
               />
             </div>
 
-            {/* Filter Button - Now shows all categories */}
+            {/* Filter Dropdown Button */}
             <div className="relative">
               <button
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-[#2E2E2E] border border-white/10 rounded-lg text-white/70 text-sm hover:bg-[#3a3a3a] transition-colors shrink-0"
+                className="flex items-center gap-2 px-8 py-2.5 bg-[#FFFFFF] border border-[#CCCCCC] rounded-full text-white/70 text-sm"
               >
-                <FilterIcon />
-                <span className="hidden sm:inline">Filter</span>
-                {activeCategory !== "All" && (
-                  <span className="ml-1 text-[#EA3335] font-medium">•</span>
-                )}
+                {FilterIcon}
+                <span className="hidden text-[#1A1A1A] sm:inline">All {ArrowDownIcon}</span>
+                {activeCategory !== "All" && <span className="ml-1 text-[#EA3335] font-medium">•</span>}
               </button>
 
-              {/* Filter Dropdown */}
+              {/* Dropdown */}
               {showFilterDropdown && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 max-h-[70vh] overflow-auto">
                   <div className="px-4 py-2 text-xs font-semibold text-gray-500 border-b">
                     CAMPAIGN CAUSES
                   </div>
                   {CATEGORIES.map((cat) => (
                     <button
                       key={cat}
-                      onClick={() => {
-                        setActiveCategory(cat);
-                        setShowFilterDropdown(false);
-                      }}
+                      onClick={() => handleCategoryChange(cat)}
                       className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition-colors flex items-center justify-between ${
                         activeCategory === cat ? "bg-gray-50 text-[#EA3335] font-medium" : "text-gray-700"
                       }`}
@@ -259,10 +280,10 @@ export default function CampaignsPage() {
               )}
             </div>
 
-            {/* Sort dropdown */}
+            {/* Sort */}
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={handleSortChange}
               className="px-4 py-2.5 bg-[#2E2E2E] border border-white/10 rounded-lg text-white/70 text-sm outline-none hover:bg-[#3a3a3a] transition-colors cursor-pointer shrink-0"
             >
               <option value="newest">Newest</option>
@@ -273,10 +294,8 @@ export default function CampaignsPage() {
         </div>
       </div>
 
-      {/* ── Results area ───────────────────────────────────────────────── */}
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
-
-        {/* Result count */}
+      {/* Results Area */}
+      <div className="max-w-[1611px] mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <p className="text-[13px] text-[#737373]">
             Viewing{" "}
@@ -291,7 +310,6 @@ export default function CampaignsPage() {
           </p>
         </div>
 
-        {/* Cards grid */}
         {sortedCampaigns.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {sortedCampaigns.map((c) => (
@@ -303,16 +321,18 @@ export default function CampaignsPage() {
             <span className="text-5xl mb-4">🔍</span>
             <h3 className="text-lg font-semibold text-[#383838] mb-2">No campaigns found</h3>
             <p className="text-sm text-[#737373] max-w-xs">
-              Try adjusting your search or filters to find what you&apos;re looking for.
+              Try adjusting your search or filters.
             </p>
             <button
               onClick={() => {
                 setSearch("");
                 setActiveCategory("All");
+                setSortBy("newest");
+                router.replace(pathname);
               }}
               className="mt-5 px-5 py-2.5 bg-[#EA3335] text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors"
             >
-              Clear filters
+              Clear All
             </button>
           </div>
         )}
