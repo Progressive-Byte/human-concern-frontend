@@ -4,50 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { AlertIcon, Spinner } from "@/components/common/SvgIcon";
-import { FormField, FormInput } from "@/components/common/FormInput";
-
-// ─── Validation ───────────────────────────────────────────────────────────────
-
-function validate(values) {
-  const errors = {};
-  if (!values.firstName || values.firstName.trim().length < 2)
-    errors.firstName = "First name must be at least 2 characters";
-  if (!values.lastName || values.lastName.trim().length < 2)
-    errors.lastName = "Last name must be at least 2 characters";
-  if (!values.email)
-    errors.email = "Email address is required";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email))
-    errors.email = "Enter a valid email address";
-  if (!values.password)
-    errors.password = "Password is required";
-  else if (values.password.length < 8)
-    errors.password = "Password must be at least 8 characters";
-  if (!values.confirmPassword)
-    errors.confirmPassword = "Please confirm your password";
-  else if (values.confirmPassword !== values.password)
-    errors.confirmPassword = "Passwords do not match";
-  if (!values.terms)
-    errors.terms = "You must accept the terms to continue";
-  return errors;
-}
-
-// ─── Password strength ────────────────────────────────────────────────────────
-
-function getPasswordStrength(password) {
-  if (!password) return { score: 0, label: "", color: "" };
-  let score = 0;
-  if (password.length >= 8) score++;
-  if (password.length >= 12) score++;
-  if (/[A-Z]/.test(password)) score++;
-  if (/[0-9]/.test(password)) score++;
-  if (/[^A-Za-z0-9]/.test(password)) score++;
-  if (score <= 1) return { score, label: "Weak", color: "bg-red-400" };
-  if (score <= 2) return { score, label: "Fair", color: "bg-orange-400" };
-  if (score <= 3) return { score, label: "Good", color: "bg-yellow-400" };
-  return { score, label: "Strong", color: "bg-emerald-500" };
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+import { FormField, FormInput, getPasswordStrength, validateRegistration } from "@/components/common/FormInput";
 
 const INITIAL = { firstName: "", lastName: "", email: "", password: "", confirmPassword: "", terms: false };
 
@@ -68,20 +25,20 @@ export default function RegisterPage() {
     const { name, value, type, checked } = e.target;
     const next = { ...values, [name]: type === "checkbox" ? checked : value };
     setValues(next);
-    if (touched[name]) setErrors((prev) => ({ ...prev, [name]: validate(next)[name] }));
+    if (touched[name]) setErrors((prev) => ({ ...prev, [name]: validateRegistration(next)[name] }));
   }
 
   function handleBlur(e) {
     const { name } = e.target;
     setTouched((prev) => ({ ...prev, [name]: true }));
-    setErrors((prev) => ({ ...prev, [name]: validate(values)[name] }));
+    setErrors((prev) => ({ ...prev, [name]: validateRegistration(values)[name] }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     const allFields = Object.keys(INITIAL).reduce((acc, k) => ({ ...acc, [k]: true }), {});
     setTouched(allFields);
-    const errs = validate(values);
+    const errs = validateRegistration(values);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 

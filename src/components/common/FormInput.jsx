@@ -74,3 +74,40 @@ export function validateLogin(values) {
   }
   return errors;
 }
+
+export function validateRegistration(values) {
+  const errors = {};
+  if (!values.firstName || values.firstName.trim().length < 2)
+    errors.firstName = "First name must be at least 2 characters";
+  if (!values.lastName || values.lastName.trim().length < 2)
+    errors.lastName = "Last name must be at least 2 characters";
+  if (!values.email)
+    errors.email = "Email address is required";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email))
+    errors.email = "Enter a valid email address";
+  if (!values.password)
+    errors.password = "Password is required";
+  else if (values.password.length < 8)
+    errors.password = "Password must be at least 8 characters";
+  if (!values.confirmPassword)
+    errors.confirmPassword = "Please confirm your password";
+  else if (values.confirmPassword !== values.password)
+    errors.confirmPassword = "Passwords do not match";
+  if (!values.terms)
+    errors.terms = "You must accept the terms to continue";
+  return errors;
+}
+
+export function getPasswordStrength(password) {
+  if (!password) return { score: 0, label: "", color: "" };
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  if (score <= 1) return { score, label: "Weak", color: "bg-red-400" };
+  if (score <= 2) return { score, label: "Fair", color: "bg-orange-400" };
+  if (score <= 3) return { score, label: "Good", color: "bg-yellow-400" };
+  return { score, label: "Strong", color: "bg-emerald-500" };
+}
