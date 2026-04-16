@@ -3,27 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { EyeIcon, EyeOffIcon, Spinner } from "@/components/common/SvgIcon";
-import { FormField, FormInput } from "@/components/common/FormInput";
-
-// ─── Validation ───────────────────────────────────────────────────────────────
-
-function validate(values) {
-  const errors = {};
-  if (!values.email) {
-    errors.email = "Email address is required";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-    errors.email = "Enter a valid email address";
-  }
-  if (!values.password) {
-    errors.password = "Password is required";
-  } else if (values.password.length < 6) {
-    errors.password = "Password must be at least 6 characters";
-  }
-  return errors;
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+import { AlertIcon, EyeIcon, EyeOffIcon, Spinner } from "@/components/common/SvgIcon";
+import { FormField, FormInput, validateLogin } from "@/components/common/FormInput";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -41,20 +22,20 @@ export default function LoginPage() {
     const next = { ...values, [name]: value };
     setValues(next);
     if (touched[name]) {
-      setErrors((prev) => ({ ...prev, [name]: validate(next)[name] }));
+      setErrors((prev) => ({ ...prev, [name]: validateLogin(next)[name] }));
     }
   }
 
   function handleBlur(e) {
     const { name } = e.target;
     setTouched((prev) => ({ ...prev, [name]: true }));
-    setErrors((prev) => ({ ...prev, [name]: validate(values)[name] }));
+    setErrors((prev) => ({ ...prev, [name]: validateLogin(values)[name] }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setTouched({ email: true, password: true });
-    const errs = validate(values);
+    const errs = validateLogin(values);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
@@ -124,7 +105,7 @@ export default function LoginPage() {
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+              {showPassword ? EyeOffIcon : EyeIcon}
             </button>
           </div>
         </FormField>
