@@ -2,18 +2,16 @@
 
 import { useState } from "react";
 import CampaignCard from "@/components/common/CampaignCard";
-import Link from "next/link";
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
 const ALL_CAMPAIGNS = [
   {
     id: 1,
-    category: "Emergency",
+    category: "Emergency Relief",
     tag: "Zakat Eligible",
     title: "Ramadan Food Distribution",
-    description:
-      "Urgent aid for earthquake victims. Providing shelter, medical supplies, and food to affected families.",
+    description: "Urgent food aid for families in need during Ramadan.",
     raised: 45000,
     goal: 200000,
     donors: 1205,
@@ -22,11 +20,10 @@ const ALL_CAMPAIGNS = [
   },
   {
     id: 2,
-    category: "Emergency",
+    category: "Emergency Relief",
     tag: "Zakat Eligible",
-    title: "Emergency Relief: Earthquake",
-    description:
-      "Urgent aid for earthquake victims. Providing shelter, medical supplies, and food to affected families.",
+    title: "Earthquake Emergency Relief",
+    description: "Providing shelter, medical supplies, and food to earthquake victims.",
     raised: 128000,
     goal: 200000,
     donors: 1205,
@@ -35,11 +32,10 @@ const ALL_CAMPAIGNS = [
   },
   {
     id: 3,
-    category: "Clean Water",
+    category: "Clean Water & Sanitation",
     tag: "Zakat Eligible",
     title: "Clean Water Wells Project",
-    description:
-      "Urgent aid for earthquake victims. Providing shelter, medical supplies, and food to affected families.",
+    description: "Building sustainable clean water wells in rural communities.",
     raised: 18500,
     goal: 200000,
     donors: 1205,
@@ -48,48 +44,108 @@ const ALL_CAMPAIGNS = [
   },
   {
     id: 4,
-    category: "Emergency",
-    tag: "Zakat Eligible",
-    title: "Emergency Relief: Earthquake",
-    description:
-      "Urgent aid for earthquake victims. Providing shelter, medical supplies, and food to affected families.",
-    raised: 128000,
-    goal: 200000,
-    donors: 1205,
-    daysLeft: 30,
+    category: "Education",
+    tag: "Sadaqa Jariyah",
+    title: "Sponsor a Child's Education",
+    description: "Help provide quality education to underprivileged children.",
+    raised: 67200,
+    goal: 150000,
+    donors: 845,
+    daysLeft: 45,
     org: "MTIWA LTD, Ca",
   },
   {
     id: 5,
-    category: "Clean Water",
+    category: "Health",
     tag: "Zakat Eligible",
-    title: "Clean Water Wells Project",
-    description:
-      "Urgent aid for earthquake victims. Providing shelter, medical supplies, and food to affected families.",
-    raised: 18500,
-    goal: 200000,
-    donors: 1205,
-    daysLeft: 30,
+    title: "Medical Aid for the Poor",
+    description: "Providing essential healthcare and medicines to needy families.",
+    raised: 32500,
+    goal: 100000,
+    donors: 670,
+    daysLeft: 25,
     org: "MTIWA LTD, Ca",
   },
   {
     id: 6,
-    category: "Emergency",
+    category: "Food Aid",
     tag: "Zakat Eligible",
-    title: "Ramadan Food Distribution",
-    description:
-      "Urgent aid for earthquake victims. Providing shelter, medical supplies, and food to affected families.",
+    title: "Monthly Food Baskets",
+    description: "Delivering nutritious food packages to struggling families.",
+    raised: 89000,
+    goal: 120000,
+    donors: 1450,
+    daysLeft: 18,
+    org: "MTIWA LTD, Ca",
+  },
+  {
+    id: 7,
+    category: "Zabiha",
+    tag: "Zakat Eligible",
+    title: "Qurbani / Zabiha Campaign",
+    description: "Perform Qurbani for families who cannot afford it.",
+    raised: 67000,
+    goal: 250000,
+    donors: 980,
+    daysLeft: 12,
+    org: "MTIWA LTD, Ca",
+  },
+  {
+    id: 8,
+    category: "Child Sponsorship",
+    tag: "Sadaqa",
+    title: "Orphan Child Sponsorship",
+    description: "Sponsor an orphan child with monthly support and education.",
     raised: 45000,
-    goal: 200000,
-    donors: 1205,
-    daysLeft: 30,
+    goal: 80000,
+    donors: 520,
+    daysLeft: 60,
+    org: "MTIWA LTD, Ca",
+  },
+  {
+    id: 9,
+    category: "Sadaqa Jariyah",
+    tag: "Sadaqa Jariyah",
+    title: "Build a Masjid",
+    description: "Ongoing charity project to build a mosque in a remote village.",
+    raised: 125000,
+    goal: 300000,
+    donors: 890,
+    daysLeft: 90,
+    org: "MTIWA LTD, Ca",
+  },
+  {
+    id: 10,
+    category: "Livelihoods",
+    tag: "Zakat Eligible",
+    title: "Vocational Training Program",
+    description: "Empowering women with skills and small business support.",
+    raised: 28000,
+    goal: 75000,
+    donors: 310,
+    daysLeft: 40,
     org: "MTIWA LTD, Ca",
   },
 ];
 
-const CATEGORIES = ["All", "Emergency", "Clean Water", "Education", "Healthcare"];
+const CATEGORIES = [
+  "All",
+  "Sadaqa/General",
+  "Zakat",
+  "Emergency Relief",
+  "Child Sponsorship",
+  "Zabiha",
+  "Clean Water & Sanitation",
+  "Education",
+  "Fidyah & Kaffara",
+  "Zakat Al Fitr",
+  "Health",
+  "Livelihoods",
+  "Sadaqa Jariyah",
+  "Food Aid",
+];
 
-// ─── Search icon ──────────────────────────────────────────────────────────────
+// ─── Icons ──────────────────────────────────────────────────────────────
 
 function SearchIcon() {
   return (
@@ -116,6 +172,7 @@ export default function CampaignsPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
   // Filter + search
   const filtered = ALL_CAMPAIGNS.filter((c) => {
@@ -126,6 +183,13 @@ export default function CampaignsPage() {
       c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.description.toLowerCase().includes(search.toLowerCase());
     return matchCategory && matchSearch;
+  });
+
+  // Sorting
+  const sortedCampaigns = [...filtered].sort((a, b) => {
+    if (sortBy === "mostFunded") return b.raised - a.raised;
+    if (sortBy === "endingSoon") return a.daysLeft - b.daysLeft;
+    return 0; // newest
   });
 
   return (
@@ -141,8 +205,8 @@ export default function CampaignsPage() {
             Browse active campaigns and find causes you want to support
           </p>
 
-          {/* Search + filter row */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Search + Filter + Sort Row */}
+          <div className="flex items-center gap-2 sm:gap-3 relative">
             {/* Search bar */}
             <div className="flex-1 relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
@@ -157,11 +221,43 @@ export default function CampaignsPage() {
               />
             </div>
 
-            {/* Filter button */}
-            <button className="flex items-center gap-2 px-4 py-2.5 bg-[#2E2E2E] border border-white/10 rounded-lg text-white/70 text-sm hover:bg-[#3a3a3a] transition-colors shrink-0">
-              <FilterIcon />
-              <span className="hidden sm:inline">Filter</span>
-            </button>
+            {/* Filter Button - Now shows all categories */}
+            <div className="relative">
+              <button
+                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                className="flex items-center gap-2 px-4 py-2.5 bg-[#2E2E2E] border border-white/10 rounded-lg text-white/70 text-sm hover:bg-[#3a3a3a] transition-colors shrink-0"
+              >
+                <FilterIcon />
+                <span className="hidden sm:inline">Filter</span>
+                {activeCategory !== "All" && (
+                  <span className="ml-1 text-[#EA3335] font-medium">•</span>
+                )}
+              </button>
+
+              {/* Filter Dropdown */}
+              {showFilterDropdown && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 border-b">
+                    CAMPAIGN CAUSES
+                  </div>
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        setActiveCategory(cat);
+                        setShowFilterDropdown(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition-colors flex items-center justify-between ${
+                        activeCategory === cat ? "bg-gray-50 text-[#EA3335] font-medium" : "text-gray-700"
+                      }`}
+                    >
+                      {cat}
+                      {activeCategory === cat && <span className="text-[#EA3335]">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Sort dropdown */}
             <select
@@ -177,25 +273,6 @@ export default function CampaignsPage() {
         </div>
       </div>
 
-      {/* ── Category tabs ──────────────────────────────────────────────── */}
-      <div className="bg-[#F6F6F6] border-b border-gray-200 px-4 sm:px-6 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-[1200px] mx-auto flex items-center gap-1 overflow-x-auto scrollbar-hide py-3">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`shrink-0 px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-200 ${
-                activeCategory === cat
-                  ? "bg-[#EA3335] text-white"
-                  : "text-[#737373] hover:text-[#383838] hover:bg-gray-100"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* ── Results area ───────────────────────────────────────────────── */}
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
 
@@ -203,36 +280,21 @@ export default function CampaignsPage() {
         <div className="flex items-center justify-between mb-6">
           <p className="text-[13px] text-[#737373]">
             Viewing{" "}
-            <span className="font-semibold text-[#383838]">{filtered.length}</span>{" "}
-            campaign{filtered.length !== 1 ? "s" : ""}
+            <span className="font-semibold text-[#383838]">{sortedCampaigns.length}</span>{" "}
+            campaign{sortedCampaigns.length !== 1 ? "s" : ""}
             {activeCategory !== "All" && (
-              <> for{" "}
-                <span className="font-semibold text-[#EA3335]">{activeCategory}</span>
-              </>
+              <> in <span className="font-semibold text-[#EA3335]">{activeCategory}</span></>
             )}
             {search && (
-              <> matching{" "}
-                <span className="font-semibold text-[#383838]">"{search}"</span>
-              </>
+              <> matching <span className="font-semibold text-[#383838]">"{search}"</span></>
             )}
           </p>
-
-          {/* Like counter pill — matching design */}
-          <div className="hidden sm:flex items-center gap-2 bg-white border border-gray-200 rounded-full px-3.5 py-1.5 shadow-sm">
-            <span className="text-[13px] font-semibold text-[#383838]">1663</span>
-            <span className="w-5 h-5 rounded-full bg-[#4A90D9] flex items-center justify-center shrink-0">
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="white">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-            </span>
-            <span className="text-[13px] font-semibold text-[#383838]">532</span>
-          </div>
         </div>
 
         {/* Cards grid */}
-        {filtered.length > 0 ? (
+        {sortedCampaigns.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {filtered.map((c) => (
+            {sortedCampaigns.map((c) => (
               <CampaignCard key={c.id} campaign={c} />
             ))}
           </div>
@@ -244,7 +306,10 @@ export default function CampaignsPage() {
               Try adjusting your search or filters to find what you&apos;re looking for.
             </p>
             <button
-              onClick={() => { setSearch(""); setActiveCategory("All"); }}
+              onClick={() => {
+                setSearch("");
+                setActiveCategory("All");
+              }}
               className="mt-5 px-5 py-2.5 bg-[#EA3335] text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors"
             >
               Clear filters
@@ -252,8 +317,7 @@ export default function CampaignsPage() {
           </div>
         )}
 
-        {/* Load more — placeholder */}
-        {filtered.length > 0 && (
+        {sortedCampaigns.length > 0 && (
           <div className="flex justify-center mt-12">
             <button className="px-8 py-3 border border-gray-300 rounded-full text-sm font-medium text-[#383838] hover:border-[#EA3335] hover:text-[#EA3335] transition-all duration-200">
               Load more campaigns
