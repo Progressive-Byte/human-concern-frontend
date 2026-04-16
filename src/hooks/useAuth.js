@@ -1,28 +1,4 @@
-import { useEffect, useState } from "react";
-import { getCurrentUser } from "@/services/authService";
-
-export default function useAuth() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-
-    getCurrentUser()
-      .then((data) => {
-        if (active) setUser(data);
-      })
-      .catch(() => {
-        if (active) setUser(null);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  return { user, loading, isAuthenticated: Boolean(user) };
-}
+// Re-export from AuthContext so existing imports of this hook keep working.
+// All auth state (user, loading, isAuthenticated, login, register, logout)
+// now comes from the global AuthProvider in the root layout.
+export { useAuth as default, useAuth } from "@/context/AuthContext";
