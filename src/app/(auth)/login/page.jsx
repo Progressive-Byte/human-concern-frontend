@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { AlertIcon, EyeIcon, EyeOffIcon, Spinner } from "@/components/common/SvgIcon";
+import { EyeIcon, EyeOffIcon, Spinner } from "@/components/common/SvgIcon";
+import { FormField, FormInput } from "@/components/common/FormInput";
 
 // ─── Validation ───────────────────────────────────────────────────────────────
 
@@ -20,35 +21,6 @@ function validate(values) {
     errors.password = "Password must be at least 6 characters";
   }
   return errors;
-}
-
-// ─── Field ─────────────────────────────────────────────────────────────────────
-
-function Field({ label, error, children }) {
-  return (
-    <div>
-      <label className="block text-[13px] font-medium text-white/80 mb-1.5">
-        {label}
-      </label>
-      {children}
-      {error && (
-        <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400">
-          <AlertIcon size={11} />
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function inputClass(hasError) {
-  return [
-    "w-full rounded-lg border px-4 py-3 text-sm text-gray-900 bg-white outline-none transition",
-    "placeholder:text-gray-400 focus:ring-2 focus:ring-offset-0",
-    hasError
-      ? "border-red-400 focus:border-red-400 focus:ring-red-200"
-      : "border-transparent focus:border-white/30 focus:ring-white/10",
-  ].join(" ");
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -117,8 +89,8 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
 
         {/* Email */}
-        <Field label="Email" error={fieldError("email")}>
-          <input
+        <FormField label="Email" error={fieldError("email")}>
+          <FormInput
             id="email"
             name="email"
             type="email"
@@ -127,14 +99,14 @@ export default function LoginPage() {
             value={values.email}
             onChange={handleChange}
             onBlur={handleBlur}
-            className={inputClass(Boolean(fieldError("email")))}
+            hasError={Boolean(fieldError("email"))}
           />
-        </Field>
+        </FormField>
 
         {/* Password */}
-        <Field label="Password" error={fieldError("password")}>
+        <FormField label="Password" error={fieldError("password")}>
           <div className="relative">
-            <input
+            <FormInput
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
@@ -143,7 +115,8 @@ export default function LoginPage() {
               value={values.password}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={`${inputClass(Boolean(fieldError("password")))} pr-11`}
+              hasError={Boolean(fieldError("password"))}
+              className="pr-11"
             />
             <button
               type="button"
@@ -151,10 +124,10 @@ export default function LoginPage() {
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? EyeOffIcon : EyeIcon }
+              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </div>
-        </Field>
+        </FormField>
 
         {/* Remember me + Forgot password */}
         <div className="flex items-center justify-between pt-1">
@@ -194,7 +167,7 @@ export default function LoginPage() {
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
-              {Spinner}
+              <Spinner />
               Signing in…
             </span>
           ) : (
