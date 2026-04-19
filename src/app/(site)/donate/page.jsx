@@ -1,11 +1,5 @@
-import React from 'react'
+import { redirect } from "next/navigation";
 
-const page = () => {
-  return (
-    <div>
-      <h2 className="text-3xl text-white font-arial">Welcome to the Donate Page</h2>
-    </div>
-  )
+export default function DonatePage() {
+  redirect("/donate/1");
 }
-
-export default page

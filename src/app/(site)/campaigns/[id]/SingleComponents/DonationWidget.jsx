@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowDownIcon, CircleCheckIcon, ShareCampaignIcon } from "@/components/common/SvgIcon";
 import CustomDropdown from "@/components/common/CustomDropdown";
 
@@ -16,6 +17,7 @@ const DonationWidget = ({ campaign }) => {
   const isZakat = campaign.tag.toLowerCase().includes("zakat");
 
   // Track selected tier and currency
+  const router = useRouter();
   const [selectedTier, setSelectedTier] = useState(1);
   const [currency, setCurrency] = useState("USD");
 
@@ -53,7 +55,18 @@ const DonationWidget = ({ campaign }) => {
         </div>
 
         <div className="px-5 pt-5 flex flex-col gap-2.5">
-          <button className="w-full bg-[#EA3335] hover:bg-red-700 text-white font-semibold py-3 rounded-xl text-[15px] transition-colors active:scale-95">
+          <button
+            onClick={() => {
+              const tier = campaign.donationTiers[selectedTier];
+              const params = new URLSearchParams({
+                campaignId: campaign.id,
+                amount: tier?.amount ?? "",
+                currency,
+              });
+              router.push(`/donate/1?${params}`);
+            }}
+            className="w-full cursor-pointer bg-[#EA3335] hover:bg-red-700 text-white font-semibold py-3 rounded-xl text-[15px] transition-colors active:scale-95"
+          >
             Donate Now
           </button>
           <button className="w-full flex items-center justify-center gap-2 border border-gray-200 hover:border-gray-400 text-[#383838] font-medium mt-6 py-3 rounded-xl text-[14px] transition-colors">

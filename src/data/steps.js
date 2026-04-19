@@ -201,8 +201,8 @@ export const ALL_CAMPAIGNS = [
       "Establish a Quran learning centre inside the masjid",
     ],
     donationTiers: [
-      { amount: 100, label: "Funds one square metre" },
-      { amount: 500, label: "Sponsors a room fixture" },
+      { amount: 100,  label: "Funds one square metre" },
+      { amount: 500,  label: "Sponsors a room fixture" },
       { amount: 2000, label: "Funds major construction phase" },
     ],
   },

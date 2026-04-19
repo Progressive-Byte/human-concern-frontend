@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import CampaignTabs from "./SingleComponents/CampaignTabs";
 import DonationWidget from "./SingleComponents/DonationWidget";
-import { ALL_CAMPAIGNS } from "@/data/campaigns";
+import { ALL_CAMPAIGNS } from "@/data/steps";
 
 function getCampaign(id) {
   return ALL_CAMPAIGNS.find((c) => c.id === Number(id));
