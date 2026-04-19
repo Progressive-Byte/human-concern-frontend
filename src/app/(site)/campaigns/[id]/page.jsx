@@ -31,29 +31,26 @@ export default async function CampaignPage(props) {
           ← Back to Campaigns
         </Link>
         <div className="h-[1px] w-full bg-[#CCCCCC] my-7"></div>
+
         <div className="flex flex-col lg:flex-row gap-10">
           <div className="w-full lg:w-[1000px] mx-auto lg:mx-0">
-            <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-              <div className="relative h-[300px] sm:h-[340px]">
-                <Image src={`/images/campaign-${campaign.id}.png`} alt={campaign.title} fill className="object-cover" priority />
+            <div className="">
+              <div className="relative h-[300px] sm:h-[490px]">
+                <Image src={`/images/campaign-${campaign.id}.png`} alt={campaign.title} fill className="object-cover rounded-3xl" priority />
                 <div className="absolute top-4 left-4 flex gap-2">
                   {isEmergency && <span className="bg-[#FFF1F1] text-[#FF3636] rounded-full px-2.5 py-1 text-xs">Emergency</span>}
                   <span className="bg-[#E6F9F0] text-[#10B981] rounded-full px-2.5 py-1 text-xs">{campaign.tag}</span>
                 </div>
               </div>
 
-              <div className="px-5 pt-4 pb-2 flex items-center gap-2">
-                <Image src="/images/organization.png" alt={campaign.org} width={72} height={24} className="object-contain" />
-                <span className="text-[13px] text-[#383838]">{campaign.org}</span>
-              </div>
-
-              <div className="px-5 pb-4">
-                <h1 className="text-2xl font-bold text-[#383838]">{campaign.title}</h1>
-                <div className="flex gap-2 text-sm text-[#737373] mt-2">
+              <div className="pt-[30px]">
+                <h1 className="text-3xl font-bold text-[#383838]">{campaign.title}</h1>
+                <div className="flex gap-2 text-sm font-normal text-[#383838] mt-4">
+                  <Image src="/images/donars.png" alt="donor" width={15} height={15} className="object-contain" />
                   <span>{campaign.donors} donors</span>
-                  <span>•</span>
+                  <Image src="/images/calander.png" alt="calander" width={15} height={15} className="object-contain" />
                   <span>{campaign.daysLeft} days left</span>
-                  <span>•</span>
+                  <Image src="/images/map.png" alt="map" width={15} height={15} className="object-contain" />
                   <span>{campaign.region}</span>
                 </div>
               </div>
