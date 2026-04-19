@@ -46,7 +46,7 @@ export default function Step5Payment() {
   const { data, update } = useDonation();
 
   return (
-    <StepLayout step={5} title="Payment Method" onNext={() => router.push("/donate/6")}>
+    <StepLayout step={5} title="Payment Method" onNext={() => { update({ maxStep: Math.max(data.maxStep ?? 1, 6) }); router.push("/donate/6"); }}>
       <div className="flex flex-col gap-3">
         {METHODS.map((m) => {
           const active = data.paymentMethod === m.value;

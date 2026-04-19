@@ -15,7 +15,7 @@ export default function Step2Frequency() {
   const { data, update } = useDonation();
 
   return (
-    <StepLayout step={2} title="Donation Frequency" onNext={() => router.push("/donate/3")}>
+    <StepLayout step={2} title="Donation Frequency" onNext={() => { update({ maxStep: Math.max(data.maxStep ?? 1, 3) }); router.push("/donate/3"); }}>
       <div className="flex flex-col gap-3">
         {OPTIONS.map((opt) => {
           const active = data.frequency === opt.value;

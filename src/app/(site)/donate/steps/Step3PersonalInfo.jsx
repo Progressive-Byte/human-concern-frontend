@@ -19,6 +19,7 @@ export default function Step3PersonalInfo() {
       setError("Enter a valid email address.");
       return;
     }
+    update({ maxStep: Math.max(data.maxStep ?? 1, 4) });
     router.push("/donate/4");
   };
 

@@ -8,6 +8,7 @@ export function DonationProvider({ children }) {
   const [data, setData] = useState({
     campaignId: null,
     campaignTitle: "",
+    maxStep: 1,
     amount: "",
     currency: "USD",
     frequency: "one-time",
