@@ -49,13 +49,13 @@ const CampaignTabs = ({ campaign }) => {
       )}
 
       {activeTab === "Updates" && (
-        <div className="text-[14px] text-[#383838]">
+        <div className="text-[16px] text-[#383838]">
           <p className="mb-4">No updates yet.</p>
         </div>
       )}
 
       {activeTab === "Donors" && (
-        <div className="text-[14px] text-[#383838]">
+        <div className="text-[16px] text-[#383838]">
           <p className="mb-4">{campaign.donors.toLocaleString()} donors have contributed so far.</p>
         </div>
       )}
