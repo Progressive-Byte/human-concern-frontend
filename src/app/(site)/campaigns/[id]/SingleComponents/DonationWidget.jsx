@@ -1,3 +1,4 @@
+import { CircleCheckIcon, ShareCampaignIcon } from '@/components/common/SvgIcon';
 import React from 'react'
 
 const DonationWidget = ({ campaign }) => {
@@ -17,46 +18,41 @@ const DonationWidget = ({ campaign }) => {
                         </p>
 
                         {/* Progress bar */}
-                        <div className="relative h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden mt-4">
+                        <div className="flex justify-end mt-1">
+                            <span className="text-[12px] font-semibold text-[#AEAEAE]">{pct}%</span>
+                        </div>
+                        <div className="relative h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden">
                         <div
                             className="h-full bg-[#055A46] rounded-full transition-all duration-500"
                             style={{ width: `${pct}%` }}
                         />
                         </div>
-                        <div className="flex justify-end">
-                        <span className="text-[12px] font-semibold text-[#AEAEAE]">{pct}%</span>
-                        </div>
 
                         {/* Stat pills */}
                         <div className="grid grid-cols-2 gap-3 mt-4">
                         <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
-                            <p className="text-[20px] font-bold text-[#383838]">{campaign.donors}</p>
-                            <p className="text-[11px] text-[#AEAEAE] mt-0.5">Donors</p>
+                            <p className="text-[24px] font-bold text-[#383838]">{campaign.donors}</p>
+                            <p className="text-[14px] font-normal text-[#383838] mt-0.5">Donors</p>
                         </div>
                         <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
-                            <p className="text-[20px] font-bold text-[#383838]">{campaign.daysLeft}</p>
-                            <p className="text-[11px] text-[#AEAEAE] mt-0.5">Days Left</p>
+                            <p className="text-[24px] font-bold text-[#383838]">{campaign.daysLeft}</p>
+                            <p className="text-[14px] font-normal text-[#383838] mt-0.5">Days Left</p>
                         </div>
                         </div>
                     </div>
-                    <div className="px-5 py-4 flex flex-col gap-2.5">
+                    <div className="px-5 pt-5 flex flex-col gap-2.5">
                         <button className="w-full bg-[#EA3335] hover:bg-red-700 text-white font-semibold py-3 rounded-xl text-[15px] transition-colors active:scale-95">
                         Donate Now
                         </button>
-                        <button className="w-full flex items-center justify-center gap-2 border border-gray-200 hover:border-gray-400 text-[#383838] font-medium py-3 rounded-xl text-[14px] transition-colors">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                        </svg>
-                        Share Campaign
+                        <button className="w-full flex items-center justify-center gap-2 border border-gray-200 hover:border-gray-400 text-[#383838] font-medium mt-6 py-3 rounded-xl text-[14px] transition-colors">
+                            {ShareCampaignIcon}
+                            Share Campaign
                         </button>
 
                         {/* Zakat badge */}
                         {isZakat && (
                         <div className="flex items-start gap-2.5 bg-[#F0FDF4] border border-[#bbf7d0] rounded-xl px-4 py-3 mt-1">
-                            <svg className="text-[#10B981] shrink-0 mt-0.5" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            {CircleCheckIcon}
                             <div>
                             <p className="text-[13px] font-semibold text-[#065F46]">{campaign.tag}</p>
                             <p className="text-[11px] text-[#6B7280] leading-snug mt-0.5">
