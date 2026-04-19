@@ -15,8 +15,8 @@ export default function Step4Contact() {
       setError("All fields are required.");
       return;
     }
-    update({ maxStep: Math.max(data.maxStep ?? 1, 5) });
-    router.push("/donate/5");
+    update({ maxStep: Math.max(data.maxStep ?? 1, 6) });
+    router.push("/donate/6");
   };
 
   return (

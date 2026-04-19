@@ -53,8 +53,8 @@ export default function Step1Amount() {
       setError("Please select or enter a valid amount.");
       return;
     }
-    update({ amount: finalAmount, maxStep: Math.max(data.maxStep ?? 1, 2) });
-    router.push("/donate/2");
+    update({ amount: finalAmount, maxStep: Math.max(data.maxStep ?? 1, 4) });
+    router.push("/donate/4");
   };
 
   return (
