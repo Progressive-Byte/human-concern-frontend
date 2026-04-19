@@ -16,13 +16,11 @@ const DonationWidget = ({ campaign }) => {
   const isZakat = campaign.tag.toLowerCase().includes("zakat");
 
   // Track selected tier and currency
-  const [selectedTier, setSelectedTier] = useState(1); // default middle tier
+  const [selectedTier, setSelectedTier] = useState(1);
   const [currency, setCurrency] = useState("USD");
 
   return (
     <div className="flex flex-col gap-[25px]">
-
-      {/* ── Top card — raised + donate ── */}
       <div className="rounded-2xl border border-dashed border-[#BFBFBF]">
         <div className="px-5 pt-5">
           <p className="text-[36px] font-bold text-[#383838] leading-none">
