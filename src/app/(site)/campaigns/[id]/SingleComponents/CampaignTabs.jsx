@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export function CampaignTabs({ campaign }) {
+const CampaignTabs = ({ campaign }) => {
   const [activeTab, setActiveTab] = useState("About");
   const tabs = ["About", "Updates", "Donors"];
 
@@ -63,3 +63,4 @@ export function CampaignTabs({ campaign }) {
     </div>
   );
 }
+export default CampaignTabs;

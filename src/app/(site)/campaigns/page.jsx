@@ -158,7 +158,7 @@ const SORT_OPTIONS = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function CampaignsPage() {
+const CampaignsPage = () => {
   const router       = useRouter();
   const pathname     = usePathname();
   const searchParams = useSearchParams();
@@ -336,3 +336,4 @@ export default function CampaignsPage() {
     </main>
   );
 }
+export default CampaignsPage;
