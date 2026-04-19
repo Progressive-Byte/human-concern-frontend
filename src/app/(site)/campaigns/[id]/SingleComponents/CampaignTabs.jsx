@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleCheckIcon } from "@/components/common/SvgIcon";
 import { useState } from "react";
 
 const CampaignTabs = ({ campaign }) => {
@@ -13,7 +14,7 @@ const CampaignTabs = ({ campaign }) => {
           <button
             key={t}
             onClick={() => setActiveTab(t)}
-            className={`pb-2.5 text-[14px] font-medium transition-colors ${
+            className={`pb-2.5 text-[14px] font-medium transition-colors cursor-pointer ${
               activeTab === t
                 ? "text-[#383838] border-b-2 border-[#383838] -mb-px"
                 : "text-[#AEAEAE] hover:text-[#737373]"
@@ -26,20 +27,18 @@ const CampaignTabs = ({ campaign }) => {
 
       {activeTab === "About" && (
         <div>
-          <p className="text-[14px] text-[#383838] leading-relaxed mb-5">
+          <p className="text-[18px] text-[#383838]">
             {campaign.description}
           </p>
           {campaign.objectives?.length > 0 && (
             <div>
-              <h3 className="text-[15px] font-bold text-[#383838] mb-3">
+              <h3 className="text-[20px] font-bold text-[#383838] mt-[30px]">
                 Campaign Objectives
               </h3>
-              <ul className="flex flex-col gap-2.5">
+              <ul className="flex flex-col mt-4 gap-2.5">
                 {campaign.objectives.map((obj, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[13px] text-[#383838]">
-                    <svg className="shrink-0 mt-0.5 text-[#10B981]" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  <li key={i} className="flex items-start gap-2.5 text-[16px] font-normal text-[#383838]">
+                    {CircleCheckIcon}
                     {obj}
                   </li>
                 ))}

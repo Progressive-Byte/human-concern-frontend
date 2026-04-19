@@ -55,7 +55,7 @@ export default async function CampaignPage(props) {
                 </div>
               </div>
 
-              <div className="px-5 py-4">
+              <div className="mt-8">
                 <CampaignTabs campaign={campaign} />
               </div>
             </div>

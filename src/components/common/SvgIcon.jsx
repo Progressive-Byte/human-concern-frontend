@@ -176,3 +176,17 @@ export const CountryReachIcon = (
     <path d="M0.666504 0.666992L4.6665 4.66699L8.6665 0.666992" stroke="#1A1A1A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
   )
+
+  export const CircleCheckIcon = (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#clip0_74_1599)">
+      <path d="M9.9974 18.3327C14.5998 18.3327 18.3307 14.6017 18.3307 9.99935C18.3307 5.39698 14.5998 1.66602 9.9974 1.66602C5.39502 1.66602 1.66406 5.39698 1.66406 9.99935C1.66406 14.6017 5.39502 18.3327 9.9974 18.3327Z" stroke="#383838" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.5 10.0007L9.16667 11.6673L12.5 8.33398" stroke="#383838" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <defs>
+      <clipPath id="clip0_74_1599">
+      <rect width="20" height="20" fill="white"/>
+      </clipPath>
+      </defs>
+    </svg>
+  )
