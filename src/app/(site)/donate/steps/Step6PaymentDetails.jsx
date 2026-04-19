@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
-import StepLayout from "../components/StepLayout";
+import StepLayout from "../DonateComponents/StepLayout";
 
 function formatCardNumber(val) {
   return val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();

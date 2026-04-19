@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
-import StepLayout from "../components/StepLayout";
+import StepLayout from "../DonateComponents/StepLayout";
 
 export default function Step4Contact() {
   const router = useRouter();

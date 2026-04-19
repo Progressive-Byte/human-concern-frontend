@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
-import Step1Amount from "../steps/Step1Amount";
-import Step2Frequency from "../steps/Step2Frequency";
-import Step3PersonalInfo from "../steps/Step3PersonalInfo";
-import Step4Contact from "../steps/Step4Contact";
-import Step5Payment from "../steps/Step5Payment";
-import Step6CardDetails from "../steps/Step6CardDetails";
-import Step7Review from "../steps/Step7Review";
+import Step1Amount from "../steps/Step3Objective";
+import Step2Frequency from "../steps/Step2Cause";
+import Step3PersonalInfo from "../steps/Step1Info";
+import Step4Contact from "../steps/Step5Summary";
+import Step5Payment from "../steps/Step4Payment";
+import Step6CardDetails from "../steps/Step6PaymentDetails";
+import Step7Review from "../steps/Step7Confirmation";
 
 const STEPS = [
   Step1Amount,

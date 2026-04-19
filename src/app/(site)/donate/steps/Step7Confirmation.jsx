@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
-import StepLayout from "../components/StepLayout";
+import StepLayout from "../DonateComponents/StepLayout";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 

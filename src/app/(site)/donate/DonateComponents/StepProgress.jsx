@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useDonation } from "@/context/DonationContext";
+import { StepDone } from "@/components/common/SvgIcon";
 
-const STEPS = ["Amount", "Frequency", "Personal", "Contact", "Payment", "Card", "Review"];
+const STEPS = ["Info", "Cause", "Objectives", "Payment", "Summary", "Payment Details", "Confirmation"];
 
 export default function StepProgress({ current }) {
   const { data } = useDonation();
@@ -29,9 +30,7 @@ export default function StepProgress({ current }) {
             }`}
           >
             {done ? (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+              StepDone
             ) : step}
           </div>
         );

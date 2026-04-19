@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
-import StepLayout from "../components/StepLayout";
+import StepLayout from "../DonateComponents/StepLayout";
 import CustomDropdown from "@/components/common/CustomDropdown";
 
 const CURRENCY_OPTIONS = [
