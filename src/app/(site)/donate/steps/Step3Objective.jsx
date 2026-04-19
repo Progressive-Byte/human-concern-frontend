@@ -58,7 +58,7 @@ export default function Step1Amount() {
   };
 
   return (
-    <StepLayout step={1} title="Select Donation Amount" onNext={handleNext}>
+    <StepLayout step={3} title="Select Donation Amount" onNext={handleNext}>
       <div className="mb-5">
         <label className="text-[13px] font-medium text-[#383838] mb-2 block">Currency</label>
         <CustomDropdown

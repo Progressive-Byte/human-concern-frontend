@@ -8,7 +8,7 @@ export default function StepLayout({ step, title, children, onNext, nextLabel = 
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
-      <div className="max-w-[520px] mx-auto">
+      <div className="max-w-[700px] mx-auto">
         <StepProgress current={step} />
         <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 sm:p-8">
           <h2 className="text-[22px] font-bold text-[#383838] mb-6">{title}</h2>

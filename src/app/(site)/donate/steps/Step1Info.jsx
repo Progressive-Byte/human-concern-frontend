@@ -36,7 +36,7 @@ export default function Step3PersonalInfo() {
   );
 
   return (
-    <StepLayout step={3} title="Personal Information" onNext={handleNext}>
+    <StepLayout step={1} title="Personal Information" onNext={handleNext}>
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           {field("First Name", "firstName", { placeholder: "John" })}

@@ -20,7 +20,7 @@ export default function Step4Contact() {
   };
 
   return (
-    <StepLayout step={4} title="Contact Details" onNext={handleNext}>
+    <StepLayout step={5} title="Contact Details" onNext={handleNext}>
       <div className="flex flex-col gap-4">
         <div>
           <label className="text-[13px] font-medium text-[#383838] mb-1.5 block">Phone Number</label>
