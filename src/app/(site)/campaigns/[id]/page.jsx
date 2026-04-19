@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ALL_CAMPAIGNS } from "@/data/campaigns";
-import { CampaignTabs } from "./CampaignTabs";
+import { CampaignTabs } from "./SingleComponents/CampaignTabs";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -14,23 +14,6 @@ export async function generateStaticParams() {
   return ALL_CAMPAIGNS.map((c) => ({ id: String(c.id) }));
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function BackLink() {
-  return (
-    <Link
-      href="/campaigns"
-      className="inline-flex items-center gap-1.5 text-[13px] text-[#737373] hover:text-[#EA3335] transition-colors no-underline mb-6"
-    >
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-      </svg>
-      Back to Campaigns
-    </Link>
-  );
-}
-
-// ─── Donation Widget ──────────────────────────────────────────────────────────
 
 function DonationWidget({ campaign }) {
   const pct = Math.min(100, Math.round((campaign.raised / campaign.goal) * 100));
@@ -150,7 +133,15 @@ export default async function CampaignDetailsPage({ params }) {
     <main className="bg-[#F6F6F6] min-h-screen">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-[110px] pb-16">
 
-        <BackLink />
+        <Link
+          href="/campaigns"
+          className="inline-flex items-center gap-1.5 text-[13px] text-[#737373] hover:text-[#EA3335] transition-colors no-underline mb-6"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Campaigns
+        </Link>
 
         {/* ── Two-column layout ── */}
         <div className="flex flex-col lg:flex-row gap-6 items-start">
