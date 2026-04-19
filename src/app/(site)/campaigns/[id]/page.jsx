@@ -26,7 +26,7 @@ export default async function CampaignPage(props) {
 
   return (
     <main className="bg-[#ffffff] min-h-screen">
-      <div className="max-w-[1611px] mx-auto px-4 sm:px-6 pt-[180px] pb-16">
+      <div className="max-w-[1611px] mx-auto px-4 sm:px-6 pt-[120px] lg:pt-[180px] pb-10 lg:pb-16">
         <Link href="/campaigns" className="inline-flex items-center text-[14px] text-[#737373] hover:text-[#EA3335]">
           ← Back to Campaigns
         </Link>
