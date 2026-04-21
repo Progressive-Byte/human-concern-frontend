@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import Step1Info from "../steps/Step1PersonalInfo";
+import Step1Info from "../steps/Step1Info";
 import Step2Cause from "../steps/Step2Cause";
 import Step3Objective from "../steps/Step3Objective";
 import Step4Payment from "../steps/Step4Payment";
