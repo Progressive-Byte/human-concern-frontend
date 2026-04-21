@@ -2,18 +2,28 @@ import Link from "next/link";
 import Image from "next/image";
 
 const CampaignCard = ({ campaign }) => {
+  const raised = campaign.raised ?? 0;
+  const goal = campaign.goal ?? 0;
+  const pct = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
 
-  const pct = Math.min(100, Math.round((campaign.raised / campaign.goal) * 100));
+  const category = Array.isArray(campaign.categories)
+    ? campaign.categories[0] ?? ""
+    : campaign.category ?? "";
+  const isEmergency = category.toLowerCase().includes("emergency");
 
-  // Check if campaign is Emergency
-  const isEmergency = campaign.category.toLowerCase().includes("emergency");
+  const daysLeft = campaign.endAt
+    ? Math.max(0, Math.ceil((new Date(campaign.endAt) - Date.now()) / 86400000))
+    : campaign.daysLeft ?? 0;
+
+  const title = campaign.name ?? campaign.title ?? "";
+  const thumbnail = campaign.thumbnailPath || `/images/campaign-${campaign.id}.png`;
 
   return (
     <div className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1 mt-10 lg:mt-[57px] md:mt-[30px]">
       <div className="relative h-[303px] overflow-hidden">
         <Image
-          src={`/images/campaign-${campaign.id}.png`}
-          alt={campaign.title}
+          src={thumbnail}
+          alt={title}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -27,9 +37,11 @@ const CampaignCard = ({ campaign }) => {
             </div>
           )}
 
-          <div className="flex items-center bg-[#E6F9F0] text-[#10B981] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm">
-            ZAKAT ELIGIBLE
-          </div>
+          {campaign.zakatEligible && (
+            <div className="flex items-center bg-[#E6F9F0] text-[#10B981] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm">
+              ZAKAT ELIGIBLE
+            </div>
+          )}
         </div>
       </div>
       <div className="px-5 py-3 rounded-xl flex items-center text-sm gap-2">
@@ -47,7 +59,7 @@ const CampaignCard = ({ campaign }) => {
       {/* Content */}
       <div className="px-5 pt-3">
         <h3 className="font-semibold text-[26px] text-[#383838]">
-          {campaign.title}
+          {title}
         </h3>
 
         <p className="text-[#383838] pt-2 font-normal text-[15px]">
@@ -65,11 +77,9 @@ const CampaignCard = ({ campaign }) => {
         <div className="flex items-center justify-between gap-2 text-[#383838] mt-2">
           <div className="flex items-center gap-2 text-[13px] font-normal">
             <Image src="/images/donars.png" alt="donor" width={15} height={15} />
-            {campaign.donors} donors
+            {campaign.donors ?? 0} donors
             <Image src="/images/calander.png" alt="calander" width={15} height={15} />
-              {campaign.daysLeft > 0 && (
-                <div>{campaign.daysLeft} days left</div>
-              )}
+            {daysLeft > 0 && <div>{daysLeft} days left</div>}
           </div>
           <div className="text-[#AEAEAE] font-semibold text-[15px]">
             {pct}%
@@ -78,16 +88,16 @@ const CampaignCard = ({ campaign }) => {
         <div className="flex md:flex-row flex-col justify-between items-center mt-7 mb-[18px]">
           <div>
             <div className="font-bold text-[#383838] xl:text-4xl md:text-3xl text-4xl">
-              ${campaign.raised.toLocaleString()}
+              ${raised.toLocaleString()}
             </div>
             <div className="text-[#383838] pt-2 font-normal text-[15px]">
-              raised of ${campaign.goal.toLocaleString()}
+              raised of ${goal.toLocaleString()}
             </div>
           </div>
           <Link
-              href={`/campaigns/${campaign.id}`}
-              className="w-full md:w-auto text-center bg-[#F6F6F6] hover:bg-[#383838] border border-[#00000033] text-[#383838] hover:text-white font-semibold xl:px-6 md:px-3 md:py-3 px-6 py-4 xl:py-5 rounded-[18px] text-[18px] transition-all duration-300 active:scale-95"
-            >
+            href={`/campaigns/${campaign.id}`}
+            className="w-full md:w-auto text-center bg-[#F6F6F6] hover:bg-[#383838] border border-[#00000033] text-[#383838] hover:text-white font-semibold xl:px-6 md:px-3 md:py-3 px-6 py-4 xl:py-5 rounded-[18px] text-[18px] transition-all duration-300 active:scale-95"
+          >
             Donate Now
           </Link>
         </div>
