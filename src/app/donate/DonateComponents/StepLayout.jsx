@@ -59,7 +59,7 @@ export default function StepLayout({
               {showSkip ? (
                 <button
                   onClick={onSkip ?? (() => router.push("/donate/2"))}
-                  className="px-5 py-2.5 rounded-full border border-[#E5E5E5] text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors"
+                  className="px-5 py-2.5 rounded-full border border-[#E5E5E5] text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"
                 >
                   Skip For Now
                 </button>
@@ -77,7 +77,7 @@ export default function StepLayout({
             </div>
             <button
               onClick={onNext}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[14px] font-semibold transition-all"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[14px] font-semibold transition-all cursor-pointer"
             >
               {resolvedNextLabel}
               {ArrowNextIcon}
