@@ -2,9 +2,19 @@
 
 import Link from "next/link";
 import { useDonation } from "@/context/DonationContext";
-import { StepDone } from "@/components/common/SvgIcon";
+import { ProgressCheckIcon } from "@/components/common/SvgIcon";
 
-const STEPS = ["Info", "Cause", "Objectives", "Payment", "Summary", "Payment Details", "Confirmation"];
+
+const STEPS = [
+  "Info",
+  "Cause",
+  "Objectives",
+  "Payment",
+  "Addons",
+  "Summary",
+  "Payment Details",
+  "Confirmation",
+];
 
 export default function StepProgress({ current }) {
   const { data } = useDonation();
@@ -19,45 +29,50 @@ export default function StepProgress({ current }) {
         const reachable = step <= maxStep;
 
         const dot = (
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold transition-all
-            ${done
-              ? "bg-[#055A46] text-white"
-              : active
-              ? "bg-[#EA3335] text-white"
-              : reachable
-              ? "bg-[#E5E5E5] text-[#737373] hover:bg-[#D0D0D0]"
-              : "bg-[#E5E5E5] text-[#AEAEAE] cursor-not-allowed"
-            }`}
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold transition-all select-none
+              ${done
+                ? "bg-[#1A1A1A] text-white"          // completed — dark filled
+                : active
+                ? "bg-[#EA3335] text-white"            // active — red
+                : reachable
+                ? "bg-[#E5E5E5] text-[#737373] hover:bg-[#D5D5D5] cursor-pointer"
+                : "bg-white border border-[#D5D5D5] text-[#CCCCCC] cursor-not-allowed"
+              }`}
           >
-            {done ? (
-              StepDone
-            ) : step}
+            {done ? ProgressCheckIcon : step}
           </div>
         );
 
         return (
           <div key={step} className="flex items-center">
-            <div className="flex flex-col items-center gap-1 group">
+            <div className="flex flex-col items-center gap-1">
               {reachable ? (
                 <Link href={`/donate/${step}`} className="flex flex-col items-center gap-1">
                   {dot}
-                  <span className={`text-[10px] font-medium hidden sm:block transition-colors
-                    ${active ? "text-[#EA3335]" : done ? "text-[#055A46]" : "text-[#737373]"}`}>
+                  <span
+                    className={`text-[10px] font-medium hidden sm:block transition-colors whitespace-nowrap
+                      ${active ? "text-[#EA3335]" : done ? "text-[#1A1A1A]" : "text-[#AEAEAE]"}`}
+                  >
                     {label}
                   </span>
                 </Link>
               ) : (
                 <>
                   {dot}
-                  <span className="text-[10px] font-medium hidden sm:block text-[#AEAEAE]">
+                  <span className="text-[10px] font-medium hidden sm:block text-[#CCCCCC] whitespace-nowrap">
                     {label}
                   </span>
                 </>
               )}
             </div>
 
+            {/* Connector line */}
             {i < STEPS.length - 1 && (
-              <div className={`h-[2px] w-8 sm:w-12 mx-1 mb-4 rounded-full transition-colors ${done ? "bg-[#055A46]" : "bg-[#E5E5E5]"}`} />
+              <div
+                className={`h-[1.5px] w-6 sm:w-10 mx-1 mb-4 rounded-full transition-colors
+                  ${done ? "bg-[#1A1A1A]" : "bg-[#E5E5E5]"}`}
+              />
             )}
           </div>
         );

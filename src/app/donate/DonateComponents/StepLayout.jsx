@@ -3,35 +3,100 @@
 import { useRouter } from "next/navigation";
 import StepProgress from "./StepProgress";
 
-export default function StepLayout({ step, title, children, onNext, nextLabel = "Continue" }) {
+const STEP_LABELS = [
+  "Info",
+  "Cause",
+  "Objectives",
+  "Payment",
+  "Addons",
+  "Summary",
+  "Payment Details",
+  "Confirmation",
+];
+
+export default function StepLayout({
+  step,
+  title,
+  subtitle = "Share some necessary personal information for security",
+  children,
+  onNext,
+  // Pass nextLabel/prevLabel to override, or they auto-resolve from STEP_LABELS
+  nextLabel,
+  prevLabel,
+  // Only Step 1 (Info) shows "Skip For Now"
+  showSkip = false,
+  onSkip,
+}) {
   const router = useRouter();
+
+  const resolvedNextLabel = nextLabel ?? STEP_LABELS[step] ?? "Continue";
+  const resolvedPrevLabel = prevLabel ?? STEP_LABELS[step - 2] ?? "Back";
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
       <div className="max-w-[700px] mx-auto">
         <StepProgress current={step} />
+
         <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 sm:p-8">
-          <h2 className="text-[22px] font-bold text-[#383838] mb-6">{title}</h2>
+          {/* ── Header ── */}
+          <h2 className="text-[22px] font-bold text-[#383838] mb-1">{title}</h2>
+          <p className="text-sm text-[#8C8C8C] font-normal mb-6">{subtitle}</p>
+
+          {/* ── Content ── */}
           {children}
-          <div className="flex gap-3 mt-8">
-            {step > 1 && (
-              <button
-                onClick={() => router.push(`/donate/${step - 1}`)}
-                className="flex-1 py-3 rounded-xl border border-[#E5E5E5] text-[#383838] font-medium hover:border-gray-400 transition-colors text-[15px]"
-              >
-                Back
-              </button>
-            )}
+
+          {/* ── Security badge ── */}
+          <div className="mt-8 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7.5" stroke="#AEAEAE"/>
+              <path d="M8 4v4.5l2.5 1.5" stroke="#AEAEAE" strokeWidth="1.2" strokeLinecap="round"/>
+            </svg>
+            <span className="text-[12px] text-[#AEAEAE]">
+              Your payment is secured with 256-bit SSL encryption
+            </span>
+          </div>
+
+          {/* ── Navigation buttons ── */}
+          <div className="flex items-center justify-between mt-5 gap-3">
+            {/* Left: Skip (step 1 only) or Back */}
+            <div>
+              {showSkip ? (
+                <button
+                  onClick={onSkip ?? (() => router.push("/donate/2"))}
+                  className="px-5 py-2.5 rounded-full border border-[#E5E5E5] text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors"
+                >
+                  Skip For Now
+                </button>
+              ) : step > 1 ? (
+                <button
+                  onClick={() => router.push(`/donate/${step - 1}`)}
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-[#E5E5E5] text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors"
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M9 11L5 7l4-4" stroke="#383838" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  {resolvedPrevLabel}
+                </button>
+              ) : (
+                <div /> // spacer so flex justify-between still works
+              )}
+            </div>
+
+            {/* Right: Next / primary CTA — dark pill with step name + arrow */}
             <button
               onClick={onNext}
-              className="flex-1 py-3 rounded-xl bg-[#EA3335] hover:bg-red-700 text-white font-semibold transition-colors text-[15px] active:scale-95"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[14px] font-semibold transition-all"
             >
-              {nextLabel}
+              {resolvedNextLabel}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M5 3l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </button>
           </div>
         </div>
+
         <p className="text-center text-[12px] text-[#AEAEAE] mt-4">
-          Step {step} of 7 — Your information is secure and encrypted.
+          Step {step} of {STEP_LABELS.length} — Your information is secure and encrypted.
         </p>
       </div>
     </main>
