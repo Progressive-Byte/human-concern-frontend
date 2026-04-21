@@ -22,6 +22,7 @@ const CampaignCard = ({ campaign }) => {
   const title = campaign.name ?? "";
   const thumbnail = campaign.thumbnailPath || `/images/placeholder.png`;
   const thumbnailUrl = siteUrl + thumbnail;
+  
 
   return (
     <div className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1 mt-10 lg:mt-[57px] md:mt-[30px]">
@@ -34,14 +35,12 @@ const CampaignCard = ({ campaign }) => {
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute top-4 left-4 flex gap-2">
-          {isEmergency && (
             <div className="flex items-center bg-[#FFF1F1] text-[#FF3636] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm">
               <div className="w-3.5 h-3.5 bg-[#FF3636]/70 rounded-full mr-1.5 flex items-center justify-center">
                 <Image src="/images/emergency.png" alt="alert" width={16} height={16} />
               </div>
-              EMERGENCY
+              {category}
             </div>
-          )}
           {campaign.zakatEligible && (
             <div className="flex items-center bg-[#E6F9F0] text-[#10B981] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm">
               ZAKAT ELIGIBLE
