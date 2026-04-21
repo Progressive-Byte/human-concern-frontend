@@ -8,14 +8,6 @@ const nextConfig = {
       },
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: "/api/proxy/:path*",
-        destination: "https://donation.api.sagsio.com/api/v1/:path*",
-      },
-    ];
-  },
 };
 
 export default nextConfig;
