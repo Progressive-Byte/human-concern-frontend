@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function Previous({
-    baseSlug = "plugins",
+    baseSlug = "campaigns",
     subDir = "page",
     current = 1,
 }) {
@@ -12,7 +12,7 @@ export default function Previous({
                 <>
                     <Link
                         href={`/${baseSlug}`}
-                        className="group pl-navigation-button"
+                        className="group hc-navigation-button"
                     >
                         <div>
                             <Image
@@ -27,7 +27,7 @@ export default function Previous({
                     </Link>
                     <Link
                         href={`/${baseSlug}/${subDir}/${parseInt(current) - 1}`}
-                        className="group pl-navigation-button"
+                        className="group hc-navigation-button"
                     >
                         <div>
                             <Image

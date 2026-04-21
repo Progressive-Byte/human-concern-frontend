@@ -42,3 +42,45 @@
     font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
   }
 }
+.hc-navigation-button {
+	@apply flex items-center gap-[2px] md:gap-1 text-body text-[10px] md:text-sm font-inter font-normal 
+    py-2 px-3 border border-body/10 rounded hover:bg-transparent hover:border-primary;
+}
+.hc-navigation-button:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(71 53 239 / var(--tw-border-opacity, 1));
+  background-color: transparent;
+}
+
+.hc-navigation-button {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 0.25rem;
+  border-width: 1px;
+  border-color: rgb(30 49 81 / 0.1);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-family: var(--font-inter);
+  font-size: 10px;
+  font-weight: 400;
+  --tw-text-opacity: 1;
+  color: rgb(30 49 81 / var(--tw-text-opacity, 1));
+}
+
+.hc-navigation-button:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(71 53 239 / var(--tw-border-opacity, 1));
+  background-color: transparent;
+}
+
+@media (min-width: 768px) {
+
+  .hc-navigation-button {
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+}

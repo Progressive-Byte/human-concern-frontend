@@ -13,7 +13,7 @@ export default function Next({
                 <>
                     <Link
                         href={`/${baseSlug}/${subDir}/${parseInt(current) + 1}`}
-                        className="group pl-navigation-button"
+                        className="group hc-navigation-button"
                     >
                         <span>Next</span>
 
@@ -29,7 +29,7 @@ export default function Next({
                     </Link>
                     <Link
                         href={`/${baseSlug}/${subDir}/${total}`}
-                        className="group pl-navigation-button"
+                        className="group hc-navigation-button"
                     >
                         <span>Last</span>
 

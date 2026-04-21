@@ -4,7 +4,7 @@ import Previous from "./elements/Previous";
 import Next from "./elements/Next";
 
 const Pagination = ({
-    baseSlug = "plugins",
+    baseSlug = "campaigns",
     subDir = "page",
     current = 1,
     total = 1,
