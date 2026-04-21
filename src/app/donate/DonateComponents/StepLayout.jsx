@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import StepProgress from "./StepProgress";
+import { ArrowNextIcon, ArrowPrevIcon } from "@/components/common/SvgIcon";
 
 const STEP_LABELS = [
   "Info",
@@ -20,10 +21,8 @@ export default function StepLayout({
   subtitle = "Share some necessary personal information for security",
   children,
   onNext,
-  // Pass nextLabel/prevLabel to override, or they auto-resolve from STEP_LABELS
   nextLabel,
   prevLabel,
-  // Only Step 1 (Info) shows "Skip For Now"
   showSkip = false,
   onSkip,
 }) {
@@ -70,27 +69,21 @@ export default function StepLayout({
               ) : step > 1 ? (
                 <button
                   onClick={() => router.push(`/donate/${step - 1}`)}
-                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-[#E5E5E5] text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors"
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-[#E5E5E5] text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"
                 >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M9 11L5 7l4-4" stroke="#383838" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  {ArrowPrevIcon}
                   {resolvedPrevLabel}
                 </button>
               ) : (
-                <div /> // spacer so flex justify-between still works
+                <div />
               )}
             </div>
-
-            {/* Right: Next / primary CTA — dark pill with step name + arrow */}
             <button
               onClick={onNext}
               className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[14px] font-semibold transition-all"
             >
               {resolvedNextLabel}
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M5 3l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              {ArrowNextIcon}
             </button>
           </div>
         </div>
