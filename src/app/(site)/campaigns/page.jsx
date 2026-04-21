@@ -16,7 +16,7 @@ const SORT_OPTIONS = [
   { label: "Z → A",       value: "z_to_a"   },
 ];
 
-const LIMIT = 9; // campaigns per page
+const LIMIT = 3; // campaigns per page
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 const CampaignsPage = () => {
