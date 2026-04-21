@@ -43,16 +43,6 @@
   }
 }
 .hc-navigation-button {
-	@apply flex items-center gap-[2px] md:gap-1 text-body text-[10px] md:text-sm font-inter font-normal 
-    py-2 px-3 border border-body/10 rounded hover:bg-transparent hover:border-primary;
-}
-.hc-navigation-button:hover {
-  --tw-border-opacity: 1;
-  border-color: rgb(71 53 239 / var(--tw-border-opacity, 1));
-  background-color: transparent;
-}
-
-.hc-navigation-button {
   display: flex;
   align-items: center;
   gap: 2px;

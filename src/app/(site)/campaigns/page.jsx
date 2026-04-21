@@ -1,234 +1,161 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import CampaignCard from "@/components/common/CampaignCard";
 import CustomDropdown from "@/components/common/CustomDropdown";
+import Pagination from "@/components/common/Pagination";
 import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
+import { apiBase } from "@/utils/constants";
 
-// ─── Static data (swap with API later) ────────────────────────────────────────
-
-const ALL_CAMPAIGNS = [
-  {
-    id: 1,
-    category: "Emergency Relief",
-    tag: "Zakat Eligible",
-    title: "Ramadan Food Distribution",
-    description: "Urgent food aid for families in need during Ramadan.",
-    raised: 45000,
-    goal: 200000,
-    donors: 1205,
-    daysLeft: 30,
-    org: "MTIWA LTD, Ca",
-  },
-  {
-    id: 2,
-    category: "Emergency Relief",
-    tag: "Zakat Eligible",
-    title: "Earthquake Emergency Relief",
-    description: "Providing shelter, medical supplies, and food to earthquake victims.",
-    raised: 128000,
-    goal: 200000,
-    donors: 1205,
-    daysLeft: 30,
-    org: "MTIWA LTD, Ca",
-  },
-  {
-    id: 3,
-    category: "Clean Water & Sanitation",
-    tag: "Zakat Eligible",
-    title: "Clean Water Wells Project",
-    description: "Building sustainable clean water wells in rural communities.",
-    raised: 18500,
-    goal: 200000,
-    donors: 1205,
-    daysLeft: 30,
-    org: "MTIWA LTD, Ca",
-  },
-  {
-    id: 4,
-    category: "Education",
-    tag: "Sadaqa Jariyah",
-    title: "Sponsor a Child's Education",
-    description: "Help provide quality education to underprivileged children.",
-    raised: 67200,
-    goal: 150000,
-    donors: 845,
-    daysLeft: 45,
-    org: "MTIWA LTD, Ca",
-  },
-  {
-    id: 5,
-    category: "Health",
-    tag: "Zakat Eligible",
-    title: "Medical Aid for the Poor",
-    description: "Providing essential healthcare and medicines to needy families.",
-    raised: 32500,
-    goal: 100000,
-    donors: 670,
-    daysLeft: 25,
-    org: "MTIWA LTD, Ca",
-  },
-  {
-    id: 6,
-    category: "Food Aid",
-    tag: "Zakat Eligible",
-    title: "Monthly Food Baskets",
-    description: "Delivering nutritious food packages to struggling families.",
-    raised: 89000,
-    goal: 120000,
-    donors: 1450,
-    daysLeft: 18,
-    org: "MTIWA LTD, Ca",
-  },
-  {
-    id: 7,
-    category: "Zabiha",
-    tag: "Zakat Eligible",
-    title: "Qurbani / Zabiha Campaign",
-    description: "Perform Qurbani for families who cannot afford it.",
-    raised: 67000,
-    goal: 250000,
-    donors: 980,
-    daysLeft: 12,
-    org: "MTIWA LTD, Ca",
-  },
-  {
-    id: 8,
-    category: "Child Sponsorship",
-    tag: "Sadaqa",
-    title: "Orphan Child Sponsorship",
-    description: "Sponsor an orphan child with monthly support and education.",
-    raised: 45000,
-    goal: 80000,
-    donors: 520,
-    daysLeft: 60,
-    org: "MTIWA LTD, Ca",
-  },
-  {
-    id: 9,
-    category: "Sadaqa Jariyah",
-    tag: "Sadaqa Jariyah",
-    title: "Build a Masjid",
-    description: "Ongoing charity project to build a mosque in a remote village.",
-    raised: 125000,
-    goal: 300000,
-    donors: 890,
-    daysLeft: 90,
-    org: "MTIWA LTD, Ca",
-  },
-  {
-    id: 10,
-    category: "Livelihoods",
-    tag: "Zakat Eligible",
-    title: "Vocational Training Program",
-    description: "Empowering women with skills and small business support.",
-    raised: 28000,
-    goal: 75000,
-    donors: 310,
-    daysLeft: 40,
-    org: "MTIWA LTD, Ca",
-  },
-];
-
-// ─── Dropdown option arrays ────────────────────────────────────────────────────
-
-const CATEGORY_OPTIONS = [
-  "All",
-  "Sadaqa/General",
-  "Zakat",
-  "Emergency Relief",
-  "Child Sponsorship",
-  "Zabiha",
-  "Clean Water & Sanitation",
-  "Education",
-  "Fidyah & Kaffara",
-  "Zakat Al Fitr",
-  "Health",
-  "Livelihoods",
-  "Sadaqa Jariyah",
-  "Food Aid",
-].map((cat) => ({ label: cat, value: cat }));
-
+// ─── Sort options (UI label → API value) ──────────────────────────────────────
 const SORT_OPTIONS = [
-  { label: "Newest",      value: "newest"     },
-  { label: "Most Funded", value: "mostFunded" },
-  { label: "Ending Soon", value: "endingSoon" },
+  { label: "Newest",      value: "new_first" },
+  { label: "Oldest",      value: "old_first" },
+  { label: "A → Z",       value: "a_to_z"   },
+  { label: "Z → A",       value: "z_to_a"   },
 ];
+
+const LIMIT = 9; // campaigns per page
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-
 const CampaignsPage = () => {
   const router       = useRouter();
   const pathname     = usePathname();
   const searchParams = useSearchParams();
 
-  // ── Read from URL ────────────────────────────────────────────────────────
-  const urlSearch   = searchParams.get("s")       ?? "";
-  const urlCategory = searchParams.get("cat")     ?? "All";
-  const urlSort     = searchParams.get("orderby") ?? "newest";
+  // ── Read initial state from URL ──────────────────────────────────────────
+  const urlSearch     = searchParams.get("q")          ?? "";
+  const urlCategoryId = searchParams.get("categoryId") ?? "";
+  const urlSort       = searchParams.get("sort")       ?? "new_first";
+  const urlPage       = parseInt(searchParams.get("page") ?? "1", 10);
 
-  // ── Local state (mirrors URL) ────────────────────────────────────────────
-  const [searchInput,    setSearchInput]    = useState(urlSearch);
-  const [activeCategory, setActiveCategory] = useState(urlCategory);
-  const [sortBy,         setSortBy]         = useState(urlSort);
+  // ── Local UI state ───────────────────────────────────────────────────────
+  const [searchInput,      setSearchInput]      = useState(urlSearch);
+  const [activeCategoryId, setActiveCategoryId] = useState(urlCategoryId);
+  const [sortBy,           setSortBy]           = useState(urlSort);
+  const [currentPage,      setCurrentPage]      = useState(urlPage);
 
-  // Sync state on back / forward navigation
+  // ── Data state ───────────────────────────────────────────────────────────
+  const [campaigns,   setCampaigns]   = useState([]);
+  const [totalPages,  setTotalPages]  = useState(1);
+  const [totalItems,  setTotalItems]  = useState(0);
+  const [loading,     setLoading]     = useState(true);
+  const [categories,  setCategories]  = useState([{ label: "All", value: "" }]);
+
+  // ── Sync state when browser back/forward ────────────────────────────────
   useEffect(() => {
     setSearchInput(urlSearch);
-    setActiveCategory(urlCategory);
+    setActiveCategoryId(urlCategoryId);
     setSortBy(urlSort);
-  }, [urlSearch, urlCategory, urlSort]);
+    setCurrentPage(urlPage);
+  }, [urlSearch, urlCategoryId, urlSort, urlPage]);
+
+  // ── Fetch categories once for the dropdown ───────────────────────────────
+  // Replace this URL with your real categories endpoint if available.
+  // For now we derive unique category names from the campaigns response
+  // and store them without IDs (pure name filter won't work with API —
+  // wire up a real /categories endpoint and map { id, name } when ready).
+  //
+  // If your backend exposes GET /api/v1/categories, uncomment and adapt:
+  //
+  // useEffect(() => {
+  //   fetch(`${apiBase}categories`)
+  //     .then(r => r.json())
+  //     .then(data => {
+  //       const opts = [{ label: "All", value: "" },
+  //         ...(data?.data?.items ?? []).map(c => ({ label: c.name, value: c.id }))];
+  //       setCategories(opts);
+  //     });
+  // }, []);
 
   // ── URL writer ───────────────────────────────────────────────────────────
-  const updateURL = (s, cat, sort) => {
+  const updateURL = useCallback((q, catId, sort, page) => {
     const params = new URLSearchParams();
-    if (s)               params.set("s",       s);
-    if (cat !== "All")   params.set("cat",     cat);
-    if (sort !== "newest") params.set("orderby", sort);
+    if (q)                 params.set("q",          q);
+    if (catId)             params.set("categoryId",  catId);
+    if (sort !== "new_first") params.set("sort",     sort);
+    if (page > 1)          params.set("page",        String(page));
+    params.set("limit", String(LIMIT));
     const qs = params.toString();
     router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
-  };
+  }, [router, pathname]);
+
+  // ── Fetch campaigns from API ─────────────────────────────────────────────
+  const fetchCampaigns = useCallback(async (q, catId, sort, page) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("page",  String(page));
+      params.set("limit", String(LIMIT));
+      if (q)     params.set("q",          q);
+      if (catId) params.set("categoryId",  catId);
+      if (sort)  params.set("sort",        sort);
+
+      const res  = await fetch(`${apiBase}campaigns?${params.toString()}`);
+      const json = await res.json();
+
+      setCampaigns(json?.data?.items ?? []);
+      const pagination = json?.meta?.pagination;
+      setTotalItems(pagination?.total  ?? 0);
+      setTotalPages(pagination?.pages  ?? Math.ceil((pagination?.total ?? 0) / LIMIT));
+    } catch (err) {
+      console.error("Failed to fetch campaigns:", err);
+      setCampaigns([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // ── Re-fetch whenever URL params change ─────────────────────────────────
+  useEffect(() => {
+    fetchCampaigns(urlSearch, urlCategoryId, urlSort, urlPage);
+  }, [urlSearch, urlCategoryId, urlSort, urlPage, fetchCampaigns]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
-  const handleSearchChange = (e) => {
-    const val = e.target.value;
-    setSearchInput(val);
-    updateURL(val, activeCategory, sortBy);
-  };
 
-  const handleCategoryChange = (cat) => {
-    setActiveCategory(cat);
-    updateURL(searchInput, cat, sortBy);
+  // Debounced search — reset to page 1
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchInput !== urlSearch) {
+        setCurrentPage(1);
+        updateURL(searchInput, activeCategoryId, sortBy, 1);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleCategoryChange = (catId) => {
+    setActiveCategoryId(catId);
+    setCurrentPage(1);
+    updateURL(searchInput, catId, sortBy, 1);
   };
 
   const handleSortChange = (val) => {
     setSortBy(val);
-    updateURL(searchInput, activeCategory, val);
+    setCurrentPage(1);
+    updateURL(searchInput, activeCategoryId, val, 1);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    updateURL(searchInput, activeCategoryId, sortBy, page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleClearAll = () => {
     setSearchInput("");
-    setActiveCategory("All");
-    setSortBy("newest");
+    setActiveCategoryId("");
+    setSortBy("new_first");
+    setCurrentPage(1);
     router.replace(pathname);
   };
 
-  // ── Filter + sort (replace with API later) ───────────────────────────────
-  const filtered = ALL_CAMPAIGNS.filter((c) => {
-    const matchCat    = activeCategory === "All" || c.category === activeCategory;
-    const matchSearch = !searchInput || c.title.toLowerCase().includes(searchInput.toLowerCase()) || c.description.toLowerCase().includes(searchInput.toLowerCase());
-    return matchCat && matchSearch;
-  });
-
-  const sortedCampaigns = [...filtered].sort((a, b) => {
-    if (sortBy === "mostFunded") return b.raised - a.raised;
-    if (sortBy === "endingSoon") return a.daysLeft - b.daysLeft;
-    return 0;
-  });
+  // ── Active category label for display ───────────────────────────────────
+  const activeCategoryLabel =
+    categories.find((c) => c.value === activeCategoryId)?.label ?? "";
 
   // ─────────────────────────────────────────────────────────────────────────
-
   return (
     <main className="bg-[#F6F6F6] min-h-screen">
 
@@ -245,7 +172,7 @@ const CampaignsPage = () => {
           {/* Search + Filter + Sort row */}
           <div className="flex items-center gap-2 sm:gap-3">
 
-            {/* Search input */}
+            {/* Search */}
             <div className="flex-1 relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
                 {SearchIcon}
@@ -253,25 +180,25 @@ const CampaignsPage = () => {
               <input
                 type="text"
                 value={searchInput}
-                onChange={handleSearchChange}
+                onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search campaigns..."
                 className="w-full bg-[#FFFFFF40] rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white outline-none focus:ring-1 focus:ring-white/30 transition-all"
               />
             </div>
 
-            {/* Category filter dropdown */}
+            {/* Category filter */}
             <CustomDropdown
-              options={CATEGORY_OPTIONS}
-              value={activeCategory}
+              options={categories}
+              value={activeCategoryId}
               onChange={handleCategoryChange}
               label="CAMPAIGN CAUSES"
               icon={FilterIcon}
-              showDot={activeCategory !== "All"}
+              showDot={!!activeCategoryId}
               maxHeight="260px"
               width="w-64"
             />
 
-            {/* Sort dropdown */}
+            {/* Sort */}
             <CustomDropdown
               options={SORT_OPTIONS}
               value={sortBy}
@@ -284,17 +211,17 @@ const CampaignsPage = () => {
         </div>
       </div>
 
-      {/* ── Results area ─────────────────────────────────────────────── */}
+      {/* ── Results area ────────────────────────────────────────────── */}
       <div className="max-w-[1611px] mx-auto px-4 sm:px-6 py-8">
 
         {/* Count bar */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-[13px] text-[#737373]">
             Viewing{" "}
-            <span className="font-semibold text-[#383838]">{sortedCampaigns.length}</span>{" "}
-            campaign{sortedCampaigns.length !== 1 ? "s" : ""}
-            {activeCategory !== "All" && (
-              <> in <span className="font-semibold text-[#EA3335]">{activeCategory}</span></>
+            <span className="font-semibold text-[#383838]">{totalItems}</span>{" "}
+            campaign{totalItems !== 1 ? "s" : ""}
+            {activeCategoryLabel && activeCategoryLabel !== "All" && (
+              <> in <span className="font-semibold text-[#EA3335]">{activeCategoryLabel}</span></>
             )}
             {searchInput && (
               <> matching <span className="font-semibold text-[#383838]">"{searchInput}"</span></>
@@ -303,19 +230,30 @@ const CampaignsPage = () => {
         </div>
 
         {/* Grid */}
-        {sortedCampaigns.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {Array.from({ length: LIMIT }).map((_, i) => (
+              <div key={i} className="bg-white rounded-3xl h-[520px] animate-pulse" />
+            ))}
+          </div>
+        ) : campaigns.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {sortedCampaigns.map((c) => (
+              {campaigns.map((c) => (
                 <CampaignCard key={c.id} campaign={c} />
               ))}
             </div>
 
-            <div className="flex justify-center mt-12">
-              <button className="px-8 py-3 border border-gray-300 rounded-full text-sm font-medium text-[#383838] hover:border-[#EA3335] hover:text-[#EA3335] transition-all duration-200">
-                Load more campaigns
-              </button>
-            </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-12">
+                <Pagination
+                  current={currentPage}
+                  total={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -335,5 +273,6 @@ const CampaignsPage = () => {
       </div>
     </main>
   );
-}
+};
+
 export default CampaignsPage;
