@@ -13,10 +13,8 @@ const HighlightCampaigns = () => {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const res = await fetch(`/api/proxy/campaigns/featured`);
+        const res = await fetch(`${apiBase}campaigns/featured`);
         const data = await res.json();
-        console.log("Fetched campaigns:", data);
-        // Adjust based on your API response structure
         setCampaigns(data?.data?.items || []);
       } catch (err) {
         console.error("Failed to fetch campaigns:", err);
