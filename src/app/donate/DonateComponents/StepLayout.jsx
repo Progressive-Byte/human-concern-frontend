@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import StepProgress from "./StepProgress";
-import { ArrowNextIcon, ArrowPrevIcon } from "@/components/common/SvgIcon";
+import { ArrowNextIcon, ArrowPrevIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
 const STEP_LABELS = [
   "Info",
@@ -46,10 +46,7 @@ export default function StepLayout({
 
           {/* ── Security badge ── */}
           <div className="mt-8 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="8" r="7.5" stroke="#AEAEAE"/>
-              <path d="M8 4v4.5l2.5 1.5" stroke="#AEAEAE" strokeWidth="1.2" strokeLinecap="round"/>
-            </svg>
+            {NoticeIcon}
             <span className="text-[12px] text-[#AEAEAE]">
               Your payment is secured with 256-bit SSL encryption
             </span>
