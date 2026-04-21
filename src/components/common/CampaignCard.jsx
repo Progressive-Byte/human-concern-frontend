@@ -13,8 +13,6 @@ const CampaignCard = ({ campaign }) => {
     ? campaign.categories[0] ?? ""
     : "";
 
-  const isEmergency = category.toLowerCase().includes("emergency");
-
   const daysLeft = campaign.endAt
     ? Math.max(0, Math.ceil((new Date(campaign.endAt) - Date.now()) / 86400000))
     : 0;
@@ -95,10 +93,10 @@ const CampaignCard = ({ campaign }) => {
         <div className="flex md:flex-row flex-col justify-between items-center mt-7 mb-[18px]">
           <div>
             <div className="font-bold text-[#383838] xl:text-4xl md:text-3xl text-4xl">
-              ${raised.toLocaleString()}
+              ${goal.toLocaleString()}
             </div>
             <div className="text-[#383838] pt-2 font-normal text-[15px]">
-              raised of ${goal.toLocaleString()}
+              raised of ${raised.toLocaleString()}
             </div>
           </div>
           <Link
