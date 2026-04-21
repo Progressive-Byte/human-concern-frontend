@@ -32,9 +32,9 @@ export default function StepProgress({ current }) {
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold transition-all select-none
               ${done
-                ? "bg-[#1A1A1A] text-white"          // completed — dark filled
+                ? "bg-[#1A1A1A] text-white"
                 : active
-                ? "bg-[#EA3335] text-white"            // active — red
+                ? "bg-[#EA3335] text-white"
                 : reachable
                 ? "bg-[#E5E5E5] text-[#737373] hover:bg-[#D5D5D5] cursor-pointer"
                 : "bg-white border border-[#D5D5D5] text-[#CCCCCC] cursor-not-allowed"
