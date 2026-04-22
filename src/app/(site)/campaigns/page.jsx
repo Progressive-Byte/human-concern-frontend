@@ -74,7 +74,6 @@ const CampaignsPage = () => {
   const [categories, setCategories] = useState([ALL_OPTION]);
   const [causes,     setCauses]     = useState([ALL_OPTION]);
 
-  // ── Sync local state when browser back/forward changes URL
   useEffect(() => {
     setSearchInput(urlSearch);
     setActiveCategoryId(urlCategoryId);
@@ -96,17 +95,17 @@ const CampaignsPage = () => {
       .then(r => r.json())
       .then(data => {
         const items = data?.data?.items ?? [];
-        setCauses([ALL_OPTION, ...items.map(c => ({ label: `${c.iconEmoji ?? ""} ${c.name}`.trim(), value: c.id }))]);
+        setCauses([ALL_OPTION, ...items.map(c => ({ label: ` ${c.name}`.trim(), value: c.id }))]);
       });
   }, []);
 
-  // ── Push new filter state into the URL
+  // Push new filter state into the URL
   const updateURL = useCallback((filters) => {
     const qs = buildURLParams(filters);
     router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   }, [router, pathname]);
 
-  // ── Fetch campaigns from API
+  // Fetch campaigns from API
   const fetchCampaigns = useCallback(async (filters) => {
     setLoading(true);
     try {
@@ -126,12 +125,12 @@ const CampaignsPage = () => {
     }
   }, []);
 
-  // ── Re-fetch whenever URL-driven params change
+  // Re-fetch whenever URL-driven params change
   useEffect(() => {
     fetchCampaigns({ q: urlSearch, categoryId: urlCategoryId, causeId: urlCauseId, sort: urlSort, page: urlPage });
   }, [urlSearch, urlCategoryId, urlCauseId, urlSort, urlPage, fetchCampaigns]);
 
-  // ── Debounced search — resets to page 1
+  // Debounced search — resets to page 1
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchInput !== urlSearch) {
@@ -142,7 +141,7 @@ const CampaignsPage = () => {
     return () => clearTimeout(timer);
   }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Filter / sort handlers
+  // Filter / sort handlers
   const handleCategoryChange = (categoryId) => {
     setActiveCategoryId(categoryId);
     setCurrentPage(1);
