@@ -16,18 +16,16 @@ export default function DonationWidget({ campaign }) {
   const router = useRouter();
 
   const suggestedAmounts = campaign.suggestedAmounts ?? [];
-  const addOns           = campaign.addOns           ?? [];
   const limits           = campaign.goalsDates        ?? {};
 
-  const raised = campaign.raised ?? 0;
-  const goal   = campaign.goal   ?? 0;
-  const pct    = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+  const raised      = campaign.raised ?? 0;
+  const goal        = campaign.goal   ?? 0;
+  const pct         = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
   const hasProgress = campaign.raised != null && goal > 0;
 
   const [selectedAmount, setSelectedAmount] = useState(suggestedAmounts[1] ?? suggestedAmounts[0] ?? 50);
   const [customAmount,   setCustomAmount]   = useState("");
   const [currency,       setCurrency]       = useState(campaign.currency ?? "USD");
-  const [selectedAddOn,  setSelectedAddOn]  = useState(null);
 
   const finalAmount = customAmount ? Number(customAmount) : selectedAmount;
 
@@ -37,7 +35,6 @@ export default function DonationWidget({ campaign }) {
       amount:     String(finalAmount),
       currency,
     });
-    if (selectedAddOn) params.set("addOnId", selectedAddOn);
     router.push(`/donate/1?${params}`);
   };
 
@@ -80,29 +77,25 @@ export default function DonationWidget({ campaign }) {
               <p className="text-[22px] font-bold text-[#383838]">
                 Goal: ${goal.toLocaleString()}
               </p>
-              <p className="text-[16px] text-[#383838] mt-4">
-                raised of ${raised.toLocaleString()}
-              </p>
+              <p className="text-[13px] text-[#737373] mt-1">Fundraising in progress</p>
+              <div className="relative h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden mt-3">
+                <div className="h-full bg-[#055A46] rounded-full" style={{ width: "0%" }} />
+              </div>
             </>
           )}
 
-          <div className="flex justify-end mt-1">
-            <span className="text-[12px] font-semibold text-[#AEAEAE]">{pct}%</span>
-          </div>
-          <div className="relative h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#055A46] rounded-full transition-all duration-500"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-
+          {/* Donors + Days Left */}
           <div className="grid grid-cols-2 gap-3 mt-4">
             <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
-              <p className="text-[24px] font-bold text-[#383838]">{campaign.donors == null ? 0 : campaign.donors}</p>
+              <p className="text-[24px] font-bold text-[#383838]">
+                {campaign.donors ?? 0}
+              </p>
               <p className="text-[14px] font-normal text-[#383838] mt-0.5">Donors</p>
             </div>
             <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
-              <p className="text-[24px] font-bold text-[#383838]">{campaign.daysLeft == null ? 0 : campaign.daysLeft}</p>
+              <p className="text-[24px] font-bold text-[#383838]">
+                {campaign.daysLeft ?? 0}
+              </p>
               <p className="text-[14px] font-normal text-[#383838] mt-0.5">Days Left</p>
             </div>
           </div>
@@ -164,12 +157,11 @@ export default function DonationWidget({ campaign }) {
                   <button
                     key={amt}
                     onClick={() => { setSelectedAmount(amt); setCustomAmount(""); }}
-                    className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-6 border transition-all duration-200 ${
+                    className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-6 border transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "bg-[#F0FDF4] border-[#055A46]"
+                        ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
                         : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
                     }`}
-                    style={isSelected ? { boxShadow: "0px 0px 8px 0px #B3FF57" } : {}}
                   >
                     <span className={`text-[28px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
                       ${amt}
@@ -178,6 +170,30 @@ export default function DonationWidget({ campaign }) {
                 );
               })}
             </div>
+
+            {/* Custom amount input */}
+            {/* <div className="relative mt-3">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
+              <input
+                type="number"
+                value={customAmount}
+                onChange={(e) => setCustomAmount(e.target.value)}
+                placeholder={`Other amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
+                min={limits.minimumDonation ?? 1}
+                max={limits.maximumDonation ?? undefined}
+                className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
+                  customAmount
+                    ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
+                    : "border-[#CCCCCC] bg-white text-[#383838]"
+                } focus:border-[#055A46]`}
+              />
+            </div>
+
+            {limits.allowRecurringDonations && (
+              <p className="text-[12px] text-[#737373] mt-3 text-center">
+                Recurring donations available at checkout
+              </p>
+            )} */}
           </div>
         </div>
       )}
