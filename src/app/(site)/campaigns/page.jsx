@@ -175,11 +175,9 @@ const CampaignsPage = () => {
     router.replace(pathname);
   };
 
-  // ── Derived display values
+  // Derived display values
   const activeCategoryLabel = categories.find(c => c.value === activeCategoryId)?.label ?? "";
   const activeCauseLabel    = causes.find(c => c.value === activeCauseId)?.label ?? "";
-
-  // ─────────────────────────────────────────────────────────────────────────
 
   return (
     <main className="bg-[#F6F6F6] min-h-screen">
