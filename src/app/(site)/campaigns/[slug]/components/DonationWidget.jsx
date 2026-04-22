@@ -80,19 +80,32 @@ export default function DonationWidget({ campaign }) {
               <p className="text-[22px] font-bold text-[#383838]">
                 Goal: ${goal.toLocaleString()}
               </p>
-              <p className="text-[13px] text-[#737373] mt-1">Fundraising in progress</p>
+              <p className="text-[16px] text-[#383838] mt-4">
+                raised of ${raised.toLocaleString()}
+              </p>
             </>
           )}
 
-          {/* Donors stat */}
-          {campaign.donors != null && (
-            <div className="grid grid-cols-1 mt-4">
-              <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
-                <p className="text-[24px] font-bold text-[#383838]">{campaign.donors.toLocaleString()}</p>
-                <p className="text-[14px] text-[#383838] mt-0.5">Donors</p>
-              </div>
+          <div className="flex justify-end mt-1">
+            <span className="text-[12px] font-semibold text-[#AEAEAE]">{pct}%</span>
+          </div>
+          <div className="relative h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#055A46] rounded-full transition-all duration-500"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
+              <p className="text-[24px] font-bold text-[#383838]">{campaign.donors == null ? 0 : campaign.donors}</p>
+              <p className="text-[14px] font-normal text-[#383838] mt-0.5">Donors</p>
             </div>
-          )}
+            <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
+              <p className="text-[24px] font-bold text-[#383838]">{campaign.daysLeft == null ? 0 : campaign.daysLeft}</p>
+              <p className="text-[14px] font-normal text-[#383838] mt-0.5">Days Left</p>
+            </div>
+          </div>
         </div>
 
         {/* Buttons */}
