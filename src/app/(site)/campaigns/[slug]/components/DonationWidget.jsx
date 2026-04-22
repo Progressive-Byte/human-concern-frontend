@@ -104,38 +104,6 @@ function AmountSelector({ amounts, selected, custom, onSelect, onCustomChange, m
   );
 }
 
-// ─── AddOn card ───────────────────────────────────────────────────────────────
-
-function AddOnCard({ addOn, selected, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-start gap-3 rounded-2xl px-4 py-4 border text-left transition-all duration-200 ${
-        selected
-          ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-          : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
-      }`}
-    >
-      {addOn.iconEmoji && (
-        <span className="text-2xl flex-shrink-0">{addOn.iconEmoji}</span>
-      )}
-      <div className="flex-1 min-w-0">
-        <p className={`text-[15px] font-semibold ${selected ? "text-[#055A46]" : "text-[#383838]"}`}>
-          {addOn.name}
-        </p>
-        {addOn.shortDescription && (
-          <p className="text-[12px] text-[#737373] mt-0.5">{addOn.shortDescription}</p>
-        )}
-        <p className={`text-[13px] font-medium mt-1 ${selected ? "text-[#055A46]" : "text-[#383838]"}`}>
-          ${addOn.amount} {addOn.amountFieldLabel && `· ${addOn.amountFieldLabel}`}
-        </p>
-      </div>
-    </button>
-  );
-}
-
-// ─── Main widget ──────────────────────────────────────────────────────────────
-
 export default function DonationWidget({ campaign }) {
   const router = useRouter();
 
@@ -242,24 +210,6 @@ export default function DonationWidget({ campaign }) {
               Recurring donations available at checkout
             </p>
           )}
-        </div>
-      )}
-
-      {/* ── Add-ons card ── */}
-      {addOns.length > 0 && (
-        <div className="bg-[#F9F9F9] rounded-2xl border border-dashed border-[#BFBFBF] px-5 py-5">
-          <p className="text-[20px] font-bold text-[#383838] mb-1">Add-ons</p>
-          <p className="text-[13px] text-[#737373] mb-4">Select an optional add-on with your donation</p>
-          <div className="flex flex-col gap-3">
-            {addOns.map((addOn) => (
-              <AddOnCard
-                key={addOn.id}
-                addOn={addOn}
-                selected={selectedAddOn === addOn.id}
-                onClick={() => setSelectedAddOn(selectedAddOn === addOn.id ? null : addOn.id)}
-              />
-            ))}
-          </div>
         </div>
       )}
     </div>
