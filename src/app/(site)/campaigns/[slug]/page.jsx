@@ -18,34 +18,30 @@ function daysLeft(endAt) {
 }
 
 export default async function CampaignPage({ params }) {
+  console.log("[CampaignPage] params:", params);
+  const { slug } = await params;
 
-  console.log("CampaignPage params:", params);
-  const { slug } = params;
-
-  // ✅ Fetch directly here
   let campaign = null;
 
   try {
-    const res = await fetch(`${apiBase}campaigns/${slug}`, {
+    const url = `${apiBase}campaigns/${slug}`;
+    console.log("[CampaignPage] fetching:", url);
+
+    const res  = await fetch(url, {
       next: { revalidate: 60 },
-      headers: {
-        Accept: "application/json",
-      },
+      headers: { Accept: "application/json" },
     });
 
-  
-
-    if (!res.ok) {
-      notFound();
+    if (res.ok) {
+      const json = await res.json();
+      campaign   = json?.data ?? null;
     }
-
-    const json = await res.json();
-    campaign = json?.data ?? null;
   } catch (error) {
-    console.error("Failed to fetch campaign:", error);
-    notFound();
+    console.error("[CampaignPage] fetch error:", error);
   }
 
+  // notFound() must be called OUTSIDE try-catch — it throws internally
+  // and a catch block would swallow it before Next.js can handle it
   if (!campaign) notFound();
 
   const thumbnailUrl = resolveImageUrl(
@@ -128,12 +124,12 @@ export default async function CampaignPage({ params }) {
               <div className="mt-6 flex gap-3 overflow-x-auto pb-2">
                 {campaign.media.sliderImages.map((src, i) => (
                   <div key={i} className="relative w-[160px] h-[100px] rounded-xl overflow-hidden">
-                    {/* <Image
+                    <Image
                       src={resolveImageUrl(src)}
                       alt={`${campaign.name} ${i + 1}`}
                       fill
                       className="object-cover"
-                    /> */}
+                    />
                   </div>
                 ))}
               </div>
