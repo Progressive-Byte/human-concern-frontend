@@ -8,97 +8,116 @@ import Pagination from "@/components/common/Pagination";
 import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
 import { apiBase } from "@/utils/constants";
 
-// ─── Sort options (UI label → API value)
+// ─── Constants ──────────────────────────────────────────────────────────────
+
 const SORT_OPTIONS = [
-  { label: "Newest",      value: "new_first" },
-  { label: "Oldest",      value: "old_first" },
-  { label: "A → Z",       value: "a_to_z"   },
-  { label: "Z → A",       value: "z_to_a"   },
+  { label: "Newest", value: "new_first" },
+  { label: "Oldest", value: "old_first" },
+  { label: "A → Z",  value: "a_to_z"   },
+  { label: "Z → A",  value: "z_to_a"   },
 ];
 
-const LIMIT = 10;
+const ALL_OPTION = { label: "All", value: "" };
+const PAGE_SIZE  = 10;
 
-// ─── Page ───
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function buildAPIParams({ q, categoryId, causeId, sort, page }) {
+  const p = new URLSearchParams();
+  p.set("page",  String(page));
+  p.set("limit", String(PAGE_SIZE));
+  if (q)          p.set("q",          q);
+  if (categoryId) p.set("categoryId",  categoryId);
+  if (causeId)    p.set("causeId",     causeId);
+  if (sort)       p.set("sort",        sort);
+  return p.toString();
+}
+
+function buildURLParams({ q, categoryId, causeId, sort, page }) {
+  const p = new URLSearchParams();
+  if (q)                    p.set("q",          q);
+  if (categoryId)           p.set("categoryId",  categoryId);
+  if (causeId)              p.set("causeId",     causeId);
+  if (sort !== "new_first") p.set("sort",        sort);
+  if (page > 1)             p.set("page",        String(page));
+  return p.toString();
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
+
 const CampaignsPage = () => {
   const router       = useRouter();
   const pathname     = usePathname();
   const searchParams = useSearchParams();
 
-  // ── Read initial state from URL
+  // Read initial filter state from URL
   const urlSearch     = searchParams.get("q")          ?? "";
   const urlCategoryId = searchParams.get("categoryId") ?? "";
+  const urlCauseId    = searchParams.get("causeId")    ?? "";
   const urlSort       = searchParams.get("sort")       ?? "new_first";
   const urlPage       = parseInt(searchParams.get("page") ?? "1", 10);
 
-  // ── Local UI state
+  // UI filter state (controlled inputs)
   const [searchInput,      setSearchInput]      = useState(urlSearch);
   const [activeCategoryId, setActiveCategoryId] = useState(urlCategoryId);
+  const [activeCauseId,    setActiveCauseId]    = useState(urlCauseId);
   const [sortBy,           setSortBy]           = useState(urlSort);
   const [currentPage,      setCurrentPage]      = useState(urlPage);
 
-  // ── Data state
-  const [campaigns,   setCampaigns]   = useState([]);
-  const [totalPages,  setTotalPages]  = useState(1);
-  const [totalItems,  setTotalItems]  = useState(0);
-  const [loading,     setLoading]     = useState(true);
-  const [categories,  setCategories]  = useState([{ label: "All", value: "" }]);
+  // Data state
+  const [campaigns,  setCampaigns]  = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [loading,    setLoading]    = useState(true);
 
-  // ── Sync state when browser back/forward
+  // Dropdown options
+  const [categories, setCategories] = useState([ALL_OPTION]);
+  const [causes,     setCauses]     = useState([ALL_OPTION]);
+
+  // ── Sync local state when browser back/forward changes URL
   useEffect(() => {
     setSearchInput(urlSearch);
     setActiveCategoryId(urlCategoryId);
+    setActiveCauseId(urlCauseId);
     setSortBy(urlSort);
     setCurrentPage(urlPage);
-  }, [urlSearch, urlCategoryId, urlSort, urlPage]);
+  }, [urlSearch, urlCategoryId, urlCauseId, urlSort, urlPage]);
 
-  // ── Fetch categories once for the dropdown
-  // Replace this URL with your real categories endpoint if available.
-  // For now we derive unique category names from the campaigns response
-  // and store them without IDs (pure name filter won't work with API —
-  // wire up a real /categories endpoint and map { id, name } when ready).
-  //
-  // If your backend exposes GET /api/v1/categories, uncomment and adapt:
-  //
+  // ── Load dropdown options once on mount
   useEffect(() => {
     fetch(`${apiBase}categories`)
       .then(r => r.json())
       .then(data => {
-        const opts = [{ label: "All", value: "" },
-          ...(data?.data?.items ?? []).map(c => ({ label: c.name, value: c.id }))];
-        setCategories(opts);
+        const items = data?.data?.items ?? [];
+        setCategories([ALL_OPTION, ...items.map(c => ({ label: c.name, value: c.id }))]);
+      });
+
+    fetch(`${apiBase}causes`)
+      .then(r => r.json())
+      .then(data => {
+        const items = data?.data?.items ?? [];
+        setCauses([ALL_OPTION, ...items.map(c => ({ label: `${c.iconEmoji ?? ""} ${c.name}`.trim(), value: c.id }))]);
       });
   }, []);
 
-  // ── URL writer
-  const updateURL = useCallback((q, catId, sort, page) => {
-    const params = new URLSearchParams();
-    if (q)                 params.set("q",          q);
-    if (catId)             params.set("categoryId",  catId);
-    if (sort !== "new_first") params.set("sort",     sort);
-    if (page > 1)          params.set("page",        String(page));
-    // params.set("limit", String(LIMIT));
-    const qs = params.toString();
+  // ── Push new filter state into the URL
+  const updateURL = useCallback((filters) => {
+    const qs = buildURLParams(filters);
     router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   }, [router, pathname]);
 
-  // ── Fetch campaigns from API 
-  const fetchCampaigns = useCallback(async (q, catId, sort, page) => {
+  // ── Fetch campaigns from API
+  const fetchCampaigns = useCallback(async (filters) => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      params.set("page",  String(page));
-      params.set("limit", String(LIMIT));
-      if (q)     params.set("q",          q);
-      if (catId) params.set("categoryId",  catId);
-      if (sort)  params.set("sort",        sort);
-
-      const res  = await fetch(`${apiBase}campaigns?${params.toString()}`);
+      const res  = await fetch(`${apiBase}campaigns?${buildAPIParams(filters)}`);
       const json = await res.json();
 
       setCampaigns(json?.data?.items ?? []);
+
       const pagination = json?.meta?.pagination;
-      setTotalItems(pagination?.total  ?? 0);
-      setTotalPages(pagination?.pages  ?? Math.ceil((pagination?.total ?? 0) / LIMIT));
+      setTotalItems(pagination?.total ?? 0);
+      setTotalPages(pagination?.pages ?? Math.ceil((pagination?.total ?? 0) / PAGE_SIZE));
     } catch (err) {
       console.error("Failed to fetch campaigns:", err);
       setCampaigns([]);
@@ -107,57 +126,66 @@ const CampaignsPage = () => {
     }
   }, []);
 
-  // ── Re-fetch whenever URL params change
+  // ── Re-fetch whenever URL-driven params change
   useEffect(() => {
-    fetchCampaigns(urlSearch, urlCategoryId, urlSort, urlPage);
-  }, [urlSearch, urlCategoryId, urlSort, urlPage, fetchCampaigns]);
+    fetchCampaigns({ q: urlSearch, categoryId: urlCategoryId, causeId: urlCauseId, sort: urlSort, page: urlPage });
+  }, [urlSearch, urlCategoryId, urlCauseId, urlSort, urlPage, fetchCampaigns]);
 
-  // Debounced search — reset to page 1
+  // ── Debounced search — resets to page 1
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchInput !== urlSearch) {
         setCurrentPage(1);
-        updateURL(searchInput, activeCategoryId, sortBy, 1);
+        updateURL({ q: searchInput, categoryId: activeCategoryId, causeId: activeCauseId, sort: sortBy, page: 1 });
       }
     }, 400);
     return () => clearTimeout(timer);
   }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleCategoryChange = (catId) => {
-    setActiveCategoryId(catId);
+  // ── Filter / sort handlers
+  const handleCategoryChange = (categoryId) => {
+    setActiveCategoryId(categoryId);
     setCurrentPage(1);
-    updateURL(searchInput, catId, sortBy, 1);
+    updateURL({ q: searchInput, categoryId, causeId: activeCauseId, sort: sortBy, page: 1 });
   };
 
-  const handleSortChange = (val) => {
-    setSortBy(val);
+  const handleCauseChange = (causeId) => {
+    setActiveCauseId(causeId);
     setCurrentPage(1);
-    updateURL(searchInput, activeCategoryId, val, 1);
+    updateURL({ q: searchInput, categoryId: activeCategoryId, causeId, sort: sortBy, page: 1 });
+  };
+
+  const handleSortChange = (sort) => {
+    setSortBy(sort);
+    setCurrentPage(1);
+    updateURL({ q: searchInput, categoryId: activeCategoryId, causeId: activeCauseId, sort, page: 1 });
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    updateURL(searchInput, activeCategoryId, sortBy, page);
+    updateURL({ q: searchInput, categoryId: activeCategoryId, causeId: activeCauseId, sort: sortBy, page });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleClearAll = () => {
     setSearchInput("");
     setActiveCategoryId("");
+    setActiveCauseId("");
     setSortBy("new_first");
     setCurrentPage(1);
     router.replace(pathname);
   };
 
-  // ── Active category label for display ───────────────────────────────────
-  const activeCategoryLabel =
-    categories.find((c) => c.value === activeCategoryId)?.label ?? "";
+  // ── Derived display values
+  const activeCategoryLabel = categories.find(c => c.value === activeCategoryId)?.label ?? "";
+  const activeCauseLabel    = causes.find(c => c.value === activeCauseId)?.label ?? "";
 
-  // ────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+
   return (
     <main className="bg-[#F6F6F6] min-h-screen">
 
-      {/* ── Hero banner ── */}
+      {/* Hero banner */}
       <div className="bg-[url('/images/bg/cta-bg.png')] bg-cover bg-center bg-no-repeat w-full">
         <div className="max-w-[1611px] mx-auto pt-[140px] pb-[92px] px-4 sm:px-6">
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
@@ -167,10 +195,10 @@ const CampaignsPage = () => {
             Browse active campaigns and find causes you want to support
           </p>
 
-          {/* Search + Filter + Sort row */}
+          {/* Search + Filters + Sort */}
           <div className="flex items-center gap-2 sm:gap-3">
 
-            {/* Search */}
+            {/* Search input */}
             <div className="flex-1 relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
                 {SearchIcon}
@@ -196,6 +224,18 @@ const CampaignsPage = () => {
               width="w-64"
             />
 
+            {/* Cause filter */}
+            <CustomDropdown
+              options={causes}
+              value={activeCauseId}
+              onChange={handleCauseChange}
+              label="CAUSES"
+              icon={FilterIcon}
+              showDot={!!activeCauseId}
+              maxHeight="260px"
+              width="w-64"
+            />
+
             {/* Sort */}
             <CustomDropdown
               options={SORT_OPTIONS}
@@ -209,10 +249,10 @@ const CampaignsPage = () => {
         </div>
       </div>
 
-      {/* ── Results area ─ */}
+      {/* Results area */}
       <div className="max-w-[1611px] mx-auto px-4 sm:px-6 py-8">
 
-        {/* Count bar */}
+        {/* Result count bar */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-[13px] text-[#737373]">
             Viewing{" "}
@@ -221,28 +261,30 @@ const CampaignsPage = () => {
             {activeCategoryLabel && activeCategoryLabel !== "All" && (
               <> in <span className="font-semibold text-[#EA3335]">{activeCategoryLabel}</span></>
             )}
+            {activeCauseLabel && activeCauseLabel !== "All" && (
+              <> · <span className="font-semibold text-[#EA3335]">{activeCauseLabel}</span></>
+            )}
             {searchInput && (
               <> matching <span className="font-semibold text-[#383838]">"{searchInput}"</span></>
             )}
           </p>
         </div>
 
-        {/* Grid */}
+        {/* Campaign grid */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {Array.from({ length: LIMIT }).map((_, i) => (
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => (
               <div key={i} className="bg-white rounded-3xl h-[520px] animate-pulse" />
             ))}
           </div>
         ) : campaigns.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {campaigns.map((c) => (
-                <CampaignCard key={c.id} campaign={c} />
+              {campaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
               ))}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center mt-12">
                 <Pagination
