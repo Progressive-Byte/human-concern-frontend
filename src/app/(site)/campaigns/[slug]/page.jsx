@@ -18,6 +18,8 @@ function daysLeft(endAt) {
 }
 
 export default async function CampaignPage({ params }) {
+
+  console.log("CampaignPage params:", params);
   const { slug } = params;
 
   // ✅ Fetch directly here
@@ -30,6 +32,8 @@ export default async function CampaignPage({ params }) {
         Accept: "application/json",
       },
     });
+
+  
 
     if (!res.ok) {
       notFound();
