@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import CampaignCard from "@/components/common/CampaignCard";
+import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import Pagination from "@/components/common/Pagination";
 import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";

@@ -100,7 +100,7 @@ const CampaignCard = ({ campaign }) => {
             </div>
           </div>
           <Link
-            href={`/campaigns/${campaign.id}`}
+            href={`/campaigns/${campaign.slug}`}
             className="w-full md:w-auto text-center bg-[#F6F6F6] hover:bg-[#383838] border border-[#00000033] text-[#383838] hover:text-white font-semibold xl:px-6 md:px-3 md:py-3 px-6 py-4 xl:py-5 rounded-[18px] text-[18px] transition-all duration-300 active:scale-95"
           >
             Donate Now

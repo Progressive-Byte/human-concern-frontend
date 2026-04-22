@@ -1,6 +1,6 @@
 "use client";
 
-import CampaignCard from "@/components/common/CampaignCard";
+import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import { arrowIcon } from "@/components/common/SvgIcon";
 import { apiBase } from "@/utils/constants";
 import Link from "next/link";
