@@ -16,7 +16,7 @@ const SORT_OPTIONS = [
   { label: "Z → A",       value: "z_to_a"   },
 ];
 
-const LIMIT = 3;
+const LIMIT = 10;
 
 // ─── Page ───
 const CampaignsPage = () => {
@@ -59,15 +59,15 @@ const CampaignsPage = () => {
   //
   // If your backend exposes GET /api/v1/categories, uncomment and adapt:
   //
-  // useEffect(() => {
-  //   fetch(`${apiBase}categories`)
-  //     .then(r => r.json())
-  //     .then(data => {
-  //       const opts = [{ label: "All", value: "" },
-  //         ...(data?.data?.items ?? []).map(c => ({ label: c.name, value: c.id }))];
-  //       setCategories(opts);
-  //     });
-  // }, []);
+  useEffect(() => {
+    fetch(`${apiBase}categories`)
+      .then(r => r.json())
+      .then(data => {
+        const opts = [{ label: "All", value: "" },
+          ...(data?.data?.items ?? []).map(c => ({ label: c.name, value: c.id }))];
+        setCategories(opts);
+      });
+  }, []);
 
   // ── URL writer
   const updateURL = useCallback((q, catId, sort, page) => {
@@ -112,8 +112,6 @@ const CampaignsPage = () => {
     fetchCampaigns(urlSearch, urlCategoryId, urlSort, urlPage);
   }, [urlSearch, urlCategoryId, urlSort, urlPage, fetchCampaigns]);
 
-  // ── Handlers
-
   // Debounced search — reset to page 1
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -123,7 +121,7 @@ const CampaignsPage = () => {
       }
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCategoryChange = (catId) => {
     setActiveCategoryId(catId);

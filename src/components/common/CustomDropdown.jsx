@@ -100,7 +100,7 @@ export default function CustomDropdown({
                       onChange(opt.value);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors hover:bg-gray-50 ${
+                    className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors hover:bg-gray-50 cursor-pointer ${
                       isActive
                         ? "bg-red-50 text-[#EA3335] font-semibold"
                         : "text-gray-700"
