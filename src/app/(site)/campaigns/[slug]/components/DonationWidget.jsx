@@ -12,98 +12,6 @@ const CURRENCY_OPTIONS = [
   { label: "CA$ CAD", value: "CAD" },
 ];
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function ProgressCard({ raised, goal, donors }) {
-  const hasProgress = raised != null && goal != null && goal > 0;
-  const pct         = hasProgress ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
-
-  return (
-    <div className="px-5 pt-5 pb-4">
-      {hasProgress ? (
-        <>
-          <p className="text-[36px] font-bold text-[#383838] leading-none">
-            ${raised.toLocaleString()}
-          </p>
-          <p className="text-[16px] text-[#383838] mt-3">
-            raised of ${goal.toLocaleString()}
-          </p>
-          <div className="flex justify-end mt-1">
-            <span className="text-[12px] font-semibold text-[#AEAEAE]">{pct}%</span>
-          </div>
-          <div className="relative h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#055A46] rounded-full transition-all duration-500"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </>
-      ) : (
-        <>
-          <p className="text-[22px] font-bold text-[#383838]">
-            Goal: ${goal?.toLocaleString() ?? "—"}
-          </p>
-          <p className="text-[13px] text-[#737373] mt-1">Fundraising in progress</p>
-        </>
-      )}
-
-      {donors != null && (
-        <div className="grid grid-cols-1 mt-4">
-          <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
-            <p className="text-[24px] font-bold text-[#383838]">{donors.toLocaleString()}</p>
-            <p className="text-[14px] text-[#383838] mt-0.5">Donors</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function AmountSelector({ amounts, selected, custom, onSelect, onCustomChange, min, max, currency }) {
-  return (
-    <div className="flex flex-col gap-3 mt-4">
-      <div className="grid grid-cols-3 gap-2">
-        {amounts.map((amt) => {
-          const isSelected = selected === amt && !custom;
-          return (
-            <button
-              key={amt}
-              onClick={() => onSelect(amt)}
-              className={`rounded-2xl px-4 py-4 border text-center transition-all duration-200 ${
-                isSelected
-                  ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-                  : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
-              }`}
-            >
-              <span className={`text-[22px] font-bold ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
-                ${amt}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Custom amount */}
-      <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
-        <input
-          type="number"
-          value={custom}
-          onChange={(e) => onCustomChange(e.target.value)}
-          placeholder={`Other amount${min ? ` (min $${min})` : ""}`}
-          min={min ?? 1}
-          max={max ?? undefined}
-          className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
-            custom
-              ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
-              : "border-[#CCCCCC] bg-white text-[#383838]"
-          } focus:border-[#055A46]`}
-        />
-      </div>
-    </div>
-  );
-}
-
 export default function DonationWidget({ campaign }) {
   const router = useRouter();
 
@@ -111,17 +19,17 @@ export default function DonationWidget({ campaign }) {
   const addOns           = campaign.addOns           ?? [];
   const limits           = campaign.goalsDates        ?? {};
 
+  const raised = campaign.raised ?? 0;
+  const goal   = campaign.goal   ?? 0;
+  const pct    = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+  const hasProgress = campaign.raised != null && goal > 0;
+
   const [selectedAmount, setSelectedAmount] = useState(suggestedAmounts[1] ?? suggestedAmounts[0] ?? 50);
   const [customAmount,   setCustomAmount]   = useState("");
   const [currency,       setCurrency]       = useState(campaign.currency ?? "USD");
   const [selectedAddOn,  setSelectedAddOn]  = useState(null);
 
   const finalAmount = customAmount ? Number(customAmount) : selectedAmount;
-
-  const handleSelectPreset = (amt) => {
-    setSelectedAmount(amt);
-    setCustomAmount("");
-  };
 
   const handleDonate = () => {
     const params = new URLSearchParams({
@@ -142,13 +50,53 @@ export default function DonationWidget({ campaign }) {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-[25px]">
 
-      {/* ── Progress + stats card ── */}
+      {/* ── Card 1: Progress + CTA ── */}
       <div className="rounded-2xl border border-dashed border-[#BFBFBF]">
-        <ProgressCard raised={campaign.raised} goal={campaign.goal} donors={campaign.donors} />
+        <div className="px-5 pt-5">
 
-        <div className="px-5 pb-5 flex flex-col gap-3">
+          {/* Raised / Goal */}
+          {hasProgress ? (
+            <>
+              <p className="text-[36px] font-bold text-[#383838] leading-none">
+                ${raised.toLocaleString()}
+              </p>
+              <p className="text-[16px] text-[#383838] mt-4">
+                raised of ${goal.toLocaleString()}
+              </p>
+              <div className="flex justify-end mt-1">
+                <span className="text-[12px] font-semibold text-[#AEAEAE]">{pct}%</span>
+              </div>
+              <div className="relative h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#055A46] rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-[22px] font-bold text-[#383838]">
+                Goal: ${goal.toLocaleString()}
+              </p>
+              <p className="text-[13px] text-[#737373] mt-1">Fundraising in progress</p>
+            </>
+          )}
+
+          {/* Donors stat */}
+          {campaign.donors != null && (
+            <div className="grid grid-cols-1 mt-4">
+              <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
+                <p className="text-[24px] font-bold text-[#383838]">{campaign.donors.toLocaleString()}</p>
+                <p className="text-[14px] text-[#383838] mt-0.5">Donors</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Buttons */}
+        <div className="px-5 pt-5 pb-5 flex flex-col gap-2.5">
           <button
             onClick={handleDonate}
             className="w-full cursor-pointer bg-[#EA3335] hover:bg-red-700 text-white font-semibold py-3 rounded-xl text-[15px] transition-colors active:scale-95"
@@ -178,40 +126,114 @@ export default function DonationWidget({ campaign }) {
         )}
       </div>
 
-      {/* ── Donation amount card ── */}
+      {/* ── Card 2: Choose Amount ── */}
       {suggestedAmounts.length > 0 && (
-        <div className="bg-[#F9F9F9] rounded-2xl border border-dashed border-[#BFBFBF] px-5 py-5">
-          <p className="text-[20px] font-bold text-[#383838]">Choose an Amount</p>
+        <div className="bg-[#F9F9F9] rounded-2xl border border-dashed border-[#BFBFBF]">
+          <div className="px-5 py-5">
+            <p className="text-[20px] font-bold text-[#383838]">How Your Donation Helps</p>
 
-          {/* Currency selector */}
-          <div className="mt-4">
-            <CustomDropdown
-              options={CURRENCY_OPTIONS}
-              value={currency}
-              onChange={setCurrency}
-              width="w-full"
-              className="w-full rounded-2xl border border-[#CCCCCC] bg-white px-3 py-2.5 justify-between"
-            />
+            {/* Currency */}
+            <div className="mt-5">
+              <CustomDropdown
+                options={CURRENCY_OPTIONS}
+                value={currency}
+                onChange={setCurrency}
+                width="w-full"
+                className="w-full rounded-2xl border border-[#CCCCCC] bg-white px-3 py-2.5 justify-between"
+              />
+            </div>
+
+            {/* Suggested amount tiles */}
+            <div className="flex flex-col gap-3 mt-4">
+              {suggestedAmounts.map((amt) => {
+                const isSelected = selectedAmount === amt && !customAmount;
+                return (
+                  <button
+                    key={amt}
+                    onClick={() => { setSelectedAmount(amt); setCustomAmount(""); }}
+                    className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-6 border transition-all duration-200 ${
+                      isSelected
+                        ? "bg-[#F0FDF4] border-[#055A46]"
+                        : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                    }`}
+                    style={isSelected ? { boxShadow: "0px 0px 8px 0px #B3FF57" } : {}}
+                  >
+                    <span className={`text-[28px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
+                      ${amt}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom amount input */}
+            <div className="relative mt-3">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
+              <input
+                type="number"
+                value={customAmount}
+                onChange={(e) => setCustomAmount(e.target.value)}
+                placeholder={`Other amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
+                min={limits.minimumDonation ?? 1}
+                max={limits.maximumDonation ?? undefined}
+                className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
+                  customAmount
+                    ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
+                    : "border-[#CCCCCC] bg-white text-[#383838]"
+                } focus:border-[#055A46]`}
+              />
+            </div>
+
+            {limits.allowRecurringDonations && (
+              <p className="text-[12px] text-[#737373] mt-3 text-center">
+                Recurring donations available at checkout
+              </p>
+            )}
           </div>
-
-          <AmountSelector
-            amounts={suggestedAmounts}
-            selected={selectedAmount}
-            custom={customAmount}
-            onSelect={handleSelectPreset}
-            onCustomChange={setCustomAmount}
-            min={limits.minimumDonation}
-            max={limits.maximumDonation}
-            currency={currency}
-          />
-
-          {limits.allowRecurringDonations && (
-            <p className="text-[12px] text-[#737373] mt-3 text-center">
-              Recurring donations available at checkout
-            </p>
-          )}
         </div>
       )}
+
+      {/* ── Card 3: Add-ons ── */}
+      {addOns.length > 0 && (
+        <div className="bg-[#F9F9F9] rounded-2xl border border-dashed border-[#BFBFBF]">
+          <div className="px-5 py-5">
+            <p className="text-[20px] font-bold text-[#383838] mb-1">Add-ons</p>
+            <p className="text-[13px] text-[#737373] mb-4">Select an optional add-on with your donation</p>
+            <div className="flex flex-col gap-3">
+              {addOns.map((addOn) => {
+                const isSelected = selectedAddOn === addOn.id;
+                return (
+                  <button
+                    key={addOn.id}
+                    onClick={() => setSelectedAddOn(isSelected ? null : addOn.id)}
+                    className={`w-full flex items-start gap-3 rounded-2xl px-4 py-4 border text-left transition-all duration-200 ${
+                      isSelected
+                        ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
+                        : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                    }`}
+                  >
+                    {addOn.iconEmoji && (
+                      <span className="text-2xl flex-shrink-0">{addOn.iconEmoji}</span>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-[15px] font-semibold ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
+                        {addOn.name}
+                      </p>
+                      {addOn.shortDescription && (
+                        <p className="text-[12px] text-[#737373] mt-0.5">{addOn.shortDescription}</p>
+                      )}
+                      <p className={`text-[13px] font-medium mt-1 ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
+                        ${addOn.amount}{addOn.amountFieldLabel && ` · ${addOn.amountFieldLabel}`}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
