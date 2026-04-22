@@ -28,9 +28,9 @@ export default function Footer() {
   return (
     <footer className={`${pathname === "/" ? "-mt-[93px]" : ""} relative z-10`}>
       <div className="bg-white rounded-t-[100px] px-6 sm:px-10 lg:px-20 pt-14 pb-0">
-        <div className="max-w-[1350px] mx-auto">
-          <div className="flex flex-col md:flex-row flex-wrap lg:flex-nowrap gap-10 lg:gap-12 pb-12 border-b border-[#EBEBEB]">
-             <div className="w-full md:w-1/2 lg:w-[30%]">
+        <div className="max-w-[1650px] mx-auto">
+          <div className="flex flex-col md:flex-row flex-wrap lg:flex-nowrap lg:gap-10 gap-5 lg:gap-12 pb-12 border-b border-[#EBEBEB]">
+             <div className="w-full mx-auto md:w-1/3 lg:w-[30%]">
               <Link href="/" className="flex items-center mb-5 no-underline">
                 <img
                   src="/icons/hcu-icon.png"
