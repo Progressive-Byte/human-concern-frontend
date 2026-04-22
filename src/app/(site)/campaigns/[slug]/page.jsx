@@ -70,7 +70,7 @@ export default async function CampaignPage({ params }) {
           <div className="w-full lg:w-[1000px]">
 
             {/* Thumbnail */}
-            {/* {thumbnailUrl && (
+            {thumbnailUrl && (
               <div className="relative h-[300px] sm:h-[490px] rounded-3xl overflow-hidden">
                 <Image
                   src={thumbnailUrl}
@@ -93,7 +93,7 @@ export default async function CampaignPage({ params }) {
                   )}
                 </div>
               </div>
-            )} */}
+            )}
 
             {/* Title */}
             <div className="pt-[30px]">
