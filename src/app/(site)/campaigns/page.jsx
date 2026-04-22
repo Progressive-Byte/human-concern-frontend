@@ -8,7 +8,7 @@ import Pagination from "@/components/common/Pagination";
 import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
 import { apiBase } from "@/utils/constants";
 
-// ─── Sort options (UI label → API value) ──────────────────────────────────────
+// ─── Sort options (UI label → API value)
 const SORT_OPTIONS = [
   { label: "Newest",      value: "new_first" },
   { label: "Oldest",      value: "old_first" },
@@ -16,34 +16,34 @@ const SORT_OPTIONS = [
   { label: "Z → A",       value: "z_to_a"   },
 ];
 
-const LIMIT = 3; // campaigns per page
+const LIMIT = 3;
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Page ───
 const CampaignsPage = () => {
   const router       = useRouter();
   const pathname     = usePathname();
   const searchParams = useSearchParams();
 
-  // ── Read initial state from URL ──────────────────────────────────────────
+  // ── Read initial state from URL
   const urlSearch     = searchParams.get("q")          ?? "";
   const urlCategoryId = searchParams.get("categoryId") ?? "";
   const urlSort       = searchParams.get("sort")       ?? "new_first";
   const urlPage       = parseInt(searchParams.get("page") ?? "1", 10);
 
-  // ── Local UI state ───────────────────────────────────────────────────────
+  // ── Local UI state
   const [searchInput,      setSearchInput]      = useState(urlSearch);
   const [activeCategoryId, setActiveCategoryId] = useState(urlCategoryId);
   const [sortBy,           setSortBy]           = useState(urlSort);
   const [currentPage,      setCurrentPage]      = useState(urlPage);
 
-  // ── Data state ───────────────────────────────────────────────────────────
+  // ── Data state
   const [campaigns,   setCampaigns]   = useState([]);
   const [totalPages,  setTotalPages]  = useState(1);
   const [totalItems,  setTotalItems]  = useState(0);
   const [loading,     setLoading]     = useState(true);
   const [categories,  setCategories]  = useState([{ label: "All", value: "" }]);
 
-  // ── Sync state when browser back/forward ────────────────────────────────
+  // ── Sync state when browser back/forward
   useEffect(() => {
     setSearchInput(urlSearch);
     setActiveCategoryId(urlCategoryId);
@@ -51,7 +51,7 @@ const CampaignsPage = () => {
     setCurrentPage(urlPage);
   }, [urlSearch, urlCategoryId, urlSort, urlPage]);
 
-  // ── Fetch categories once for the dropdown ───────────────────────────────
+  // ── Fetch categories once for the dropdown
   // Replace this URL with your real categories endpoint if available.
   // For now we derive unique category names from the campaigns response
   // and store them without IDs (pure name filter won't work with API —
@@ -69,19 +69,19 @@ const CampaignsPage = () => {
   //     });
   // }, []);
 
-  // ── URL writer ───────────────────────────────────────────────────────────
+  // ── URL writer
   const updateURL = useCallback((q, catId, sort, page) => {
     const params = new URLSearchParams();
     if (q)                 params.set("q",          q);
     if (catId)             params.set("categoryId",  catId);
     if (sort !== "new_first") params.set("sort",     sort);
     if (page > 1)          params.set("page",        String(page));
-    params.set("limit", String(LIMIT));
+    // params.set("limit", String(LIMIT));
     const qs = params.toString();
     router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   }, [router, pathname]);
 
-  // ── Fetch campaigns from API ─────────────────────────────────────────────
+  // ── Fetch campaigns from API 
   const fetchCampaigns = useCallback(async (q, catId, sort, page) => {
     setLoading(true);
     try {
@@ -107,12 +107,12 @@ const CampaignsPage = () => {
     }
   }, []);
 
-  // ── Re-fetch whenever URL params change ─────────────────────────────────
+  // ── Re-fetch whenever URL params change
   useEffect(() => {
     fetchCampaigns(urlSearch, urlCategoryId, urlSort, urlPage);
   }, [urlSearch, urlCategoryId, urlSort, urlPage, fetchCampaigns]);
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
+  // ── Handlers
 
   // Debounced search — reset to page 1
   useEffect(() => {
@@ -123,7 +123,7 @@ const CampaignsPage = () => {
       }
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchInput]);
 
   const handleCategoryChange = (catId) => {
     setActiveCategoryId(catId);
@@ -155,11 +155,11 @@ const CampaignsPage = () => {
   const activeCategoryLabel =
     categories.find((c) => c.value === activeCategoryId)?.label ?? "";
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // ────────────────────────────
   return (
     <main className="bg-[#F6F6F6] min-h-screen">
 
-      {/* ── Hero banner ─────────────────────────────────────────────── */}
+      {/* ── Hero banner ── */}
       <div className="bg-[url('/images/bg/cta-bg.png')] bg-cover bg-center bg-no-repeat w-full">
         <div className="max-w-[1611px] mx-auto pt-[140px] pb-[92px] px-4 sm:px-6">
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
@@ -211,7 +211,7 @@ const CampaignsPage = () => {
         </div>
       </div>
 
-      {/* ── Results area ────────────────────────────────────────────── */}
+      {/* ── Results area ─ */}
       <div className="max-w-[1611px] mx-auto px-4 sm:px-6 py-8">
 
         {/* Count bar */}
@@ -264,7 +264,7 @@ const CampaignsPage = () => {
             </p>
             <button
               onClick={handleClearAll}
-              className="mt-5 px-5 py-2.5 bg-[#EA3335] text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors"
+              className="mt-5 px-5 py-2.5 bg-[#EA3335] text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors cursor-pointer"
             >
               Clear All
             </button>
