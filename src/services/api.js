@@ -14,7 +14,7 @@ async function makeRequest(endpoint, options = {}, cookieName = "token") {
   const response = await fetch(`${userAuthRegistration}${endpoint}`, {
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json",9
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
