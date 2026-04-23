@@ -1,3 +1,5 @@
+import { userAuthRegistration } from "@/utils/constants";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 function getCookieValue(name) {
@@ -9,7 +11,7 @@ function getCookieValue(name) {
 async function makeRequest(endpoint, options = {}, cookieName = "token") {
   const token = getCookieValue(cookieName);
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(`${userAuthRegistration}${endpoint}`, {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",

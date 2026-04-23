@@ -49,6 +49,6 @@ export function middleware(request) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
-    "/admin/:path*",   // middleware already skips adminAuthRoutes inside the function
+    "/admin/:path*",
   ],
 };
