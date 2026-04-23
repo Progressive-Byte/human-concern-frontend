@@ -1,11 +1,7 @@
-import React from 'react'
+"use client";
 
-const layout = () => {
-  return (
-    <div>
-        <h2 className="text-3xl text-red-500 font-arial">Welcome to the Admin Layout</h2>
-    </div>
-  )
+import { AdminAuthProvider } from "@/context/AdminAuthContext";
+
+export default function AdminLayout({ children }) {
+  return <AdminAuthProvider>{children}</AdminAuthProvider>;
 }
-
-export default layout

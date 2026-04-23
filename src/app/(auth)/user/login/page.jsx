@@ -21,9 +21,7 @@ export default function LoginPage() {
     const { name, value } = e.target;
     const next = { ...values, [name]: value };
     setValues(next);
-    if (touched[name]) {
-      setErrors((prev) => ({ ...prev, [name]: validateLogin(next)[name] }));
-    }
+    if (touched[name]) setErrors((prev) => ({ ...prev, [name]: validateLogin(next)[name] }));
   }
 
   function handleBlur(e) {
@@ -54,12 +52,8 @@ export default function LoginPage() {
 
   return (
     <div>
-      {/* Heading */}
-      <h2 className="text-[22px] font-semibold text-white mb-6">
-        Nice to see you again
-      </h2>
+      <h2 className="text-[22px] font-semibold text-white mb-6">Nice to see you again</h2>
 
-      {/* Server error */}
       {serverError && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5">
           <AlertIcon size={14} />
@@ -68,36 +62,23 @@ export default function LoginPage() {
       )}
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
-
-        {/* Email */}
         <FormField label="Email" error={fieldError("email")}>
           <FormInput
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            value={values.email}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            id="email" name="email" type="email" autoComplete="email"
+            placeholder="you@example.com" value={values.email}
+            onChange={handleChange} onBlur={handleBlur}
             hasError={Boolean(fieldError("email"))}
           />
         </FormField>
 
-        {/* Password */}
         <FormField label="Password" error={fieldError("password")}>
           <div className="relative">
             <FormInput
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              autoComplete="current-password"
-              placeholder="••••••••"
-              value={values.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              hasError={Boolean(fieldError("password"))}
-              className="pr-11"
+              id="password" name="password"
+              type={showPassword ? "text" : "password"} autoComplete="current-password"
+              placeholder="••••••••" value={values.password}
+              onChange={handleChange} onBlur={handleBlur}
+              hasError={Boolean(fieldError("password"))} className="pr-11"
             />
             <button
               type="button"
@@ -110,66 +91,46 @@ export default function LoginPage() {
           </div>
         </FormField>
 
-        {/* Remember me + Forgot password */}
         <div className="flex items-center justify-between pt-1">
-          {/* Toggle switch */}
           <label className="flex items-center gap-2.5 cursor-pointer select-none">
             <button
               type="button"
               role="switch"
               aria-checked={rememberMe}
               onClick={() => setRememberMe((v) => !v)}
-              className={`relative w-10 h-[22px] rounded-full transition-colors duration-200 focus:outline-none ${
-                rememberMe ? "bg-[#EA3335]" : "bg-white/20"
-              }`}
+              className={`relative w-10 h-[22px] rounded-full transition-colors duration-200 focus:outline-none ${rememberMe ? "bg-[#EA3335]" : "bg-white/20"}`}
             >
-              <span
-                className={`absolute top-[3px] left-[3px] w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
-                  rememberMe ? "translate-x-[18px]" : "translate-x-0"
-                }`}
-              />
+              <span className={`absolute top-[3px] left-[3px] w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${rememberMe ? "translate-x-[18px]" : "translate-x-0"}`} />
             </button>
             <span className="text-[13px] text-white/70">Remember me</span>
           </label>
 
-          <Link
-            href="/forgot-password"
-            className="text-[13px] text-white/60 hover:text-white transition-colors"
-          >
+          <Link href="/user/forgot-password" className="text-[13px] text-white/60 hover:text-white transition-colors">
             Forgot password?
           </Link>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={isLoading}
           className="w-full rounded-lg py-3 text-[15px] font-semibold text-white bg-[#EA3335] hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
         >
           {isLoading ? (
-            <span className="flex items-center justify-center gap-2">
-              <Spinner />
-              Signing in…
-            </span>
-          ) : (
-            "Sign in"
-          )}
+            <span className="flex items-center justify-center gap-2">{Spinner}Signing in…</span>
+          ) : "Sign in"}
         </button>
       </form>
 
-      {/* Divider */}
       <div className="my-5 flex items-center gap-3">
         <div className="flex-1 h-px bg-white/10" />
         <span className="text-xs text-white/40">or</span>
         <div className="flex-1 h-px bg-white/10" />
       </div>
 
-      {/* Google sign-in */}
       <button
         type="button"
         className="w-full flex items-center justify-center gap-3 rounded-lg py-3 text-[14px] font-medium text-white/80 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
       >
-        {/* Google logo */}
         <svg width="18" height="18" viewBox="0 0 48 48">
           <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.1-4z" />
           <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4c-7.9 0-14.7 4.4-17.7 10.7z" />
@@ -179,13 +140,9 @@ export default function LoginPage() {
         Or sign in with Google
       </button>
 
-      {/* Register link */}
       <p className="text-center text-[13px] text-white/50 mt-5">
-        Dont have an account?{" "}
-        <Link
-          href="/register"
-          className="text-white/80 font-medium hover:text-white transition-colors"
-        >
+        Don't have an account?{" "}
+        <Link href="/user/register" className="text-white/80 font-medium hover:text-white transition-colors">
           Sign up now
         </Link>
       </p>

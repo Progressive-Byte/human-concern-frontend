@@ -1,21 +1,18 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-/** Read the auth token from the browser cookie store (client-side only). */
-function getBrowserToken() {
+function getCookieValue(name) {
   if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-export async function apiRequest(endpoint, options = {}) {
-  const token = getBrowserToken();
+async function makeRequest(endpoint, options = {}, cookieName = "token") {
+  const token = getCookieValue(cookieName);
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    // Send cookies on cross-origin requests (needed when API is on a different port/domain)
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      // Send token as Bearer header in addition to the cookie
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
@@ -23,7 +20,6 @@ export async function apiRequest(endpoint, options = {}) {
   });
 
   if (!response.ok) {
-    // Try to parse a JSON error body first, fall back to plain text
     let message;
     const ct = response.headers.get("content-type") || "";
     try {
@@ -43,6 +39,13 @@ export async function apiRequest(endpoint, options = {}) {
   if (contentType.includes("application/json")) {
     return response.json();
   }
-
   return response.text();
+}
+
+export function apiRequest(endpoint, options = {}) {
+  return makeRequest(endpoint, options, "token");
+}
+
+export function adminApiRequest(endpoint, options = {}) {
+  return makeRequest(endpoint, options, "adminToken");
 }

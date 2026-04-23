@@ -16,46 +16,38 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // On mount, try to restore session from the server
   useEffect(() => {
     getCurrentUser()
-      .then((data) => {
-        // Support both { user: {...} } and flat user object shapes
-        setUser(data?.user ?? data);
+      .then((res) => {
+        setUser(res?.data?.user ?? res?.user ?? res);
       })
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);
 
-  /**
-   * Login with email + password.
-   * Expects API to return: { token: string, user: object }
-   */
   async function login(credentials) {
-    const data = await apiLogin(credentials);
-    setCookie("token", data.token);
-    setUser(data.user ?? data);
+    const res = await apiLogin(credentials);
+    const { user, accessToken } = res.data;
+    setCookie("token", accessToken);
+    setUser(user);
     router.push("/dashboard");
-    return data;
+    return res;
   }
 
-  /**
-   * Register a new user.
-   * Expects API to return: { token: string, user: object }
-   */
   async function register(payload) {
-    const data = await apiRegister(payload);
-    setCookie("token", data.token);
-    setUser(data.user ?? data);
+    const res = await apiRegister(payload);
+    const { user, accessToken } = res.data;
+    setCookie("token", accessToken);
+    setUser(user);
     router.push("/dashboard");
-    return data;
+    return res;
   }
 
   /** Clear session and redirect to login. */
   function logout() {
     deleteCookie("token");
     setUser(null);
-    router.push("/login");
+    router.push("/user/login");
   }
 
   return (
