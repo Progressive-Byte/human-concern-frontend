@@ -1,7 +1,5 @@
 import { userAuthRegistration } from "@/utils/constants";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-
 function getCookieValue(name) {
   if (typeof document === "undefined") return null;
   const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
@@ -14,7 +12,7 @@ async function makeRequest(endpoint, options = {}, cookieName = "token") {
   const response = await fetch(`${userAuthRegistration}${endpoint}`, {
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",9
+      "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
