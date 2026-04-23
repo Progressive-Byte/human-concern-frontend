@@ -1,4 +1,4 @@
-import { userAuthRegistration } from "@/utils/constants";
+import { apiBase } from "@/utils/constants";
 
 function getCookieValue(name) {
   if (typeof document === "undefined") return null;
@@ -8,8 +8,9 @@ function getCookieValue(name) {
 
 async function makeRequest(endpoint, options = {}, cookieName = "token") {
   const token = getCookieValue(cookieName);
+  console.log("Making API request to:", `${apiBase}${endpoint}`);
 
-  const response = await fetch(`${userAuthRegistration}${endpoint}`, {
+  const response = await fetch(`${apiBase}${endpoint}`, {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
