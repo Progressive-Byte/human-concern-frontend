@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { siteUrl, apiBase } from "@/utils/constants";
+import { siteUrl, serverApiBase } from "@/utils/constants";
 import CampaignTabs from "./components/CampaignTabs";
 import DonationWidget from "./components/DonationWidget";
 
@@ -18,14 +18,12 @@ function daysLeft(endAt) {
 }
 
 export default async function CampaignPage({ params }) {
-  console.log("[CampaignPage] params:", params);
   const { slug } = await params;
 
   let campaign = null;
 
   try {
-    const url = `${apiBase}campaigns/${slug}`;
-    console.log("[CampaignPage] fetching:", url);
+    const url = `${serverApiBase}campaigns/${slug}`;
 
     const res  = await fetch(url, {
       next: { revalidate: 60 },
