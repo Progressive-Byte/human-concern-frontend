@@ -37,9 +37,8 @@ export function AuthProvider({ children }) {
   async function register(payload) {
     const res = await apiRegister(payload);
     const { user, accessToken } = res.data;
-    setCookie("token", accessToken);
     setUser(user);
-    router.push("/dashboard");
+    router.push("/user/login");
     return res;
   }
 

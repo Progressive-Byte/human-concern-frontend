@@ -49,7 +49,7 @@ export default function HomePage() {
                     All campaigns
                   </Link>
                   <Link
-                    href="/register"
+                    href="/user/register"
                     className="px-6 py-3 text-[#383838] font-normal text-[18px] rounded-full border border-[#383838] transition-all duration-200 hover:-translate-y-0.5"
                   >
                     Get started

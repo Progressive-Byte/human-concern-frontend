@@ -49,6 +49,10 @@ export function middleware(request) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/user/login",
+    "/user/register",
+    "/user/forgot-password",
+    "/user/reset-password",
     "/admin/:path*",
   ],
 };
