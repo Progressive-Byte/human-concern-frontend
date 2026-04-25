@@ -5,11 +5,28 @@ import { useRouter } from "next/navigation";
 import {
   login as apiLogin,
   register as apiRegister,
-  getCurrentUser,
 } from "@/services/authService";
-import { setCookie, deleteCookie } from "@/utils/cookies";
+import { setCookie, deleteCookie, getCookie } from "@/utils/cookies";
 
 const AuthContext = createContext(null);
+
+const USER_KEY = "hc_user";
+
+function saveUser(user) {
+  try {
+    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
+    else localStorage.removeItem(USER_KEY);
+  } catch {}
+}
+
+function loadUser() {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -17,18 +34,21 @@ export function AuthProvider({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    getCurrentUser()
-      .then((res) => {
-        setUser(res?.data?.user ?? res?.user ?? res);
-      })
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    if (getCookie("token")) {
+      setUser(loadUser());
+    } else {
+      saveUser(null);
+    }
+    setLoading(false);
   }, []);
 
   async function login(credentials) {
     const res = await apiLogin(credentials);
     const { user, accessToken } = res.data;
+
+    console.log("Login successful - user:", user, "accessToken:", accessToken);
     setCookie("token", accessToken);
+    saveUser(user);
     setUser(user);
     router.push("/dashboard");
     return res;
@@ -36,15 +56,16 @@ export function AuthProvider({ children }) {
 
   async function register(payload) {
     const res = await apiRegister(payload);
-    const { user, accessToken } = res.data;
+    const { user } = res.data;
+    saveUser(user);
     setUser(user);
     router.push("/user/login");
     return res;
   }
 
-  /** Clear session and redirect to login. */
   function logout() {
     deleteCookie("token");
+    saveUser(null);
     setUser(null);
     router.push("/user/login");
   }
