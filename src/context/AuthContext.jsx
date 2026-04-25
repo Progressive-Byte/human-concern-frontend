@@ -46,7 +46,6 @@ export function AuthProvider({ children }) {
     const res = await apiLogin(credentials);
     const { user, accessToken } = res.data;
 
-    console.log("Login successful - user:", user, "accessToken:", accessToken);
     setCookie("token", accessToken);
     saveUser(user);
     setUser(user);
