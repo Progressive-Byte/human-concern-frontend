@@ -21,7 +21,7 @@ const CampaignCard = ({ campaign }) => {
   
 
   return (
-    <div className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1 mt-10 lg:mt-[57px] md:mt-[30px]">
+    <div className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1">
       {/* Thumbnail */}
       <div className="relative h-[303px] overflow-hidden">
         <Image

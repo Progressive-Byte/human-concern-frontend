@@ -269,14 +269,14 @@ const CampaignsPage = () => {
 
         {/* Campaign grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 my-10 lg:my-[57px] md:my-[30px]">
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
               <div key={i} className="bg-white rounded-3xl h-[520px] animate-pulse" />
             ))}
           </div>
         ) : campaigns.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 my-10 lg:my-[57px] md:my-[30px]">
               {campaigns.map((campaign) => (
                 <CampaignCard key={campaign.id} campaign={campaign} />
               ))}
