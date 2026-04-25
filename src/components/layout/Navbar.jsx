@@ -17,12 +17,10 @@ export default function Navbar() {
   const isHome = pathname === "/";
   const { user, loading, isAuthenticated, logout } = useAuth();
 
-  // Prevent hydration mismatch — only render auth-dependent UI after mount
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Show while loading or before client hydration
   const showAuth = mounted && !loading;
   const displayName = user?.name || user?.firstName || "User";
 
@@ -86,12 +84,6 @@ export default function Navbar() {
                       className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 no-underline transition-colors"
                     >
                       Dashboard
-                    </Link>
-                    <Link
-                      href="/dashboard/donations"
-                      className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 no-underline transition-colors"
-                    >
-                      My Donations
                     </Link>
                     <div className="border-t border-gray-100 mt-1 pt-1">
                       <button
