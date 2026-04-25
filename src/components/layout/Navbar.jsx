@@ -48,7 +48,7 @@ export default function Navbar() {
           {/* CTA */}
           <div className="hidden md:flex items-center gap-2 ml-3">
             <Link
-              href="/login"
+              href="/user/login"
               className="px-6 py-2 text-lg font-normal text-white bg-[#383838] hover:bg-gray-700 rounded-full transition-all duration-200 no-underline"
             >
               Sign In
