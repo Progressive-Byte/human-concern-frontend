@@ -68,7 +68,7 @@ export default function Navbar() {
               <div className="relative group">
                 <button className="flex items-center gap-2 pl-2 pr-4 py-1.5 text-sm font-semibold text-white bg-[#383838] hover:bg-gray-700 rounded-full transition-all duration-200 cursor-pointer">
                   {UserIcon}
-                  Hello, {displayName.split(" ")[0]}
+                  Hello, {displayName.split(" ")[0]} !
                 </button>
 
                 {/* Hover dropdown */}
