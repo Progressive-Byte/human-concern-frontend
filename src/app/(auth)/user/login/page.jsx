@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { AlertIcon, EyeIcon, EyeOffIcon, Spinner } from "@/components/common/SvgIcon";
+import { AlertIcon, EyeIcon, EyeOffIcon, GoogleIcon, Spinner } from "@/components/common/SvgIcon";
 import { FormField, FormInput, validateLogin } from "@/components/common/FormInput";
 
 export default function LoginPage() {
@@ -113,7 +113,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-lg py-3 text-[15px] font-semibold text-white bg-[#EA3335] hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+          className="w-full rounded-lg py-3 text-[15px] font-semibold text-white bg-[#EA3335] hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1 cursor-pointer"
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">{Spinner}Signing in…</span>
@@ -131,12 +131,7 @@ export default function LoginPage() {
         type="button"
         className="w-full flex items-center justify-center gap-3 rounded-lg py-3 text-[14px] font-medium text-white/80 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
       >
-        <svg width="18" height="18" viewBox="0 0 48 48">
-          <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.1-4z" />
-          <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4c-7.9 0-14.7 4.4-17.7 10.7z" />
-          <path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36 24 36c-5.2 0-9.7-3.3-11.4-8H6.3C9.2 38.9 16 44 24 44z" />
-          <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.5l6.2 5.2C41 35.1 44 30 44 24c0-1.3-.1-2.7-.4-4z" />
-        </svg>
+        {GoogleIcon}
         Or sign in with Google
       </button>
 

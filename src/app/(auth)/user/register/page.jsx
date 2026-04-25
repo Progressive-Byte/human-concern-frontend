@@ -260,7 +260,7 @@ export default function RegisterPage() {
         </div>
 
         <button type="submit" disabled={isLoading}
-          className="w-full rounded-lg py-3 text-[15px] font-semibold text-white bg-[#EA3335] hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1">
+          className="w-full rounded-lg py-3 text-[15px] font-semibold text-white bg-[#EA3335] hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1 cursor-pointer">
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">{Spinner}Creating account…</span>
           ) : "Create account"}
