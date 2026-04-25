@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/reset-password",
+        destination: "/user/reset-password",
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {
