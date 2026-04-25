@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { UserIcon } from "../common/SvgIcon";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -41,7 +42,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-1 ml-auto">
+          <div className="hidden md:flex items-center gap-[6px] ml-auto">
             {navLinks.map(({ label, href }) => (
               <Link
                 key={href}
@@ -58,18 +59,15 @@ export default function Navbar() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-2 ml-3">
+          <div className="hidden md:flex items-center">
             {/* Skeleton while loading */}
             {!showAuth ? (
-              <div className="w-24 h-9 rounded-full bg-gray-200 animate-pulse" />
+              <div className="w-24 h-9 rounded-full bg-gray-200" />
             ) : isAuthenticated ? (
               /* Logged-in state */
               <div className="relative group">
                 <button className="flex items-center gap-2 pl-2 pr-4 py-1.5 text-sm font-semibold text-white bg-[#383838] hover:bg-gray-700 rounded-full transition-all duration-200 cursor-pointer">
-                  {/* Avatar circle */}
-                  <span className="w-7 h-7 rounded-full bg-[#EA3335] flex items-center justify-center text-[12px] font-bold text-white shrink-0 uppercase">
-                    {displayName.charAt(0)}
-                  </span>
+                  {UserIcon}
                   Hello, {displayName.split(" ")[0]}
                 </button>
 
