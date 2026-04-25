@@ -8,7 +8,6 @@ function getCookieValue(name) {
 
 async function makeRequest(endpoint, options = {}, cookieName = "token") {
   const token = getCookieValue(cookieName);
-  console.log("Making API request to:", `${apiBase}${endpoint}`);
 
   const response = await fetch(`${apiBase}${endpoint}`, {
     credentials: "include",
