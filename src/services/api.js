@@ -25,7 +25,14 @@ async function makeRequest(endpoint, options = {}, cookieName = "token") {
     try {
       if (ct.includes("application/json")) {
         const body = await response.json();
-        message = body.message || body.error || JSON.stringify(body);
+        const raw = body.message || body.error;
+        if (typeof raw === "string") {
+          message = raw;
+        } else if (raw && typeof raw === "object") {
+          message = Object.values(raw).join(", ");
+        } else {
+          message = JSON.stringify(body);
+        }
       } else {
         message = await response.text();
       }
