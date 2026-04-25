@@ -29,7 +29,7 @@ async function makeRequest(endpoint, options = {}, cookieName = "token") {
         if (typeof raw === "string") {
           message = raw;
         } else if (raw && typeof raw === "object") {
-          message = Object.values(raw).join(", ");
+          message = raw.message || raw.msg || Object.values(raw).find((v) => typeof v === "string") || JSON.stringify(raw);
         } else {
           message = JSON.stringify(body);
         }
