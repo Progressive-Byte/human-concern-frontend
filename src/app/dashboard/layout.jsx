@@ -1,11 +1,21 @@
-import React from 'react'
+import DashboardSidebar from "./components/DashboardSidebar";
 
-const layout = () => {
+export const metadata = {
+  title: "Dashboard — Human Concern",
+};
+
+/**
+ * Dashboard shell: persistent sidebar + scrollable content area.
+ * Each child page is responsible for rendering its own <DashboardHeader />,
+ * so it can customise title / subtitle / right-side actions.
+ */
+export default function DashboardLayout({ children }) {
   return (
-    <div>
-      <h2 className="text-3xl text-red-500 font-arial">Welcome to the Dashboard Layout</h2>
+    <div className="flex min-h-screen bg-gray-50 text-gray-900">
+      <DashboardSidebar />
+      <main className="flex-1 min-w-0 flex flex-col">
+        {children}
+      </main>
     </div>
-  )
+  );
 }
-
-export default layout
