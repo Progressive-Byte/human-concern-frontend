@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -13,6 +14,9 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const { user, isAuthenticated, logout } = useAuth();
+
+  console.log("Navbar render - user:", user, "isAuthenticated:", isAuthenticated);
 
   return (
     <header
@@ -47,12 +51,28 @@ export default function Navbar() {
 
           {/* CTA */}
           <div className="hidden md:flex items-center gap-2 ml-3">
-            <Link
-              href="/user/login"
-              className="px-6 py-2 text-lg font-normal text-white bg-[#383838] hover:bg-gray-700 rounded-full transition-all duration-200 no-underline"
-            >
-              Sign In
-            </Link>
+            {isAuthenticated ? (
+              <div className="relative group">
+                <button className="px-6 py-2 text-lg font-normal text-white bg-[#383838] hover:bg-gray-700 rounded-full transition-all duration-200 cursor-pointer">
+                  Hello, {user?.firstName || user?.name || "User"}
+                </button>
+                <div className="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                  <button
+                    onClick={logout}
+                    className="w-full px-6 py-2 text-sm font-semibold text-white bg-[#EA3335] hover:bg-red-700 rounded-full whitespace-nowrap transition-colors cursor-pointer"
+                  >
+                    Log out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link
+                href="/user/login"
+                className="px-6 py-2 text-lg font-normal text-white bg-[#383838] hover:bg-gray-700 rounded-full transition-all duration-200 no-underline"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -87,13 +107,27 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex gap-2 mt-2 pt-3 border-t border-gray-100">
-              <Link
-                href="/login"
-                onClick={() => setMenuOpen(false)}
-                className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-full hover:bg-gray-800 transition-all no-underline"
-              >
-                Sign In
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <span className="flex-1 text-center py-2.5 text-sm font-semibold text-gray-800 bg-gray-100 rounded-full truncate">
+                    Hello, {user?.firstName || user?.name || "User"}
+                  </span>
+                  <button
+                    onClick={() => { logout(); setMenuOpen(false); }}
+                    className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-[#EA3335] rounded-full hover:bg-red-700 transition-all cursor-pointer"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/user/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-full hover:bg-gray-800 transition-all no-underline"
+                >
+                  Sign In
+                </Link>
+              )}
               <Link
                 href="/donate"
                 onClick={() => setMenuOpen(false)}
