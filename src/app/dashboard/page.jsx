@@ -2,9 +2,24 @@ import DashboardHeader from "./components/DashboardHeader";
 import StatCard from "./components/StatCard";
 
 const stats = [
-  { label: "Total Donated", value: "$4,250", hint: "Lifetime contributions" },
-  { label: "Active Schedules", value: "3", hint: "Recurring donations" },
-  { label: "Next Scheduled Donation Payment", value: "$50", hint: "Feb 15" },
+  {
+    label: "Total Donated",
+    value: "$4,250",
+    hint: "Lifetime contributions",
+    icon: "/images/dashboard/donate-symble.png",
+  },
+  {
+    label: "Active Schedules",
+    value: "3",
+    hint: "Recurring donations",
+    icon: "/images/active-schedules.png",
+  },
+  {
+    label: "Next Scheduled Donation Payment",
+    value: "$50",
+    hint: "Feb 15",
+    icon: "/images/next-payment.png",
+  },
 ];
 
 const recentDonations = [
@@ -30,9 +45,7 @@ export default function DashboardPage() {
   return (
     <>
       <DashboardHeader />
-
       <div className="flex-1 p-6 space-y-6">
-        {/* Stat cards */}
         <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {stats.map((s) => (
             <StatCard key={s.label} {...s} />
