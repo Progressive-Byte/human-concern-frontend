@@ -1,11 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useDonation } from "@/context/DonationContext";
+import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import Field from "@/components/ui/Field";
-import { useState } from "react";
 
 const COUNTRIES = [
   "USA", "United Kingdom", "Canada", "Australia", "Germany",
@@ -25,8 +25,27 @@ const US_STATES = [
 
 export default function Step1PersonalInfo() {
   const { data, update } = useDonation();
+  const { user, isAuthenticated } = useAuth();
   const { handleNext } = useStepNavigation();
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      update({
+        organization: user.organization ?? "",
+        firstName:    user.firstName   ?? "",
+        lastName:     user.lastName    ?? "",
+        email:        user.email       ?? "",
+        phone:        user.phone       ?? "",
+        addressLine1: user.addressLine1 ?? "",
+        city:         user.city        ?? "",
+        province:     user.state       ?? "",
+        zip:          user.postalCode  ?? "",
+        country:      user.country     ?? "",
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user]);
 
   const validateAndNext = () => {
     if (
@@ -52,9 +71,17 @@ export default function Step1PersonalInfo() {
   };
 
   const field = (key) => ({
-    value: data[key] ?? "",
-    onChange: (e) => { update({ [key]: e.target.value }); setError(""); },
+    value:    data[key] ?? "",
+    onChange: isAuthenticated ? undefined : (e) => { update({ [key]: e.target.value }); setError(""); },
+    readOnly: isAuthenticated,
   });
+
+  const selectClass = (disabled) =>
+    `w-full appearance-none border rounded-xl px-4 py-3 text-[14px] pr-9 focus:outline-none transition-colors ${
+      disabled
+        ? "border-[#E0E0E0] bg-[#F5F5F5] text-[#888888] cursor-default"
+        : "border-[#CCCCCC] text-[#383838] bg-white focus:border-[#383838]"
+    }`;
 
   return (
     <StepLayout
@@ -65,6 +92,12 @@ export default function Step1PersonalInfo() {
       nextLabel="Cause"
     >
       <div className="flex flex-col gap-4">
+
+        {isAuthenticated && (
+          <p className="text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
+            Your account information has been pre-filled. These fields are read-only.
+          </p>
+        )}
 
         {/* Organization */}
         <Field
@@ -128,33 +161,42 @@ export default function Step1PersonalInfo() {
           <Field
             label="Province or State"
             required
-            placeholder="1234"
+            placeholder="e.g. Texas"
             {...field("province")}
           />
         </div>
 
         {/* Zip / Country */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Zip — native select styled */}
+
+          {/* Zip */}
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-medium text-[#383838]">
               Zip or Postal Code<span className="text-[#EA3335]">*</span>
             </label>
-            <div className="relative">
-              <select
+            {isAuthenticated ? (
+              <input
+                readOnly
                 value={data.zip ?? ""}
-                onChange={(e) => { update({ zip: e.target.value }); setError(""); }}
-                className="w-full appearance-none border border-[#CCCCCC] rounded-xl px-4 py-3 text-[14px] text-[#383838] bg-white focus:outline-none focus:border-[#383838] pr-9"
-              >
-                <option value="" disabled>Select</option>
-                {US_STATES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M3 5l4 4 4-4" stroke="#AEAEAE" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
+                className="w-full border border-[#E0E0E0] rounded-xl px-4 py-3 text-[14px] text-[#888888] bg-[#F5F5F5] cursor-default focus:outline-none"
+              />
+            ) : (
+              <div className="relative">
+                <select
+                  value={data.zip ?? ""}
+                  onChange={(e) => { update({ zip: e.target.value }); setError(""); }}
+                  className={selectClass(false)}
+                >
+                  <option value="" disabled>Select</option>
+                  {US_STATES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3 5l4 4 4-4" stroke="#AEAEAE" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            )}
           </div>
 
           {/* Country */}
@@ -166,15 +208,18 @@ export default function Step1PersonalInfo() {
               <select
                 value={data.country ?? "USA"}
                 onChange={(e) => { update({ country: e.target.value }); setError(""); }}
-                className="w-full appearance-none border border-[#CCCCCC] rounded-xl px-4 py-3 text-[14px] text-[#383838] bg-white focus:outline-none focus:border-[#383838] pr-9"
+                disabled={isAuthenticated}
+                className={selectClass(isAuthenticated)}
               >
                 {COUNTRIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M3 5l4 4 4-4" stroke="#AEAEAE" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              {!isAuthenticated && (
+                <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3 5l4 4 4-4" stroke="#AEAEAE" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
             </div>
           </div>
         </div>
