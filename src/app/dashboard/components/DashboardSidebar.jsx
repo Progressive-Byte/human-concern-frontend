@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { calendarIcon, cardIcon, DashboardIcon, DashTabIcon, historyIcon, MakeDonerIcon, pieChartIcon, UserDashboardIcon, UserIcon } from "@/components/common/SvgIcon";
+import { calendarIcon, cardIcon, DashboardIcon, DashTabIcon, historyIcon, MakeDonerIcon, pieChartIcon, SignOutIcon, UserDashboardIcon, UserIcon } from "@/components/common/SvgIcon";
 
 /**
  * Sidebar navigation for the user dashboard.
@@ -11,7 +11,7 @@ import { calendarIcon, cardIcon, DashboardIcon, DashTabIcon, historyIcon, MakeDo
  * permissions / feature flags coming from the API.
  */
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: "grid" },
+  { href: "/dashboard", label: "Dashboard", icon: {DashTabIcon} },
   { href: "/dashboard/donation-history", label: "Donation History", icon: "history" },
   { href: "/dashboard/schedules", label: "Schedules", icon: "calendar" },
   { href: "/dashboard/fund-breakdown", label: "Fund Breakdown", icon: "pie" },
@@ -20,8 +20,7 @@ const navItems = [
 ];
 
 function NavIcon({ name }) {
-  // lightweight inline icons – replace with project SvgIcon set later
-  const common = "w-4 h-4";
+
   switch (name) {
     case "grid":
       return (
@@ -103,10 +102,7 @@ export default function DashboardSidebar() {
           onClick={logout}
           className="flex items-center gap-3 w-full rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
+          {SignOutIcon}
           Sign Out
         </button>
       </div>
