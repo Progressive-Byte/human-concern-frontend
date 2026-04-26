@@ -57,7 +57,7 @@ export default function StepLayout({
               {step > 1 ? (
                 <button
                   onClick={() => router.push(`/donate/${step - 1}`)}
-                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-[#E5E5E5] text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-5 py-2.5 text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"
                 >
                   {ArrowPrevIcon}
                   {resolvedPrevLabel}
