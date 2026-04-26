@@ -30,8 +30,6 @@ export default async function CampaignPage({ params }) {
       headers: { Accept: "application/json" },
     });
 
-    console.log(`response:`, res);
-
     if (res.ok) {
       const json = await res.json();
       campaign   = json?.data ?? null;

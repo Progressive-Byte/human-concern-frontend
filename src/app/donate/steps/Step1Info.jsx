@@ -1,72 +1,158 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Country, State, City } from "country-state-city";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import Field from "@/components/ui/Field";
-
-const COUNTRIES = [
-  "USA", "United Kingdom", "Canada", "Australia", "Germany",
-  "France", "Pakistan", "Bangladesh", "India", "Other",
-];
-
-const US_STATES = [
-  "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut",
-  "Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa",
-  "Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan",
-  "Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada",
-  "New Hampshire","New Jersey","New Mexico","New York","North Carolina",
-  "North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island",
-  "South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont",
-  "Virginia","Washington","West Virginia","Wisconsin","Wyoming",
-];
+import CustomDropdown from "@/components/common/CustomDropdown";
 
 export default function Step1PersonalInfo() {
   const { data, update } = useDonation();
   const { user, isAuthenticated } = useAuth();
   const { handleNext } = useStepNavigation();
+  const searchParams = useSearchParams();
   const [error, setError] = useState("");
 
+  // ISO codes kept local to drive cascading dropdowns (guest mode only)
+  const [countryCode, setCountryCode] = useState("");
+  const [stateCode, setStateCode] = useState("");
+
+  // Track previous auth state to detect actual logout transitions
+  const prevAuthRef = useRef(isAuthenticated);
+
+  // ── Effect 1: Read URL params (/donate/1?campaignId=...&amount=...&currency=...)
+  // Runs once on mount so the values survive across step navigation
+  useEffect(() => {
+    const campaignId = searchParams.get("campaignId");
+    const amount     = searchParams.get("amount");
+    const currency   = searchParams.get("currency");
+    if (campaignId) {
+      update({
+        campaignId,
+        ...(amount   && { amount }),
+        ...(currency && { currency }),
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Effect 2: Restore ISO codes when navigating back to this step (guest)
+  // DonationContext still has country/state names but local state is reset on unmount
+  useEffect(() => {
+    if (!isAuthenticated && data.country && !countryCode) {
+      const found = Country.getAllCountries().find((c) => c.name === data.country);
+      if (found) {
+        setCountryCode(found.isoCode);
+        if (data.province) {
+          const foundState = State.getStatesOfCountry(found.isoCode).find(
+            (s) => s.name === data.province
+          );
+          if (foundState) setStateCode(foundState.isoCode);
+        }
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Effect 3: Pre-fill from user profile when authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
       update({
-        organization: user.organization ?? "",
-        firstName:    user.firstName   ?? "",
-        lastName:     user.lastName    ?? "",
-        email:        user.email       ?? "",
-        phone:        user.phone       ?? "",
-        addressLine1: user.addressLine1 ?? "",
-        city:         user.city        ?? "",
-        province:     user.state       ?? "",
-        zip:          user.postalCode  ?? "",
-        country:      user.country     ?? "",
+        organization: user.organization  ?? "",
+        firstName:    user.firstName     ?? "",
+        lastName:     user.lastName      ?? "",
+        email:        user.email         ?? "",
+        phone:        user.phone         ?? "",
+        addressLine1: user.addressLine1  ?? "",
+        city:         user.city          ?? "",
+        province:     user.state         ?? "",
+        zip:          user.postalCode    ?? "",
+        country:      user.country       ?? "",
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
+  // ── Effect 4: Clear personal fields only when user actually logs out (not on mount)
+  useEffect(() => {
+    const wasAuth = prevAuthRef.current;
+    prevAuthRef.current = isAuthenticated;
+    if (wasAuth && !isAuthenticated) {
+      update({
+        organization: "", firstName: "", lastName: "", email: "", phone: "",
+        addressLine1: "", city: "", province: "", zip: "", country: "",
+      });
+      setCountryCode("");
+      setStateCode("");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  // ── Dropdown option lists (memoised)
+  const countryOptions = useMemo(
+    () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
+    []
+  );
+
+  const stateOptions = useMemo(
+    () =>
+      countryCode
+        ? State.getStatesOfCountry(countryCode).map((s) => ({ value: s.isoCode, label: s.name }))
+        : [],
+    [countryCode]
+  );
+
+  const cityOptions = useMemo(
+    () =>
+      countryCode && stateCode
+        ? City.getCitiesOfState(countryCode, stateCode).map((c) => ({ value: c.name, label: c.name }))
+        : [],
+    [countryCode, stateCode]
+  );
+
+  // ── Cascading change handlers
+  const handleCountryChange = (isoCode) => {
+    const country = Country.getCountryByCode(isoCode);
+    setCountryCode(isoCode);
+    setStateCode("");
+    update({ country: country?.name ?? "", province: "", city: "" });
+    setError("");
+  };
+
+  const handleStateChange = (isoCode) => {
+    const state = State.getStateByCodeAndCountry(isoCode, countryCode);
+    setStateCode(isoCode);
+    update({ province: state?.name ?? "", city: "" });
+    setError("");
+  };
+
+  const handleCityChange = (cityName) => {
+    update({ city: cityName });
+    setError("");
+  };
+
   const validateAndNext = () => {
     if (
-      !data.firstName?.trim() ||
-      !data.lastName?.trim() ||
-      !data.email?.trim() ||
+      !data.firstName?.trim()    ||
+      !data.lastName?.trim()     ||
+      !data.email?.trim()        ||
       !data.addressLine1?.trim() ||
-      !data.city?.trim() ||
-      !data.province?.trim() ||
-      !data.zip?.trim() ||
+      !data.city?.trim()         ||
+      !data.province?.trim()     ||
+      !data.zip?.trim()          ||
       !data.country?.trim()
     ) {
       setError("Please fill in all required fields.");
       return;
     }
-
     if (!/\S+@\S+\.\S+/.test(data.email)) {
       setError("Enter a valid email address.");
       return;
     }
-
     handleNext(2);
   };
 
@@ -76,12 +162,13 @@ export default function Step1PersonalInfo() {
     readOnly: isAuthenticated,
   });
 
-  const selectClass = (disabled) =>
-    `w-full appearance-none border rounded-xl px-4 py-3 text-[14px] pr-9 focus:outline-none transition-colors ${
-      disabled
-        ? "border-[#E0E0E0] bg-[#F5F5F5] text-[#888888] cursor-default"
-        : "border-[#CCCCCC] text-[#383838] bg-white focus:border-[#383838]"
-    }`;
+  const readOnlyInput = (key) => (
+    <input
+      readOnly
+      value={data[key] ?? ""}
+      className="w-full border border-[#E0E0E0] rounded-xl px-4 py-3 text-[14px] text-[#888888] bg-[#F5F5F5] cursor-default focus:outline-none"
+    />
+  );
 
   return (
     <StepLayout
@@ -100,49 +187,23 @@ export default function Step1PersonalInfo() {
         )}
 
         {/* Organization */}
-        <Field
-          label="Organization"
-          placeholder="xyz ltd"
-          {...field("organization")}
-        />
+        <Field label="Organization" placeholder="xyz ltd" {...field("organization")} />
 
         {/* First / Last */}
         <div className="grid grid-cols-2 gap-4">
-          <Field
-            label="First Name"
-            required
-            placeholder="John"
-            {...field("firstName")}
-          />
-          <Field
-            label="Last Name"
-            required
-            placeholder="Doe"
-            {...field("lastName")}
-          />
+          <Field label="First Name" required placeholder="John" {...field("firstName")} />
+          <Field label="Last Name"  required placeholder="Doe"  {...field("lastName")}  />
         </div>
 
         {/* Email / Phone */}
         <div className="grid grid-cols-2 gap-4">
-          <Field
-            label="Email"
-            required
-            type="email"
-            placeholder="you@example.com"
-            {...field("email")}
-          />
-          <Field
-            label="Phone (Optional)"
-            type="tel"
-            placeholder="018******"
-            {...field("phone")}
-          />
+          <Field label="Email"            required type="email" placeholder="you@example.com" {...field("email")} />
+          <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...field("phone")} />
         </div>
 
-        {/* Divider */}
         <div className="h-px bg-[#F0F0F0] my-1" />
 
-        {/* Address Line 1 */}
+        {/* Address */}
         <Field
           label="Address Line 1"
           required
@@ -150,83 +211,72 @@ export default function Step1PersonalInfo() {
           {...field("addressLine1")}
         />
 
-        {/* City / Province */}
-        <div className="grid grid-cols-2 gap-4">
-          <Field
-            label="City"
-            required
-            placeholder="e.g. Texas"
-            {...field("city")}
-          />
-          <Field
-            label="Province or State"
-            required
-            placeholder="e.g. Texas"
-            {...field("province")}
-          />
+        {/* Country */}
+        <div className="flex flex-col gap-1">
+          <label className="text-[13px] font-medium text-[#383838]">
+            Country<span className="text-[#EA3335] ml-0.5">*</span>
+          </label>
+          {isAuthenticated ? readOnlyInput("country") : (
+            <CustomDropdown
+              variant="form"
+              options={countryOptions}
+              value={countryCode}
+              onChange={handleCountryChange}
+              placeholder="Select country"
+              label="Countries"
+              maxHeight="220px"
+            />
+          )}
         </div>
 
-        {/* Zip / Country */}
+        {/* State / City */}
         <div className="grid grid-cols-2 gap-4">
-
-          {/* Zip */}
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-medium text-[#383838]">
-              Zip or Postal Code<span className="text-[#EA3335]">*</span>
+              Province or State<span className="text-[#EA3335] ml-0.5">*</span>
             </label>
-            {isAuthenticated ? (
-              <input
-                readOnly
-                value={data.zip ?? ""}
-                className="w-full border border-[#E0E0E0] rounded-xl px-4 py-3 text-[14px] text-[#888888] bg-[#F5F5F5] cursor-default focus:outline-none"
+            {isAuthenticated ? readOnlyInput("province") : (
+              <CustomDropdown
+                variant="form"
+                options={stateOptions}
+                value={stateCode}
+                onChange={handleStateChange}
+                placeholder={countryCode ? "Select state" : "Select country first"}
+                label="States"
+                maxHeight="220px"
+                disabled={!countryCode}
               />
-            ) : (
-              <div className="relative">
-                <select
-                  value={data.zip ?? ""}
-                  onChange={(e) => { update({ zip: e.target.value }); setError(""); }}
-                  className={selectClass(false)}
-                >
-                  <option value="" disabled>Select</option>
-                  {US_STATES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-                <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M3 5l4 4 4-4" stroke="#AEAEAE" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
             )}
           </div>
 
-          {/* Country */}
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-medium text-[#383838]">
-              Country<span className="text-[#EA3335]">*</span>
+              City<span className="text-[#EA3335] ml-0.5">*</span>
             </label>
-            <div className="relative">
-              <select
-                value={data.country ?? "USA"}
-                onChange={(e) => { update({ country: e.target.value }); setError(""); }}
-                disabled={isAuthenticated}
-                className={selectClass(isAuthenticated)}
-              >
-                {COUNTRIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-              {!isAuthenticated && (
-                <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M3 5l4 4 4-4" stroke="#AEAEAE" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              )}
-            </div>
+            {isAuthenticated ? readOnlyInput("city") : (
+              <CustomDropdown
+                variant="form"
+                options={cityOptions}
+                value={data.city ?? ""}
+                onChange={handleCityChange}
+                placeholder={stateCode ? "Select city" : "Select state first"}
+                label="Cities"
+                maxHeight="220px"
+                disabled={!stateCode}
+              />
+            )}
           </div>
         </div>
 
-        {error && (
-          <p className="text-[#EA3335] text-[13px]">{error}</p>
-        )}
+        {/* Zip */}
+        <Field
+          label="Zip or Postal Code"
+          required
+          placeholder="e.g. 10001"
+          {...field("zip")}
+        />
+
+        {error && <p className="text-[#EA3335] text-[13px]">{error}</p>}
 
       </div>
     </StepLayout>

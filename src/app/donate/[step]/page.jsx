@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Step1Info from "../steps/Step1Info";
 import Step2Cause from "../steps/Step2Cause";
@@ -24,5 +25,9 @@ export default async function DonateStepPage({ params }) {
   if (isNaN(index) || index < 0 || index >= STEPS.length) notFound();
 
   const StepComponent = STEPS[index];
-  return <StepComponent />;
+  return (
+    <Suspense>
+      <StepComponent />
+    </Suspense>
+  );
 }
