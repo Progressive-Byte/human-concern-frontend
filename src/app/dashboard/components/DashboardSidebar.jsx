@@ -51,7 +51,7 @@ const navItems = [
   },
 ];
 
-export default function DashboardSidebar() {
+const DashboardSidebar = () => {
   const pathname = usePathname();
   const { logout } = useAuth();
 
@@ -114,3 +114,5 @@ export default function DashboardSidebar() {
     </aside>
   );
 }
+
+export default DashboardSidebar;
