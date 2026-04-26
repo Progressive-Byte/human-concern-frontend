@@ -74,9 +74,8 @@ export default function DashboardSidebar() {
     href === "/dashboard" ? pathname === href : pathname?.startsWith(href);
 
   return (
-    <aside className="flex h-screen w-[260px] shrink-0 flex-col border-r border-[#BFBFBF] bg-white">
-      {/* Brand */}
-      <div className="flex items-center gap-[6px] px-1 py-3 border-b border-[#CCCCCC]">
+    <aside className="flex h-screen w-[260px] shrink-0 flex-col border-r border-dashed border-[#BFBFBF] bg-white">
+      <div className="flex items-center gap-2 px-1 py-[20px] border-b border-[#CCCCCC]">
         <div className="">
           {DashboardIcon}
         </div>
