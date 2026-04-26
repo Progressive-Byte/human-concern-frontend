@@ -83,17 +83,17 @@ export default function DashboardSidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-4 py-3 overflow-y-auto">
         {navItems.map((item) => {
           const active = isActive(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+              className={`flex items-center gap-3 rounded-2xl px-2 py-4 text-sm transition-colors ${
                 active
-                  ? "bg-[#1A1A1A] text-white"
-                  : "text-gray-700 hover:bg-gray-100"
+                  ? "bg-[#262626] text-white"
+                  : "text-[#737373] hover:bg-gray-100"
               }`}
             >
               <NavIcon name={item.icon} />
