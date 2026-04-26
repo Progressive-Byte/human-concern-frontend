@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { DashboardIcon } from "@/components/common/SvgIcon";
+import { calendarIcon, DashboardIcon, DashTabIcon, historyIcon } from "@/components/common/SvgIcon";
 
 /**
  * Sidebar navigation for the user dashboard.
@@ -25,23 +25,15 @@ function NavIcon({ name }) {
   switch (name) {
     case "grid":
       return (
-        <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-          <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
-        </svg>
+        DashTabIcon
       );
     case "history":
       return (
-        <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M3 12a9 9 0 1 0 3-6.7" /><polyline points="3 4 3 10 9 10" /><path d="M12 7v5l3 2" />
-        </svg>
+        historyIcon
       );
     case "calendar":
       return (
-        <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" />
-          <line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-        </svg>
+        calendarIcon
       );
     case "pie":
       return (

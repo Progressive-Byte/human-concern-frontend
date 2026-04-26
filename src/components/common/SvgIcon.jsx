@@ -261,3 +261,20 @@ export const CountryReachIcon = (
       <path d="M7.5 13.333H3.33333C2.8731 13.333 2.5 13.7061 2.5 14.1663V16.6663C2.5 17.1266 2.8731 17.4997 3.33333 17.4997H7.5C7.96024 17.4997 8.33333 17.1266 8.33333 16.6663V14.1663C8.33333 13.7061 7.96024 13.333 7.5 13.333Z" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   )
+
+  export const historyIcon = (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2.5 10C2.5 11.4834 2.93987 12.9334 3.76398 14.1668C4.58809 15.4001 5.75943 16.3614 7.12987 16.9291C8.50032 17.4968 10.0083 17.6453 11.4632 17.3559C12.918 17.0665 14.2544 16.3522 15.3033 15.3033C16.3522 14.2544 17.0665 12.918 17.3559 11.4632C17.6453 10.0083 17.4968 8.50032 16.9291 7.12987C16.3614 5.75943 15.4001 4.58809 14.1668 3.76398C12.9334 2.93987 11.4834 2.5 10 2.5C7.90329 2.50789 5.89081 3.32602 4.38333 4.78333L2.5 6.66667" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2.5 2.5V6.66667H6.66667" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10 5.83301V9.99967L13.3333 11.6663" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  )
+
+  export const calendarIcon = (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6.66602 1.66699V5.00033" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M13.334 1.66699V5.00033" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M15.8333 3.33301H4.16667C3.24619 3.33301 2.5 4.0792 2.5 4.99967V16.6663C2.5 17.5868 3.24619 18.333 4.16667 18.333H15.8333C16.7538 18.333 17.5 17.5868 17.5 16.6663V4.99967C17.5 4.0792 16.7538 3.33301 15.8333 3.33301Z" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2.5 8.33301H17.5" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  )
