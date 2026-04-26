@@ -25,7 +25,6 @@ const activeSchedules = [
   { id: 2, title: "Orphan Sponsorship Program", amount: 100, frequency: "Monthly", next: "Mar 1" },
 ];
 
-// ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
   return (
