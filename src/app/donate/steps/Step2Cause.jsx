@@ -34,10 +34,9 @@ export default function Step2Cause() {
       prevLabel="Personal Info"
       nextLabel="Objectives"
     >
-      {/* Selected count */}
       <div className="flex justify-end mb-3">
-        <span className="text-[12px] text-[#AEAEAE]">
-          <span className="text-[#383838] font-semibold">{selected.length} Selected</span>
+        <span className="text-[14px] text-[#8C8C8C]">
+          <span className="text-[#000000] font-normal">{selected.length} Selected</span>
           {" "}Out of {CAUSES.length}
         </span>
       </div>
