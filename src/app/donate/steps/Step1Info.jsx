@@ -36,8 +36,6 @@ export default function Step1PersonalInfo() {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
-  console.log("DonationContext data at Step 1:", searchParams);
-
   useEffect(() => {
     if (!isAuthenticated && data.country && !countryCode) {
       const found = Country.getAllCountries().find((c) => c.name === data.country);
