@@ -3,13 +3,13 @@
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
-import { ActiveDonerIcon, donationIcon } from "@/components/common/SvgIcon";
+import { ActiveDonerIcon, donationIcon, GlobalEnargentIcon, SadakaIcon, ZakatDonationIcon } from "@/components/common/SvgIcon";
 
 const CAUSES = [
   { value: "general", label: "General Donation", desc: "Contribute to the general fund", icon: donationIcon },
-  { value: "zakat",   label: "Zakat",            desc: "Obligatory charity for eligible Muslims", icon: "💰", tag: "Zakat Eligible" },
-  { value: "sadaqah", label: "Sadaqah",           desc: "Voluntary charity for any cause", icon: "🤲" },
-  { value: "global",  label: "Global Emergency",  desc: "Urgent humanitarian aid", icon: "🚨" },
+  { value: "zakat",   label: "Zakat",            desc: "Obligatory charity for eligible Muslims", icon: ZakatDonationIcon, tag: "Zakat Eligible" },
+  { value: "sadaqah", label: "Sadaqah",           desc: "Voluntary charity for any cause", icon: SadakaIcon },
+  { value: "global",  label: "Global Emergency",  desc: "Urgent humanitarian aid", icon: GlobalEnargentIcon },
 ];
 
 export default function Step2Cause() {
