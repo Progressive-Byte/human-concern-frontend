@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { calendarIcon, DashboardIcon, DashTabIcon, historyIcon } from "@/components/common/SvgIcon";
+import { calendarIcon, cardIcon, DashboardIcon, DashTabIcon, historyIcon, MakeDonerIcon, pieChartIcon, UserDashboardIcon, UserIcon } from "@/components/common/SvgIcon";
 
 /**
  * Sidebar navigation for the user dashboard.
@@ -37,21 +37,15 @@ function NavIcon({ name }) {
       );
     case "pie":
       return (
-        <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21.21 15.89A10 10 0 1 1 8 2.83" /><path d="M22 12A10 10 0 0 0 12 2v10z" />
-        </svg>
+        pieChartIcon
       );
     case "card":
       return (
-        <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
-        </svg>
+        cardIcon
       );
     case "user":
       return (
-        <svg className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-        </svg>
+        UserDashboardIcon
       );
     default:
       return null;
@@ -101,9 +95,7 @@ export default function DashboardSidebar() {
           href="/donate"
           className="flex items-center justify-center gap-2 w-full rounded-md bg-[#1A1A1A] px-3 py-2 text-sm font-medium text-white hover:bg-gray-700"
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z" />
-          </svg>
+          {MakeDonerIcon}
           Make a Donation
         </Link>
         <button

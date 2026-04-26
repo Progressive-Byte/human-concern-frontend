@@ -285,3 +285,30 @@ export const CountryReachIcon = (
       <path d="M17.6747 13.2417C17.1445 14.4955 16.3153 15.6002 15.2596 16.4595C14.2038 17.3187 12.9537 17.9063 11.6184 18.1707C10.2831 18.4352 8.90337 18.3685 7.59981 17.9766C6.29624 17.5846 5.10854 16.8793 4.14053 15.9223C3.17253 14.9653 2.4537 13.7857 2.04688 12.4867C1.64006 11.1877 1.55765 9.8088 1.80685 8.47059C2.05605 7.13238 2.62926 5.87559 3.47639 4.81009C4.32351 3.74459 5.41875 2.90283 6.66635 2.3584" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   )
+
+  export const cardIcon = (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16.666 4.1665H3.33268C2.41221 4.1665 1.66602 4.9127 1.66602 5.83317V14.1665C1.66602 15.087 2.41221 15.8332 3.33268 15.8332H16.666C17.5865 15.8332 18.3327 15.087 18.3327 14.1665V5.83317C18.3327 4.9127 17.5865 4.1665 16.666 4.1665Z" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M1.66602 8.3335H18.3327" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  )
+
+  export const UserDashboardIcon = (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.8327 17.5V15.8333C15.8327 14.9493 15.4815 14.1014 14.8564 13.4763C14.2313 12.8512 13.3834 12.5 12.4993 12.5H7.49935C6.61529 12.5 5.76745 12.8512 5.14233 13.4763C4.5172 14.1014 4.16602 14.9493 4.16602 15.8333V17.5" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M9.99935 9.16667C11.8403 9.16667 13.3327 7.67428 13.3327 5.83333C13.3327 3.99238 11.8403 2.5 9.99935 2.5C8.1584 2.5 6.66602 3.99238 6.66602 5.83333C6.66602 7.67428 8.1584 9.16667 9.99935 9.16667Z" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  )
+
+  export const MakeDonerIcon = (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#clip0_257_779)">
+      <path d="M12.6673 9.33333C13.6607 8.36 14.6673 7.19333 14.6673 5.66667C14.6673 4.69421 14.281 3.76158 13.5934 3.07394C12.9057 2.38631 11.9731 2 11.0007 2C9.82732 2 9.00065 2.33333 8.00065 3.33333C7.00065 2.33333 6.17398 2 5.00065 2C4.02819 2 3.09556 2.38631 2.40793 3.07394C1.72029 3.76158 1.33398 4.69421 1.33398 5.66667C1.33398 7.2 2.33398 8.36667 3.33398 9.33333L8.00065 14L12.6673 9.33333Z" stroke="white" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <defs>
+      <clipPath id="clip0_257_779">
+      <rect width="16" height="16" fill="white"/>
+      </clipPath>
+      </defs>
+    </svg>
+  )
