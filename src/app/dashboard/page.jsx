@@ -38,8 +38,6 @@ export default function DashboardPage() {
             <StatCard key={s.label} {...s} />
           ))}
         </section>
-
-        {/* Recent donations + fund breakdown */}
         <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
