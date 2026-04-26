@@ -3,7 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 
 
-export default function DashboardHeader({ title, subtitle, actions }) {
+const DashboardHeader = ({ title, subtitle, actions }) => {
   const { user } = useAuth();
   const displayName = user?.name || user?.firstName || "there";
 
@@ -20,3 +20,5 @@ export default function DashboardHeader({ title, subtitle, actions }) {
     </header>
   );
 }
+
+export default DashboardHeader
