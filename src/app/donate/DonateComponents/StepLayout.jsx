@@ -36,7 +36,7 @@ export default function StepLayout({
 
         <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 sm:p-8">
           {/* ── Header ── */}
-          <h2 className="text-[22px] font-bold text-[#383838] mb-1">{title}</h2>
+          <h2 className="text-[24px] font-bold text-[#383838] mb-1">{title}</h2>
           <p className="text-sm text-[#8C8C8C] font-normal mb-6">{subtitle}</p>
 
           {/* ── Content ── */}
