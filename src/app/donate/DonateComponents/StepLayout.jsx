@@ -35,24 +35,17 @@ export default function StepLayout({
         <StepProgress current={step} />
 
         <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 sm:p-8">
-          {/* ── Header ── */}
           <h2 className="text-[24px] font-bold text-[#383838] mb-1">{title}</h2>
           <p className="text-sm text-[#8C8C8C] font-normal mb-6">{subtitle}</p>
-
-          {/* ── Content ── */}
           {children}
 
-          {/* ── Security badge ── */}
           <div className="mt-8 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
             {NoticeIcon}
             <span className="text-[12px] text-[#AEAEAE]">
               Your payment is secured with 256-bit SSL encryption
             </span>
           </div>
-
-          {/* ── Navigation buttons ── */}
           <div className="flex items-center justify-between mt-5 gap-3">
-            {/* Left: Back */}
             <div>
               {step > 1 ? (
                 <button
