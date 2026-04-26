@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 
 function formatCardNumber(val) {
@@ -16,21 +16,20 @@ function formatExpiry(val) {
 }
 
 export default function Step6CardDetails() {
-  const router = useRouter();
   const { data, update } = useDonation();
+  const { handleNext } = useStepNavigation();
   const [error, setError] = useState("");
 
-  const handleNext = () => {
+  const onNext = () => {
     if (!data.cardName.trim() || !data.cardNumber.trim() || !data.cardExpiry.trim() || !data.cardCvv.trim()) {
       setError("All fields are required.");
       return;
     }
-    update({ maxStep: Math.max(data.maxStep ?? 1, 7) });
-    router.push("/donate/7");
+    handleNext(7);
   };
 
   return (
-    <StepLayout step={6} title="Card Details" onNext={handleNext}>
+    <StepLayout step={6} title="Card Details" onNext={onNext}>
       <div className="flex flex-col gap-4">
         <div>
           <label className="text-[13px] font-medium text-[#383838] mb-1.5 block">Cardholder Name</label>

@@ -23,8 +23,6 @@ export default function StepLayout({
   onNext,
   nextLabel,
   prevLabel,
-  showSkip = false,
-  onSkip,
 }) {
   const router = useRouter();
 
@@ -54,16 +52,9 @@ export default function StepLayout({
 
           {/* ── Navigation buttons ── */}
           <div className="flex items-center justify-between mt-5 gap-3">
-            {/* Left: Skip (step 1 only) or Back */}
+            {/* Left: Back */}
             <div>
-              {showSkip ? (
-                <button
-                  onClick={onSkip ?? (() => router.push("/donate/2"))}
-                  className="px-5 py-2.5 rounded-full border border-[#E5E5E5] text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"
-                >
-                  Skip For Now
-                </button>
-              ) : step > 1 ? (
+              {step > 1 ? (
                 <button
                   onClick={() => router.push(`/donate/${step - 1}`)}
                   className="flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-[#E5E5E5] text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"

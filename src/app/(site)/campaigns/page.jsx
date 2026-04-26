@@ -20,7 +20,7 @@ const SORT_OPTIONS = [
 const ALL_OPTION = { label: "All", value: "" };
 const PAGE_SIZE  = 10;
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ────
 
 function buildAPIParams({ q, categoryId, causeId, sort, page }) {
   const p = new URLSearchParams();
@@ -73,6 +73,8 @@ const CampaignsPage = () => {
   // Dropdown options
   const [categories, setCategories] = useState([ALL_OPTION]);
   const [causes,     setCauses]     = useState([ALL_OPTION]);
+
+  console.log('campaigns:', campaigns);
 
   useEffect(() => {
     setSearchInput(urlSearch);

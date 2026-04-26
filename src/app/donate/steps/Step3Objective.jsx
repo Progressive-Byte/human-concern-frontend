@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 
 const OBJECTIVES = [
@@ -28,20 +28,15 @@ const OBJECTIVES = [
 ];
 
 export default function Step3Objectives() {
-  const router = useRouter();
   const { data, update } = useDonation();
-
-  const handleNext = () => {
-    update({ maxStep: Math.max(data.maxStep ?? 1, 4) });
-    router.push("/donate/4");
-  };
+  const { handleNext } = useStepNavigation();
 
   return (
     <StepLayout
       step={3}
       title="Your Donation Payment Options"
       subtitle="Select a payment plan for your donation (optional)"
-      onNext={handleNext}
+      onNext={() => handleNext(4)}
       prevLabel="Donation Type"
       nextLabel="Payment"
     >

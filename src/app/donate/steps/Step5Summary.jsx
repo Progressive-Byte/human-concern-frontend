@@ -1,26 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 
 export default function Step4Contact() {
-  const router = useRouter();
   const { data, update } = useDonation();
+  const { handleNext } = useStepNavigation();
   const [error, setError] = useState("");
 
-  const handleNext = () => {
+  const onNext = () => {
     if (!data.phone.trim() || !data.country.trim()) {
       setError("All fields are required.");
       return;
     }
-    update({ maxStep: Math.max(data.maxStep ?? 1, 6) });
-    router.push("/donate/6");
+    handleNext(6);
   };
 
   return (
-    <StepLayout step={5} title="Contact Details" onNext={handleNext}>
+    <StepLayout step={5} title="Contact Details" onNext={onNext}>
       <div className="flex flex-col gap-4">
         <div>
           <label className="text-[13px] font-medium text-[#383838] mb-1.5 block">Phone Number</label>

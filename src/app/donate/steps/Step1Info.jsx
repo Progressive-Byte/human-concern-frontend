@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import Field from "@/components/ui/Field";
 import { useState } from "react";
@@ -23,11 +24,11 @@ const US_STATES = [
 ];
 
 export default function Step1PersonalInfo() {
-  const router = useRouter();
   const { data, update } = useDonation();
+  const { handleNext } = useStepNavigation();
   const [error, setError] = useState("");
 
-  const handleNext = () => {
+  const validateAndNext = () => {
     if (
       !data.firstName?.trim() ||
       !data.lastName?.trim() ||
@@ -47,13 +48,7 @@ export default function Step1PersonalInfo() {
       return;
     }
 
-    update({ maxStep: Math.max(data.maxStep ?? 1, 2) });
-    router.push("/donate/2");
-  };
-
-  const handleSkip = () => {
-    update({ maxStep: Math.max(data.maxStep ?? 1, 2) });
-    router.push("/donate/2");
+    handleNext(2);
   };
 
   const field = (key) => ({
@@ -66,9 +61,7 @@ export default function Step1PersonalInfo() {
       step={1}
       title="Personal Info"
       subtitle="Share some necessary personal information for security"
-      onNext={handleNext}
-      showSkip
-      onSkip={handleSkip}
+      onNext={validateAndNext}
       nextLabel="Cause"
     >
       <div className="flex flex-col gap-4">

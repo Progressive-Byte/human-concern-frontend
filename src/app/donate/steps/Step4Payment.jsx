@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 
 const METHODS = [
@@ -42,11 +42,11 @@ const METHODS = [
 ];
 
 export default function Step5Payment() {
-  const router = useRouter();
   const { data, update } = useDonation();
+  const { handleNext } = useStepNavigation();
 
   return (
-    <StepLayout step={4} title="Payment Method" onNext={() => { update({ maxStep: Math.max(data.maxStep ?? 1, 5) }); router.push("/donate/5"); }}>
+    <StepLayout step={4} title="Payment Method" onNext={() => handleNext(5)}>
       <div className="flex flex-col gap-3">
         {METHODS.map((m) => {
           const active = data.paymentMethod === m.value;

@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 
 const CAUSES = [
@@ -12,8 +12,8 @@ const CAUSES = [
 ];
 
 export default function Step2Cause() {
-  const router = useRouter();
   const { data, update } = useDonation();
+  const { handleNext } = useStepNavigation();
 
   const selected = CAUSES.filter((c) => data.causes?.includes(c.value));
 
@@ -25,17 +25,12 @@ export default function Step2Cause() {
     update({ causes: next });
   };
 
-  const handleNext = () => {
-    update({ maxStep: Math.max(data.maxStep ?? 1, 3) });
-    router.push("/donate/3");
-  };
-
   return (
     <StepLayout
       step={2}
       title="Select Donation Type"
       subtitle="Choose the type of donation you'd like to make"
-      onNext={handleNext}
+      onNext={() => handleNext(3)}
       prevLabel="Personal Info"
       nextLabel="Objectives"
     >

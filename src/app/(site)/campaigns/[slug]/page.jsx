@@ -30,6 +30,8 @@ export default async function CampaignPage({ params }) {
       headers: { Accept: "application/json" },
     });
 
+    console.log(`response:`, res);
+
     if (res.ok) {
       const json = await res.json();
       campaign   = json?.data ?? null;
@@ -38,8 +40,6 @@ export default async function CampaignPage({ params }) {
     console.error("[CampaignPage] fetch error:", error);
   }
 
-  // notFound() must be called OUTSIDE try-catch — it throws internally
-  // and a catch block would swallow it before Next.js can handle it
   if (!campaign) notFound();
 
   const thumbnailUrl = resolveImageUrl(
