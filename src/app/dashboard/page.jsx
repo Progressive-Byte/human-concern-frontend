@@ -1,10 +1,6 @@
 import DashboardHeader from "./components/DashboardHeader";
 import StatCard from "./components/StatCard";
 
-// ---------------------------------------------------------------------------
-// Static placeholder data — will be replaced by API responses later.
-// Keep the shape; child components below already consume these objects.
-// ---------------------------------------------------------------------------
 const stats = [
   { label: "Total Donated", value: "$4,250", hint: "Lifetime contributions" },
   { label: "Active Schedules", value: "3", hint: "Recurring donations" },
