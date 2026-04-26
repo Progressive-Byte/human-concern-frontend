@@ -3,12 +3,13 @@
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
+import { ActiveDonerIcon, donationIcon } from "@/components/common/SvgIcon";
 
 const CAUSES = [
-  { value: "general", label: "General Donation", desc: "Contribute to the general fund", emoji: "🖤" },
-  { value: "zakat",   label: "Zakat",            desc: "Obligatory charity for eligible Muslims", emoji: "💰", tag: "Zakat Eligible" },
-  { value: "sadaqah", label: "Sadaqah",           desc: "Voluntary charity for any cause", emoji: "🤲" },
-  { value: "global",  label: "Global Emergency",  desc: "Urgent humanitarian aid", emoji: "🚨" },
+  { value: "general", label: "General Donation", desc: "Contribute to the general fund", icon: donationIcon },
+  { value: "zakat",   label: "Zakat",            desc: "Obligatory charity for eligible Muslims", icon: "💰", tag: "Zakat Eligible" },
+  { value: "sadaqah", label: "Sadaqah",           desc: "Voluntary charity for any cause", icon: "🤲" },
+  { value: "global",  label: "Global Emergency",  desc: "Urgent humanitarian aid", icon: "🚨" },
 ];
 
 export default function Step2Cause() {
@@ -53,7 +54,7 @@ export default function Step2Cause() {
                   ? "border-[#EA3335] bg-[#FFF5F5]"
                   : "border-[#E5E5E5] hover:border-[#CCCCCC] hover:bg-[#FAFAFA]"}`}
             >
-              <span className="text-[22px]">{cause.emoji}</span>
+              <span className="text-[22px]">{cause.icon}</span>
               <div>
                 <p className="text-[14px] font-semibold text-[#383838]">{cause.label}</p>
                 <p className="text-[12px] text-[#8C8C8C] mt-0.5">{cause.desc}</p>
