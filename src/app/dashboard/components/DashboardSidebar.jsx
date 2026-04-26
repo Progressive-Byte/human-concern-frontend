@@ -90,7 +90,7 @@ export default function DashboardSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-2xl px-2 py-4 text-sm transition-colors ${
+              className={`flex items-center gap-2 rounded-2xl px-3 py-4 text-sm font-medium transition-colors ${
                 active
                   ? "bg-[#262626] text-white"
                   : "text-[#737373] hover:bg-gray-100"
