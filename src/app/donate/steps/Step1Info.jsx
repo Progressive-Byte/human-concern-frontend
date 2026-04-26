@@ -17,15 +17,11 @@ export default function Step1PersonalInfo() {
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
 
-  // ISO codes kept local to drive cascading dropdowns (guest mode only)
   const [countryCode, setCountryCode] = useState("");
   const [stateCode, setStateCode] = useState("");
 
-  // Track previous auth state to detect actual logout transitions
   const prevAuthRef = useRef(isAuthenticated);
 
-  // ── Effect 1: Read URL params (/donate/1?campaignId=...&amount=...&currency=...)
-  // Runs once on mount so the values survive across step navigation
   useEffect(() => {
     const campaignId = searchParams.get("campaignId");
     const amount     = searchParams.get("amount");
@@ -37,11 +33,9 @@ export default function Step1PersonalInfo() {
         ...(currency && { currency }),
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
-  // ── Effect 2: Restore ISO codes when navigating back to this step (guest)
-  // DonationContext still has country/state names but local state is reset on unmount
   useEffect(() => {
     if (!isAuthenticated && data.country && !countryCode) {
       const found = Country.getAllCountries().find((c) => c.name === data.country);
