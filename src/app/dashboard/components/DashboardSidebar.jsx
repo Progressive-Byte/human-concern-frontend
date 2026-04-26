@@ -90,10 +90,10 @@ export default function DashboardSidebar() {
       </nav>
 
       {/* Footer actions */}
-      <div className="px-3 py-4 border-t border-gray-100 space-y-2">
+      <div className="px-4 py-3 border-t border-[#BFBFBF] space-y-2">
         <Link
           href="/donate"
-          className="flex items-center justify-center gap-2 w-full rounded-md bg-[#1A1A1A] px-3 py-2 text-sm font-medium text-white hover:bg-gray-700"
+          className="flex items-center justify-start gap-2 w-full rounded-2xl bg-[#4D4D4D] px-3 py-4 text-[16px] font-medium text-white"
         >
           {MakeDonerIcon}
           Make a Donation
