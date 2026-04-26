@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { DashboardIcon } from "@/components/common/SvgIcon";
 
 /**
  * Sidebar navigation for the user dashboard.
@@ -73,15 +74,13 @@ export default function DashboardSidebar() {
     href === "/dashboard" ? pathname === href : pathname?.startsWith(href);
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white">
+    <aside className="flex h-screen w-[260px] shrink-0 flex-col border-r border-[#BFBFBF] bg-white">
       {/* Brand */}
-      <div className="flex items-center gap-2 px-5 py-5 border-b border-gray-100">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-white">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z" />
-          </svg>
+      <div className="flex items-center gap-[6px] px-1 py-3 border-b border-[#CCCCCC]">
+        <div className="">
+          {DashboardIcon}
         </div>
-        <span className="font-semibold text-sm text-gray-900">Human Concern USA</span>
+        <span className="font-bold text-[18px] text-[#1A1A1A]">Human Concern USA</span>
       </div>
 
       {/* Nav */}
@@ -94,7 +93,7 @@ export default function DashboardSidebar() {
               href={item.href}
               className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
                 active
-                  ? "bg-gray-900 text-white"
+                  ? "bg-[#1A1A1A] text-white"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -109,7 +108,7 @@ export default function DashboardSidebar() {
       <div className="px-3 py-4 border-t border-gray-100 space-y-2">
         <Link
           href="/donate"
-          className="flex items-center justify-center gap-2 w-full rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700"
+          className="flex items-center justify-center gap-2 w-full rounded-md bg-[#1A1A1A] px-3 py-2 text-sm font-medium text-white hover:bg-gray-700"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z" />
