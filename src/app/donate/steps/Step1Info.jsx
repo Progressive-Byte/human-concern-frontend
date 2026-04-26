@@ -52,7 +52,7 @@ const Step1PersonalInfo = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Effect 3: Pre-fill from user profile when authenticated
+  // ── Effect 3: Update personal fields when user logs in or when user data changes
   useEffect(() => {
     if (isAuthenticated && user) {
       update({
@@ -108,7 +108,6 @@ const Step1PersonalInfo = () => {
     [countryCode, stateCode]
   );
 
-  // ── Cascading change handlers
   const handleCountryChange = (isoCode) => {
     const country = Country.getCountryByCode(isoCode);
     setCountryCode(isoCode);
@@ -180,32 +179,24 @@ const Step1PersonalInfo = () => {
           </p>
         )}
 
-        {/* Organization */}
         <Field label="Organization" placeholder="xyz ltd" {...field("organization")} />
 
-        {/* First / Last */}
         <div className="grid grid-cols-2 gap-4">
           <Field label="First Name" required placeholder="John" {...field("firstName")} />
           <Field label="Last Name"  required placeholder="Doe"  {...field("lastName")}  />
         </div>
-
-        {/* Email / Phone */}
         <div className="grid grid-cols-2 gap-4">
           <Field label="Email"            required type="email" placeholder="you@example.com" {...field("email")} />
           <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...field("phone")} />
         </div>
 
         <div className="h-px bg-[#F0F0F0] my-1" />
-
-        {/* Address */}
         <Field
           label="Address Line 1"
           required
           placeholder="Street number, house number and street name"
           {...field("addressLine1")}
         />
-
-        {/* Country */}
         <div className="flex flex-col gap-1">
           <label className="text-[13px] font-medium text-[#383838]">
             Country<span className="text-[#EA3335] ml-0.5">*</span>
@@ -222,8 +213,6 @@ const Step1PersonalInfo = () => {
             />
           )}
         </div>
-
-        {/* State / City */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-medium text-[#383838]">
@@ -261,8 +250,6 @@ const Step1PersonalInfo = () => {
             )}
           </div>
         </div>
-
-        {/* Zip */}
         <Field
           label="Zip or Postal Code"
           required
