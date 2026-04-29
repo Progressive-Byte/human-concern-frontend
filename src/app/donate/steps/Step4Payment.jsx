@@ -28,8 +28,6 @@ const AMOUNT_TIERS = [
 
 const TIP_PERCENTAGES = [0, 5, 10, 15];
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 function Toggle({ enabled, onChange }) {
   return (
     <button
