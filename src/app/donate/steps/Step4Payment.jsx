@@ -84,8 +84,6 @@ function NumberInput({ value, onChange, min = 1, max = 99 }) {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function Step5Payment() {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
@@ -110,8 +108,6 @@ export default function Step5Payment() {
   const isRecurring   = paymentType === "recurring";
   const currencyData  = CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0];
   const sym           = currencyData.symbol;
-
-  // ── Calculations ────────────────────────────────────────────────────────────
 
   // Base donation
   const baseDonation  = isRecurring ? amountTier * numberOfDays : amountTier;
