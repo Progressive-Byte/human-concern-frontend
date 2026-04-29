@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useDonation } from "@/context/DonationContext";
 import StepProgress from "./StepProgress";
 import { ArrowNextIcon, ArrowPrevIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
@@ -26,6 +27,9 @@ export default function StepLayout({
   prevLabel,
 }) {
   const router = useRouter();
+  const { data } = useDonation();
+  const totalSteps = data.isRamadan ? STEP_LABELS.length : STEP_LABELS.length - 1;
+  const displayStep = !data.isRamadan && step > 3 ? step - 1 : step;
 
   const resolvedNextLabel = nextLabel ?? STEP_LABELS[step] ?? "Continue";
   const resolvedPrevLabel = prevLabel ?? STEP_LABELS[step - 2] ?? "Back";
@@ -71,7 +75,7 @@ export default function StepLayout({
         </div>
 
         <p className="text-center text-[12px] text-[#AEAEAE] mt-4">
-          Step {step} of {STEP_LABELS.length} — Your information is secure and encrypted.
+          Step {displayStep} of {totalSteps} — Your information is secure and encrypted.
         </p>
       </div>
     </main>

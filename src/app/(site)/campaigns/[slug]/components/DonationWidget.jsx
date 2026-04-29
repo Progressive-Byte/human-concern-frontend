@@ -32,6 +32,7 @@ export default function DonationWidget({ campaign }) {
   const handleDonate = () => {
     const isRamadan = Array.isArray(campaign.categories) &&
       campaign.categories.some((c) => c.toLowerCase() === "ramadan");
+    // const isRamadan = true; // For testing purposes.
     sessionStorage.setItem("donationIsRamadan", isRamadan ? "1" : "0");
 
     const params = new URLSearchParams({

@@ -43,7 +43,7 @@ export default function StepProgress({ current }) {
                 : "bg-white border border-[#D5D5D5] text-[#CCCCCC] cursor-not-allowed"
               }`}
           >
-            {done ? ProgressCheckIcon : step}
+            {done ? ProgressCheckIcon : i + 1}
           </div>
         );
 
