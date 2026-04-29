@@ -6,7 +6,7 @@ import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import Pagination from "@/components/common/Pagination";
 import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
-import { apiBase } from "@/utils/constants";
+import { apiBase, serverApiBase } from "@/utils/constants";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -86,14 +86,14 @@ const CampaignsPage = () => {
 
   // ── Load dropdown options once on mount
   useEffect(() => {
-    fetch(`${apiBase}categories`)
+    fetch(`${serverApiBase}categories`)
       .then(r => r.json())
       .then(data => {
         const items = data?.data?.items ?? [];
         setCategories([ALL_OPTION, ...items.map(c => ({ label: c.name, value: c.id }))]);
       });
 
-    fetch(`${apiBase}causes`)
+    fetch(`${serverApiBase}causes`)
       .then(r => r.json())
       .then(data => {
         const items = data?.data?.items ?? [];
@@ -111,7 +111,7 @@ const CampaignsPage = () => {
   const fetchCampaigns = useCallback(async (filters) => {
     setLoading(true);
     try {
-      const res  = await fetch(`${apiBase}campaigns?${buildAPIParams(filters)}`);
+      const res  = await fetch(`${serverApiBase}campaigns?${buildAPIParams(filters)}`);
       const json = await res.json();
 
       setCampaigns(json?.data?.items ?? []);

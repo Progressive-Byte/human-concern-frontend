@@ -2,7 +2,7 @@
 
 import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import { arrowIcon } from "@/components/common/SvgIcon";
-import { apiBase } from "@/utils/constants";
+import { apiBase, serverApiBase } from "@/utils/constants";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -13,7 +13,7 @@ const HighlightCampaigns = () => {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const res = await fetch(`${apiBase}campaigns/featured`);
+        const res = await fetch(`${serverApiBase}campaigns/featured`);
         const data = await res.json();
         setCampaigns(data?.data?.items || []);
       } catch (err) {

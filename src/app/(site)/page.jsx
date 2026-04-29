@@ -11,7 +11,7 @@ import HowItWorks from "./components/home/HowItWorks";
 import WaysToGive from "./components/home/WaysToGive";
 import CtaBanner from "./components/home/CtaBanner";
 
-/* ─── Page ───────────────────────────────────────── */
+/* ─── Page ───── */
 export default function HomePage() {
 
   const [openVideo, setOpenVideo] = useState(false);
