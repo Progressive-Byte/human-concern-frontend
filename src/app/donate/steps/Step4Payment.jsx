@@ -151,8 +151,8 @@ export default function Step5Payment() {
                 onClick={() => update({ paymentType: type.value })}
                 className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 ${
                   active
-                    ? "border-[#383838] bg-white"
-                    : "border-[#E5E5E5] bg-white hover:border-[#383838]/40"
+                    ? "border-[#EA3335] bg-[#FFF5F5]"
+                    : "border-[#E5E5E5] hover:border-[#EA3335]/40 bg-white"
                 }`}
               >
                 <span
