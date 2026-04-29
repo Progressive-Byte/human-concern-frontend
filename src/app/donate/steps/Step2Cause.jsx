@@ -4,12 +4,13 @@ import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { ActiveDonerIcon, donationIcon, GlobalEnargentIcon, SadakaIcon, ZakatDonationIcon } from "@/components/common/SvgIcon";
+import Image from "next/image";
 
 const CAUSES = [
-  { value: "general", label: "General Donation", desc: "Contribute to the general fund", icon: donationIcon },
-  { value: "zakat",   label: "Zakat",            desc: "Obligatory charity for eligible Muslims", icon: ZakatDonationIcon, tag: "Zakat Eligible" },
-  { value: "sadaqah", label: "Sadaqah",           desc: "Voluntary charity for any cause", icon: SadakaIcon },
-  { value: "global",  label: "Global Emergency",  desc: "Urgent humanitarian aid", icon: GlobalEnargentIcon },
+  { value: "general", label: "General Donation", desc: "Contribute to the general fund", icon: "/images/general-donation.png" },
+  { value: "zakat",   label: "Zakat",            desc: "Obligatory charity for eligible Muslims", icon: "/images/zakat.png", tag: "Zakat Eligible" },
+  { value: "sadaqah", label: "Sadaqah",           desc: "Voluntary charity for any cause", icon: "/images/sadaqah.png", },
+  { value: "global",  label: "Global Emergency",  desc: "Urgent humanitarian aid", icon: "/images/emergency-fund.png", tag: "High Demand" },
 ];
 
 export default function Step2Cause() {
@@ -54,7 +55,14 @@ export default function Step2Cause() {
                   ? "border-[#EA3335] bg-[#FFF5F5]"
                   : "border-[#E5E5E5] hover:border-[#CCCCCC] hover:bg-[#FAFAFA]"}`}
             >
-              <span className="text-[22px]">{cause.icon}</span>
+              <div className="w-10 h-10 relative">
+                <Image
+                  src={cause.icon}
+                  alt={cause.label}
+                  fill
+                  className="object-contain"  
+                />
+              </div>
               <div>
                 <p className="text-[14px] font-semibold text-[#383838]">{cause.label}</p>
                 <p className="text-[12px] text-[#8C8C8C] mt-0.5">{cause.desc}</p>
