@@ -63,8 +63,6 @@ function Select({ value, onChange, options, labelKey = "label", valueKey = "valu
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function Step5Payment() {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
