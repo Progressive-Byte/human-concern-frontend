@@ -10,7 +10,7 @@ const CAUSES = [
   { value: "general", label: "General Donation", desc: "Contribute to the general fund", icon: "/images/general-donation.png" },
   { value: "zakat",   label: "Zakat",            desc: "Obligatory charity for eligible Muslims", icon: "/images/zakat.png", tag: "Zakat Eligible" },
   { value: "sadaqah", label: "Sadaqah",           desc: "Voluntary charity for any cause", icon: "/images/sadaqah.png", },
-  { value: "global",  label: "Global Emergency",  desc: "Urgent humanitarian aid", icon: "/images/emergency-fund.png", tag: "High Demand" },
+  { value: "global",  label: "Global Emergency",  desc: "Urgent humanitarian aid", icon: "/images/emergency-fund.png"  },
 ];
 
 export default function Step2Cause() {
@@ -67,7 +67,7 @@ export default function Step2Cause() {
                 <p className="text-[14px] font-semibold text-[#383838]">{cause.label}</p>
                 <p className="text-[12px] text-[#8C8C8C] mt-0.5">{cause.desc}</p>
                 {cause.tag && (
-                  <span className="inline-block mt-2 text-[11px] font-medium text-[#EA3335] border border-[#EA3335] rounded px-1.5 py-0.5">
+                  <span className="inline-block mt-2 text-[11px] font-medium text-[#8C8C8C] bg-white rounded-full px-1.5 py-0.5">
                     {cause.tag}
                   </span>
                 )}
