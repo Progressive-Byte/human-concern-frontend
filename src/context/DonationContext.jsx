@@ -8,6 +8,7 @@ export function DonationProvider({ children }) {
   const [data, setData] = useState({
     campaignId: null,
     campaignTitle: "",
+    isRamadan: false,
     maxStep: 1,
     amount: "",
     currency: "USD",

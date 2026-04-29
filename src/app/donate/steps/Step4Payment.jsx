@@ -43,10 +43,16 @@ const METHODS = [
 
 export default function Step5Payment() {
   const { data, update } = useDonation();
-  const { handleNext } = useStepNavigation();
+  const { handleNext, handlePrev } = useStepNavigation();
 
   return (
-    <StepLayout step={4} title="Payment Method" onNext={() => handleNext(5)}>
+    <StepLayout
+      step={4}
+      title="Payment Method"
+      onNext={() => handleNext(5)}
+      onPrev={() => handlePrev(data.isRamadan ? 3 : 2)}
+      prevLabel={data.isRamadan ? "Objectives" : "Cause"}
+    >
       <div className="flex flex-col gap-3">
         {METHODS.map((m) => {
           const active = data.paymentMethod === m.value;

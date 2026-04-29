@@ -30,6 +30,10 @@ export default function DonationWidget({ campaign }) {
   const finalAmount = customAmount ? Number(customAmount) : selectedAmount;
 
   const handleDonate = () => {
+    const isRamadan = Array.isArray(campaign.categories) &&
+      campaign.categories.some((c) => c.toLowerCase() === "ramadan");
+    sessionStorage.setItem("donationIsRamadan", isRamadan ? "1" : "0");
+
     const params = new URLSearchParams({
       campaignId: campaign.id,
       amount:     String(finalAmount),

@@ -20,10 +20,13 @@ export default function StepProgress({ current }) {
   const { data } = useDonation();
   const maxStep = data.maxStep ?? 1;
 
+  const visibleSteps = STEPS
+    .map((label, i) => ({ label, step: i + 1 }))
+    .filter(({ step }) => step !== 3 || data.isRamadan);
+
   return (
     <div className="flex items-center justify-center mb-8">
-      {STEPS.map((label, i) => {
-        const step = i + 1;
+      {visibleSteps.map(({ label, step }, i) => {
         const done = step < current;
         const active = step === current;
         const reachable = step <= maxStep;
@@ -68,7 +71,7 @@ export default function StepProgress({ current }) {
             </div>
 
             {/* Connector line */}
-            {i < STEPS.length - 1 && (
+            {i < visibleSteps.length - 1 && (
               <div
                 className={`h-[1.5px] w-6 sm:w-10 mx-1 mb-4 rounded-full transition-colors
                   ${done ? "bg-[#1A1A1A]" : "bg-[#E5E5E5]"}`}

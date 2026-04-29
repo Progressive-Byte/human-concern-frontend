@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
@@ -30,6 +32,13 @@ const OBJECTIVES = [
 export default function Step3Objectives() {
   const { data, update } = useDonation();
   const { handleNext } = useStepNavigation();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!data.isRamadan) router.replace("/donate/4");
+  }, [data.isRamadan, router]);
+
+  if (!data.isRamadan) return null;
 
   return (
     <StepLayout

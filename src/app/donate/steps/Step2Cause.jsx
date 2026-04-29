@@ -32,9 +32,9 @@ export default function Step2Cause() {
       step={2}
       title="Select Donation Type"
       subtitle="Choose the type of donation you'd like to make"
-      onNext={() => handleNext(3)}
+      onNext={() => handleNext(data.isRamadan ? 3 : 4)}
       prevLabel="Personal Info"
-      nextLabel="Objectives"
+      nextLabel={data.isRamadan ? "Objectives" : "Payment"}
     >
       <div className="flex justify-end mb-3">
         <span className="text-[14px] text-[#8C8C8C]">

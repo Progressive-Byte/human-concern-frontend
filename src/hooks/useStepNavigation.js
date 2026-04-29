@@ -13,5 +13,9 @@ export function useStepNavigation() {
     router.push(`/donate/${targetStep}`);
   };
 
-  return { handleNext };
+  const handlePrev = (prevStep) => {
+    router.push(`/donate/${prevStep}`);
+  };
+
+  return { handleNext, handlePrev };
 }

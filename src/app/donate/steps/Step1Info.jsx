@@ -26,9 +26,11 @@ const Step1PersonalInfo = () => {
     const campaignId = searchParams.get("campaignId");
     const amount     = searchParams.get("amount");
     const currency   = searchParams.get("currency");
+    const isRamadan  = sessionStorage.getItem("donationIsRamadan") === "1";
     if (campaignId) {
       update({
         campaignId,
+        isRamadan,
         ...(amount   && { amount }),
         ...(currency && { currency }),
       });
