@@ -5,6 +5,8 @@ import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { useState } from "react";
 
+// ─── Static options ───────────────────────────────────────────────────────────
+
 const PAYMENT_TYPES = [
   { value: "one-time",   label: "One-time Payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
   { value: "recurring",  label: "Split Payments",     desc: () => "Split your donation into scheduled payments" },
@@ -28,6 +30,8 @@ const AMOUNT_TIERS = [
 
 const TIP_PERCENTAGES = [0, 5, 10, 15];
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
 function Toggle({ enabled, onChange }) {
   return (
     <button
@@ -36,7 +40,7 @@ function Toggle({ enabled, onChange }) {
       aria-checked={enabled}
       onClick={() => onChange(!enabled)}
       className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0 ${
-        enabled ? "bg-[#383838]" : "bg-[#CCCCCC]"
+        enabled ? "bg-[#EA3335]" : "bg-[#CCCCCC]"
       }`}
     >
       <span
@@ -54,7 +58,7 @@ function Select({ value, onChange, options }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none bg-white border border-[#E5E5E5] rounded-xl px-4 py-3 text-[14px] text-[#383838] outline-none focus:border-[#383838] transition-colors cursor-pointer pr-9"
+        className="w-full appearance-none bg-white border border-[#E5E5E5] rounded-xl px-4 py-3 text-[14px] text-[#383838] outline-none focus:border-[#EA3335] transition-colors cursor-pointer pr-9"
       >
         {options.map((opt) => {
           const val = typeof opt === "object" ? opt.value : String(opt);
@@ -79,10 +83,12 @@ function NumberInput({ value, onChange, min = 1, max = 99 }) {
       min={min}
       max={max}
       onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value))))}
-      className="w-16 border border-[#E5E5E5] rounded-lg px-3 py-1.5 text-[14px] text-[#383838] outline-none focus:border-[#383838] text-center"
+      className="w-16 border border-[#E5E5E5] rounded-lg px-3 py-1.5 text-[14px] text-[#383838] outline-none focus:border-[#EA3335] text-center"
     />
   );
 }
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Step5Payment() {
   const { data, update } = useDonation();
@@ -108,6 +114,8 @@ export default function Step5Payment() {
   const isRecurring   = paymentType === "recurring";
   const currencyData  = CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0];
   const sym           = currencyData.symbol;
+
+  // ── Calculations ────────────────────────────────────────────────────────────
 
   // Base donation
   const baseDonation  = isRecurring ? amountTier * numberOfDays : amountTier;
@@ -152,15 +160,15 @@ export default function Step5Payment() {
                 className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 ${
                   active
                     ? "border-[#EA3335] bg-[#FFF5F5]"
-                    : "border-[#E5E5E5] hover:border-[#EA3335]/40 bg-white"
+                    : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
                 }`}
               >
                 <span
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                    active ? "border-[#383838]" : "border-[#CCCCCC]"
+                    active ? "border-[#EA3335]" : "border-[#CCCCCC]"
                   }`}
                 >
-                  {active && <span className="w-2.5 h-2.5 rounded-full bg-[#383838]" />}
+                  {active && <span className="w-2.5 h-2.5 rounded-full bg-[#EA3335]" />}
                 </span>
                 <div>
                   <p className="text-[15px] font-semibold text-[#383838] leading-snug">
@@ -221,11 +229,11 @@ export default function Step5Payment() {
                   onClick={() => update({ amountTier: tier.amount })}
                   className={`flex flex-col text-left rounded-2xl px-4 py-4 border transition-all duration-200 ${
                     active
-                      ? "border-[#383838] bg-white"
-                      : "border-[#E5E5E5] bg-white hover:border-[#383838]/40"
+                      ? "border-[#EA3335] bg-[#FFF5F5]"
+                      : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
                   }`}
                 >
-                  <span className="text-[22px] font-bold text-[#383838] leading-none">
+                  <span className={`text-[22px] font-bold leading-none ${active ? "text-[#EA3335]" : "text-[#383838]"}`}>
                     {sym}{tier.amount}
                   </span>
                   <span className="text-[11px] text-[#737373] mt-2 leading-snug">
@@ -313,9 +321,9 @@ export default function Step5Payment() {
               step={1}
               value={tipPct}
               onChange={(e) => setTipPct(Number(e.target.value))}
-              className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#383838]"
+              className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#EA3335]"
               style={{
-                background: `linear-gradient(to right, #383838 ${(tipPct / sliderMax) * 100}%, #E5E5E5 ${(tipPct / sliderMax) * 100}%)`,
+                background: `linear-gradient(to right, #EA3335 ${(tipPct / sliderMax) * 100}%, #E5E5E5 ${(tipPct / sliderMax) * 100}%)`,
               }}
             />
             {/* Tick labels */}
@@ -323,7 +331,7 @@ export default function Step5Payment() {
               {TIP_PERCENTAGES.map((pct) => (
                 <span
                   key={pct}
-                  className={`text-[11px] ${tipPct === pct ? "text-[#383838] font-semibold" : "text-[#AEAEAE]"}`}
+                  className={`text-[11px] ${tipPct === pct ? "text-[#EA3335] font-semibold" : "text-[#AEAEAE]"}`}
                 >
                   {pct}%
                 </span>
