@@ -5,8 +5,6 @@ import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { useState } from "react";
 
-// ─── Static options ───────────────────────────────────────────────────────────
-
 const PAYMENT_TYPES = [
   { value: "one-time",   label: "One-time Payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
   { value: "recurring",  label: "Split Payments",     desc: () => "Split your donation into scheduled payments" },
