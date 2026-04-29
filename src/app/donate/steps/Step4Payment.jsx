@@ -4,7 +4,6 @@ import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 
-// ─── Static options ───────────────────────────────────────────────────────────
 
 const PAYMENT_TYPES = [
   {
