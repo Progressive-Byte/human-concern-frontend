@@ -35,8 +35,6 @@ const AMOUNT_TIERS = [
   { amount: 100, desc: "Feed 4 fasting persons for 1 meal." },
 ];
 
-// ─── Select component ─────────────────────────────────────────────────────────
-
 function Select({ value, onChange, options, labelKey = "label", valueKey = "value" }) {
   return (
     <div className="relative">
