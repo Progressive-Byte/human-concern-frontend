@@ -311,17 +311,6 @@ const Step5Addons = () => {
             </span>
           </p>
         </div>
-
-        {/* ── SSL badge ── */}
-        <div className="flex items-center gap-2 bg-[#F6F6F6] rounded-xl px-4 py-3">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          <p className="text-[12px] text-[#737373]">
-            Your payment is secured with 256-bit SSL encryption
-          </p>
-        </div>
-
       </div>
     </StepLayout>
   );
