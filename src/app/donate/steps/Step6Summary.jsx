@@ -4,6 +4,7 @@ import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { useMemo } from "react";
+import { AddonAmountIcon } from "@/components/common/SvgIcon";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
@@ -102,12 +103,24 @@ const Step6Summary = () => {
             </div>
             <div className="divide-y divide-[#F0F0F0]">
               {addOnBreakdown.map((addon) => (
-                <div key={addon.id} className="flex items-center justify-between px-4 py-3">
-                  <span className="text-[13px] text-[#383838]">
-                    {addon.iconEmoji && <span className="mr-1.5">{addon.iconEmoji}</span>}
-                    {addon.name}
+                <div
+                  key={addon.id}
+                  className="flex items-center justify-between gap-3 px-4 py-3"
+                >
+                  {/* Left side */}
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="shrink-0">{AddonAmountIcon}</span>
+
+                    <span className="text-[13px] text-[#383838] truncate">
+                      {addon.name}
+                    </span>
+                  </div>
+
+                  {/* Right side */}
+                  <span className="text-[13px] font-semibold text-[#383838] shrink-0">
+                    {sym}
+                    {addon.total}
                   </span>
-                  <span className="text-[13px] font-semibold text-[#383838]">{sym}{addon.total}</span>
                 </div>
               ))}
             </div>
