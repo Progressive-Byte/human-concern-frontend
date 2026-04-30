@@ -42,7 +42,7 @@ export default function DonationWidget({ campaign }) {
     }));
 
     const params = new URLSearchParams({
-      campaignSlug: campaign.slug,
+      campaign: campaign.slug,
       amount:       String(finalAmount),
       currency,
     });

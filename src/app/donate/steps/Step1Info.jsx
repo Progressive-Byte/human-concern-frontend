@@ -23,7 +23,7 @@ const Step1Info = () => {
   const prevAuthRef = useRef(isAuthenticated);
 
   useEffect(() => {
-    const campaignSlug = searchParams.get("campaignSlug");
+    const campaign = searchParams.get("campaign");
     const amount       = searchParams.get("amount");
     const currency     = searchParams.get("currency");
     const isRamadan    = sessionStorage.getItem("donationIsRamadan") === "1";
@@ -34,10 +34,10 @@ const Step1Info = () => {
       campaignId = meta.id ?? null;
     } catch {}
 
-    if (campaignSlug) {
+    if (campaign) {
       update({
         campaignId,
-        campaignSlug,
+        campaign,
         isRamadan,
         ...(amount   && { amount }),
         ...(currency && { currency }),

@@ -126,10 +126,10 @@ const Step6Summary = () => {
         )}
 
         {/* Grand total */}
-        <div className="flex items-center justify-between bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl px-4 py-4">
+        {/* <div className="flex items-center justify-between bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl px-4 py-4">
           <span className="text-[14px] font-semibold text-[#065F46]">Total</span>
           <span className="text-[24px] font-bold text-[#065F46]">{sym}{grandTotal.toFixed(2)}</span>
-        </div>
+        </div> */}
 
       </div>
     </StepLayout>
