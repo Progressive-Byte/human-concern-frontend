@@ -95,49 +95,40 @@ const Step6Summary = () => {
           </div>
         )}
         {/* Add-ons */}
-        {addOnBreakdown.length > 0 && (
-          <div className="space-y-2">
-            {addOnBreakdown.map((addon) => (
-              <div
-                key={addon.id}
-                className="flex items-center justify-between gap-3 rounded-2xl bg-[#F5F5F5] px-4 py-3"
-              >
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <span className="shrink-0 text-[#8C8C8C]">{AddonAmountIcon}</span>
+        {/* Add-ons */}
+{addOnBreakdown.length > 0 && (
+  <div className="space-y-2">
+    {addOnBreakdown.map((addon) => (
+      <div
+        key={addon.id}
+        className="flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-4 py-3"
+      >
+        <span className="shrink-0 text-[#8C8C8C]">{AddonAmountIcon}</span>
 
-                  <span className="text-[13px] text-[#737373] truncate">
-                    {addon.name} =
-                  </span>
-                </div>
+        <span className="text-[13px] text-[#737373]">
+          {addon.name} =
+        </span>
 
-                <span className="text-[14px] font-semibold text-[#383838] shrink-0">
-                  {sym}{Number(addon.total).toFixed(2)}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+        <span className="text-[14px] font-semibold text-[#383838]">
+          {sym}{Number(addon.total).toFixed(2)}
+        </span>
+      </div>
+    ))}
+  </div>
+)}
 
-        {/* Platform Tip */}
-        {tipAmount > 0 && (
-          <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#F5F5F5] px-4 py-3">
-            <span className="text-[13px] text-[#737373]">
-              Custom Platform tip = 
-            </span>
+{/* Platform Tip */}
+{tipAmount > 0 && (
+  <div className="flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-4 py-3">
+    <span className="text-[13px] text-[#737373]">
+      Custom Platform tip =
+    </span>
 
-            <span className="text-[14px] font-semibold text-[#383838] shrink-0">
-              {sym}{tipAmount.toFixed(2)}
-            </span>
-          </div>
-        )}
-
-        {/* Platform tip */}
-        {tipAmount > 0 && (
-          <div className="flex items-center justify-between border border-[#E5E5E5] rounded-xl px-4 py-3.5 bg-white">
-            <span className="text-[13px] text-[#737373]">Platform Tip ({tipPct}%)</span>
-            <span className="text-[13px] font-semibold text-[#383838]">{sym}{tipAmount.toFixed(2)}</span>
-          </div>
-        )}
+    <span className="text-[14px] font-semibold text-[#383838]">
+      {sym}{tipAmount.toFixed(2)}
+    </span>
+  </div>
+)}
       </div>
     </StepLayout>
   );
