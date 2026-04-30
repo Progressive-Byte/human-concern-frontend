@@ -135,8 +135,6 @@ export default function Step4Payment() {
             })}
           </div>
         </div>
-
-        {/* ── Custom amount ── */}
         <div>
           <label className="block text-[13px] font-medium text-[#383838] mb-2">Custom Amount</label>
           <div className="relative">
