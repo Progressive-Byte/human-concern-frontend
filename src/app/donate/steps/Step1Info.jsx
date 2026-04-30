@@ -10,7 +10,7 @@ import StepLayout from "../DonateComponents/StepLayout";
 import Field from "@/components/ui/Field";
 import CustomDropdown from "@/components/common/CustomDropdown";
 
-const Step1PersonalInfo = () => {
+const Step1Info = () => {
   const { data, update } = useDonation();
   const { user, isAuthenticated } = useAuth();
   const { handleNext } = useStepNavigation();
@@ -273,4 +273,4 @@ const Step1PersonalInfo = () => {
     </StepLayout>
   );
 }
-export default Step1PersonalInfo;
+export default Step1Info;
