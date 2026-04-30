@@ -228,8 +228,6 @@ const Step5Addons = () => {
             </p>
           </div>
         )}
-
-        {/* ── Subtotal ── */}
         <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3">
           <p className="text-[13px] text-[#383838]">
             <span className="font-bold">Subtotal: </span>
