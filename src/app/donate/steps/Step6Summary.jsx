@@ -79,7 +79,7 @@ const Step6Summary = () => {
               <div className="max-h-[260px] overflow-y-auto divide-y divide-[#F0F0F0]">
                 {schedule.map((row) => (
                   <div key={row.payment} className="grid grid-cols-3 px-4 py-2.5">
-                    <span className="text-[13px] text-[#383838]">{row.payment}</span>
+                    <span className="text-[13px] text-[#383838]">Day {row.payment}</span>
                     <span className="text-[13px] text-[#737373]">{row.date}</span>
                     <span className="text-[13px] font-medium text-[#383838] text-right">
                       {sym}{row.amount}
