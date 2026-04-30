@@ -26,7 +26,7 @@ function generateSchedule(frequency, numberOfDays, amountPerDay) {
   });
 }
 
-export default function Step6Summary() {
+const Step6Summary = () => {
   const { data } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 
@@ -135,3 +135,4 @@ export default function Step6Summary() {
     </StepLayout>
   );
 }
+export default Step6Summary;
