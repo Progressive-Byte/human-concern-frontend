@@ -5,6 +5,7 @@ import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { useState, useMemo } from "react";
 import Stepper from "@/components/ui/Stepper";
+import Toggle from "@/components/ui/Toggle";
 
 const CURRENCY_OPTIONS = [
   { label: "USD ($)",   value: "USD", symbol: "$"   },
@@ -38,26 +39,6 @@ function buildFormulaLabel(addOn, inputValues, sym) {
   });
   const base = pricing.baseUnitAmount ?? addOn.amount ?? 0;
   return `${parts.join(" × ")} × ${sym}${base}`;
-}
-
-function Toggle({ enabled, onChange }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={enabled}
-      onClick={() => onChange(!enabled)}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0 ${
-        enabled ? "bg-[#EA3335]" : "bg-[#CCCCCC]"
-      }`}
-    >
-      <span
-        className={`absolute top-[3px] left-[3px] w-[18px] h-[18px] rounded-full bg-white shadow transition-transform duration-200 ${
-          enabled ? "translate-x-5" : "translate-x-0"
-        }`}
-      />
-    </button>
-  );
 }
 
 const Step5Addons = () => {
