@@ -94,36 +94,40 @@ const Step6Summary = () => {
             <span className="text-[20px] font-bold text-[#383838]">{sym}{baseDonation.toLocaleString()}</span>
           </div>
         )}
-
-        {/* Individual add-on amounts */}
+        {/* Add-ons */}
         {addOnBreakdown.length > 0 && (
-          <div className="border border-[#E5E5E5] rounded-xl overflow-hidden">
-            <div className="bg-[#F9F9F9] px-4 py-2.5 border-b border-[#E5E5E5]">
-              <span className="text-[12px] font-semibold text-[#737373]">Add-ons</span>
-            </div>
-            <div className="divide-y divide-[#F0F0F0]">
-              {addOnBreakdown.map((addon) => (
-                <div
-                  key={addon.id}
-                  className="flex items-center justify-between gap-3 px-4 py-3"
-                >
-                  {/* Left side */}
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="shrink-0">{AddonAmountIcon}</span>
+          <div className="space-y-2">
+            {addOnBreakdown.map((addon) => (
+              <div
+                key={addon.id}
+                className="flex items-center justify-between gap-3 rounded-2xl bg-[#F5F5F5] px-4 py-3"
+              >
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className="shrink-0 text-[#8C8C8C]">{AddonAmountIcon}</span>
 
-                    <span className="text-[13px] text-[#383838] truncate">
-                      {addon.name}
-                    </span>
-                  </div>
-
-                  {/* Right side */}
-                  <span className="text-[13px] font-semibold text-[#383838] shrink-0">
-                    {sym}
-                    {addon.total}
+                  <span className="text-[13px] text-[#737373] truncate">
+                    {addon.name} =
                   </span>
                 </div>
-              ))}
-            </div>
+
+                <span className="text-[14px] font-semibold text-[#383838] shrink-0">
+                  {sym}{Number(addon.total).toFixed(2)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Platform Tip */}
+        {tipAmount > 0 && (
+          <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#F5F5F5] px-4 py-3">
+            <span className="text-[13px] text-[#737373]">
+              Custom Platform tip = 
+            </span>
+
+            <span className="text-[14px] font-semibold text-[#383838] shrink-0">
+              {sym}{tipAmount.toFixed(2)}
+            </span>
           </div>
         )}
 
