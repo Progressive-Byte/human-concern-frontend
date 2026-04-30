@@ -14,8 +14,6 @@ const CURRENCY_OPTIONS = [
 
 const TIP_PERCENTAGES = [0, 5, 10, 15];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function calcAddOnTotal(addOn, inputValues) {
   const { pricing, amount } = addOn;
   if (!pricing || pricing.type === "fixed") return amount ?? 0;
