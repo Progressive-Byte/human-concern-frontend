@@ -30,9 +30,9 @@ export default function DonationWidget({ campaign }) {
   const finalAmount = customAmount ? Number(customAmount) : selectedAmount;
 
   const handleDonate = () => {
-    // const isRamadan = Array.isArray(campaign.categories) &&
-    //   campaign.categories.some((c) => c.toLowerCase() === "ramadan");
-    const isRamadan = true; // For testing purposes.
+    const isRamadan = Array.isArray(campaign.categories) &&
+      campaign.categories.some((c) => c.toLowerCase() === "ramadan");
+    // const isRamadan = true; // For testing purposes.
     sessionStorage.setItem("donationIsRamadan", isRamadan ? "1" : "0");
     sessionStorage.setItem("campaignData", JSON.stringify({
       suggestedAmounts: campaign.suggestedAmounts ?? [],
