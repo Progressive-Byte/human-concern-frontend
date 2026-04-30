@@ -23,19 +23,27 @@ const Step1PersonalInfo = () => {
   const prevAuthRef = useRef(isAuthenticated);
 
   useEffect(() => {
-    const campaignId = searchParams.get("campaignId");
-    const amount     = searchParams.get("amount");
-    const currency   = searchParams.get("currency");
-    const isRamadan  = sessionStorage.getItem("donationIsRamadan") === "1";
-    if (campaignId) {
+    const campaignSlug = searchParams.get("campaignSlug");
+    const amount       = searchParams.get("amount");
+    const currency     = searchParams.get("currency");
+    const isRamadan    = sessionStorage.getItem("donationIsRamadan") === "1";
+
+    let campaignId = null;
+    try {
+      const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
+      campaignId = meta.id ?? null;
+    } catch {}
+
+    if (campaignSlug) {
       update({
         campaignId,
+        campaignSlug,
         isRamadan,
         ...(amount   && { amount }),
         ...(currency && { currency }),
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

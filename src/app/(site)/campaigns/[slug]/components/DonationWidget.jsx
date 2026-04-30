@@ -35,14 +35,15 @@ export default function DonationWidget({ campaign }) {
     // const isRamadan = true; // For testing purposes.
     sessionStorage.setItem("donationIsRamadan", isRamadan ? "1" : "0");
     sessionStorage.setItem("campaignData", JSON.stringify({
+      id:              campaign.id,
       suggestedAmounts: campaign.suggestedAmounts ?? [],
       addOns:           campaign.addOns           ?? [],
       goalsDates:       campaign.goalsDates        ?? {},
     }));
 
     const params = new URLSearchParams({
-      campaignId: campaign.id,
-      amount:     String(finalAmount),
+      campaignSlug: campaign.slug,
+      amount:       String(finalAmount),
       currency,
     });
     router.push(`/donate/1?${params}`);
