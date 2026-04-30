@@ -67,7 +67,7 @@ const Step6Summary = () => {
           /* Recurring: */
           <div>
             <p className="text-[13px] font-medium text-[#383838] mb-2">{frequency} Payment Schedule</p>
-            <div className="border border-[#E6E6E6] rounded-xl overflow-hidden">
+            <div className="border border-[#E6E6E6] rounded-3xl overflow-hidden">
               {/* Header */}
               <div className="grid grid-cols-3 bg-[#F5F5F580] px-4 py-2.5 border-b border-[#E6E6E6] uppercase">
                 <span className="text-[12px] font-semibold text-[#737373]">Days</span>
@@ -86,16 +86,6 @@ const Step6Summary = () => {
                     </span>
                   </div>
                 ))}
-              </div>
-
-              {/* Footer total */}
-              <div className="grid grid-cols-3 bg-[#F9F9F9] px-4 py-2.5 border-t border-[#E5E5E5]">
-                <span className="text-[12px] font-semibold text-[#383838] col-span-2">
-                  Donation Total
-                </span>
-                <span className="text-[13px] font-bold text-[#383838] text-right">
-                  {sym}{baseDonation}
-                </span>
               </div>
             </div>
           </div>
@@ -134,13 +124,6 @@ const Step6Summary = () => {
             <span className="text-[13px] font-semibold text-[#383838]">{sym}{tipAmount.toFixed(2)}</span>
           </div>
         )}
-
-        {/* Grand total */}
-        {/* <div className="flex items-center justify-between bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl px-4 py-4">
-          <span className="text-[14px] font-semibold text-[#065F46]">Total</span>
-          <span className="text-[24px] font-bold text-[#065F46]">{sym}{grandTotal.toFixed(2)}</span>
-        </div> */}
-
       </div>
     </StepLayout>
   );
