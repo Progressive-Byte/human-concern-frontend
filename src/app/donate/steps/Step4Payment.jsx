@@ -56,7 +56,7 @@ export default function Step5Payment() {
   const currencyData  = CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0];
   const sym           = currencyData.symbol;
 
-  // ── Calculations ────────────────────────────────────────────────────────────
+  // ── Calculations ──
 
   // Base donation
   const baseDonation  = isRecurring ? amountTier * numberOfDays : amountTier;
