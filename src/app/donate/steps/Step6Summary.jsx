@@ -48,8 +48,6 @@ const Step6Summary = () => {
     [isRecurring, frequency, numberOfDays, amountTier]
   );
 
-  console.log("Schedule:", schedule);
-
   return (
     <StepLayout
       step={6}
