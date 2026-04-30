@@ -117,7 +117,7 @@ const Step6Summary = () => {
           </div>
         )}
 
-        {/* ── Platform tip ── */}
+        {/* Platform tip */}
         {tipAmount > 0 && (
           <div className="flex items-center justify-between border border-[#E5E5E5] rounded-xl px-4 py-3.5 bg-white">
             <span className="text-[13px] text-[#737373]">Platform Tip ({tipPct}%)</span>
@@ -125,7 +125,7 @@ const Step6Summary = () => {
           </div>
         )}
 
-        {/* ── Grand total ── */}
+        {/* Grand total */}
         <div className="flex items-center justify-between bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl px-4 py-4">
           <span className="text-[14px] font-semibold text-[#065F46]">Total</span>
           <span className="text-[24px] font-bold text-[#065F46]">{sym}{grandTotal.toFixed(2)}</span>
