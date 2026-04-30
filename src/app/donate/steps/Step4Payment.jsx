@@ -108,14 +108,10 @@ export default function Step4Payment() {
             </div>
           </div>
         )}
-
-        {/* ── Currency ── */}
         <div>
           <label className="block text-[13px] font-medium text-[#383838] mb-2">Currency</label>
           <Select value={currency} onChange={(val) => update({ currency: val })} options={CURRENCY_OPTIONS} />
         </div>
-
-        {/* ── Amount tiles ── */}
         <div>
           <label className="block text-[13px] font-medium text-[#383838] mb-3">
             {isRecurring ? `${frequency} Donation Amount` : "Donation Amount"}
