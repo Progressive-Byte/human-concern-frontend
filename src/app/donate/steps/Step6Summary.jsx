@@ -115,8 +115,6 @@ const Step6Summary = () => {
             ))}
           </div>
         )}
-
-        {/* Platform Tip */}
         {tipAmount > 0 && (
           <div className="flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-4 py-3">
             <span className="shrink-0 text-[#8C8C8C]">
