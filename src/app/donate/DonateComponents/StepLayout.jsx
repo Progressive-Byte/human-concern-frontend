@@ -11,7 +11,6 @@ const STEP_LABELS = [
   "Objectives",
   "Payment",
   "Addons",
-  "Summary",
   "Payment Details",
   "Confirmation",
 ];
@@ -28,7 +27,7 @@ export default function StepLayout({
 }) {
   const router = useRouter();
   const { data } = useDonation();
-  const totalSteps = data.isRamadan ? STEP_LABELS.length : STEP_LABELS.length - 1;
+  const totalSteps = data.isRamadan ? STEP_LABELS.length : STEP_LABELS.length - 1; // 7 or 6
   const displayStep = !data.isRamadan && step > 3 ? step - 1 : step;
 
   const resolvedNextLabel = nextLabel ?? STEP_LABELS[step] ?? "Continue";

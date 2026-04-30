@@ -89,7 +89,7 @@ export default function Step5Addons() {
       }}
       onPrev={() => handlePrev(4)}
       prevLabel="Back"
-      nextLabel="Summary"
+      nextLabel="Payment Details"
     >
       <div className="flex flex-col gap-4">
 

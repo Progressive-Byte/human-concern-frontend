@@ -11,7 +11,6 @@ const STEPS = [
   "Objectives",
   "Payment",
   "Addons",
-  "Summary",
   "Payment Details",
   "Confirmation",
 ];
