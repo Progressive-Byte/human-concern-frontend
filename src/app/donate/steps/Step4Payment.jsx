@@ -64,8 +64,6 @@ export default function Step4Payment() {
       nextLabel="Add-ons"
     >
       <div className="flex flex-col gap-4">
-
-        {/* ── Payment type ── */}
         <div className="flex flex-col gap-2.5">
           {PAYMENT_TYPES.map((type) => {
             const active = paymentType === type.value;
