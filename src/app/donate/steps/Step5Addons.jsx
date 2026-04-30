@@ -128,7 +128,6 @@ const Step5Addons = () => {
               <div className="flex items-center justify-between px-4 py-3.5">
                 <div>
                   <p className="text-[14px] font-semibold text-[#383838]">
-                    {addOn.iconEmoji && <span className="mr-1">{addOn.iconEmoji}</span>}
                     {addOn.name}
                   </p>
                   <p className="text-[12px] text-[#737373] mt-0.5">
