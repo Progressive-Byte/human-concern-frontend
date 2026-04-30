@@ -97,7 +97,7 @@ const Step6Summary = () => {
           </div>
         )}
 
-        {/* ── Individual add-on amounts ── */}
+        {/* Individual add-on amounts */}
         {addOnBreakdown.length > 0 && (
           <div className="border border-[#E5E5E5] rounded-xl overflow-hidden">
             <div className="bg-[#F9F9F9] px-4 py-2.5 border-b border-[#E5E5E5]">
