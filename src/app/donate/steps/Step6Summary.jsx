@@ -65,10 +65,10 @@ const Step6Summary = () => {
           /* Recurring: */
           <div>
             <p className="text-[13px] font-medium text-[#383838] mb-2">{frequency} Payment Schedule</p>
-            <div className="border border-[#E5E5E5] rounded-xl overflow-hidden">
+            <div className="border border-[#E6E6E6] rounded-xl overflow-hidden">
               {/* Header */}
-              <div className="grid grid-cols-3 bg-[#F9F9F9] px-4 py-2.5 border-b border-[#E5E5E5]">
-                <span className="text-[12px] font-semibold text-[#737373]">Payment</span>
+              <div className="grid grid-cols-3 bg-[#F5F5F580] px-4 py-2.5 border-b border-[#E6E6E6]">
+                <span className="text-[12px] font-semibold text-[#737373]">Days</span>
                 <span className="text-[12px] font-semibold text-[#737373]">Date</span>
                 <span className="text-[12px] font-semibold text-[#737373] text-right">Amount</span>
               </div>
