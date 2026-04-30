@@ -60,8 +60,6 @@ function Toggle({ enabled, onChange }) {
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 const Step5Addons = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
