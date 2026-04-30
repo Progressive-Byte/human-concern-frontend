@@ -50,7 +50,7 @@ export default function Step5Payment() {
   const [fidyaFasts,     setFidyaFasts]     = useState(2);
 
   // Platform tip
-  const [tipPct, setTipPct] = useState(10); // default 10%
+  const [tipPct, setTipPct] = useState(10);
 
   const isRecurring   = paymentType === "recurring";
   const currencyData  = CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0];
