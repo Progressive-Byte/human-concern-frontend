@@ -104,8 +104,6 @@ const Step5Addons = () => {
       nextLabel="Payment Details"
     >
       <div className="flex flex-col gap-4">
-
-        {/* ── Donation amount summary ── */}
         <div className="border border-[#E5E5E5] rounded-xl px-4 py-3 bg-white">
           <p className="text-[13px] text-[#737373] mb-1.5">Donation Amount</p>
           <p className="text-[28px] font-bold text-[#383838]">
@@ -113,7 +111,6 @@ const Step5Addons = () => {
           </p>
         </div>
 
-        {/* ── Add-ons (dynamic from campaign) ── */}
         {campaignAddOns.map((addOn) => {
           const enabled     = addOnEnabled[addOn.id] ?? true;
           const inputs      = addOn.pricing?.inputs ?? [];
