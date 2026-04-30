@@ -59,7 +59,7 @@ export default function Step2Cause() {
                   src={cause.icon}
                   alt={cause.label}
                   fill
-                  className="object-contain"  
+                  className="object-contain"
                 />
               </div>
               <div>

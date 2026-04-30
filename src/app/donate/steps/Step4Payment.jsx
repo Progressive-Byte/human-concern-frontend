@@ -37,7 +37,7 @@ export default function Step4Payment() {
   const numberOfDays = data.numberOfDays ?? 30;
   const currency     = data.currency     ?? "USD";
 
-  // Restore previous selection: if amountTier isn't a suggested tile, treat it as custom
+  // Restore previous selection: if amountTier isn't a suggested amount, assume it's a custom amount
   const initAmount   = data.amountTier ?? Number(data.amount) ?? suggestedAmounts[0] ?? 25;
   const isCustomInit = initAmount && !suggestedAmounts.includes(initAmount);
 
