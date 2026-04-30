@@ -34,6 +34,11 @@ export default function DonationWidget({ campaign }) {
       campaign.categories.some((c) => c.toLowerCase() === "ramadan");
     // const isRamadan = true; // For testing purposes.
     sessionStorage.setItem("donationIsRamadan", isRamadan ? "1" : "0");
+    sessionStorage.setItem("campaignData", JSON.stringify({
+      suggestedAmounts: campaign.suggestedAmounts ?? [],
+      addOns:           campaign.addOns           ?? [],
+      goalsDates:       campaign.goalsDates        ?? {},
+    }));
 
     const params = new URLSearchParams({
       campaignId: campaign.id,
