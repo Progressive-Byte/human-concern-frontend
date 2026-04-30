@@ -6,6 +6,7 @@ import StepLayout from "../DonateComponents/StepLayout";
 import { useState } from "react";
 import Toggle from "../../../components/ui/Toggle";
 import Select from "@/components/ui/Select";
+import NumberInput from "@/components/ui/NumberInput";
 
 const PAYMENT_TYPES = [
   { value: "one-time",   label: "One-time Payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
@@ -29,21 +30,6 @@ const AMOUNT_TIERS = [
 ];
 
 const TIP_PERCENTAGES = [0, 5, 10, 15];
-
-function NumberInput({ value, onChange, min = 1, max = 99 }) {
-  return (
-    <input
-      type="number"
-      value={value}
-      min={min}
-      max={max}
-      onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value))))}
-      className="w-16 border border-[#E5E5E5] rounded-lg px-3 py-1.5 text-[14px] text-[#383838] outline-none focus:border-[#EA3335] text-center"
-    />
-  );
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Step5Payment() {
   const { data, update } = useDonation();
