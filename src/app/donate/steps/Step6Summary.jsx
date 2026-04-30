@@ -4,7 +4,7 @@ import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { useMemo } from "react";
-import { AddonAmountIcon } from "@/components/common/SvgIcon";
+import { AddonAmountIcon, CustomTipsIcon } from "@/components/common/SvgIcon";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
@@ -119,6 +119,10 @@ const Step6Summary = () => {
         {/* Platform Tip */}
         {tipAmount > 0 && (
           <div className="flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-4 py-3">
+            <span className="shrink-0 text-[#8C8C8C]">
+              {CustomTipsIcon}
+            </span>
+
             <span className="text-[13px] text-[#737373]">
               Custom Platform tip =
             </span>
