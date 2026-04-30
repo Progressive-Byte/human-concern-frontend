@@ -173,15 +173,12 @@ const Step5Addons = () => {
           );
         })}
 
-        {/* ── Platform Support Tip ── */}
         {enableTipping && (
           <div className="border border-[#E5E5E5] rounded-xl bg-[#F9F9F9] px-4 py-4">
             <p className="text-[14px] font-semibold text-[#383838]">Platform Support Fees</p>
             <p className="text-[12px] text-[#737373] mt-0.5 mb-4">
               Voluntary support for organization fees for platform maintenance and well being
             </p>
-
-            {/* Tip amount display */}
             <div className="inline-flex items-center bg-white border border-[#E5E5E5] rounded-lg px-4 py-2 mb-4">
               <span className="text-[16px] font-bold text-[#383838]">
                 {sym}{tipAmount.toFixed(2)}
@@ -202,8 +199,6 @@ const Step5Addons = () => {
                   background: `linear-gradient(to right, #EA3335 ${(tipPct / sliderMax) * 100}%, #E5E5E5 ${(tipPct / sliderMax) * 100}%)`,
                 }}
               />
-
-              {/* Tick labels — active pct highlighted in red */}
               <div className="flex justify-between mt-2">
                 {TIP_PERCENTAGES.map((pct) => (
                   <span
