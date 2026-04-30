@@ -58,17 +58,12 @@ const CampaignsPageInner = () => {
   const [sortBy,           setSortBy]           = useState(urlSort);
   const [currentPage,      setCurrentPage]      = useState(urlPage);
 
-  // Data state
   const [campaigns,  setCampaigns]  = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [loading,    setLoading]    = useState(true);
-
-  // Dropdown options
   const [categories, setCategories] = useState([ALL_OPTION]);
   const [causes,     setCauses]     = useState([ALL_OPTION]);
-
-  console.log('campaigns:', campaigns);
 
   useEffect(() => {
     setSearchInput(urlSearch);
@@ -78,7 +73,6 @@ const CampaignsPageInner = () => {
     setCurrentPage(urlPage);
   }, [urlSearch, urlCategoryId, urlCauseId, urlSort, urlPage]);
 
-  // ── Load dropdown options once on mount
   useEffect(() => {
     fetch(`${serverApiBase}categories`)
       .then(r => r.json())
