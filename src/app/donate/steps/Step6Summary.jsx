@@ -90,7 +90,7 @@ const Step6Summary = () => {
             </div>
           </div>
         ) : (
-          /* ── One-time: main donation row ── */
+          /* One-time: */
           <div className="flex items-center justify-between border border-[#E5E5E5] rounded-xl px-4 py-3.5 bg-white">
             <span className="text-[13px] text-[#737373]">Donation Amount</span>
             <span className="text-[20px] font-bold text-[#383838]">{sym}{baseDonation.toLocaleString()}</span>
