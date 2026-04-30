@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import CustomDropdown from "@/components/common/CustomDropdown";
@@ -43,9 +43,9 @@ function buildURLParams({ q, categoryId, causeId, sort, page }) {
   return p.toString();
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ─── Inner component that uses useSearchParams ──────────────────────────────
 
-const CampaignsPage = () => {
+const CampaignsPageInner = () => {
   const router       = useRouter();
   const pathname     = usePathname();
   const searchParams = useSearchParams();
@@ -311,6 +311,16 @@ const CampaignsPage = () => {
         )}
       </div>
     </main>
+  );
+};
+
+// ─── Page with Suspense boundary ─────────────────────────────────────────────
+
+const CampaignsPage = () => {
+  return (
+    <Suspense fallback={<div className="bg-[#F6F6F6] min-h-screen" />}>
+      <CampaignsPageInner />
+    </Suspense>
   );
 };
 

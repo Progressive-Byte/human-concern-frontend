@@ -4,7 +4,7 @@ import Step1Info from "../steps/Step1Info";
 import Step2Cause from "../steps/Step2Cause";
 import Step3Objective from "../steps/Step3Objective";
 import Step4Payment from "../steps/Step4Payment";
-import Step5Summary from "../steps/Step5Summary";
+import Step5Summary from "../steps/Step5Addons";
 import Step6PaymentDetails from "../steps/Step6PaymentDetails";
 import Step7Confirmation from "../steps/Step7Confirmation";
 

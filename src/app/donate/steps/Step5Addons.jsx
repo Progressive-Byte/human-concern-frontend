@@ -29,7 +29,7 @@ function calcAddOnTotal(addOn, inputValues) {
   return amount ?? 0;
 }
 
-export default function Step5Addons() {
+const Step5Addons = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 
@@ -210,3 +210,5 @@ export default function Step5Addons() {
     </StepLayout>
   );
 }
+
+export default Step5Addons;
