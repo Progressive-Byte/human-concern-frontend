@@ -153,8 +153,6 @@ export default function Step4Payment() {
             />
           </div>
         </div>
-
-        {/* ── Total amount ── */}
         <div>
           <label className="block text-[13px] font-medium text-[#383838] mb-2">Total Amount</label>
           <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3 flex items-center gap-2">
