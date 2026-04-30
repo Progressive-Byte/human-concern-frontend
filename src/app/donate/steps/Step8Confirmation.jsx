@@ -35,7 +35,6 @@ export default function Step7Review() {
   ];
 
   const handleConfirm = () => {
-    // API call goes here in the future
     router.push("/donate/thank-you");
   };
 
