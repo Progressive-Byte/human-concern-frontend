@@ -95,40 +95,39 @@ const Step6Summary = () => {
           </div>
         )}
         {/* Add-ons */}
-        {/* Add-ons */}
-{addOnBreakdown.length > 0 && (
-  <div className="space-y-2">
-    {addOnBreakdown.map((addon) => (
-      <div
-        key={addon.id}
-        className="flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-4 py-3"
-      >
-        <span className="shrink-0 text-[#8C8C8C]">{AddonAmountIcon}</span>
+        {addOnBreakdown.length > 0 && (
+          <div className="space-y-2">
+            {addOnBreakdown.map((addon) => (
+              <div
+                key={addon.id}
+                className="flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-4 py-3"
+              >
+                <span className="shrink-0 text-[#8C8C8C]">{AddonAmountIcon}</span>
 
-        <span className="text-[13px] text-[#737373]">
-          {addon.name} =
-        </span>
+                <span className="text-[13px] text-[#737373]">
+                  {addon.name} =
+                </span>
 
-        <span className="text-[14px] font-semibold text-[#383838]">
-          {sym}{Number(addon.total).toFixed(2)}
-        </span>
-      </div>
-    ))}
-  </div>
-)}
+                <span className="text-[14px] font-semibold text-[#383838]">
+                  {sym}{Number(addon.total).toFixed(2)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
 
-{/* Platform Tip */}
-{tipAmount > 0 && (
-  <div className="flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-4 py-3">
-    <span className="text-[13px] text-[#737373]">
-      Custom Platform tip =
-    </span>
+        {/* Platform Tip */}
+        {tipAmount > 0 && (
+          <div className="flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-4 py-3">
+            <span className="text-[13px] text-[#737373]">
+              Custom Platform tip =
+            </span>
 
-    <span className="text-[14px] font-semibold text-[#383838]">
-      {sym}{tipAmount.toFixed(2)}
-    </span>
-  </div>
-)}
+            <span className="text-[14px] font-semibold text-[#383838]">
+              {sym}{tipAmount.toFixed(2)}
+            </span>
+          </div>
+        )}
       </div>
     </StepLayout>
   );
