@@ -302,7 +302,7 @@ const CampaignsPageInner = () => {
   );
 };
 
-// ─── Page with Suspense boundary ─────────────────────────────────────────────
+// ─── Page with Suspense boundary
 
 const CampaignsPage = () => {
   return (
