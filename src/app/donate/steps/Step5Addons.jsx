@@ -132,8 +132,6 @@ const Step5Addons = () => {
 
           return (
             <div key={addOn.id} className="border border-[#E5E5E5] rounded-xl bg-white overflow-hidden">
-
-              {/* Header row */}
               <div className="flex items-center justify-between px-4 py-3.5">
                 <div>
                   <p className="text-[14px] font-semibold text-[#383838]">
