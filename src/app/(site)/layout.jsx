@@ -3,7 +3,7 @@ import Footer from "@/components/layout/Footer";
 import TopNoticeBar from "@/components/layout/Topnoticebar";
 
 export const metadata = {
-  title: "HumanConcern — Give with Purpose, Transform Lives",
+  title: "HumanConcern — Give with Puasdsdsrpose, Transform Lives",
   description:
     "Connect with verified campaigns and make a real difference. Donate to education, healthcare, clean water, and more.",
 };
