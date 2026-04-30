@@ -52,8 +52,8 @@ const Step6Summary = () => {
   return (
     <StepLayout
       step={6}
-      title="Summary"
-      subtitle="Review your donation breakdown before proceeding to payment"
+      title="Your Donation Payment Breakdown Summary"
+      subtitle="Update any amount as per your preference."
       onNext={() => handleNext(7)}
       onPrev={() => handlePrev(5)}
       prevLabel="Back"
