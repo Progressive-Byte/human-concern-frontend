@@ -49,6 +49,8 @@ const Step6Summary = () => {
     [isRecurring, frequency, numberOfDays, amountTier]
   );
 
+  console.log("Schedule:", schedule);
+
   return (
     <StepLayout
       step={6}
@@ -67,25 +69,33 @@ const Step6Summary = () => {
             <p className="text-[13px] font-medium text-[#383838] mb-2">{frequency} Payment Schedule</p>
             <div className="border border-[#E6E6E6] rounded-xl overflow-hidden">
               {/* Header */}
-              <div className="grid grid-cols-3 bg-[#F5F5F580] px-4 py-2.5 border-b border-[#E6E6E6]">
+              <div className="grid grid-cols-3 bg-[#F5F5F580] px-4 py-2.5 border-b border-[#E6E6E6] uppercase">
                 <span className="text-[12px] font-semibold text-[#737373]">Days</span>
                 <span className="text-[12px] font-semibold text-[#737373]">Date</span>
                 <span className="text-[12px] font-semibold text-[#737373] text-right">Amount</span>
               </div>
+
               {/* Rows */}
               <div className="max-h-[260px] overflow-y-auto divide-y divide-[#F0F0F0]">
                 {schedule.map((row) => (
                   <div key={row.payment} className="grid grid-cols-3 px-4 py-2.5">
                     <span className="text-[13px] text-[#383838]">{row.payment}</span>
                     <span className="text-[13px] text-[#737373]">{row.date}</span>
-                    <span className="text-[13px] font-medium text-[#383838] text-right">{sym}{row.amount}</span>
+                    <span className="text-[13px] font-medium text-[#383838] text-right">
+                      {sym}{row.amount}
+                    </span>
                   </div>
                 ))}
               </div>
+
               {/* Footer total */}
               <div className="grid grid-cols-3 bg-[#F9F9F9] px-4 py-2.5 border-t border-[#E5E5E5]">
-                <span className="text-[12px] font-semibold text-[#383838] col-span-2">Donation Total</span>
-                <span className="text-[13px] font-bold text-[#383838] text-right">{sym}{baseDonation}</span>
+                <span className="text-[12px] font-semibold text-[#383838] col-span-2">
+                  Donation Total
+                </span>
+                <span className="text-[13px] font-bold text-[#383838] text-right">
+                  {sym}{baseDonation}
+                </span>
               </div>
             </div>
           </div>
