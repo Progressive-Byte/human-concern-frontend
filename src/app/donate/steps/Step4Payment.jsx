@@ -4,6 +4,7 @@ import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { useState } from "react";
+import Toggle from "./common/Toggle";
 
 const PAYMENT_TYPES = [
   { value: "one-time",   label: "One-time Payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
@@ -27,26 +28,6 @@ const AMOUNT_TIERS = [
 ];
 
 const TIP_PERCENTAGES = [0, 5, 10, 15];
-
-function Toggle({ enabled, onChange }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={enabled}
-      onClick={() => onChange(!enabled)}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0 ${
-        enabled ? "bg-[#EA3335]" : "bg-[#CCCCCC]"
-      }`}
-    >
-      <span
-        className={`absolute top-[3px] left-[3px] w-[18px] h-[18px] rounded-full bg-white shadow transition-transform duration-200 ${
-          enabled ? "translate-x-5" : "translate-x-0"
-        }`}
-      />
-    </button>
-  );
-}
 
 function Select({ value, onChange, options }) {
   return (
