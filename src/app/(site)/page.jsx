@@ -36,7 +36,7 @@ export default function HomePage() {
             <div className="w-full max-w-[1611px] lg:mt-[-200px] mt-[200px] mx-auto px-6 lg:px-8">
               <div className="w-full lg:max-w-[652px] bg-[#FFFFFFB2] backdrop-blur-[100px] px-[20px] py-[30px] md:px-[77px] md:py-[60px] rounded-3xl">
                 <h1 className="md:text-[56px] text-3xl md:leading-[1.1] font-semibold text-[#383838] [text-shadow:0px_4px_25px_rgba(255,255,255,0.25)]">
-                  Givxsxsxse with <span className="font-bold font-playfair italic">Purpose. Transform</span> lives.
+                  Give with <span className="font-bold font-playfair italic">Purpose. Transform</span> lives.
                 </h1>
                 <p className="text-[#383838] font-medium py-5 md:py-7 text-md md:text-2xl [text-shadow:0px_0px_3px_rgba(255,255,255,1)]">
                   Your trusted platform for Zakat, Sadaqah, and humanitarian giving.
