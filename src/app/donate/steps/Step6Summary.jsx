@@ -36,7 +36,6 @@ const Step6Summary = () => {
   const frequency      = data.frequency      ?? "Daily";
   const numberOfDays   = data.numberOfDays   ?? 30;
   const tipPct         = data.tipPct         ?? 0;
-  const grandTotal     = data.grandTotal     ?? 0;
   const addOnBreakdown = data.addOnBreakdown ?? [];
 
   const isRecurring  = paymentType === "recurring";
