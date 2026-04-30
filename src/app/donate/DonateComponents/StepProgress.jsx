@@ -69,8 +69,6 @@ export default function StepProgress({ current }) {
                 </>
               )}
             </div>
-
-            {/* Connector line */}
             {i < visibleSteps.length - 1 && (
               <div
                 className={`h-[1.5px] w-6 sm:w-10 mx-1 mb-4 rounded-full transition-colors
