@@ -6,8 +6,8 @@ import Step3Objective from "../steps/Step3Objective";
 import Step4Payment from "../steps/Step4Payment";
 import Step5Addons from "../steps/Step5Addons";
 import Step6Summary from "../steps/Step6Summary";
-import Step6PaymentDetails from "../steps/Step6PaymentDetails";
-import Step7Confirmation from "../steps/Step7Confirmation";
+import Step6PaymentDetails from "../steps/Step7PaymentDetails";
+import Step7Confirmation from "../steps/Step8Confirmation";
 
 const STEPS = [
   Step1Info,
