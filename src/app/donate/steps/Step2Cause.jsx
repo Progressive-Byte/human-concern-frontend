@@ -3,7 +3,6 @@
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
-import { ActiveDonerIcon, donationIcon, GlobalEnargentIcon, SadakaIcon, ZakatDonationIcon } from "@/components/common/SvgIcon";
 import Image from "next/image";
 
 const CAUSES = [
