@@ -4,7 +4,8 @@ import Step1Info from "../steps/Step1Info";
 import Step2Cause from "../steps/Step2Cause";
 import Step3Objective from "../steps/Step3Objective";
 import Step4Payment from "../steps/Step4Payment";
-import Step5Summary from "../steps/Step5Addons";
+import Step5Addons from "../steps/Step5Addons";
+import Step6Summary from "../steps/Step6Summary";
 import Step6PaymentDetails from "../steps/Step6PaymentDetails";
 import Step7Confirmation from "../steps/Step7Confirmation";
 
@@ -13,7 +14,8 @@ const STEPS = [
   Step2Cause,
   Step3Objective,
   Step4Payment,
-  Step5Summary,
+  Step5Addons,
+  Step6Summary,
   Step6PaymentDetails,
   Step7Confirmation,
 ];

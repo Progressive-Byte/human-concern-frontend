@@ -40,7 +40,7 @@ export default function Step7Review() {
   };
 
   return (
-    <StepLayout step={7} title="Review & Confirm" onNext={handleConfirm} nextLabel="Complete Donation">
+    <StepLayout step={8} title="Review & Confirm" onNext={handleConfirm} nextLabel="Complete Donation">
       <div className="divide-y divide-[#F0F0F0]">
         {rows.map((r) => (
           <div key={r.label} className="flex justify-between items-center py-3.5">

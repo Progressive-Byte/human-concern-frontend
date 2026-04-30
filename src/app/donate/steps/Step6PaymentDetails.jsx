@@ -25,11 +25,11 @@ export default function Step6CardDetails() {
       setError("All fields are required.");
       return;
     }
-    handleNext(7);
+    handleNext(8);
   };
 
   return (
-    <StepLayout step={6} title="Card Details" onNext={onNext}>
+    <StepLayout step={7} title="Card Details" onNext={onNext}>
       <div className="flex flex-col gap-4">
         <div>
           <label className="text-[13px] font-medium text-[#383838] mb-1.5 block">Cardholder Name</label>

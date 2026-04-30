@@ -96,7 +96,19 @@ const Step5Addons = () => {
       title="Add-ons"
       subtitle="Enhance your donation with optional add-ons and support the platform"
       onNext={() => {
-        update({ tipPct, grandTotal, addOnsTotal });
+        update({
+          tipPct,
+          grandTotal,
+          addOnsTotal,
+          addOnBreakdown: campaignAddOns
+            .filter((a) => addOnEnabled[a.id])
+            .map((a) => ({
+              id:        a.id,
+              name:      a.name,
+              iconEmoji: a.iconEmoji ?? "",
+              total:     calcAddOnTotal(a, addOnInputs[a.id] ?? {}),
+            })),
+        });
         handleNext(6);
       }}
       onPrev={() => handlePrev(4)}
