@@ -4,8 +4,6 @@ import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { useState, useMemo } from "react";
-import Toggle from "../../../components/ui/Toggle";
-import NumberInput from "@/components/ui/NumberInput";
 
 const CURRENCY_OPTIONS = [
   { label: "USD ($)",   value: "USD", symbol: "$"   },
@@ -15,6 +13,8 @@ const CURRENCY_OPTIONS = [
 ];
 
 const TIP_PERCENTAGES = [0, 5, 10, 15];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function calcAddOnTotal(addOn, inputValues) {
   const { pricing, amount } = addOn;
@@ -28,6 +28,74 @@ function calcAddOnTotal(addOn, inputValues) {
   }
   return amount ?? 0;
 }
+
+/** Build a human-readable formula string e.g. "2 persons × $12.00" */
+function buildFormulaLabel(addOn, inputValues, sym) {
+  const { pricing } = addOn;
+  if (!pricing?.formula || !pricing?.inputs) return null;
+  const parts = (pricing.inputs ?? []).map((inp) => {
+    const val = inputValues[inp.key] ?? inp.defaultValue ?? 1;
+    return `${val} ${inp.label.toLowerCase()}`;
+  });
+  const base = pricing.baseUnitAmount ?? addOn.amount ?? 0;
+  return `${parts.join(" × ")} × ${sym}${base}`;
+}
+
+// ─── Stepper input ────────────────────────────────────────────────────────────
+
+function Stepper({ label, hint, value, onChange, min = 1, max = 99 }) {
+  return (
+    <div className="bg-white border border-[#E5E5E5] rounded-xl p-3 flex flex-col gap-2 flex-1 min-w-0">
+      <p className="text-[12px] font-medium text-[#383838] text-center">{label}:</p>
+      <div className="flex items-center justify-center gap-3">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          className="w-7 h-7 rounded-full border border-[#E5E5E5] flex items-center justify-center text-[#383838] font-bold text-lg leading-none hover:bg-gray-50 disabled:opacity-30 transition-colors"
+        >
+          −
+        </button>
+        <span className="text-[20px] font-bold text-[#383838] min-w-[28px] text-center">
+          {value}
+        </span>
+        <button
+          type="button"
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+          className="w-7 h-7 rounded-full border border-[#E5E5E5] flex items-center justify-center text-[#383838] font-bold text-lg leading-none hover:bg-gray-50 disabled:opacity-30 transition-colors"
+        >
+          +
+        </button>
+      </div>
+      {hint && <p className="text-[11px] text-[#AEAEAE] text-center">{hint}</p>}
+    </div>
+  );
+}
+
+// ─── Toggle ───────────────────────────────────────────────────────────────────
+
+function Toggle({ enabled, onChange }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={enabled}
+      onClick={() => onChange(!enabled)}
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0 ${
+        enabled ? "bg-[#EA3335]" : "bg-[#CCCCCC]"
+      }`}
+    >
+      <span
+        className={`absolute top-[3px] left-[3px] w-[18px] h-[18px] rounded-full bg-white shadow transition-transform duration-200 ${
+          enabled ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </button>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 const Step5Addons = () => {
   const { data, update } = useDonation();
@@ -93,10 +161,12 @@ const Step5Addons = () => {
     >
       <div className="flex flex-col gap-4">
 
-        {/* ── Payment amount summary ── */}
-        <div className="bg-[#F9F9F9] border border-[#E5E5E5] rounded-xl px-4 py-3 flex items-center justify-between">
-          <span className="text-[13px] text-[#737373] font-medium">Donation Amount</span>
-          <span className="text-[20px] font-bold text-[#383838]">{sym}{baseDonation.toLocaleString()}</span>
+        {/* ── Donation amount summary ── */}
+        <div className="border border-[#E5E5E5] rounded-xl px-4 py-3 bg-white">
+          <p className="text-[13px] text-[#737373] mb-1.5">Donation Amount</p>
+          <p className="text-[28px] font-bold text-[#383838]">
+            {sym}{baseDonation.toLocaleString()}
+          </p>
         </div>
 
         {/* ── Add-ons (dynamic from campaign) ── */}
@@ -105,40 +175,58 @@ const Step5Addons = () => {
           const inputs      = addOn.pricing?.inputs ?? [];
           const inputValues = addOnInputs[addOn.id] ?? {};
           const addOnTotal  = calcAddOnTotal(addOn, inputValues);
+          const formulaLabel = buildFormulaLabel(addOn, inputValues, sym);
 
           return (
             <div key={addOn.id} className="border border-[#E5E5E5] rounded-xl bg-white overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3.5">
-                <Toggle
-                  enabled={enabled}
-                  onChange={(val) => setAddOnEnabled((prev) => ({ ...prev, [addOn.id]: val }))}
-                />
+
+              {/* Header row */}
+              <div className="flex items-center justify-between px-4 py-3.5">
                 <div>
                   <p className="text-[14px] font-semibold text-[#383838]">
                     {addOn.iconEmoji && <span className="mr-1">{addOn.iconEmoji}</span>}
                     {addOn.name}
                   </p>
-                  <p className="text-[12px] text-[#737373]">
+                  <p className="text-[12px] text-[#737373] mt-0.5">
                     {addOn.labelUnderAmount ?? addOn.shortDescription}
                   </p>
                 </div>
+                <Toggle
+                  enabled={enabled}
+                  onChange={(val) => setAddOnEnabled((prev) => ({ ...prev, [addOn.id]: val }))}
+                />
               </div>
+
+              {/* Stepper inputs + total */}
               {enabled && inputs.length > 0 && (
-                <div className="flex items-center gap-3 flex-wrap px-4 pb-3.5 border-t border-[#F0F0F0] pt-3">
-                  {inputs.map((inp) => (
-                    <div key={inp.key} className="flex items-center gap-2">
-                      <span className="text-[13px] text-[#383838] font-medium">{inp.label}:</span>
-                      <NumberInput
+                <div className="px-4 pb-4 border-t border-[#F0F0F0] pt-3">
+                  <div className="flex gap-3">
+                    {/* Stepper inputs */}
+                    {inputs.map((inp) => (
+                      <Stepper
+                        key={inp.key}
+                        label={inp.label}
+                        hint="Add yourself & dependants"
                         value={inputValues[inp.key] ?? inp.defaultValue ?? 1}
                         onChange={(val) => updateAddOnInput(addOn.id, inp.key, val)}
                         min={inp.min ?? 1}
                         max={inp.max ?? 99}
                       />
+                    ))}
+
+                    {/* Green total box */}
+                    <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl p-3 flex flex-col items-center justify-center flex-1 min-w-0">
+                      <p className="text-[11px] font-medium text-[#065F46] text-center mb-1">Total</p>
+                      <p className="text-[26px] font-bold text-[#065F46] leading-none">
+                        {sym}{addOnTotal}
+                      </p>
+                      {formulaLabel && (
+                        <p className="text-[10px] text-[#6B7280] mt-1.5 text-center leading-snug">
+                          {formulaLabel}
+                        </p>
+                      )}
                     </div>
-                  ))}
-                  <span className="text-[13px] text-[#737373]">
-                    = <span className="font-semibold text-[#383838]">{sym}{addOnTotal}</span>
-                  </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -148,15 +236,19 @@ const Step5Addons = () => {
         {/* ── Platform Support Tip ── */}
         {enableTipping && (
           <div className="border border-[#E5E5E5] rounded-xl bg-[#F9F9F9] px-4 py-4">
-            <p className="text-[14px] font-semibold text-[#383838]">Platform Support Tip</p>
+            <p className="text-[14px] font-semibold text-[#383838]">Platform Support Fees</p>
             <p className="text-[12px] text-[#737373] mt-0.5 mb-4">
-              Voluntary tip for platform maintenance and well being
+              Voluntary support for organization fees for platform maintenance and well being
             </p>
 
+            {/* Tip amount display */}
             <div className="inline-flex items-center bg-white border border-[#E5E5E5] rounded-lg px-4 py-2 mb-4">
-              <span className="text-[16px] font-bold text-[#383838]">{sym}{tipAmount.toFixed(2)}</span>
+              <span className="text-[16px] font-bold text-[#383838]">
+                {sym}{tipAmount.toFixed(2)}
+              </span>
             </div>
 
+            {/* Range slider */}
             <div className="relative">
               <input
                 type="range"
@@ -170,11 +262,15 @@ const Step5Addons = () => {
                   background: `linear-gradient(to right, #EA3335 ${(tipPct / sliderMax) * 100}%, #E5E5E5 ${(tipPct / sliderMax) * 100}%)`,
                 }}
               />
-              <div className="flex justify-between mt-1.5">
+
+              {/* Tick labels — active pct highlighted in red */}
+              <div className="flex justify-between mt-2">
                 {TIP_PERCENTAGES.map((pct) => (
                   <span
                     key={pct}
-                    className={`text-[11px] ${tipPct === pct ? "text-[#EA3335] font-semibold" : "text-[#AEAEAE]"}`}
+                    className={`text-[11px] font-medium transition-colors ${
+                      tipPct === pct ? "text-[#EA3335]" : "text-[#AEAEAE]"
+                    }`}
                   >
                     {pct}%
                   </span>
@@ -191,24 +287,44 @@ const Step5Addons = () => {
         {/* ── Subtotal ── */}
         <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3">
           <p className="text-[13px] text-[#383838]">
-            <span className="font-medium">Subtotal: </span>
+            <span className="font-bold">Subtotal: </span>
             <span className="text-[#737373]">
               {sym}{baseDonation}
               {addOnsTotal > 0 && (
-                <> + <span className="font-semibold text-[#383838]">{sym}{addOnsTotal}</span> (add-ons)</>
+                <>
+                  {" + "}
+                  <span className="font-semibold text-[#383838]">{sym}{addOnsTotal}</span>
+                  {" (add-ons)"}
+                </>
               )}
               {tipAmount > 0 && (
-                <> + <span className="font-semibold text-[#383838]">{sym}{tipAmount.toFixed(2)}</span> (Tip)</>
+                <>
+                  {" + "}
+                  <span className="font-semibold text-[#383838]">{sym}{tipAmount.toFixed(2)}</span>
+                  {" (Tip)"}
+                </>
               )}
-              {" "}={" "}
-              <span className="font-bold text-[#383838] text-[15px]">{sym}{grandTotal.toFixed(2)}</span>
+              {" = "}
+              <span className="font-bold text-[#383838] text-[15px]">
+                {sym}{grandTotal.toFixed(2)}
+              </span>
             </span>
+          </p>
+        </div>
+
+        {/* ── SSL badge ── */}
+        <div className="flex items-center gap-2 bg-[#F6F6F6] rounded-xl px-4 py-3">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <p className="text-[12px] text-[#737373]">
+            Your payment is secured with 256-bit SSL encryption
           </p>
         </div>
 
       </div>
     </StepLayout>
   );
-}
+};
 
 export default Step5Addons;
