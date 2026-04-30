@@ -8,8 +8,6 @@ import Pagination from "@/components/common/Pagination";
 import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
 import { apiBase, serverApiBase } from "@/utils/constants";
 
-// ─── Constants ──────────────────────────────────────────────────────────────
-
 const SORT_OPTIONS = [
   { label: "Newest", value: "new_first" },
   { label: "Oldest", value: "old_first" },
@@ -42,8 +40,6 @@ function buildURLParams({ q, categoryId, causeId, sort, page }) {
   if (page > 1)             p.set("page",        String(page));
   return p.toString();
 }
-
-// ─── Inner component that uses useSearchParams ──────────────────────────────
 
 const CampaignsPageInner = () => {
   const router       = useRouter();
