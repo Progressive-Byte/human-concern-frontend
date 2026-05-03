@@ -76,8 +76,6 @@ export default function Step7PaymentDetails() {
     >
       <div className="flex flex-col gap-5">
         <div className="border border-[#E5E5E5] rounded-2xl bg-white overflow-hidden px-4">
-
-          {/* Campaign name */}
           {campaignName && (
             <Row label="Campaign" value={campaignName} />
           )}
