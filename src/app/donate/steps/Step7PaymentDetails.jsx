@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
+import { apiRequest } from "@/services/api";
 import StepLayout from "../DonateComponents/StepLayout";
 import Row from "@/components/ui/Row";
 
@@ -22,14 +23,73 @@ const OBJECTIVE_LABELS = {
   "last-10":    "Last 10 Nights",
 };
 
+const GATEWAY_LABELS = {
+  stripe:       "Credit / Debit Card",
+  paypal:       "PayPal",
+  bank_transfer: "Bank Transfer",
+};
+
+const StripeIcon = () => (
+  <svg width="32" height="22" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="32" height="22" rx="4" fill="#F0F0F0"/>
+    <rect x="2" y="6" width="28" height="3" fill="#635BFF"/>
+    <rect x="2" y="13" width="8" height="3" rx="1" fill="#CCCCCC"/>
+    <rect x="12" y="13" width="6" height="3" rx="1" fill="#CCCCCC"/>
+  </svg>
+);
+
+const PayPalIcon = () => (
+  <svg width="32" height="22" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="32" height="22" rx="4" fill="#F0F0F0"/>
+    <text x="6" y="15" fontSize="9" fontWeight="bold" fill="#003087">Pay</text>
+    <text x="16" y="15" fontSize="9" fontWeight="bold" fill="#009CDE">Pal</text>
+  </svg>
+);
+
+const BankIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 9h18M2 9l9-6 9 6M4 9v8M8 9v8M11 9v8M14 9v8M18 9v8M2 17h18" stroke="#737373" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const GATEWAY_ICONS = {
+  stripe:        <StripeIcon />,
+  paypal:        <PayPalIcon />,
+  bank_transfer: <BankIcon />,
+};
+
+const CheckIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+    <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 const Step7PaymentDetails = () => {
   const { data, update }  = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
   const [anonymous, setAnonymous] = useState(data.anonymous ?? false);
+  const [gateways, setGateways] = useState([]);
+  const [gatewaysLoading, setGatewaysLoading] = useState(true);
+  const [selectedGateway, setSelectedGateway] = useState(data.paymentMethod ?? null);
 
   const campaignMeta = useMemo(() => {
     try { return JSON.parse(sessionStorage.getItem("campaignData") || "{}"); }
     catch { return {}; }
+  }, []);
+
+  useEffect(() => {
+    apiRequest("payment/settings")
+      .then((res) => {
+        const raw = res?.data?.gateways ?? {};
+        const available = Object.values(raw).filter((g) => g.enabled && g.configured);
+        setGateways(available);
+        if (!selectedGateway && available.length > 0) {
+          setSelectedGateway(available[0].provider);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setGatewaysLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const campaignName   = campaignMeta.name ?? "";
@@ -52,7 +112,7 @@ const Step7PaymentDetails = () => {
     .join(", ");
 
   const onNext = () => {
-    update({ anonymous });
+    update({ anonymous, paymentMethod: selectedGateway });
     handleNext(8);
   };
 
@@ -110,6 +170,51 @@ const Step7PaymentDetails = () => {
             bold
           />
         </div>
+
+        {/* Payment Method */}
+        <div className="flex flex-col gap-3">
+          <p className="text-[14px] font-semibold text-[#383838]">Payment Method</p>
+          {gatewaysLoading ? (
+            <div className="flex flex-col gap-2">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-[60px] rounded-xl bg-[#F0F0F0] animate-pulse" />
+              ))}
+            </div>
+          ) : gateways.length === 0 ? (
+            <p className="text-[13px] text-[#8C8C8C]">No payment methods available.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {gateways.map((gateway) => {
+                const isSelected = selectedGateway === gateway.provider;
+                return (
+                  <button
+                    key={gateway.provider}
+                    type="button"
+                    onClick={() => setSelectedGateway(gateway.provider)}
+                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 transition-colors text-left ${
+                      isSelected
+                        ? "border-[#055A46] bg-[#055A46]/5"
+                        : "border-[#E5E5E5] bg-white"
+                    }`}
+                  >
+                    <span className="shrink-0">{GATEWAY_ICONS[gateway.provider]}</span>
+                    <span className="flex-1 text-[14px] font-medium text-[#383838]">
+                      {GATEWAY_LABELS[gateway.provider] ?? gateway.provider}
+                    </span>
+                    <span
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${
+                        isSelected ? "border-[#055A46] bg-[#055A46]" : "border-[#CCCCCC]"
+                      }`}
+                    >
+                      {isSelected && <CheckIcon />}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {isRecurring && (
           <div className="flex items-start gap-2.5 px-1">
             <span className="text-[15px] shrink-0 mt-px">🚨</span>
@@ -143,6 +248,6 @@ const Step7PaymentDetails = () => {
       </div>
     </StepLayout>
   );
-}
+};
 
 export default Step7PaymentDetails;
