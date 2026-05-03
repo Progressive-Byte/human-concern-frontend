@@ -62,7 +62,6 @@ const Step6Summary = () => {
       <div className="flex flex-col gap-4">
 
         {isRecurring ? (
-          /* Recurring: */
           <div>
             <p className="text-[13px] font-medium text-[#383838] mb-2">{frequency} Payment Schedule</p>
             <div className="border border-[#E6E6E6] rounded-3xl overflow-hidden">
