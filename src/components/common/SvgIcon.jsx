@@ -301,18 +301,16 @@ export const ZakatDonationIcon = (
     <path d="M0 24.0003H24V0.000312328H0V24.0003Z" fill="#383838"/>
   </svg>
 )
-
-  export const SadakaIcon = (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 24.0003H24V0.000312328H0V24.0003Z" fill="#383838"/>
-    </svg>
-  )
-
-  export const GlobalEnargentIcon = (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 24.0003H24V0.000312328H0V24.0003Z" fill="#383838"/>
-    </svg>
-  )
+export const SadakaIcon = (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 24.0003H24V0.000312328H0V24.0003Z" fill="#383838"/>
+  </svg>
+)
+export const GlobalEnargentIcon = (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 24.0003H24V0.000312328H0V24.0003Z" fill="#383838"/>
+  </svg>
+)
 
   export const AddonAmountIcon = (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
