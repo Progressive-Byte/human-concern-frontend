@@ -79,8 +79,6 @@ export default function Step7PaymentDetails() {
           {campaignName && (
             <Row label="Campaign" value={campaignName} />
           )}
-
-          {/* Cause */}
           {causeLabels && (
             <Row label="Cause" value={causeLabels} />
           )}
