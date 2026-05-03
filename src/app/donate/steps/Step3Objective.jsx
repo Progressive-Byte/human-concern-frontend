@@ -29,7 +29,7 @@ const OBJECTIVES = [
   },
 ];
 
-export default function Step3Objectives() {
+const Step3Objectives = () => {
   const { data, update } = useDonation();
   const { handleNext } = useStepNavigation();
   const router = useRouter();
@@ -72,3 +72,5 @@ export default function Step3Objectives() {
     </StepLayout>
   );
 }
+
+export default Step3Objectives
