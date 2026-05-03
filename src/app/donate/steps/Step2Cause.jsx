@@ -12,7 +12,7 @@ const CAUSES = [
   { value: "global",  label: "Global Emergency",  desc: "Urgent humanitarian aid", icon: "/images/emergency-fund.png"  },
 ];
 
-export default function Step2Cause() {
+const Step2Cause = () => {
   const { data, update } = useDonation();
   const { handleNext } = useStepNavigation();
 
@@ -78,3 +78,5 @@ export default function Step2Cause() {
     </StepLayout>
   );
 }
+
+export default Step2Cause
