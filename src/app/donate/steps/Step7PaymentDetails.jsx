@@ -86,8 +86,6 @@ export default function Step7PaymentDetails() {
             <Row label="Objective" value={OBJECTIVE_LABELS[data.objective] ?? data.objective} />
           )}
           <Row label="Currency" value={currency} />
-
-          {/* Donation amount */}
           <Row
             label={isRecurring ? `Donation Amount (per ${frequency.toLowerCase()})` : "Donation Amount"}
             value={`${sym}${amountTier.toLocaleString()}`}
