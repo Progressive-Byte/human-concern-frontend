@@ -85,8 +85,6 @@ export default function Step7PaymentDetails() {
           {data.isRamadan && data.objective && (
             <Row label="Objective" value={OBJECTIVE_LABELS[data.objective] ?? data.objective} />
           )}
-
-          {/* Currency */}
           <Row label="Currency" value={currency} />
 
           {/* Donation amount */}
