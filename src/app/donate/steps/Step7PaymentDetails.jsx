@@ -136,7 +136,7 @@ const Step7PaymentDetails = () => {
           <p className="text-[14px] font-semibold text-[#383838]">Other Payment Methods</p>
 
           {gatewaysLoading ? (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {[1, 2].map((i) => (
                 <div key={i} className="h-[80px] rounded-2xl bg-[#F0F0F0] animate-pulse" />
               ))}
@@ -144,7 +144,7 @@ const Step7PaymentDetails = () => {
           ) : gateways.length === 0 ? (
             <p className="text-[13px] text-[#8C8C8C]">No payment methods available.</p>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {gateways
                 .filter((g) => g.provider === "stripe" || g.provider === "paypal")
                 .map((gateway) => {
