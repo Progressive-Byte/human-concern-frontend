@@ -21,7 +21,7 @@ const CURRENCY_OPTIONS = [
   { label: "CAD (CA$)", value: "CAD", symbol: "CA$" },
 ];
 
-export default function Step4Payment() {
+const Step4Payment = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 
