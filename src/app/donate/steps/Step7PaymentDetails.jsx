@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
+import { AnonymusCheckerIcon } from "@/components/common/SvgIcon";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
@@ -162,9 +163,7 @@ export default function Step7PaymentDetails() {
             anonymous ? "bg-[#055A46] border-[#055A46]" : "border-[#CCCCCC] bg-white"
           }`}>
             {anonymous && (
-              <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
-                <path d="M1 3.5L4 6.5L10 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              AnonymusCheckerIcon
             )}
           </span>
           <span className="text-[14px] font-medium text-[#383838]">Make my donation anonymous</span>
