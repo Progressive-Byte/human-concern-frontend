@@ -67,7 +67,7 @@ const Step7PaymentDetails = () => {
       nextLabel="Complete Donation"
     >
       <div className="flex flex-col gap-5">
-        <div className="border border-[#E5E5E5] rounded-2xl bg-white overflow-hidden px-4">
+        <div className="rounded-2xl bg-[#F5F5F580] overflow-hidden px-4">
           {campaignName && (
             <Row label="Campaign" value={campaignName} />
           )}
