@@ -152,7 +152,7 @@ export default function Step7PaymentDetails() {
           />
         </div>
 
-        {/* ── Recurring warning ── */}
+        {/* Recurring warning */}
         {isRecurring && (
           <div className="flex items-start gap-2.5 px-1">
             <span className="text-[15px] shrink-0 mt-px">🚨</span>
