@@ -81,7 +81,7 @@ const Step1Info = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
-  // ── Effect 4: Clear personal fields only when user actually logs out (not on mount)
+  // Effect 4: Clear personal fields only when user actually logs out (not on mount)
   useEffect(() => {
     const wasAuth = prevAuthRef.current;
     prevAuthRef.current = isAuthenticated;
