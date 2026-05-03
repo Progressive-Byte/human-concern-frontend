@@ -82,8 +82,6 @@ export default function Step7PaymentDetails() {
           {causeLabels && (
             <Row label="Cause" value={causeLabels} />
           )}
-
-          {/* Objective */}
           {data.isRamadan && data.objective && (
             <Row label="Objective" value={OBJECTIVE_LABELS[data.objective] ?? data.objective} />
           )}
