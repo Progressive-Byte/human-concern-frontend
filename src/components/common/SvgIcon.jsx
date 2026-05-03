@@ -272,19 +272,18 @@ export const UserDashboardIcon = (
     <path d="M9.99935 9.16667C11.8403 9.16667 13.3327 7.67428 13.3327 5.83333C13.3327 3.99238 11.8403 2.5 9.99935 2.5C8.1584 2.5 6.66602 3.99238 6.66602 5.83333C6.66602 7.67428 8.1584 9.16667 9.99935 9.16667Z" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 )
-
-  export const MakeDonerIcon = (
-    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g clip-path="url(#clip0_257_779)">
-      <path d="M12.6673 9.33333C13.6607 8.36 14.6673 7.19333 14.6673 5.66667C14.6673 4.69421 14.281 3.76158 13.5934 3.07394C12.9057 2.38631 11.9731 2 11.0007 2C9.82732 2 9.00065 2.33333 8.00065 3.33333C7.00065 2.33333 6.17398 2 5.00065 2C4.02819 2 3.09556 2.38631 2.40793 3.07394C1.72029 3.76158 1.33398 4.69421 1.33398 5.66667C1.33398 7.2 2.33398 8.36667 3.33398 9.33333L8.00065 14L12.6673 9.33333Z" stroke="white" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-      </g>
-      <defs>
-      <clipPath id="clip0_257_779">
-      <rect width="16" height="16" fill="white"/>
-      </clipPath>
-      </defs>
-    </svg>
-  )
+export const MakeDonerIcon = (
+  <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g clip-path="url(#clip0_257_779)">
+    <path d="M12.6673 9.33333C13.6607 8.36 14.6673 7.19333 14.6673 5.66667C14.6673 4.69421 14.281 3.76158 13.5934 3.07394C12.9057 2.38631 11.9731 2 11.0007 2C9.82732 2 9.00065 2.33333 8.00065 3.33333C7.00065 2.33333 6.17398 2 5.00065 2C4.02819 2 3.09556 2.38631 2.40793 3.07394C1.72029 3.76158 1.33398 4.69421 1.33398 5.66667C1.33398 7.2 2.33398 8.36667 3.33398 9.33333L8.00065 14L12.6673 9.33333Z" stroke="white" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <defs>
+    <clipPath id="clip0_257_779">
+    <rect width="16" height="16" fill="white"/>
+    </clipPath>
+    </defs>
+  </svg>
+)
 
   export const SignOutIcon = (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
