@@ -154,18 +154,16 @@ export const SearchIcon = (
     <path d="M13.9995 13.9995L11.1328 11.1328" stroke="white" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 )
-
-  export const FilterIcon = (
-    <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M13.9998 0.666992H0.666504L5.99984 6.97366V11.3337L8.6665 12.667V6.97366L13.9998 0.666992Z" stroke="#1A1A1A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  )
-
-  export const ArrowDownIcon = (
-    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0.666504 0.666992L4.6665 4.66699L8.6665 0.666992" stroke="#1A1A1A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+export const FilterIcon = (
+  <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M13.9998 0.666992H0.666504L5.99984 6.97366V11.3337L8.6665 12.667V6.97366L13.9998 0.666992Z" stroke="#1A1A1A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
-  )
+)
+export const ArrowDownIcon = (
+  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0.666504 0.666992L4.6665 4.66699L8.6665 0.666992" stroke="#1A1A1A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+)
 
   export const CircleCheckIcon = (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
