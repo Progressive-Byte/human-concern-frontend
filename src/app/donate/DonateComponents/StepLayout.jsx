@@ -39,7 +39,7 @@ export default function StepLayout({
       <div className="max-w-[700px] mx-auto">
         <StepProgress current={step} />
 
-        <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 sm:p-8">
+        <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8">
           <h2 className="text-[24px] font-bold text-[#383838] mb-1">{title}</h2>
           <p className="text-sm text-[#8C8C8C] font-normal mb-6">{subtitle}</p>
           {children}
