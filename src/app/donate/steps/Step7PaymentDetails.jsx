@@ -112,8 +112,6 @@ export default function Step7PaymentDetails() {
               value={`${sym}${tipAmount.toFixed(2)}`}
             />
           )}
-
-          {/* Total — bold */}
           <Row
             label="Total"
             value={`${sym}${grandTotal.toFixed(2)}`}
