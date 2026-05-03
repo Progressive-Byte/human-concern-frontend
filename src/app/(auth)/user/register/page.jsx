@@ -46,7 +46,7 @@ function validate(values) {
   return errors;
 }
 
-export default function RegisterPage() {
+const RegisterPage = () {
   const { register } = useAuth();
 
   const [values, setValues] = useState(INITIAL);
