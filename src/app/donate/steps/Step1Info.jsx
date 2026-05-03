@@ -62,7 +62,7 @@ const Step1Info = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Effect 3: Update personal fields when user logs in or when user data changes
+  // Effect 3: Update personal fields when user logs in or when user data changes
   useEffect(() => {
     if (isAuthenticated && user) {
       update({
