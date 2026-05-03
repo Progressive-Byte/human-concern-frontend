@@ -106,8 +106,6 @@ export default function Step7PaymentDetails() {
               value={`${sym}${Number(addon.total).toFixed(0)}`}
             />
           ))}
-
-          {/* Platform tip */}
           {tipAmount > 0 && (
             <Row
               label="Platform Tip (Custom)"
