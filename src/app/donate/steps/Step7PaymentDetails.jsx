@@ -132,46 +132,44 @@ const Step7PaymentDetails = () => {
         </div>
 
         {/* Payment Method */}
-        <div className="flex flex-col gap-3">
-          <p className="text-[14px] font-semibold text-[#383838]">Other Payment Methods</p>
+        <div className="grid grid-cols-3 gap-3">
+          {gateways
+            .filter((g) => g.provider === "stripe" || g.provider === "paypal")
+            .map((gateway) => {
+              const isSelected = selectedGateway === gateway.provider;
 
-          {gatewaysLoading ? (
-            <div className="grid grid-cols-3 gap-3">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-[80px] rounded-2xl bg-[#F0F0F0] animate-pulse" />
-              ))}
-            </div>
-          ) : gateways.length === 0 ? (
-            <p className="text-[13px] text-[#8C8C8C]">No payment methods available.</p>
-          ) : (
-            <div className="grid grid-cols-3 gap-3">
-              {gateways
-                .filter((g) => g.provider === "stripe" || g.provider === "paypal")
-                .map((gateway) => {
-                  const isSelected = selectedGateway === gateway.provider;
-                  return (
-                    <button
-                      key={gateway.provider}
-                      type="button"
-                      onClick={() => setSelectedGateway(gateway.provider)}
-                      className={`flex items-center justify-between px-5 py-5 rounded-2xl border transition-all duration-200 text-left ${
-                        isSelected
-                          ? "border-[#383838] bg-white shadow-sm"
-                          : "border-[#E5E5E5] bg-white hover:border-[#AEAEAE]"
-                      }`}
-                    >
-                      {/* Label */}
-                      <span className="text-[14px] font-medium text-[#383838]">
-                        {gateway.provider === "stripe" ? "Stripe" : "PayPal"}
-                      </span>
+              return (
+                <button
+                  key={gateway.provider}
+                  type="button"
+                  onClick={() => setSelectedGateway(gateway.provider)}
+                  className={`flex items-center justify-between px-5 py-5 rounded-2xl border transition-all duration-200 text-left cursor-pointer ${
+                    isSelected
+                      ? "border-[#383838] bg-white shadow-sm"
+                      : "border-[#E5E5E5] bg-white hover:border-[#AEAEAE]"
+                  }`}
+                >
+                  {/* Label */}
+                  <span className="text-[14px] font-medium text-[#383838]">
+                    {gateway.provider === "stripe" ? "Stripe" : "PayPal"}
+                  </span>
 
-                      {/* Logo */}
-                      {gateway.provider === "stripe" ? StripeIcon : PayPalIcon}
-                    </button>
-                  );
-                })}
-            </div>
-          )}
+                  {/* Logo Image */}
+                  <div className="relative w-[60px] h-[24px] shrink-0">
+                    <Image
+                      src={
+                        gateway.provider === "stripe"
+                          ? "/images/payment/stripe.png"
+                          : "/images/payment/paypal.png"
+                      }
+                      alt={gateway.provider}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                </button>
+              );
+            })}
         </div>
 
         {isRecurring && (
