@@ -166,11 +166,7 @@ const Step7PaymentDetails = () => {
                       </span>
 
                       {/* Logo */}
-                      {gateway.provider === "stripe" ? (
-                        <StripeIcon />
-                      ) : (
-                        <PayPalIcon />
-                      )}
+                      {gateway.provider === "stripe" ? StripeIcon : PayPalIcon}
                     </button>
                   );
                 })}
