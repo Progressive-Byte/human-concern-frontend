@@ -149,3 +149,5 @@ const Step7PaymentDetails = () => {
     </StepLayout>
   );
 }
+
+export default Step7PaymentDetails;
