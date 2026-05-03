@@ -165,3 +165,4 @@ const Step4Payment = () => {
     </StepLayout>
   );
 }
+export default Step4Payment;
