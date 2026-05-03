@@ -357,3 +357,9 @@ export const CountryReachIcon = (
       <path d="M11.333 2.66699V3.92166C11.333 4.37833 11.591 4.79633 11.9997 5.00033C12.4083 5.20433 12.6663 5.62233 12.6663 6.07899V12.0003C12.6663 12.5308 12.4556 13.0395 12.0806 13.4145C11.7055 13.7896 11.1968 14.0003 10.6663 14.0003H5.33301C4.80257 14.0003 4.29387 13.7896 3.91879 13.4145C3.54372 13.0395 3.33301 12.5308 3.33301 12.0003V6.07899C3.33301 5.62233 3.59101 5.20433 3.99967 5.00033C4.40834 4.79633 4.66634 4.37833 4.66634 3.92166V2.66699M3.99967 2.66699H11.9997" stroke="#8C8C8C" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   )
+
+  export const AnonymusCheckerIcon = (
+     <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+      <path d="M1 3.5L4 6.5L10 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
