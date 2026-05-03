@@ -22,7 +22,7 @@ const OBJECTIVE_LABELS = {
   "last-10":    "Last 10 Nights",
 };
 
-export default function Step7PaymentDetails() {
+const Step7PaymentDetails = () => {
   const { data, update }  = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
   const [anonymous, setAnonymous] = useState(data.anonymous ?? false);
