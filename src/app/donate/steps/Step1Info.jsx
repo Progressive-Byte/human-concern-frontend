@@ -66,16 +66,16 @@ const Step1Info = () => {
   useEffect(() => {
     if (isAuthenticated && user) {
       update({
-        organization: user.organization  ?? "",
-        firstName:    user.firstName     ?? "",
-        lastName:     user.lastName      ?? "",
-        email:        user.email         ?? "",
-        phone:        user.phone         ?? "",
-        addressLine1: user.addressLine1  ?? "",
-        city:         user.city          ?? "",
-        province:     user.state         ?? "",
-        zip:          user.postalCode    ?? "",
-        country:      user.country       ?? "",
+        organization: user.organization             ?? "",
+        firstName:    user.firstName                ?? "",
+        lastName:     user.lastName                 ?? "",
+        email:        user.email                    ?? "",
+        phone:        user.phone                    ?? "",
+        addressLine1: user.address?.line1           ?? user.addressLine1   ?? "",
+        city:         user.address?.city            ?? user.city           ?? "",
+        province:     user.address?.state           ?? user.state          ?? "",
+        zip:          user.address?.postalCode      ?? user.postalCode     ?? "",
+        country:      user.country                  ?? user.address?.country ?? "",
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
