@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { AlertIcon, EyeIcon, EyeOffIcon, Spinner } from "@/components/common/SvgIcon";
 import { FormField, FormInput, getPasswordStrength } from "@/components/common/FormInput";
 import CustomDropdown from "@/components/common/CustomDropdown";
+import { validateRegister } from "@/utils/validateRegister";
 
 const INITIAL = {
   organization: "",
@@ -24,27 +25,6 @@ const INITIAL = {
   confirmPassword: "",
   terms: false,
 };
-
-function validate(values) {
-  const errors = {};
-  if (!values.organization?.trim()) errors.organization = "Organization name is required";
-  if (!values.firstName?.trim()) errors.firstName = "First name is required";
-  if (!values.lastName?.trim()) errors.lastName = "Last name is required";
-  if (!values.email) errors.email = "Email address is required";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) errors.email = "Enter a valid email address";
-  if (!values.addressLine1?.trim()) errors.addressLine1 = "Address is required";
-  if (!values.streetName?.trim()) errors.streetName = "Street name is required";
-  if (!values.city?.trim()) errors.city = "City is required";
-  if (!values.state?.trim()) errors.state = "State / province is required";
-  if (!values.postalCode?.trim()) errors.postalCode = "Postal code is required";
-  if (!values.country?.trim()) errors.country = "Country is required";
-  if (!values.password) errors.password = "Password is required";
-  else if (values.password.length < 8) errors.password = "Password must be at least 8 characters";
-  if (!values.confirmPassword) errors.confirmPassword = "Please confirm your password";
-  else if (values.confirmPassword !== values.password) errors.confirmPassword = "Passwords do not match";
-  if (!values.terms) errors.terms = "You must accept the terms to continue";
-  return errors;
-}
 
 const RegisterPage = () => {
   const { register } = useAuth();
@@ -81,7 +61,7 @@ const RegisterPage = () => {
     const next = { ...values, country: country?.name ?? "", state: "", city: "" };
     setValues(next);
     setTouched((prev) => ({ ...prev, country: true }));
-    setErrors((prev) => ({ ...prev, country: validate(next).country, state: undefined, city: undefined }));
+    setErrors((prev) => ({ ...prev, country: validateRegister(next).country, state: undefined, city: undefined }));
   }
 
   function handleStateChange(isoCode) {
@@ -90,34 +70,34 @@ const RegisterPage = () => {
     const next = { ...values, state: state?.name ?? "", city: "" };
     setValues(next);
     setTouched((prev) => ({ ...prev, state: true }));
-    setErrors((prev) => ({ ...prev, state: validate(next).state, city: undefined }));
+    setErrors((prev) => ({ ...prev, state: validateRegister(next).state, city: undefined }));
   }
 
   function handleCityChange(cityName) {
     const next = { ...values, city: cityName };
     setValues(next);
     setTouched((prev) => ({ ...prev, city: true }));
-    setErrors((prev) => ({ ...prev, city: validate(next).city }));
+    setErrors((prev) => ({ ...prev, city: validateRegister(next).city }));
   }
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
     const next = { ...values, [name]: type === "checkbox" ? checked : value };
     setValues(next);
-    if (touched[name]) setErrors((prev) => ({ ...prev, [name]: validate(next)[name] }));
+    if (touched[name]) setErrors((prev) => ({ ...prev, [name]: validateRegister(next)[name] }));
   }
 
   function handleBlur(e) {
     const { name } = e.target;
     setTouched((prev) => ({ ...prev, [name]: true }));
-    setErrors((prev) => ({ ...prev, [name]: validate(values)[name] }));
+    setErrors((prev) => ({ ...prev, [name]: validateRegister(values)[name] }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     const allTouched = Object.keys(INITIAL).reduce((acc, k) => ({ ...acc, [k]: true }), {});
     setTouched(allTouched);
-    const errs = validate(values);
+    const errs = validateRegister(values);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
