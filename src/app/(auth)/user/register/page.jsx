@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
+import { Country, State, City } from "country-state-city";
 import { useAuth } from "@/context/AuthContext";
 import { AlertIcon, EyeIcon, EyeOffIcon, Spinner } from "@/components/common/SvgIcon";
 import { FormField, FormInput, getPasswordStrength } from "@/components/common/FormInput";
+import CustomDropdown from "@/components/common/CustomDropdown";
 
 const INITIAL = {
   organization: "",
@@ -54,8 +56,49 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [countryCode, setCountryCode] = useState("");
+  const [stateCode, setStateCode]     = useState("");
 
   const strength = getPasswordStrength(values.password);
+
+  const countryOptions = useMemo(
+    () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
+    []
+  );
+  const stateOptions = useMemo(
+    () => countryCode ? State.getStatesOfCountry(countryCode).map((s) => ({ value: s.isoCode, label: s.name })) : [],
+    [countryCode]
+  );
+  const cityOptions = useMemo(
+    () => countryCode && stateCode ? City.getCitiesOfState(countryCode, stateCode).map((c) => ({ value: c.name, label: c.name })) : [],
+    [countryCode, stateCode]
+  );
+
+  function handleCountryChange(isoCode) {
+    const country = Country.getCountryByCode(isoCode);
+    setCountryCode(isoCode);
+    setStateCode("");
+    const next = { ...values, country: country?.name ?? "", state: "", city: "" };
+    setValues(next);
+    setTouched((prev) => ({ ...prev, country: true }));
+    setErrors((prev) => ({ ...prev, country: validate(next).country, state: undefined, city: undefined }));
+  }
+
+  function handleStateChange(isoCode) {
+    const state = State.getStateByCodeAndCountry(isoCode, countryCode);
+    setStateCode(isoCode);
+    const next = { ...values, state: state?.name ?? "", city: "" };
+    setValues(next);
+    setTouched((prev) => ({ ...prev, state: true }));
+    setErrors((prev) => ({ ...prev, state: validate(next).state, city: undefined }));
+  }
+
+  function handleCityChange(cityName) {
+    const next = { ...values, city: cityName };
+    setValues(next);
+    setTouched((prev) => ({ ...prev, city: true }));
+    setErrors((prev) => ({ ...prev, city: validate(next).city }));
+  }
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -163,31 +206,50 @@ export default function RegisterPage() {
             hasError={Boolean(fieldError("streetName"))} />
         </FormField>
 
+        <FormField label="Country" error={fieldError("country")}>
+          <CustomDropdown
+            variant="form"
+            options={countryOptions}
+            value={countryCode}
+            onChange={handleCountryChange}
+            placeholder="Select country"
+            label="Countries"
+            maxHeight="220px"
+          />
+        </FormField>
+
         <div className="grid grid-cols-2 gap-3">
-          <FormField label="City" error={fieldError("city")}>
-            <FormInput id="city" name="city" type="text" autoComplete="address-level2"
-              placeholder="New York" value={values.city} onChange={handleChange} onBlur={handleBlur}
-              hasError={Boolean(fieldError("city"))} />
-          </FormField>
           <FormField label="State / Province" error={fieldError("state")}>
-            <FormInput id="state" name="state" type="text" autoComplete="address-level1"
-              placeholder="Texas" value={values.state} onChange={handleChange} onBlur={handleBlur}
-              hasError={Boolean(fieldError("state"))} />
+            <CustomDropdown
+              variant="form"
+              options={stateOptions}
+              value={stateCode}
+              onChange={handleStateChange}
+              placeholder={countryCode ? "Select state" : "Select country first"}
+              label="States"
+              maxHeight="220px"
+              disabled={!countryCode}
+            />
+          </FormField>
+          <FormField label="City" error={fieldError("city")}>
+            <CustomDropdown
+              variant="form"
+              options={cityOptions}
+              value={values.city}
+              onChange={handleCityChange}
+              placeholder={stateCode ? "Select city" : "Select state first"}
+              label="Cities"
+              maxHeight="220px"
+              disabled={!stateCode}
+            />
           </FormField>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <FormField label="Postal code" error={fieldError("postalCode")}>
-            <FormInput id="postalCode" name="postalCode" type="text" autoComplete="postal-code"
-              placeholder="12345" value={values.postalCode} onChange={handleChange} onBlur={handleBlur}
-              hasError={Boolean(fieldError("postalCode"))} />
-          </FormField>
-          <FormField label="Country" error={fieldError("country")}>
-            <FormInput id="country" name="country" type="text" autoComplete="country-name"
-              placeholder="USA" value={values.country} onChange={handleChange} onBlur={handleBlur}
-              hasError={Boolean(fieldError("country"))} />
-          </FormField>
-        </div>
+        <FormField label="Postal code" error={fieldError("postalCode")}>
+          <FormInput id="postalCode" name="postalCode" type="text" autoComplete="postal-code"
+            placeholder="12345" value={values.postalCode} onChange={handleChange} onBlur={handleBlur}
+            hasError={Boolean(fieldError("postalCode"))} />
+        </FormField>
 
         <FormField label="Password" error={fieldError("password")}>
           <div className="relative">
