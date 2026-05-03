@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
-import { AnonymusCheckerIcon } from "@/components/common/SvgIcon";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
@@ -22,29 +21,26 @@ const OBJECTIVE_LABELS = {
   "last-10":    "Last 10 Nights",
 };
 
-function formatCardNumber(val) {
-  return val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
-}
+// ─── Single summary table row ─────────────────────────────────────────────────
 
-function formatExpiry(val) {
-  const digits = val.replace(/\D/g, "").slice(0, 4);
-  if (digits.length >= 3) return digits.slice(0, 2) + "/" + digits.slice(2);
-  return digits;
-}
-
-function SummaryRow({ label, value, valueClass = "" }) {
+function Row({ label, value, bold = false }) {
   return (
-    <div className="flex items-start justify-between gap-3 py-2.5 border-b border-[#F0F0F0] last:border-0">
-      <span className="text-[13px] text-[#737373] shrink-0">{label}</span>
-      <span className={`text-[13px] font-medium text-[#383838] text-right ${valueClass}`}>{value}</span>
+    <div className="flex items-start justify-between gap-4 py-3 border-b border-[#F0F0F0] last:border-0">
+      <span className={`text-[13px] shrink-0 ${bold ? "font-bold text-[#383838]" : "text-[#737373]"}`}>
+        {label}
+      </span>
+      <span className={`text-[13px] text-right ${bold ? "font-bold text-[#383838] text-[17px]" : "font-medium text-[#383838]"}`}>
+        {value}
+      </span>
     </div>
   );
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function Step7PaymentDetails() {
-  const { data, update } = useDonation();
-  const { handleNext } = useStepNavigation();
-  const [error, setError]         = useState("");
+  const { data, update }  = useDonation();
+  const { handleNext, handlePrev } = useStepNavigation();
   const [anonymous, setAnonymous] = useState(data.anonymous ?? false);
 
   const campaignMeta = useMemo(() => {
@@ -52,17 +48,15 @@ export default function Step7PaymentDetails() {
     catch { return {}; }
   }, []);
 
-  const campaignName        = campaignMeta.name        ?? "";
-  const campaignDescription = campaignMeta.description ?? "";
-
-  const currency     = data.currency     ?? "USD";
-  const amountTier   = data.amountTier   ?? 0;
-  const paymentType  = data.paymentType  ?? "one-time";
-  const frequency    = data.frequency    ?? "Daily";
-  const numberOfDays = data.numberOfDays ?? 30;
-  const tipPct       = data.tipPct       ?? 0;
+  const campaignName   = campaignMeta.name ?? "";
+  const currency       = data.currency       ?? "USD";
+  const amountTier     = data.amountTier     ?? 0;
+  const paymentType    = data.paymentType    ?? "one-time";
+  const frequency      = data.frequency      ?? "Daily";
+  const numberOfDays   = data.numberOfDays   ?? 30;
+  const tipPct         = data.tipPct         ?? 0;
   const addOnBreakdown = data.addOnBreakdown ?? [];
-  const isRecurring  = paymentType === "recurring";
+  const isRecurring    = paymentType === "recurring";
 
   const sym          = CURRENCY_SYMBOLS[currency] ?? "$";
   const baseDonation = isRecurring ? amountTier * numberOfDays : amountTier;
@@ -74,100 +68,131 @@ export default function Step7PaymentDetails() {
     .join(", ");
 
   const onNext = () => {
-    if (!data.cardName.trim() || !data.cardNumber.trim() || !data.cardExpiry.trim() || !data.cardCvv.trim()) {
-      setError("All fields are required.");
-      return;
-    }
     update({ anonymous });
     handleNext(8);
   };
 
   return (
-    <StepLayout step={7} title="Payment Details" onNext={onNext}>
+    <StepLayout
+      step={7}
+      title="Confirm Your Donation"
+      subtitle="Review your donation details"
+      onNext={onNext}
+      onPrev={() => handlePrev(6)}
+      prevLabel="Payment Details"
+      nextLabel="Complete Donation"
+      nextIcon={
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+      }
+    >
       <div className="flex flex-col gap-5">
 
-        {/* ── Donation Summary ── */}
-        <div className="border border-[#E5E5E5] rounded-2xl overflow-hidden bg-white">
-          <div className="px-4 py-3 bg-[#F9F9F9] border-b border-[#E5E5E5]">
-            <p className="text-[13px] font-semibold text-[#383838]">Donation Summary</p>
-          </div>
+        {/* ── Summary table ── */}
+        <div className="border border-[#E5E5E5] rounded-2xl bg-white overflow-hidden px-4">
+
+          {/* Campaign name */}
           {campaignName && (
-            <div className="px-4 py-3 border-b border-[#F0F0F0]">
-              <p className="text-[13px] font-semibold text-[#383838]">{campaignName}</p>
-              {campaignDescription && (
-                <p className="text-[12px] text-[#737373] mt-0.5 leading-relaxed">{campaignDescription}</p>
-              )}
-            </div>
+            <Row label="Campaign" value={campaignName} />
           )}
-          <div className="px-4 pt-1 pb-2">
-            {causeLabels && (
-              <SummaryRow label="Cause" value={causeLabels} />
-            )}
-            {data.isRamadan && data.objective && (
-              <SummaryRow label="Objective" value={OBJECTIVE_LABELS[data.objective] ?? data.objective} />
-            )}
-            <SummaryRow label="Currency" value={currency} />
-            <SummaryRow
-              label={isRecurring ? `Donation Amount (per ${frequency.toLowerCase()})` : "Donation Amount"}
-              value={`${sym}${amountTier.toLocaleString()}`}
+
+          {/* Cause */}
+          {causeLabels && (
+            <Row label="Cause" value={causeLabels} />
+          )}
+
+          {/* Objective */}
+          {data.isRamadan && data.objective && (
+            <Row label="Objective" value={OBJECTIVE_LABELS[data.objective] ?? data.objective} />
+          )}
+
+          {/* Currency */}
+          <Row label="Currency" value={currency} />
+
+          {/* Donation amount */}
+          <Row
+            label={isRecurring ? `Donation Amount (per ${frequency.toLowerCase()})` : "Donation Amount"}
+            value={`${sym}${amountTier.toLocaleString()}`}
+          />
+
+          {/* Recurring rows */}
+          {isRecurring && (
+            <>
+              <Row label="Frequency" value={frequency} />
+              <Row
+                label={`Split Amount (${numberOfDays} Days)`}
+                value={`${sym}${baseDonation.toLocaleString()}.00`}
+              />
+            </>
+          )}
+
+          {/* Add-ons */}
+          {addOnBreakdown.map((addon) => (
+            <Row
+              key={addon.id}
+              label={`Addons (${addon.name})`}
+              value={`${sym}${Number(addon.total).toFixed(0)}`}
             />
-            {isRecurring && (
-              <>
-                <SummaryRow label="Frequency" value={frequency} />
-                <SummaryRow
-                  label={`Split Amount (${numberOfDays} Days)`}
-                  value={`${sym}${baseDonation.toLocaleString()}`}
-                />
-              </>
-            )}
-            {addOnBreakdown.map((addon) => (
-              <SummaryRow
-                key={addon.id}
-                label={addon.name}
-                value={`${sym}${Number(addon.total).toFixed(2)}`}
-              />
-            ))}
-            {tipAmount > 0 && (
-              <SummaryRow
-                label={`Platform Tip (${tipPct}%)`}
-                value={`${sym}${tipAmount.toFixed(2)}`}
-              />
-            )}
-          </div>
-          <div className="px-4 py-3 bg-[#F9F9F9] border-t border-[#E5E5E5] flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-[#383838]">Grand Total</span>
-            <span className="text-[20px] font-bold text-[#383838]">{sym}{grandTotal.toFixed(2)}</span>
-          </div>
+          ))}
+
+          {/* Platform tip */}
+          {tipAmount > 0 && (
+            <Row
+              label="Platform Tip (Custom)"
+              value={`${sym}${tipAmount.toFixed(2)}`}
+            />
+          )}
+
+          {/* Total — bold */}
+          <Row
+            label="Total"
+            value={`${sym}${grandTotal.toFixed(2)}`}
+            bold
+          />
         </div>
 
         {/* ── Recurring warning ── */}
         {isRecurring && (
-          <div className="flex items-start gap-3 rounded-2xl bg-[#FFF8E1] border border-[#FFD600]/40 px-4 py-3.5">
-            <span className="text-[18px] leading-none mt-0.5">🚨</span>
-            <p className="text-[12px] text-[#8C6F00] leading-relaxed">
+          <div className="flex items-start gap-2.5 px-1">
+            <span className="text-[15px] shrink-0 mt-px">🚨</span>
+            <p className="text-[13px] text-[#383838] leading-relaxed">
               For subscriptions or recurring donations, a temporary{" "}
-              <span className="font-semibold">$1 authorization charge</span> will be placed on your card
-              to verify it. This charge will be reversed within{" "}
-              <span className="font-semibold">3–5 business days</span>.
+              <span className="font-semibold">$1 authorization charge</span> will be placed on your
+              card to verify it. This charge will be reversed within{" "}
+              <span className="font-semibold">3-5 business days</span>.
             </p>
           </div>
         )}
 
-        {/* ── Anonymous checkbox ── */}
+        {/* ── Anonymous radio toggle ── */}
         <button
           type="button"
           onClick={() => setAnonymous((v) => !v)}
-          className="flex items-center gap-3 w-full text-left"
+          className="flex items-center gap-3 w-full text-left group"
         >
-          <span className={`w-5 h-5 shrink-0 rounded border-2 flex items-center justify-center transition-colors ${
-            anonymous ? "bg-[#055A46] border-[#055A46]" : "border-[#CCCCCC] bg-white"
-          }`}>
+          {/* Radio circle */}
+          <span
+            className={`w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
+              anonymous ? "border-[#EA3335]" : "border-[#CCCCCC]"
+            }`}
+          >
             {anonymous && (
-              AnonymusCheckerIcon
+              <span className="w-2.5 h-2.5 rounded-full bg-[#EA3335]" />
             )}
           </span>
-          <span className="text-[14px] font-medium text-[#383838]">Make my donation anonymous</span>
+          <span className="text-[14px] text-[#383838]">Make my donation anonymous</span>
         </button>
+
+        {/* ── SSL badge ── */}
+        <div className="flex items-center gap-2 bg-[#F6F6F6] rounded-xl px-4 py-3">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <p className="text-[12px] text-[#737373]">
+            Your payment is secured with 256-bit SSL encryption
+          </p>
+        </div>
 
       </div>
     </StepLayout>
