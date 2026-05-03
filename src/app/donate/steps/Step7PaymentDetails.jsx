@@ -24,24 +24,6 @@ const OBJECTIVE_LABELS = {
   "last-10":    "Last 10 Nights",
 };
 
-const GATEWAY_LABELS = {
-  stripe:       "Credit / Debit Card",
-  paypal:       "PayPal",
-  bank_transfer: "Bank Transfer",
-};
-
-const GATEWAY_ICONS = {
-  stripe:        <StripeIcon />,
-  paypal:        <PayPalIcon />,
-  bank_transfer: <BankIcon />,
-};
-
-const CheckIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-    <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
 const Step7PaymentDetails = () => {
   const { data, update }  = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
