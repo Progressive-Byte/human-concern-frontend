@@ -151,7 +151,6 @@ const Step5Addons = () => {
               {enabled && inputs.length > 0 && (
                 <div className="px-4 pb-4 border-t border-[#F0F0F0] pt-3">
                   <div className="flex gap-3">
-                    {/* Stepper inputs */}
                     {inputs.map((inp) => (
                       <Stepper
                         key={inp.key}
