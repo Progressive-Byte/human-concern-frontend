@@ -22,9 +22,6 @@ const OBJECTIVE_LABELS = {
   "last-10":    "Last 10 Nights",
 };
 
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function Step7PaymentDetails() {
   const { data, update }  = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
