@@ -177,7 +177,6 @@ export const CircleCheckIcon = (
     </defs>
   </svg>
 )
-
 export const ShareCampaignIcon = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clip-path="url(#clip0_74_1639)">
@@ -194,12 +193,11 @@ export const ShareCampaignIcon = (
     </defs>
   </svg>
 )
-
-  export const StepDone = (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  )
+export const StepDone = (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
 
   export const ProgressCheckIcon = (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
