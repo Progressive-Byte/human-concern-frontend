@@ -172,7 +172,6 @@ const Step7PaymentDetails = () => {
         </div>
 
         {/* Payment Method */}
-        {/* ── Payment Method ── */}
         <div className="flex flex-col gap-3">
           <p className="text-[14px] font-semibold text-[#383838]">Other Payment Methods</p>
 
