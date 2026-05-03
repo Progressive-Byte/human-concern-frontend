@@ -63,7 +63,7 @@ const Step7PaymentDetails = () => {
       subtitle="Review your donation details"
       onNext={onNext}
       onPrev={() => handlePrev(6)}
-      prevLabel="Payment Details"
+      prevLabel="Summary"
       nextLabel="Complete Donation"
     >
       <div className="flex flex-col gap-5">
