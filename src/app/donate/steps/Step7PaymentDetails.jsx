@@ -171,7 +171,6 @@ export default function Step7PaymentDetails() {
           onClick={() => setAnonymous((v) => !v)}
           className="flex items-center gap-3 w-full text-left group"
         >
-          {/* Radio circle */}
           <span
             className={`w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
               anonymous ? "border-[#EA3335]" : "border-[#CCCCCC]"
