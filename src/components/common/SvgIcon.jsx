@@ -86,12 +86,12 @@ export const WhatsAppIcon = (
   </svg>
 )
 
-  export const LinkedInIcon = (
-    <svg className="transition-all duration-200 group-hover:scale-110" width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10.2083 24.7917V14.5833M30.625 11.6667V23.3333C30.625 25.2672 29.8568 27.1219 28.4893 28.4893C27.1219 29.8568 25.2672 30.625 23.3333 30.625H11.6667C9.7328 30.625 7.87813 29.8568 6.51068 28.4893C5.14323 27.1219 4.375 25.2672 4.375 23.3333V11.6667C4.375 9.7328 5.14323 7.87813 6.51068 6.51068C7.87813 5.14323 9.7328 4.375 11.6667 4.375H23.3333C25.2672 4.375 27.1219 5.14323 28.4893 6.51068C29.8568 7.87813 30.625 9.7328 30.625 11.6667Z" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M14.5833 24.7917V14.5833M18.75 24.7917V14.5833M22.9167 24.7917V14.5833" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  )
+export const LinkedInIcon = (
+  <svg className="transition-all duration-200 group-hover:scale-110" width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10.2083 24.7917V14.5833M30.625 11.6667V23.3333C30.625 25.2672 29.8568 27.1219 28.4893 28.4893C27.1219 29.8568 25.2672 30.625 23.3333 30.625H11.6667C9.7328 30.625 7.87813 29.8568 6.51068 28.4893C5.14323 27.1219 4.375 25.2672 4.375 23.3333V11.6667C4.375 9.7328 5.14323 7.87813 6.51068 6.51068C7.87813 5.14323 9.7328 4.375 11.6667 4.375H23.3333C25.2672 4.375 27.1219 5.14323 28.4893 6.51068C29.8568 7.87813 30.625 9.7328 30.625 11.6667Z" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14.5833 24.7917V14.5833M18.75 24.7917V14.5833M22.9167 24.7917V14.5833" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+)
   export const InstagramIcon = (
     <svg className="transition-all duration-200 group-hover:scale-110" width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M24.4271 4.0105H10.5729C6.94857 4.0105 4.01044 6.94863 4.01044 10.573V24.4272C4.01044 28.0515 6.94857 30.9897 10.5729 30.9897H24.4271C28.0515 30.9897 30.9896 28.0515 30.9896 24.4272V10.573C30.9896 6.94863 28.0515 4.0105 24.4271 4.0105Z" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
