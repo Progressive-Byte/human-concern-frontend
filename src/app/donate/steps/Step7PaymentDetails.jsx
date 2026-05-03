@@ -160,8 +160,8 @@ const Step7PaymentDetails = () => {
                     <Image
                       src={
                         gateway.provider === "stripe"
-                          ? "/images/payment/stripe.png"
-                          : "/images/payment/paypal.png"
+                          ? "/images/stripe.jpg"
+                          : "/images/paypal.png"
                       }
                       alt={gateway.provider}
                       fill
