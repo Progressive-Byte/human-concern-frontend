@@ -284,15 +284,13 @@ export const MakeDonerIcon = (
     </defs>
   </svg>
 )
-
-  export const SignOutIcon = (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M7.5 17.5H4.16667C3.72464 17.5 3.30072 17.3244 2.98816 17.0118C2.67559 16.6993 2.5 16.2754 2.5 15.8333V4.16667C2.5 3.72464 2.67559 3.30072 2.98816 2.98816C3.30072 2.67559 3.72464 2.5 4.16667 2.5H7.5" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M13.334 14.1668L17.5007 10.0002L13.334 5.8335" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M17.5 10H7.5" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  )
-
+export const SignOutIcon = (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7.5 17.5H4.16667C3.72464 17.5 3.30072 17.3244 2.98816 17.0118C2.67559 16.6993 2.5 16.2754 2.5 15.8333V4.16667C2.5 3.72464 2.67559 3.30072 2.98816 2.98816C3.30072 2.67559 3.72464 2.5 4.16667 2.5H7.5" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M13.334 14.1668L17.5007 10.0002L13.334 5.8335" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M17.5 10H7.5" stroke="#737373" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+)
   export const donationIcon = (
     <svg width="21" height="19" viewBox="0 0 21 19" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M10.5003 18.1018L1.7389 9.34047C1.04004 8.6416 0.57413 7.8291 0.341176 6.90297C0.113903 5.97683 0.116744 5.05637 0.349698 4.1416C0.582653 3.22115 1.04572 2.42001 1.7389 1.73819C2.44913 1.03933 3.25879 0.57626 4.16788 0.348988C5.08265 0.116033 5.99458 0.116033 6.90368 0.348988C7.81845 0.581942 8.63095 1.04501 9.34118 1.73819L10.5003 2.86319L11.6594 1.73819C12.3753 1.04501 13.1878 0.581942 14.0969 0.348988C15.0059 0.116033 15.915 0.116033 16.8241 0.348988C17.7389 0.57626 18.5514 1.03933 19.2616 1.73819C19.9548 2.42001 20.4179 3.22115 20.6508 4.1416C20.8838 5.05637 20.8838 5.97683 20.6508 6.90297C20.4236 7.8291 19.9605 8.6416 19.2616 9.34047L10.5003 18.1018Z" fill="#383838"/>
