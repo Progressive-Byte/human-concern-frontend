@@ -46,7 +46,7 @@ function validate(values) {
   return errors;
 }
 
-const RegisterPage = () {
+const RegisterPage = () => {
   const { register } = useAuth();
 
   const [values, setValues] = useState(INITIAL);
@@ -338,3 +338,4 @@ const RegisterPage = () {
     </div>
   );
 }
+export default RegisterPage;
