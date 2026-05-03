@@ -165,7 +165,7 @@ export default function Step7PaymentDetails() {
           </div>
         )}
 
-        {/* ── Anonymous radio toggle ── */}
+        {/* Anonymous */}
         <button
           type="button"
           onClick={() => setAnonymous((v) => !v)}
