@@ -90,8 +90,6 @@ export default function Step7PaymentDetails() {
             label={isRecurring ? `Donation Amount (per ${frequency.toLowerCase()})` : "Donation Amount"}
             value={`${sym}${amountTier.toLocaleString()}`}
           />
-
-          {/* Recurring rows */}
           {isRecurring && (
             <>
               <Row label="Frequency" value={frequency} />
