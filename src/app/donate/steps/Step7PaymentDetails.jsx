@@ -7,6 +7,7 @@ import { apiRequest } from "@/services/api";
 import StepLayout from "../DonateComponents/StepLayout";
 import Row from "@/components/ui/Row";
 import { StripeIcon, PayPalIcon, BankIcon } from "@/components/common/SvgIcon";
+import Image from "next/image";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
