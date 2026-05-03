@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
@@ -43,8 +43,16 @@ function SummaryRow({ label, value, valueClass = "" }) {
 export default function Step7PaymentDetails() {
   const { data, update } = useDonation();
   const { handleNext } = useStepNavigation();
-  const [error, setError]       = useState("");
+  const [error, setError]         = useState("");
   const [anonymous, setAnonymous] = useState(data.anonymous ?? false);
+
+  const campaignMeta = useMemo(() => {
+    try { return JSON.parse(sessionStorage.getItem("campaignData") || "{}"); }
+    catch { return {}; }
+  }, []);
+
+  const campaignName        = campaignMeta.name        ?? "";
+  const campaignDescription = campaignMeta.description ?? "";
 
   const currency     = data.currency     ?? "USD";
   const amountTier   = data.amountTier   ?? 0;
@@ -82,10 +90,15 @@ export default function Step7PaymentDetails() {
           <div className="px-4 py-3 bg-[#F9F9F9] border-b border-[#E5E5E5]">
             <p className="text-[13px] font-semibold text-[#383838]">Donation Summary</p>
           </div>
+          {campaignName && (
+            <div className="px-4 py-3 border-b border-[#F0F0F0]">
+              <p className="text-[13px] font-semibold text-[#383838]">{campaignName}</p>
+              {campaignDescription && (
+                <p className="text-[12px] text-[#737373] mt-0.5 leading-relaxed">{campaignDescription}</p>
+              )}
+            </div>
+          )}
           <div className="px-4 pt-1 pb-2">
-            {data.campaignTitle && (
-              <SummaryRow label="Campaign" value={data.campaignTitle} />
-            )}
             {causeLabels && (
               <SummaryRow label="Cause" value={causeLabels} />
             )}
@@ -138,6 +151,53 @@ export default function Step7PaymentDetails() {
             </p>
           </div>
         )}
+
+        {/* ── Card Details ── */}
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="text-[13px] font-medium text-[#383838] mb-1.5 block">Cardholder Name</label>
+            <input
+              value={data.cardName}
+              onChange={(e) => { update({ cardName: e.target.value }); setError(""); }}
+              placeholder="John Doe"
+              className="w-full border border-[#CCCCCC] rounded-xl px-4 py-3 text-[15px] focus:outline-none focus:border-[#055A46] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="text-[13px] font-medium text-[#383838] mb-1.5 block">Card Number</label>
+            <input
+              value={data.cardNumber}
+              onChange={(e) => { update({ cardNumber: formatCardNumber(e.target.value) }); setError(""); }}
+              placeholder="1234 5678 9012 3456"
+              inputMode="numeric"
+              className="w-full border border-[#CCCCCC] rounded-xl px-4 py-3 text-[15px] font-mono tracking-wider focus:outline-none focus:border-[#055A46] transition-colors"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[13px] font-medium text-[#383838] mb-1.5 block">Expiry</label>
+              <input
+                value={data.cardExpiry}
+                onChange={(e) => { update({ cardExpiry: formatExpiry(e.target.value) }); setError(""); }}
+                placeholder="MM/YY"
+                inputMode="numeric"
+                className="w-full border border-[#CCCCCC] rounded-xl px-4 py-3 text-[15px] focus:outline-none focus:border-[#055A46] transition-colors"
+              />
+            </div>
+            <div>
+              <label className="text-[13px] font-medium text-[#383838] mb-1.5 block">CVV</label>
+              <input
+                type="password"
+                value={data.cardCvv}
+                onChange={(e) => { update({ cardCvv: e.target.value.replace(/\D/g, "").slice(0, 4) }); setError(""); }}
+                placeholder="•••"
+                inputMode="numeric"
+                className="w-full border border-[#CCCCCC] rounded-xl px-4 py-3 text-[15px] focus:outline-none focus:border-[#055A46] transition-colors"
+              />
+            </div>
+          </div>
+          {error && <p className="text-[#EA3335] text-[13px]">{error}</p>}
+        </div>
 
         {/* ── Anonymous checkbox ── */}
         <button

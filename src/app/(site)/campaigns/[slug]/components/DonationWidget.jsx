@@ -35,7 +35,9 @@ export default function DonationWidget({ campaign }) {
     // const isRamadan = true; // For testing purposes.
     sessionStorage.setItem("donationIsRamadan", isRamadan ? "1" : "0");
     sessionStorage.setItem("campaignData", JSON.stringify({
-      id:              campaign.id,
+      id:               campaign.id,
+      name:             campaign.name             ?? "",
+      description:      campaign.description      ?? "",
       suggestedAmounts: campaign.suggestedAmounts ?? [],
       addOns:           campaign.addOns           ?? [],
       goalsDates:       campaign.goalsDates        ?? {},
