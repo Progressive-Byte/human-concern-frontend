@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
+import Row from "@/components/ui/Row";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
@@ -74,8 +75,6 @@ export default function Step7PaymentDetails() {
       }
     >
       <div className="flex flex-col gap-5">
-
-        {/* ── Summary table ── */}
         <div className="border border-[#E5E5E5] rounded-2xl bg-white overflow-hidden px-4">
 
           {/* Campaign name */}
