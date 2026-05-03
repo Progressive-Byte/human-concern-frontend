@@ -99,8 +99,6 @@ export default function Step7PaymentDetails() {
               />
             </>
           )}
-
-          {/* Add-ons */}
           {addOnBreakdown.map((addon) => (
             <Row
               key={addon.id}
