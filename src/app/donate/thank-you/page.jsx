@@ -65,7 +65,7 @@ const ThankYouPage = () => {
           <div className="relative w-full max-w-[1100px] flex items-center justify-center min-h-[540px]">
 
             {/* Image card — bottom layer, pushed left */}
-            <div className="absolute left-0 top-0 w-[52%] md:w-[46%] h-[420px] md:h-[520px] rounded-[24px] overflow-hidden shadow-xl z-10">
+            <div className="absolute left-0 top-0 w-[52%] md:w-[770px] h-[420px] md:h-[770px] rounded-[24px] overflow-hidden shadow-xl z-10">
               <Image
                 src="/images/happy-thankyou.png"
                 alt="Happy children"
