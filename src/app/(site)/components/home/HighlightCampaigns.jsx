@@ -28,7 +28,7 @@ const HighlightCampaigns = () => {
 
   return (
     <section className="py-16 sm:py-20 lg:px-4 xl:px-0 px-0 lg:py-[130px] bg-[#F6F6F6]" id="campaigns">
-      <div className="max-w-[1450px] mx-auto px-4 sm:px-6 lg:px-0">
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-0">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
