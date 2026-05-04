@@ -107,6 +107,7 @@ const Step5Addons = () => {
               name:      a.name,
               iconEmoji: a.iconEmoji ?? "",
               total:     calcAddOnTotal(a, addOnInputs[a.id] ?? {}),
+              values:    addOnInputs[a.id] ?? {},
             })),
         });
         handleNext(6);
