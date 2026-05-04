@@ -38,7 +38,7 @@ const ThankYouPage = () => {
         <div className="flex flex-col gap-3">
           <button
             onClick={() => router.push("/")}
-            className="w-full py-3 rounded-xl bg-[#EA3335] hover:bg-red-700 text-white font-semibold transition-colors active:scale-95"
+            className="w-full py-3 rounded-xl bg-[#EA3335] hover:bg-red-700 text-white font-semibold transition-colors active:scale-95 cursor-pointer"
           >
             Back to Home
           </button>
