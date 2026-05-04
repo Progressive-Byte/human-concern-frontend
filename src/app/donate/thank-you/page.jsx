@@ -22,8 +22,8 @@ const ThankYouPage = () => {
         <h1 className="text-[28px] font-bold text-[#383838] mb-2">Thank You!</h1>
         <p className="text-[#737373] text-[15px] leading-relaxed mb-6">
           Your{" "}
-          {data.amount ? (
-            <span className="font-bold text-[#055A46]">{sym}{data.amount}</span>
+          {(data.grandTotal ?? data.amountTier) ? (
+            <span className="font-bold text-[#055A46]">{sym}{(data.grandTotal ?? data.amountTier).toFixed(2)}</span>
           ) : "donation"}{" "}
           donation has been received. You are making a real difference.
         </p>
