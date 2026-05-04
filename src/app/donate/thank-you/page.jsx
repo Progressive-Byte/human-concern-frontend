@@ -5,7 +5,7 @@ import { useDonation } from "@/context/DonationContext";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-export default function ThankYouPage() {
+const ThankYouPage = () => {
   const router = useRouter();
   const { data } = useDonation();
   const sym = CURRENCY_SYMBOLS[data.currency] || "$";
