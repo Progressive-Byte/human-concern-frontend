@@ -71,11 +71,8 @@ const ThankYouPage = () => {
               className="object-cover"
               priority
             />
-            {/* subtle dark gradient on right edge so content side blends */}
             <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-white/10 hidden md:block" />
           </div>
-
-          {/* Right — thank-you content */}
           <div className="flex-1 flex flex-col items-center justify-center bg-white px-8 sm:px-12 py-12 text-center">
 
             {/* Red check circle */}
