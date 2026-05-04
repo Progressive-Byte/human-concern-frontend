@@ -146,7 +146,7 @@ const DonationWidget = ({ campaign }) => {
         )}
       </div>
 
-      {/* ── Card 2: Choose Amount ── */}
+      {/* Card 2: Choose Amount */}
       {suggestedAmounts.length > 0 && (
         <div className="bg-[#F9F9F9] rounded-2xl border border-dashed border-[#BFBFBF]">
           <div className="px-5 py-5">
