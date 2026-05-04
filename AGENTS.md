@@ -62,4 +62,4 @@ Tailwind CSS v4 via `@tailwindcss/postcss` plugin. Color palette uses inline hex
 
 ### Services
 
-`src/services/` — `api.js`, `authService.js`, `campaignService.js`, `donationService.js`
+`src/services/` — `api.js`, `authService.js`, `adminAuthService.js`, `campaignService.js`, `donationService.js`
