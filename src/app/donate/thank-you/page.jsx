@@ -60,10 +60,8 @@ const ThankYouPage = () => {
           />
         </div>
 
-        {/* ── Full-width card ── */}
-        <div className="relative z-20 mx-4 sm:mx-8 lg:mx-16 xl:mx-24 rounded-3xl overflow-hidden shadow-[0_8px_60px_rgba(0,0,0,0.12)] flex flex-col md:flex-row min-h-[480px]">
+        <div className="relative z-20 mx-4 sm:mx-8 lg:mx-16 xl:mx-24 rounded-3xl flex flex-col md:flex-row">
 
-          {/* Left — image, takes ~55% width */}
           <div className="relative w-full md:w-[55%] h-[300px] md:h-auto shrink-0">
             <Image
               src="/images/happy-thankyou.png"
