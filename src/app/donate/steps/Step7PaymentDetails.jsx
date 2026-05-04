@@ -128,7 +128,7 @@ const Step7PaymentDetails = () => {
     if (submitting) return;
 
     if (!data.causeIds?.length) {
-      setSubmitError("Please go back to Step 'Cause' and select at least one cause.");
+      setSubmitError("Please go back to Step Cause' and select at least one cause.");
       return;
     }
 
