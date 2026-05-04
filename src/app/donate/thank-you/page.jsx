@@ -63,8 +63,6 @@ const ThankYouPage = () => {
         {/* Overlap container */}
         <div className="relative z-20 flex items-center justify-center px-4 sm:px-8">
           <div className="relative w-full max-w-[1450px] flex items-center justify-center min-h-[540px]">
-
-            {/* Image card — bottom layer, pushed left */}
             <div className="absolute left-0 top-0 w-[52%] md:w-[764px] h-[420px] md:h-[764px] rounded-[24px] z-10">
               <Image
                 src="/images/happy-thankyou.png"
