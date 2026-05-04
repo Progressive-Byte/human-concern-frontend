@@ -62,10 +62,10 @@ const ThankYouPage = () => {
 
         {/* Overlap container */}
         <div className="relative z-20 flex items-center justify-center px-4 sm:px-8">
-          <div className="relative w-full max-w-[1500px] flex items-center justify-center min-h-[540px]">
+          <div className="relative w-full max-w-[1450px] flex items-center justify-center min-h-[540px]">
 
             {/* Image card — bottom layer, pushed left */}
-            <div className="absolute left-0 top-0 w-[52%] md:w-[770px] h-[420px] md:h-[770px] rounded-[24px] overflow-hidden shadow-xl z-10">
+            <div className="absolute left-0 top-0 w-[52%] md:w-[764px] h-[420px] md:h-[764px] rounded-[24px] z-10">
               <Image
                 src="/images/happy-thankyou.png"
                 alt="Happy children"
@@ -77,7 +77,7 @@ const ThankYouPage = () => {
             </div>
 
             {/* White content card — top layer, overlaps from the right */}
-            <div className="relative z-20 ml-auto w-[62%] md:w-[760px] h-[420px] md:h-[690px] bg-white rounded-[24px] shadow-[0_8px_60px_rgba(0,0,0,0.12)] px-8 sm:px-10 py-10 flex flex-col items-center text-center">
+            <div className="relative z-20 ml-auto w-[62%] md:w-[760px] h-[420px] md:h-[660px] bg-white rounded-[24px] shadow-[0_8px_60px_rgba(0,0,0,0.12)] px-8 sm:px-10 py-10 flex flex-col items-center text-center md:mt-[40px] mt-0">
 
               {/* Red check circle */}
               <div className="w-16 h-16 rounded-full bg-[#EA3335] flex items-center justify-center mb-5 shadow-lg shadow-red-200">
