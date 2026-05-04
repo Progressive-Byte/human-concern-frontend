@@ -62,7 +62,7 @@ const ThankYouPage = () => {
 
         <div className="relative z-20 mx-4 sm:mx-8 lg:mx-16 xl:mx-24 rounded-3xl flex flex-col md:flex-row">
 
-          <div className="relative w-full md:w-[55%] h-[300px] md:h-auto shrink-0">
+          <div className="relative w-full md:w-[55%] h-[300px] md:h-auto shrink-0 -z-9930">
             <Image
               src="/images/happy-thankyou.png"
               alt="Happy children"
@@ -71,7 +71,7 @@ const ThankYouPage = () => {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-white/10 hidden md:block" />
+            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-white/10 hidden md:block z-100" />
           </div>
           <div className="flex-1 flex flex-col items-center justify-center bg-white px-8 sm:px-12 py-12 text-center">
 
@@ -100,7 +100,7 @@ const ThankYouPage = () => {
 
             {/* Donation details box */}
             {(campaignName || causeLabel || objectiveLabel) && (
-              <div className="w-full max-w-[380px] bg-[#F6F6F6] rounded-2xl px-5 py-4 mb-7 text-left">
+              <div className="w-full max-w-[380px] bg-[#F6F6F6] rounded-2xl px-5 py-4 mb-7 text-left z-20">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-[#AEAEAE] mb-2">
                   Donation Details
                 </p>
