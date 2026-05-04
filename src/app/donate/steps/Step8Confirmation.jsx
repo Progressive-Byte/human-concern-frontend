@@ -80,7 +80,7 @@ function CheckoutForm({ grandTotal, currency }) {
   );
 }
 
-export default function Step8Confirmation() {
+const Step8Confirmation = () => {
   const { data } = useDonation();
   const sym = CURRENCY_SYMBOLS[data.currency] ?? "$";
 
