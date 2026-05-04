@@ -17,7 +17,7 @@ const ThankYouPage = () => {
   const sym = CURRENCY_SYMBOLS[data.currency] || "$";
 
   const [campaigns, setCampaigns] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
     fetch(`${serverApiBase}campaigns/featured`)
@@ -27,66 +27,75 @@ const ThankYouPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const donationAmount = data.grandTotal ?? data.amountTier;
-  const campaignName   = data.campaignName ?? "";
-  const causeLabel     = data.causeLabel   ?? "";
-  const objectiveLabel = data.objectiveLabel ?? "";
+  const donationAmount  = data.grandTotal ?? data.amountTier;
+  const campaignName    = data.campaignName  ?? "";
+  const causeLabel      = data.causeLabel    ?? "";
+  const objectiveLabel  = data.objectiveLabel ?? "";
 
   return (
     <main className="min-h-screen bg-[#F6F6F6] pb-20">
 
-      <div className="relative w-full flex items-center justify-center pt-[200px] pb-16 overflow-hidden min-h-[520px]">
-        <div className="absolute left-0 top-0 h-full pointer-events-none select-none">
+      {/* ── Hero: full-width card with confetti sides ── */}
+      <div className="relative w-full overflow-hidden pt-[120px] lg:pt-[140px]">
+
+        {/* Left confetti */}
+        <div className="absolute left-0 top-0 h-full pointer-events-none select-none z-10">
           <Image
             src="/images/left-celebration-background.png"
             alt=""
-            width={300}
-            height={520}
-            className="h-full w-auto object-contain object-left z-10"
+            width={320}
+            height={600}
+            className="h-full w-auto object-contain object-left"
             aria-hidden="true"
           />
         </div>
 
-        {/* Right celebration background */}
-        <div className="absolute right-0 top-0 h-full pointer-events-none select-none">
+        {/* Right confetti */}
+        <div className="absolute right-0 top-0 h-full pointer-events-none select-none z-10">
           <Image
             src="/images/right-celebration-background.png"
             alt=""
-            width={300}
-            height={520}
+            width={320}
+            height={600}
             className="h-full w-auto object-contain object-right"
             aria-hidden="true"
           />
         </div>
 
-        <div className="relative z-10 w-full max-w-[820px] bg-white rounded-3xl overflow-hidden shadow-[0_8px_48px_rgba(0,0,0,0.10)] flex flex-col md:flex-row">
+        {/* ── Full-width card ── */}
+        <div className="relative z-20 mx-4 sm:mx-8 lg:mx-16 xl:mx-24 rounded-3xl overflow-hidden shadow-[0_8px_60px_rgba(0,0,0,0.12)] flex flex-col md:flex-row min-h-[480px]">
 
-          <div className="relative md:w-[340px] shrink-0 h-[260px] md:h-auto">
+          {/* Left — image, takes ~55% width */}
+          <div className="relative w-full md:w-[55%] h-[300px] md:h-auto shrink-0">
             <Image
               src="/images/happy-thankyou.png"
               alt="Happy children"
               fill
-              sizes="(max-width: 768px) 100vw, 340px"
+              sizes="(max-width: 768px) 100vw, 55vw"
               className="object-cover"
               priority
             />
+            {/* subtle dark gradient on right edge so content side blends */}
+            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-white/10 hidden md:block" />
           </div>
 
           {/* Right — thank-you content */}
-          <div className="flex-1 flex flex-col items-center justify-center px-8 py-10 text-center">
+          <div className="flex-1 flex flex-col items-center justify-center bg-white px-8 sm:px-12 py-12 text-center">
 
-            {/* Green check circle */}
-            <div className="w-14 h-14 rounded-full bg-[#EA3335] flex items-center justify-center mb-5 shadow-md">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+            {/* Red check circle */}
+            <div className="w-16 h-16 rounded-full bg-[#EA3335] flex items-center justify-center mb-6 shadow-lg shadow-red-200">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
 
             {/* Heading */}
-            <h1 className="text-[26px] font-bold text-[#383838] mb-2">Thank You!</h1>
+            <h1 className="text-[32px] font-bold text-[#383838] mb-3 leading-tight">
+              Thank You!
+            </h1>
 
             {/* Subtitle */}
-            <p className="text-[14px] text-[#737373] leading-relaxed mb-6 max-w-[260px]">
+            <p className="text-[14px] text-[#737373] leading-relaxed mb-7 max-w-[300px]">
               Your donation of{" "}
               {donationAmount ? (
                 <span className="font-bold text-[#383838]">
@@ -98,12 +107,12 @@ const ThankYouPage = () => {
 
             {/* Donation details box */}
             {(campaignName || causeLabel || objectiveLabel) && (
-              <div className="w-full bg-[#F6F6F6] rounded-2xl px-5 py-4 mb-6 text-left">
+              <div className="w-full max-w-[380px] bg-[#F6F6F6] rounded-2xl px-5 py-4 mb-7 text-left">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-[#AEAEAE] mb-2">
                   Donation Details
                 </p>
                 {campaignName && (
-                  <p className="text-[14px] font-bold text-[#383838] leading-snug">
+                  <p className="text-[15px] font-bold text-[#383838] leading-snug">
                     {campaignName}
                   </p>
                 )}
@@ -116,10 +125,10 @@ const ThankYouPage = () => {
             )}
 
             {/* CTA buttons */}
-            <div className="flex flex-col gap-2.5 w-full">
+            <div className="flex flex-col gap-2.5 w-full max-w-[380px]">
               <button
                 onClick={() => router.push("/dashboard")}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors cursor-pointer"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
@@ -130,7 +139,7 @@ const ThankYouPage = () => {
 
               <button
                 onClick={() => router.push("/campaigns")}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors cursor-pointer"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -140,7 +149,7 @@ const ThankYouPage = () => {
 
               <button
                 onClick={() => window.print()}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#E5E5E5] text-[#383838] text-[13px] font-medium hover:border-gray-400 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#E5E5E5] text-[#383838] text-[13px] font-medium hover:border-gray-400 transition-colors cursor-pointer"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -150,10 +159,13 @@ const ThankYouPage = () => {
             </div>
           </div>
         </div>
+
+        {/* bottom spacing so confetti images don't clip */}
+        <div className="h-12" />
       </div>
 
-      {/* ── Campaigns section ─────────────────────────────────────────────── */}
-      <section className="max-w-[1500px] mx-auto px-4 sm:px-6 mt-4">
+      {/* ── Campaigns section ── */}
+      <section className="max-w-[1500px] mx-auto px-4 sm:px-6 mt-8">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
           <div>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A]">
@@ -176,11 +188,9 @@ const ThankYouPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
           {loading ? (
-            <>
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-3xl h-[480px] animate-pulse" />
-              ))}
-            </>
+            [1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-3xl h-[480px] animate-pulse" />
+            ))
           ) : campaigns.length === 0 ? (
             <p className="col-span-full text-center text-[#737373]">No campaigns found.</p>
           ) : (
