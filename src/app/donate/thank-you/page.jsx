@@ -44,7 +44,7 @@ const ThankYouPage = () => {
           </button>
           <button
             onClick={() => router.push("/campaigns")}
-            className="w-full py-3 rounded-xl border border-[#E5E5E5] text-[#383838] font-medium hover:border-gray-400 transition-colors"
+            className="w-full py-3 rounded-xl border border-[#E5E5E5] text-[#383838] font-medium hover:border-gray-400 transition-colors cursor-pointer"
           >
             Explore More Campaigns
           </button>
