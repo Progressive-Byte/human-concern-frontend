@@ -14,3 +14,5 @@ const ThankYouLayout = ({ children }) => {
     </>
   );
 }
+
+export default ThankYouLayout
