@@ -59,10 +59,8 @@ const ThankYouPage = () => {
           />
         </div>
 
-        {/* ── Two-column card ── */}
         <div className="relative z-10 w-full max-w-[820px] bg-white rounded-3xl overflow-hidden shadow-[0_8px_48px_rgba(0,0,0,0.10)] flex flex-col md:flex-row">
 
-          {/* Left — happy image */}
           <div className="relative md:w-[340px] shrink-0 h-[260px] md:h-auto">
             <Image
               src="/images/happy-thankyou.png"
