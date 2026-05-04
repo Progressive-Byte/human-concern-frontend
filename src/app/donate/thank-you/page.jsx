@@ -60,7 +60,7 @@ const ThankYouPage = () => {
           />
         </div>
 
-        {/* ── Overlap container ── */}
+        {/* Overlap container */}
         <div className="relative z-20 flex items-center justify-center px-4 sm:px-8">
           <div className="relative w-full max-w-[1100px] flex items-center justify-center min-h-[540px]">
 
