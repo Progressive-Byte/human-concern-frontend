@@ -154,7 +154,7 @@ const ThankYouPage = () => {
         </div>
       </div>
 
-      {/* ── Campaigns section ── */}
+      {/* Campaigns section */}
       <section className="max-w-[1500px] mx-auto px-4 sm:px-6 mt-[100px]">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
           <div>
