@@ -36,7 +36,7 @@ const ThankYouPage = () => {
     <main className="min-h-screen bg-[#F6F6F6] pb-20">
       <div className="relative w-full overflow-hidden pt-[120px] lg:pt-[160px] pb-16">
 
-        {/* Left confetti */}
+        {/* Left */}
         <div className="absolute left-0 top-0 h-full pointer-events-none select-none z-10">
           <Image
             src="/images/left-celebration-background.png"
@@ -48,7 +48,7 @@ const ThankYouPage = () => {
           />
         </div>
 
-        {/* Right confetti */}
+        {/* Right */}
         <div className="absolute right-0 top-0 h-full pointer-events-none select-none z-10">
           <Image
             src="/images/right-celebration-background.png"
