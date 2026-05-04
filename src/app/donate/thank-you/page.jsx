@@ -37,7 +37,7 @@ const ThankYouPage = () => {
       <div className="relative w-full overflow-hidden pt-[120px] lg:pt-[160px] pb-16">
 
         {/* Left */}
-        <div className="absolute left-0 top-0 h-full pointer-events-none select-none z-10">
+        <div className="absolute left-0 top-0 h-full pointer-events-none select-none z-1000">
           <Image
             src="/images/left-celebration-background.png"
             alt=""
@@ -49,7 +49,7 @@ const ThankYouPage = () => {
         </div>
 
         {/* Right */}
-        <div className="absolute right-0 top-0 h-full pointer-events-none select-none z-10">
+        <div className="absolute right-0 top-0 h-full pointer-events-none select-none z-1000">
           <Image
             src="/images/right-celebration-background.png"
             alt=""
