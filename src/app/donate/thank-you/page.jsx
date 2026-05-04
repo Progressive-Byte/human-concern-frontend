@@ -11,7 +11,7 @@ export default function ThankYouPage() {
   const sym = CURRENCY_SYMBOLS[data.currency] || "$";
 
   return (
-    <main className="min-h-screen bg-[#F9F9F9] flex items-center justify-center px-4 py-20">
+    <main className="min-h-screen bg-[#F9F9F9] flex items-center justify-center px-4 pt-[140px] lg:pt-[180px] pb-20">
       <div className="max-w-[480px] w-full bg-white rounded-2xl border border-[#EBEBEB] p-8 text-center">
         <div className="w-16 h-16 bg-[#F0FDF4] rounded-full flex items-center justify-center mx-auto mb-6">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#055A46" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
