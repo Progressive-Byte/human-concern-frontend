@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useDonation } from "@/context/DonationContext";
 import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import { arrowIcon } from "@/components/common/SvgIcon";
@@ -26,50 +27,138 @@ const ThankYouPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  const donationAmount = data.grandTotal ?? data.amountTier;
+  const campaignName   = data.campaignName ?? "";
+  const causeLabel     = data.causeLabel   ?? "";
+  const objectiveLabel = data.objectiveLabel ?? "";
+
   return (
-    <main className="min-h-screen bg-[#F9F9F9] px-4 pt-[140px] lg:pt-[180px] pb-20">
-      {/* Thank-you card */}
-      <div className="max-w-[480px] w-full mx-auto bg-white rounded-2xl border border-[#EBEBEB] p-8 text-center">
-        <div className="w-16 h-16 bg-[#F0FDF4] rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#055A46" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
+    <main className="min-h-screen bg-[#F6F6F6] pb-20">
+
+      {/* ── Thank-you hero ───────────────────────────────────────────────── */}
+      <div className="relative w-full flex items-center justify-center pt-[100px] pb-16 px-4 overflow-hidden min-h-[520px]">
+
+        {/* Left celebration background */}
+        <div className="absolute left-0 top-0 h-full pointer-events-none select-none">
+          <Image
+            src="/images/left-celebration-background.png"
+            alt=""
+            width={300}
+            height={520}
+            className="h-full w-auto object-contain object-left"
+            aria-hidden="true"
+          />
         </div>
 
-        <h1 className="text-[28px] font-bold text-[#383838] mb-2">Thank You!</h1>
-        <p className="text-[#737373] text-[15px] leading-relaxed mb-6">
-          Your{" "}
-          {(data.grandTotal ?? data.amountTier) ? (
-            <span className="font-bold text-[#055A46]">{sym}{(data.grandTotal ?? data.amountTier).toFixed(2)}</span>
-          ) : "donation"}{" "}
-          donation has been received. You are making a real difference.
-        </p>
+        {/* Right celebration background */}
+        <div className="absolute right-0 top-0 h-full pointer-events-none select-none">
+          <Image
+            src="/images/right-celebration-background.png"
+            alt=""
+            width={300}
+            height={520}
+            className="h-full w-auto object-contain object-right"
+            aria-hidden="true"
+          />
+        </div>
 
-        {data.email && (
-          <div className="bg-[#F9F9F9] rounded-xl px-4 py-3 mb-8 text-left">
-            <p className="text-[12px] text-[#AEAEAE] mb-0.5">Confirmation sent to</p>
-            <p className="text-[14px] font-medium text-[#383838]">{data.email}</p>
+        {/* ── Two-column card ── */}
+        <div className="relative z-10 w-full max-w-[820px] bg-white rounded-3xl overflow-hidden shadow-[0_8px_48px_rgba(0,0,0,0.10)] flex flex-col md:flex-row">
+
+          {/* Left — happy image */}
+          <div className="relative md:w-[340px] shrink-0 h-[260px] md:h-auto">
+            <Image
+              src="/images/happy-thankyou.png"
+              alt="Happy children"
+              fill
+              sizes="(max-width: 768px) 100vw, 340px"
+              className="object-cover"
+              priority
+            />
           </div>
-        )}
 
-        <div className="flex flex-col gap-3">
-          <button
-            onClick={() => router.push("/")}
-            className="w-full py-3 rounded-xl bg-[#EA3335] hover:bg-red-700 text-white font-semibold transition-colors active:scale-95 cursor-pointer"
-          >
-            Back to Home
-          </button>
-          <button
-            onClick={() => router.push("/campaigns")}
-            className="w-full py-3 rounded-xl border border-[#E5E5E5] text-[#383838] font-medium hover:border-gray-400 transition-colors cursor-pointer"
-          >
-            Explore More Campaigns
-          </button>
+          {/* Right — thank-you content */}
+          <div className="flex-1 flex flex-col items-center justify-center px-8 py-10 text-center">
+
+            {/* Green check circle */}
+            <div className="w-14 h-14 rounded-full bg-[#EA3335] flex items-center justify-center mb-5 shadow-md">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+
+            {/* Heading */}
+            <h1 className="text-[26px] font-bold text-[#383838] mb-2">Thank You!</h1>
+
+            {/* Subtitle */}
+            <p className="text-[14px] text-[#737373] leading-relaxed mb-6 max-w-[260px]">
+              Your donation of{" "}
+              {donationAmount ? (
+                <span className="font-bold text-[#383838]">
+                  {sym}{Number(donationAmount).toFixed(2)}
+                </span>
+              ) : "your generous amount"}{" "}
+              has been processed successfully.
+            </p>
+
+            {/* Donation details box */}
+            {(campaignName || causeLabel || objectiveLabel) && (
+              <div className="w-full bg-[#F6F6F6] rounded-2xl px-5 py-4 mb-6 text-left">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-[#AEAEAE] mb-2">
+                  Donation Details
+                </p>
+                {campaignName && (
+                  <p className="text-[14px] font-bold text-[#383838] leading-snug">
+                    {campaignName}
+                  </p>
+                )}
+                {(causeLabel || objectiveLabel) && (
+                  <p className="text-[12px] text-[#737373] mt-1">
+                    {[causeLabel, objectiveLabel].filter(Boolean).join(" · ")}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* CTA buttons */}
+            <div className="flex flex-col gap-2.5 w-full">
+              <button
+                onClick={() => router.push("/dashboard")}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors cursor-pointer"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                  <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                View Dashboard
+              </button>
+
+              <button
+                onClick={() => router.push("/campaigns")}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors cursor-pointer"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                Browse Campaigns
+              </button>
+
+              <button
+                onClick={() => window.print()}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#E5E5E5] text-[#383838] text-[13px] font-medium hover:border-gray-400 transition-colors cursor-pointer"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download Receipt
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Campaigns section */}
-      <section className="max-w-[1500px] mx-auto mt-16">
+      {/* ── Campaigns section ─────────────────────────────────────────────── */}
+      <section className="max-w-[1500px] mx-auto px-4 sm:px-6 mt-4">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
           <div>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A]">
@@ -92,7 +181,11 @@ const ThankYouPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
           {loading ? (
-            <p className="col-span-full text-center text-[#737373]">Loading campaigns…</p>
+            <>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-3xl h-[480px] animate-pulse" />
+              ))}
+            </>
           ) : campaigns.length === 0 ? (
             <p className="col-span-full text-center text-[#737373]">No campaigns found.</p>
           ) : (
