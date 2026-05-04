@@ -81,10 +81,7 @@ const ThankYouPage = () => {
             </div>
 
             {/* Card */}
-            <div className="relative z-20 w-full md:ml-auto md:w-[62%] md:max-w-[730px] h-auto md:h-[660px] 
-              bg-white rounded-[24px] 
-              shadow-[0_8px_60px_rgba(0,0,0,0.12)] 
-              px-5 sm:px-8 md:px-10 
+            <div className="relative z-20 w-full md:ml-auto md:w-[62%] md:max-w-[730px] h-auto md:h-[660px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 
               py-6 sm:py-8 md:py-10 
               flex flex-col items-center text-center 
               mt-4 md:mt-[40px]
