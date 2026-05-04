@@ -332,3 +332,11 @@ export const BankIcon = (
     <path d="M2 9h18M2 9l9-6 9 6M4 9v8M8 9v8M11 9v8M14 9v8M18 9v8M2 17h18" stroke="#737373" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
+
+export const ThankyouIcon = (
+  <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="96" height="96" rx="48" fill="#EB3336" fill-opacity="0.1"/>
+    <rect x="16" y="16" width="64" height="64" rx="32" fill="#EB3336"/>
+    <path d="M58.6673 40L44.0007 54.6667L37.334 48" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+)

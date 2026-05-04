@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useDonation } from "@/context/DonationContext";
 import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
-import { arrowIcon } from "@/components/common/SvgIcon";
+import { arrowIcon, ThankyouIcon } from "@/components/common/SvgIcon";
 import { serverApiBase } from "@/utils/constants";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
@@ -73,11 +73,8 @@ const ThankYouPage = () => {
 
             {/* Card */}
             <div className="relative z-20 w-full md:ml-auto md:w-[62%] md:max-w-[730px] h-auto md:h-[660px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 flex flex-col items-center text-center mt-4 md:mt-[40px]">
-              {/* Icon */}
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EA3335] flex items-center justify-center mb-4 shadow-lg shadow-red-200">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+              <div className="mt-8">
+                {ThankyouIcon}
               </div>
 
               {/* Title */}
