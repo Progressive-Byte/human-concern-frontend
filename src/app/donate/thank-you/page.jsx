@@ -78,12 +78,12 @@ const ThankYouPage = () => {
               </div>
 
               {/* Title */}
-              <h1 className="text-[24px] sm:text-[28px] md:text-[34px] font-bold text-[#383838] mb-2">
+              <h1 className="text-[24px] sm:text-[28px] md:text-[34px] font-bold text-[#383838] mt-6">
                 Thank You!
               </h1>
 
               {/* Text */}
-              <p className="text-[13px] sm:text-[14px] text-[#737373] mb-5 max-w-[320px]">
+              <p className="text-[13px] sm:text-[14px] text-[#737373] mb-5">
                 Your donation of{" "}
                 {donationAmount ? (
                   <span className="font-bold text-[#383838]">
