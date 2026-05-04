@@ -76,8 +76,6 @@ const ThankYouPage = () => {
 
             {/* White content card — top layer, overlaps from the right */}
             <div className="relative z-20 ml-auto w-[62%] md:w-[760px] h-[420px] md:h-[660px] bg-white rounded-[24px] shadow-[0_8px_60px_rgba(0,0,0,0.12)] px-8 sm:px-10 py-10 flex flex-col items-center text-center md:mt-[40px] mt-0">
-
-              {/* Red check circle */}
               <div className="w-16 h-16 rounded-full bg-[#EA3335] flex items-center justify-center mb-5 shadow-lg shadow-red-200">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
