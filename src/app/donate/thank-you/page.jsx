@@ -42,7 +42,7 @@ const ThankYouPage = () => {
             alt=""
             width={300}
             height={520}
-            className="h-full w-auto object-contain object-left"
+            className="h-full w-auto object-contain object-left z-10"
             aria-hidden="true"
           />
         </div>
