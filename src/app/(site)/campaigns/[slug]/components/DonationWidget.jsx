@@ -26,6 +26,7 @@ const DonationWidget = ({ campaign }) => {
   const [selectedAmount, setSelectedAmount] = useState(suggestedAmounts[1] ?? suggestedAmounts[0] ?? 50);
   const [customAmount,   setCustomAmount]   = useState("");
   const [currency,       setCurrency]       = useState(campaign.currency ?? "USD");
+  const [copied,         setCopied]         = useState(false);
 
   const finalAmount = customAmount ? Number(customAmount) : selectedAmount;
 
@@ -57,6 +58,8 @@ const DonationWidget = ({ campaign }) => {
       await navigator.share({ title: campaign.name, url: window.location.href });
     } else {
       await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -125,10 +128,23 @@ const DonationWidget = ({ campaign }) => {
           </button>
           <button
             onClick={handleShare}
-            className="w-full flex items-center justify-center gap-2 border border-gray-200 hover:border-gray-400 text-[#383838] font-medium py-3 rounded-xl text-[14px] transition-colors cursor-pointer"
+            className={`w-full flex items-center justify-center gap-2 border font-medium py-3 rounded-xl text-[14px] transition-all duration-200 cursor-pointer ${
+              copied
+                ? "bg-[#055A46] border-[#055A46] text-white"
+                : "border-gray-200 hover:border-gray-400 text-[#383838]"
+            }`}
           >
-            {ShareCampaignIcon}
-            Share Campaign
+            {copied ? (
+              <>
+                {CircleCheckIcon}
+                Link Copied!
+              </>
+            ) : (
+              <>
+                {ShareCampaignIcon}
+                Share Campaign
+              </>
+            )}
           </button>
         </div>
 
