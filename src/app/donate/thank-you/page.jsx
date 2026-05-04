@@ -36,8 +36,6 @@ const ThankYouPage = () => {
     <main className="min-h-screen bg-[#F6F6F6] pb-20">
 
       <div className="relative w-full flex items-center justify-center pt-[100px] pb-16 px-4 overflow-hidden min-h-[520px]">
-
-        {/* Left celebration background */}
         <div className="absolute left-0 top-0 h-full pointer-events-none select-none">
           <Image
             src="/images/left-celebration-background.png"
