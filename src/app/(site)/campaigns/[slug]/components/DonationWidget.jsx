@@ -125,7 +125,7 @@ export default function DonationWidget({ campaign }) {
           </button>
           <button
             onClick={handleShare}
-            className="w-full flex items-center justify-center gap-2 border border-gray-200 hover:border-gray-400 text-[#383838] font-medium py-3 rounded-xl text-[14px] transition-colors"
+            className="w-full flex items-center justify-center gap-2 border border-gray-200 hover:border-gray-400 text-[#383838] font-medium py-3 rounded-xl text-[14px] transition-colors cursor-pointer"
           >
             {ShareCampaignIcon}
             Share Campaign
