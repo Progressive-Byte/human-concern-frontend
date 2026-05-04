@@ -53,3 +53,5 @@ const ThankYouPage = () => {
     </main>
   );
 }
+
+export default ThankYouPage;
