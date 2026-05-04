@@ -35,7 +35,6 @@ const ThankYouPage = () => {
   return (
     <main className="min-h-screen bg-[#F6F6F6] pb-20">
 
-      {/* ── Thank-you hero ───────────────────────────────────────────────── */}
       <div className="relative w-full flex items-center justify-center pt-[100px] pb-16 px-4 overflow-hidden min-h-[520px]">
 
         {/* Left celebration background */}
