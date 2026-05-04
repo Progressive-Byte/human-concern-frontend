@@ -12,7 +12,7 @@ const CURRENCY_OPTIONS = [
   { label: "CA$ CAD", value: "CAD" },
 ];
 
-export default function DonationWidget({ campaign }) {
+const DonationWidget = ({ campaign }) => {
   const router = useRouter();
 
   const suggestedAmounts = campaign.suggestedAmounts ?? [];
@@ -215,3 +215,5 @@ export default function DonationWidget({ campaign }) {
     </div>
   );
 }
+
+export default DonationWidget;
