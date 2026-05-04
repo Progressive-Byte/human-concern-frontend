@@ -60,16 +60,7 @@ const ThankYouPage = () => {
         {/* Container */}
         <div className="relative z-20 flex items-center justify-center px-4 sm:px-6">
           <div className="relative w-full max-w-[1450px] min-h-[520px] flex flex-col md:flex-row items-center">
-
-            {/* Image */}
-            <div className="
-              relative 
-              w-full md:absolute 
-              md:left-0 md:top-0 
-              md:w-[52%] md:max-w-[764px] 
-              h-[260px] sm:h-[340px] md:h-[764px] 
-              rounded-[24px] overflow-hidden z-10
-            ">
+            <div className="relative w-full md:absolute md:left-0 md:top-0 md:w-[52%] md:max-w-[764px] h-[260px] sm:h-[340px] md:h-[764px] rounded-[24px] overflow-hidden z-10">
               <Image
                 src="/images/happy-thankyou.png"
                 alt="Happy children"
@@ -82,7 +73,6 @@ const ThankYouPage = () => {
 
             {/* Card */}
             <div className="relative z-20 w-full md:ml-auto md:w-[62%] md:max-w-[730px] h-auto md:h-[660px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 flex flex-col items-center text-center mt-4 md:mt-[40px]">
-
               {/* Icon */}
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EA3335] flex items-center justify-center mb-4 shadow-lg shadow-red-200">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8">
