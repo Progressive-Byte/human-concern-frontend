@@ -81,11 +81,7 @@ const ThankYouPage = () => {
             </div>
 
             {/* Card */}
-            <div className="relative z-20 w-full md:ml-auto md:w-[62%] md:max-w-[730px] h-auto md:h-[660px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 
-              py-6 sm:py-8 md:py-10 
-              flex flex-col items-center text-center 
-              mt-4 md:mt-[40px]
-            ">
+            <div className="relative z-20 w-full md:ml-auto md:w-[62%] md:max-w-[730px] h-auto md:h-[660px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 flex flex-col items-center text-center mt-4 md:mt-[40px]">
 
               {/* Icon */}
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EA3335] flex items-center justify-center mb-4 shadow-lg shadow-red-200">
