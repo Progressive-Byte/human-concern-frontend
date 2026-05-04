@@ -151,8 +151,6 @@ const DonationWidget = ({ campaign }) => {
         <div className="bg-[#F9F9F9] rounded-2xl border border-dashed border-[#BFBFBF]">
           <div className="px-5 py-5">
             <p className="text-[20px] font-bold text-[#383838]">How Your Donation Helps</p>
-
-            {/* Currency */}
             <div className="mt-5">
               <CustomDropdown
                 options={CURRENCY_OPTIONS}
