@@ -34,59 +34,80 @@ const ThankYouPage = () => {
 
   return (
     <main className="min-h-screen bg-[#F6F6F6] pb-20">
-      <div className="relative w-full overflow-hidden pt-[120px] lg:pt-[160px] pb-16">
-
+      <div className="relative w-full overflow-hidden pt-[100px] lg:pt-[160px] pb-16">
         {/* Left */}
-        <div className="absolute left-0 top-0 h-full pointer-events-none select-none z-1000">
+        <div className="absolute left-0 top-0 h-full pointer-events-none select-none z-[1] hidden md:block">
           <Image
             src="/images/left-celebration-background.png"
             alt=""
             width={320}
             height={600}
-            className="h-full w-auto object-contain object-left"
-            aria-hidden="true"
+            className="h-full w-auto object-contain"
           />
         </div>
 
         {/* Right */}
-        <div className="absolute right-0 top-0 h-full pointer-events-none select-none z-1000">
+        <div className="absolute right-0 top-0 h-full pointer-events-none select-none z-[1] hidden md:block">
           <Image
             src="/images/right-celebration-background.png"
             alt=""
             width={320}
             height={600}
-            className="h-full w-auto object-contain object-right"
-            aria-hidden="true"
+            className="h-full w-auto object-contain"
           />
         </div>
 
-        {/* Overlap container */}
-        <div className="relative z-20 flex items-center justify-center px-4 sm:px-8">
-          <div className="relative w-full max-w-[1450px] flex items-center justify-center min-h-[540px]">
-            <div className="absolute left-0 top-0 w-[52%] md:w-[764px] h-[420px] md:h-[764px] rounded-[24px] z-10">
+        {/* Container */}
+        <div className="relative z-20 flex items-center justify-center px-4 sm:px-6">
+          <div className="relative w-full max-w-[1450px] min-h-[520px] flex flex-col md:flex-row items-center">
+
+            {/* Image */}
+            <div className="
+              relative 
+              w-full md:absolute 
+              md:left-0 md:top-0 
+              md:w-[52%] md:max-w-[764px] 
+              h-[260px] sm:h-[340px] md:h-[764px] 
+              rounded-[24px] overflow-hidden z-10
+            ">
               <Image
                 src="/images/happy-thankyou.png"
                 alt="Happy children"
                 fill
-                sizes="46vw"
+                sizes="(max-width: 768px) 100vw, 46vw"
                 className="object-cover"
                 priority
               />
             </div>
 
-            {/* White content card — top layer, overlaps from the right */}
-            <div className="relative z-20 ml-auto w-[62%] md:w-[760px] h-[420px] md:h-[660px] bg-white rounded-[24px] shadow-[0_8px_60px_rgba(0,0,0,0.12)] px-8 sm:px-10 py-10 flex flex-col items-center text-center md:mt-[40px] mt-0">
-              <div className="w-16 h-16 rounded-full bg-[#EA3335] flex items-center justify-center mb-5 shadow-lg shadow-red-200">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+            {/* Card */}
+            <div className="
+              relative z-20 
+              w-full md:ml-auto 
+              md:w-[62%] md:max-w-[760px] 
+              h-auto md:h-[660px] 
+              bg-white rounded-[24px] 
+              shadow-[0_8px_60px_rgba(0,0,0,0.12)] 
+              px-5 sm:px-8 md:px-10 
+              py-6 sm:py-8 md:py-10 
+              flex flex-col items-center text-center 
+              mt-4 md:mt-[40px]
+            ">
+
+              {/* Icon */}
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EA3335] flex items-center justify-center mb-4 shadow-lg shadow-red-200">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
 
-              <h1 className="text-[30px] sm:text-[34px] font-bold text-[#383838] mb-3 leading-tight">
+              {/* Title */}
+              <h1 className="text-[24px] sm:text-[28px] md:text-[34px] font-bold text-[#383838] mb-2">
                 Thank You!
               </h1>
 
-              <p className="text-[14px] text-[#737373] leading-relaxed mb-6 max-w-[300px]">
+              {/* Text */}
+              <p className="text-[13px] sm:text-[14px] text-[#737373] mb-5 max-w-[320px]">
                 Your donation of{" "}
                 {donationAmount ? (
                   <span className="font-bold text-[#383838]">
@@ -96,60 +117,43 @@ const ThankYouPage = () => {
                 has been processed successfully.
               </p>
 
-              {/* Donation details box */}
+              {/* Details */}
               {(campaignName || causeLabel || objectiveLabel) && (
-                <div className="w-full bg-[#F6F6F6] rounded-2xl px-5 py-4 mb-6 text-left">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[#AEAEAE] mb-2">
+                <div className="w-full bg-[#F6F6F6] rounded-xl px-4 py-3 mb-5 text-left">
+                  <p className="text-[10px] font-semibold uppercase text-[#AEAEAE] mb-1">
                     Donation Details
                   </p>
+
                   {campaignName && (
-                    <p className="text-[15px] font-bold text-[#383838] leading-snug">
+                    <p className="text-[14px] font-bold text-[#383838]">
                       {campaignName}
                     </p>
                   )}
+
                   {(causeLabel || objectiveLabel) && (
-                    <p className="text-[12px] text-[#737373] mt-1">
+                    <p className="text-[12px] text-[#737373]">
                       {[causeLabel, objectiveLabel].filter(Boolean).join(" · ")}
                     </p>
                   )}
                 </div>
               )}
 
-              {/* CTA buttons */}
+              {/* Buttons */}
               <div className="flex flex-col gap-2.5 w-full">
-                <button
-                  onClick={() => router.push("/dashboard")}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors cursor-pointer"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                  </svg>
+                <button className="w-full py-3 rounded-xl bg-[#383838] text-white text-[14px] font-semibold">
                   View Dashboard
                 </button>
 
-                <button
-                  onClick={() => router.push("/campaigns")}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors cursor-pointer"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
+                <button className="w-full py-3 rounded-xl bg-[#383838] text-white text-[14px] font-semibold">
                   Browse Campaigns
                 </button>
 
-                <button
-                  onClick={() => window.print()}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#E5E5E5] text-[#383838] text-[13px] font-medium hover:border-gray-400 transition-colors cursor-pointer"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                  </svg>
+                <button className="w-full py-3 rounded-xl border border-[#E5E5E5] text-[#383838] text-[13px] font-medium">
                   Download Receipt
                 </button>
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
       </div>
