@@ -147,3 +147,4 @@ const Step8Confirmation = () => {
     </main>
   );
 }
+export default Step8Confirmation;
