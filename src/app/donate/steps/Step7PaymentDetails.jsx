@@ -6,17 +6,9 @@ import { useStepNavigation } from "@/hooks/useStepNavigation";
 import { apiRequest } from "@/services/api";
 import StepLayout from "../DonateComponents/StepLayout";
 import Row from "@/components/ui/Row";
-import { BankIcon } from "@/components/common/SvgIcon";
 import Image from "next/image";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
-
-const CAUSE_LABELS = {
-  general: "General Donation",
-  zakat:   "Zakat",
-  sadaqah: "Sadaqah",
-  global:  "Global Emergency",
-};
 
 const OBJECTIVE_LABELS = {
   "all-30":     "All 30 Nights Donation",
@@ -31,7 +23,12 @@ const Step7PaymentDetails = () => {
   const [anonymous, setAnonymous] = useState(data.anonymous ?? false);
   const [gateways, setGateways] = useState([]);
   const [gatewaysLoading, setGatewaysLoading] = useState(true);
-  const [selectedGateway, setSelectedGateway] = useState(data.paymentMethod ?? null);
+  const [selectedGateway, setSelectedGateway] = useState(
+    ["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null
+  );
+  const [publishableKey, setPublishableKey] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   const campaignMeta = useMemo(() => {
     try { return JSON.parse(sessionStorage.getItem("campaignData") || "{}"); }
@@ -47,6 +44,8 @@ const Step7PaymentDetails = () => {
         if (!selectedGateway && available.length > 0) {
           setSelectedGateway(available[0].provider);
         }
+        const stripe = available.find((g) => g.provider === "stripe");
+        if (stripe?.publishableKey) setPublishableKey(stripe.publishableKey);
       })
       .catch(() => {})
       .finally(() => setGatewaysLoading(false));
@@ -68,13 +67,93 @@ const Step7PaymentDetails = () => {
   const tipAmount    = Math.round((baseDonation * tipPct) / 100 * 100) / 100;
   const grandTotal   = data.grandTotal ?? (baseDonation + tipAmount);
 
-  const causeLabels = (data.causes ?? [])
-    .map((c) => CAUSE_LABELS[c] ?? c)
-    .join(", ");
+  const causeLabels = (data.causes ?? []).join(", ");
 
-  const onNext = () => {
+  const buildSubmitBody = () => {
+    const body = {
+      ...(data.campaignId ? { formId: data.campaignId } : { formSlug: data.campaign }),
+      info: {
+        ...(data.organization && { organization: data.organization }),
+        firstName:    data.firstName    ?? "",
+        lastName:     data.lastName     ?? "",
+        email:        data.email        ?? "",
+        ...(data.phone && { phone: data.phone }),
+        addressLine1: data.addressLine1 ?? "",
+        city:         data.city        ?? "",
+        postalCode:   data.zip         ?? "",
+        state:        data.province    ?? "",
+        streetName:   data.addressLine1 ?? "",
+        country:      data.country     ?? "",
+      },
+      causeIds: data.causeIds ?? [],
+      ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
+      paymentMethod: selectedGateway,
+      addons: {
+        items: addOnBreakdown.map((addon) => ({
+          addOnId: addon.id,
+          values:  addon.values ?? {},
+        })),
+      },
+    };
+
+    if (isRecurring) {
+      const startDate = new Date();
+      const endDate   = new Date();
+      endDate.setDate(endDate.getDate() + numberOfDays - 1);
+      body.payment = {
+        paymentMode:    "split",
+        amount:         amountTier,
+        currency,
+        ...(tipPct > 0 && { platformTipPercent: tipPct }),
+        scheduleType:   "date_range",
+        scheduleConfig: {
+          startDate: startDate.toISOString(),
+          endDate:   endDate.toISOString(),
+          frequency: frequency.toLowerCase(),
+        },
+      };
+    } else {
+      body.payment = {
+        paymentMode: "one_time",
+        amount:      amountTier,
+        currency,
+        ...(tipAmount > 0 && { platformTipAmount: tipAmount }),
+      };
+    }
+
+    return body;
+  };
+
+  const onNext = async () => {
+    if (submitting) return;
+
+    if (!data.causeIds?.length) {
+      setSubmitError("Please go back to Step 2 and select at least one cause.");
+      return;
+    }
+
     update({ anonymous, paymentMethod: selectedGateway });
-    handleNext(8);
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await apiRequest("donations/submit", {
+        method: "POST",
+        body:   JSON.stringify(buildSubmitBody()),
+      });
+
+      const payment = res?.data?.payment ?? {};
+      update({
+        donationId:          res?.data?.donationId ?? null,
+        stripeClientSecret:  payment.clientSecret  ?? null,
+        stripePublishableKey: publishableKey,
+      });
+
+      handleNext(8);
+    } catch (err) {
+      setSubmitError(err.message ?? "Submission failed. Please try again.");
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -85,7 +164,7 @@ const Step7PaymentDetails = () => {
       onNext={onNext}
       onPrev={() => handlePrev(6)}
       prevLabel="Summary"
-      nextLabel="Complete Donation"
+      nextLabel={submitting ? "Submitting…" : "Complete Donation"}
     >
       <div className="flex flex-col gap-5">
         <div className="rounded-2xl bg-[#F5F5F580] overflow-hidden px-4">
@@ -150,12 +229,9 @@ const Step7PaymentDetails = () => {
                       : "border-[#E5E5E5] bg-white hover:border-[#AEAEAE]"
                   }`}
                 >
-                  {/* Label */}
                   <span className="text-[14px] font-medium text-[#383838]">
                     {gateway.provider === "stripe" ? "Stripe" : "PayPal"}
                   </span>
-
-                  {/* Logo Image */}
                   <div className="relative w-[60px] h-[24px] shrink-0">
                     <Image
                       src={
@@ -203,6 +279,11 @@ const Step7PaymentDetails = () => {
           <span className="text-[14px] text-[#383838]">Make my donation anonymous</span>
         </button>
 
+        {submitError && (
+          <p className="text-[13px] text-[#EA3335] bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-3">
+            {submitError}
+          </p>
+        )}
       </div>
     </StepLayout>
   );

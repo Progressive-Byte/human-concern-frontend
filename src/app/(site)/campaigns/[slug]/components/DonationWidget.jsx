@@ -41,6 +41,7 @@ export default function DonationWidget({ campaign }) {
       suggestedAmounts: campaign.suggestedAmounts ?? [],
       addOns:           campaign.addOns           ?? [],
       goalsDates:       campaign.goalsDates        ?? {},
+      causes:           campaign.causes           ?? [],
     }));
 
     const params = new URLSearchParams({

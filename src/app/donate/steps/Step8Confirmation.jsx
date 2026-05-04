@@ -1,62 +1,149 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useDonation } from "@/context/DonationContext";
-import StepLayout from "../DonateComponents/StepLayout";
+import StepProgress from "../DonateComponents/StepProgress";
+import { NoticeIcon } from "@/components/common/SvgIcon";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-const FREQUENCY_LABELS = {
-  "one-time": "One-Time",
-  monthly: "Monthly",
-  annually: "Annually",
-};
+function CheckoutForm({ grandTotal, currency }) {
+  const stripe   = useStripe();
+  const elements = useElements();
+  const router   = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState(null);
 
-export default function Step7Review() {
-  const router = useRouter();
-  const { data } = useDonation();
-  const sym = CURRENCY_SYMBOLS[data.currency] || "$";
+  const sym = CURRENCY_SYMBOLS[currency] ?? "$";
 
-  const rows = [
-    { label: "Amount", value: `${sym}${data.amount} (${FREQUENCY_LABELS[data.frequency]})` },
-    { label: "Name", value: `${data.firstName} ${data.lastName}` },
-    { label: "Email", value: data.email },
-    { label: "Phone", value: data.phone },
-    { label: "Country", value: data.country },
-    {
-      label: "Payment",
-      value:
-        data.paymentMethod === "card"
-          ? `Card ending ···· ${data.cardNumber?.replace(/\s/g, "").slice(-4) || "—"}`
-          : data.paymentMethod === "bank"
-          ? "Bank Transfer"
-          : "PayPal",
-    },
-  ];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
 
-  const handleConfirm = () => {
-    router.push("/donate/thank-you");
+    setLoading(true);
+    setError(null);
+
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      setError(submitError.message);
+      setLoading(false);
+      return;
+    }
+
+    const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/donate/thank-you`,
+      },
+      redirect: "if_required",
+    });
+
+    if (confirmError) {
+      setError(confirmError.message);
+      setLoading(false);
+    } else if (paymentIntent?.status === "succeeded") {
+      router.push("/donate/thank-you");
+    }
   };
 
   return (
-    <StepLayout step={8} title="Review & Confirm" onNext={handleConfirm} nextLabel="Complete Donation">
-      <div className="divide-y divide-[#F0F0F0]">
-        {rows.map((r) => (
-          <div key={r.label} className="flex justify-between items-center py-3.5">
-            <span className="text-[13px] text-[#737373]">{r.label}</span>
-            <span className="text-[14px] font-medium text-[#383838] text-right max-w-[60%] truncate">
-              {r.value || "—"}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <PaymentElement
+        options={{
+          layout: "tabs",
+        }}
+      />
+
+      {error && (
+        <p className="text-[13px] text-[#EA3335] bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-3">
+          {error}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={!stripe || loading}
+        className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[15px] font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+      >
+        {loading ? "Processing…" : `Pay ${sym}${(grandTotal ?? 0).toFixed(2)}`}
+      </button>
+    </form>
+  );
+}
+
+export default function Step8Confirmation() {
+  const { data } = useDonation();
+  const sym = CURRENCY_SYMBOLS[data.currency] ?? "$";
+
+  const stripePromise = useMemo(
+    () =>
+      data.stripePublishableKey ? loadStripe(data.stripePublishableKey) : null,
+    [data.stripePublishableKey]
+  );
+
+  const appearance = {
+    theme: "stripe",
+    variables: {
+      colorPrimary: "#EA3335",
+      colorBackground: "#ffffff",
+      borderRadius: "12px",
+      fontSizeBase: "14px",
+    },
+  };
+
+  return (
+    <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
+      <div className="max-w-[700px] mx-auto">
+        <StepProgress current={8} />
+
+        <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8">
+          <h2 className="text-[24px] font-bold text-[#383838] mb-1">Complete Payment</h2>
+          <p className="text-sm text-[#8C8C8C] font-normal mb-6">
+            Enter your card details to finalise your donation
+          </p>
+
+          {!data.stripeClientSecret || !data.stripePublishableKey ? (
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
+              <p className="text-[14px] text-[#737373]">
+                Payment session not found. Please go back and try again.
+              </p>
+              <Link
+                href="/donate/7"
+                className="text-[13px] text-[#EA3335] font-medium underline underline-offset-2"
+              >
+                Go back
+              </Link>
+            </div>
+          ) : (
+            <Elements
+              stripe={stripePromise}
+              options={{ clientSecret: data.stripeClientSecret, appearance }}
+            >
+              <CheckoutForm grandTotal={data.grandTotal} currency={data.currency} />
+            </Elements>
+          )}
+
+          <div className="mt-6 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
+            {NoticeIcon}
+            <span className="text-[12px] text-[#AEAEAE]">
+              Your payment is secured with 256-bit SSL encryption
             </span>
           </div>
-        ))}
+
+          <p className="text-center text-[12px] text-[#AEAEAE] mt-4">
+            Step 8 of {data.isRamadan ? 8 : 7} — Your information is secure and encrypted.
+          </p>
+        </div>
       </div>
-      <div className="mt-6 bg-[#F0FDF4] border border-[#D1FAE5] rounded-xl px-4 py-3 flex items-center gap-2">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#055A46" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-        </svg>
-        <p className="text-[12px] text-[#055A46] font-medium">Secure & encrypted payment</p>
-      </div>
-    </StepLayout>
+    </main>
   );
 }
