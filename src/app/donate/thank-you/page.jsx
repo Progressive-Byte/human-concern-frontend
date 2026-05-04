@@ -34,9 +34,7 @@ const ThankYouPage = () => {
 
   return (
     <main className="min-h-screen bg-[#F6F6F6] pb-20">
-
-      {/* ── Hero: full-width card with confetti sides ── */}
-      <div className="relative w-full overflow-hidden pt-[120px] lg:pt-[140px]">
+      <div className="relative w-full overflow-hidden pt-[120px] lg:pt-[200px]">
 
         {/* Left confetti */}
         <div className="absolute left-0 top-0 h-full pointer-events-none select-none z-100">
