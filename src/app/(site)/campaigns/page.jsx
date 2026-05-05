@@ -241,7 +241,6 @@ const CampaignsPageInner = () => {
               width="w-64"
             />
 
-            {/* Cause filter — value is the cause slug (e.g. "general-donation") */}
             <CustomDropdown
               options={causes}
               value={activeCause}
