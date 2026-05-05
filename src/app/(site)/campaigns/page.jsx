@@ -234,7 +234,7 @@ const CampaignsPageInner = () => {
               options={categories}
               value={activeCategory}
               onChange={handleCategoryChange}
-              label="CAMPAIGN CAUSES"
+              label="CAMPAIGN CATEGORY"
               icon={FilterIcon}
               showDot={!!activeCategory}
               maxHeight="260px"
