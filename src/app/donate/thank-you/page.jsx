@@ -148,7 +148,7 @@ const ThankYouPage = () => {
                     </div>
                   )}
 
-                  {/* Recurring details */}
+                  {/* Recurring */}
                   {isRecurring && frequency && (
                     <div className="flex items-center justify-between">
                       <span className="text-[12px] text-[#737373]">Frequency</span>
