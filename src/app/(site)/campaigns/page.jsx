@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import Pagination from "@/components/common/Pagination";
 import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
-import { apiBase, serverApiBase } from "@/utils/constants";
+import { serverApiBase } from "@/utils/constants";
 
 const SORT_OPTIONS = [
   { label: "Newest", value: "new_first" },
@@ -15,27 +15,26 @@ const SORT_OPTIONS = [
   { label: "Z → A",  value: "z_to_a"   },
 ];
 
-const ALL_OPTION = { label: "All", value: "" };
-const PAGE_SIZE  = 10;
+const ALL_OPTION          = { label: "All", value: "" };
+const PAGE_SIZE           = 10;
+const FILTER_FETCH_LIMIT  = 500;
 
-function buildAPIParams({ q, categoryId, causeId, sort, page }) {
+function buildAPIParams({ q, sort, page, limit }) {
   const p = new URLSearchParams();
   p.set("page",  String(page));
-  p.set("limit", String(PAGE_SIZE));
-  if (q)          p.set("q",          q);
-  if (categoryId) p.set("categoryId",  categoryId);
-  if (causeId)    p.set("causeId",     causeId);
-  if (sort)       p.set("sort",        sort);
+  p.set("limit", String(limit ?? PAGE_SIZE));
+  if (q)    p.set("q",    q);
+  if (sort) p.set("sort", sort);
   return p.toString();
 }
 
-function buildURLParams({ q, categoryId, causeId, sort, page }) {
+function buildURLParams({ q, category, cause, sort, page }) {
   const p = new URLSearchParams();
-  if (q)                    p.set("q",          q);
-  if (categoryId)           p.set("categoryId",  categoryId);
-  if (causeId)              p.set("causeId",     causeId);
-  if (sort !== "new_first") p.set("sort",        sort);
-  if (page > 1)             p.set("page",        String(page));
+  if (q)                    p.set("q",        q);
+  if (category)             p.set("category", category);
+  if (cause)                p.set("cause",    cause);
+  if (sort !== "new_first") p.set("sort",     sort);
+  if (page > 1)             p.set("page",     String(page));
   return p.toString();
 }
 
@@ -44,69 +43,101 @@ const CampaignsPageInner = () => {
   const pathname     = usePathname();
   const searchParams = useSearchParams();
 
-  // Read initial filter state from URL
-  const urlSearch     = searchParams.get("q")          ?? "";
-  const urlCategoryId = searchParams.get("categoryId") ?? "";
-  const urlCauseId    = searchParams.get("causeId")    ?? "";
-  const urlSort       = searchParams.get("sort")       ?? "new_first";
-  const urlPage       = parseInt(searchParams.get("page") ?? "1", 10);
+  const urlSearch   = searchParams.get("q")        ?? "";
+  const urlCategory = searchParams.get("category") ?? "";
+  const urlCause    = searchParams.get("cause")    ?? "";
+  const urlSort     = searchParams.get("sort")     ?? "new_first";
+  const urlPage     = parseInt(searchParams.get("page") ?? "1", 10);
 
-  // UI filter state (controlled inputs)
-  const [searchInput,      setSearchInput]      = useState(urlSearch);
-  const [activeCategoryId, setActiveCategoryId] = useState(urlCategoryId);
-  const [activeCauseId,    setActiveCauseId]    = useState(urlCauseId);
-  const [sortBy,           setSortBy]           = useState(urlSort);
-  const [currentPage,      setCurrentPage]      = useState(urlPage);
+  const [searchInput,    setSearchInput]    = useState(urlSearch);
+  const [activeCategory, setActiveCategory] = useState(urlCategory);
+  const [activeCause,    setActiveCause]    = useState(urlCause);
+  const [sortBy,         setSortBy]         = useState(urlSort);
+  const [currentPage,    setCurrentPage]    = useState(urlPage);
 
-  const [campaigns,  setCampaigns]  = useState([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [loading,    setLoading]    = useState(true);
-  const [categories, setCategories] = useState([ALL_OPTION]);
-  const [causes,     setCauses]     = useState([ALL_OPTION]);
+  const [campaigns,    setCampaigns]    = useState([]);
+  const [totalPages,   setTotalPages]   = useState(1);
+  const [totalItems,   setTotalItems]   = useState(0);
+  const [loading,      setLoading]      = useState(true);
+  const [categories,   setCategories]   = useState([ALL_OPTION]);
+  const [causes,       setCauses]       = useState([ALL_OPTION]);
+  const [filtersReady, setFiltersReady] = useState(false);
 
+  // key → name maps used for client-side campaign filtering
+  const categoryMap = useRef({});  // { "education": "Education", ... }
+  const causeMap    = useRef({});  // { "general-donation": "General Donation", ... }
+
+  // Sync local state when URL changes (e.g. browser back/forward)
   useEffect(() => {
     setSearchInput(urlSearch);
-    setActiveCategoryId(urlCategoryId);
-    setActiveCauseId(urlCauseId);
+    setActiveCategory(urlCategory);
+    setActiveCause(urlCause);
     setSortBy(urlSort);
     setCurrentPage(urlPage);
-  }, [urlSearch, urlCategoryId, urlCauseId, urlSort, urlPage]);
+  }, [urlSearch, urlCategory, urlCause, urlSort, urlPage]);
 
+  // Load categories and causes in parallel; populate lookup maps for client-side filtering
   useEffect(() => {
-    fetch(`${serverApiBase}categories`)
-      .then(r => r.json())
-      .then(data => {
-        const items = data?.data?.items ?? [];
-        setCategories([ALL_OPTION, ...items.map(c => ({ label: c.name, value: c.id }))]);
-      });
+    Promise.all([
+      fetch(`${serverApiBase}categories`).then(r => r.json()),
+      fetch(`${serverApiBase}causes`).then(r => r.json()),
+    ]).then(([catData, causeData]) => {
+      const catItems = catData?.data?.items ?? [];
+      categoryMap.current = Object.fromEntries(catItems.map(c => [c.key, c.name]));
+      setCategories([ALL_OPTION, ...catItems.map(c => ({ label: c.name, value: c.key }))]);
 
-    fetch(`${serverApiBase}causes`)
-      .then(r => r.json())
-      .then(data => {
-        const items = data?.data?.items ?? [];
-        setCauses([ALL_OPTION, ...items.map(c => ({ label: ` ${c.name}`.trim(), value: c.id }))]);
-      });
+      const causeItems = causeData?.data?.items ?? [];
+      causeMap.current = Object.fromEntries(causeItems.map(c => [c.slug, c.name]));
+      setCauses([ALL_OPTION, ...causeItems.map(c => ({ label: c.name, value: c.slug }))]);
+
+      setFiltersReady(true);
+    });
   }, []);
 
-  // Push new filter state into the URL
   const updateURL = useCallback((filters) => {
     const qs = buildURLParams(filters);
     router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   }, [router, pathname]);
 
-  // Fetch campaigns from API
-  const fetchCampaigns = useCallback(async (filters) => {
+  // Campaigns are fetched from the API without category/cause params (the API filter returns
+  // empty because campaigns store category names as strings, not ID references). Filtering by
+  // category/cause is applied client-side after fetching a large page.
+  const fetchCampaigns = useCallback(async ({ q, category, cause, sort, page }) => {
     setLoading(true);
     try {
-      const res  = await fetch(`${serverApiBase}campaigns?${buildAPIParams(filters)}`);
+      const hasFilter = !!(category || cause);
+      const limit     = hasFilter ? FILTER_FETCH_LIMIT : PAGE_SIZE;
+      const apiPage   = hasFilter ? 1 : page;
+
+      const res  = await fetch(`${serverApiBase}campaigns?${buildAPIParams({ q, sort, page: apiPage, limit })}`);
       const json = await res.json();
+      let items  = json?.data?.items ?? [];
 
-      setCampaigns(json?.data?.items ?? []);
+      if (hasFilter) {
+        // category key → match against campaign.categories (array of name strings)
+        if (category && categoryMap.current[category]) {
+          const catName = categoryMap.current[category];
+          items = items.filter(c =>
+            c.categories?.some(n => n.toLowerCase() === catName.toLowerCase())
+          );
+        }
 
-      const pagination = json?.meta?.pagination;
-      setTotalItems(pagination?.total ?? 0);
-      setTotalPages(pagination?.pages ?? Math.ceil((pagination?.total ?? 0) / PAGE_SIZE));
+        // cause slug → match against campaign.causeSlug / cause if present
+        if (cause) {
+          items = items.filter(c => c.causeSlug === cause || c.cause === cause);
+        }
+
+        const total = items.length;
+        const start = (page - 1) * PAGE_SIZE;
+        setCampaigns(items.slice(start, start + PAGE_SIZE));
+        setTotalItems(total);
+        setTotalPages(Math.ceil(total / PAGE_SIZE) || 1);
+      } else {
+        const pagination = json?.meta?.pagination;
+        setCampaigns(items);
+        setTotalItems(pagination?.total ?? 0);
+        setTotalPages(pagination?.pages ?? Math.ceil((pagination?.total ?? 0) / PAGE_SIZE));
+      }
     } catch (err) {
       console.error("Failed to fetch campaigns:", err);
       setCampaigns([]);
@@ -115,59 +146,58 @@ const CampaignsPageInner = () => {
     }
   }, []);
 
-  // Re-fetch whenever URL-driven params change
+  // Wait for lookup maps before fetching when a category/cause filter is in the URL
   useEffect(() => {
-    fetchCampaigns({ q: urlSearch, categoryId: urlCategoryId, causeId: urlCauseId, sort: urlSort, page: urlPage });
-  }, [urlSearch, urlCategoryId, urlCauseId, urlSort, urlPage, fetchCampaigns]);
+    if ((urlCategory || urlCause) && !filtersReady) return;
+    fetchCampaigns({ q: urlSearch, category: urlCategory, cause: urlCause, sort: urlSort, page: urlPage });
+  }, [urlSearch, urlCategory, urlCause, urlSort, urlPage, fetchCampaigns, filtersReady]);
 
   // Debounced search — resets to page 1
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchInput !== urlSearch) {
         setCurrentPage(1);
-        updateURL({ q: searchInput, categoryId: activeCategoryId, causeId: activeCauseId, sort: sortBy, page: 1 });
+        updateURL({ q: searchInput, category: activeCategory, cause: activeCause, sort: sortBy, page: 1 });
       }
     }, 400);
     return () => clearTimeout(timer);
   }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Filter / sort handlers
-  const handleCategoryChange = (categoryId) => {
-    setActiveCategoryId(categoryId);
+  const handleCategoryChange = (category) => {
+    setActiveCategory(category);
     setCurrentPage(1);
-    updateURL({ q: searchInput, categoryId, causeId: activeCauseId, sort: sortBy, page: 1 });
+    updateURL({ q: searchInput, category, cause: activeCause, sort: sortBy, page: 1 });
   };
 
-  const handleCauseChange = (causeId) => {
-    setActiveCauseId(causeId);
+  const handleCauseChange = (cause) => {
+    setActiveCause(cause);
     setCurrentPage(1);
-    updateURL({ q: searchInput, categoryId: activeCategoryId, causeId, sort: sortBy, page: 1 });
+    updateURL({ q: searchInput, category: activeCategory, cause, sort: sortBy, page: 1 });
   };
 
   const handleSortChange = (sort) => {
     setSortBy(sort);
     setCurrentPage(1);
-    updateURL({ q: searchInput, categoryId: activeCategoryId, causeId: activeCauseId, sort, page: 1 });
+    updateURL({ q: searchInput, category: activeCategory, cause: activeCause, sort, page: 1 });
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    updateURL({ q: searchInput, categoryId: activeCategoryId, causeId: activeCauseId, sort: sortBy, page });
+    updateURL({ q: searchInput, category: activeCategory, cause: activeCause, sort: sortBy, page });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleClearAll = () => {
     setSearchInput("");
-    setActiveCategoryId("");
-    setActiveCauseId("");
+    setActiveCategory("");
+    setActiveCause("");
     setSortBy("new_first");
     setCurrentPage(1);
     router.replace(pathname);
   };
 
-  // Derived display values
-  const activeCategoryLabel = categories.find(c => c.value === activeCategoryId)?.label ?? "";
-  const activeCauseLabel    = causes.find(c => c.value === activeCauseId)?.label ?? "";
+  const activeCategoryLabel = categories.find(c => c.value === activeCategory)?.label ?? "";
+  const activeCauseLabel    = causes.find(c => c.value === activeCause)?.label ?? "";
 
   return (
     <main className="bg-[#F6F6F6] min-h-screen">
@@ -199,26 +229,26 @@ const CampaignsPageInner = () => {
               />
             </div>
 
-            {/* Category filter */}
+            {/* Category filter — value is the category key (e.g. "education") */}
             <CustomDropdown
               options={categories}
-              value={activeCategoryId}
+              value={activeCategory}
               onChange={handleCategoryChange}
               label="CAMPAIGN CAUSES"
               icon={FilterIcon}
-              showDot={!!activeCategoryId}
+              showDot={!!activeCategory}
               maxHeight="260px"
               width="w-64"
             />
 
-            {/* Cause filter */}
+            {/* Cause filter — value is the cause slug (e.g. "general-donation") */}
             <CustomDropdown
               options={causes}
-              value={activeCauseId}
+              value={activeCause}
               onChange={handleCauseChange}
               label="CAUSES"
               icon={FilterIcon}
-              showDot={!!activeCauseId}
+              showDot={!!activeCause}
               maxHeight="260px"
               width="w-64"
             />
@@ -252,7 +282,7 @@ const CampaignsPageInner = () => {
               <> · <span className="font-semibold text-[#EA3335]">{activeCauseLabel}</span></>
             )}
             {searchInput && (
-              <> matching <span className="font-semibold text-[#383838]">"{searchInput}"</span></>
+              <> matching <span className="font-semibold text-[#383838]">&quot;{searchInput}&quot;</span></>
             )}
           </p>
         </div>
