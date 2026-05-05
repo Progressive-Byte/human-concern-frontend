@@ -92,7 +92,7 @@ const ThankYouPage = () => {
           <div className="relative w-full max-w-[1450px] min-h-[520px] flex flex-col md:flex-row items-center">
 
             {/* Left image */}
-            <div className="relative w-full md:absolute md:left-0 md:top-0 md:w-[52%] md:max-w-[764px] h-[260px] sm:h-[340px] md:h-[764px] rounded-[24px] overflow-hidden z-10">
+            <div className="relative w-full md:absolute md:left-0 md:top-0 md:w-[52%] md:max-w-[721px] h-[260px] sm:h-[340px] md:h-[721px] rounded-[24px] overflow-hidden z-10">
               <Image
                 src="/images/happy-thankyou.png"
                 alt="Happy children"
@@ -104,7 +104,7 @@ const ThankYouPage = () => {
             </div>
 
             {/* Card */}
-            <div className="relative z-20 w-full md:ml-auto md:w-[45%] md:max-w-[650px] h-auto md:h-[764px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 flex flex-col items-center text-center mt-4 md:mt-0 -translate-x-6 lg:-translate-x-10">
+            <div className="relative z-20 w-full md:ml-auto md:w-[45%] md:max-w-[650px] h-auto md:h-[660px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 flex flex-col items-center text-center mt-4 md:mt-0 -translate-x-6 lg:-translate-x-10">
               <div className="mt-8">
                 {ThankyouIcon}
               </div>
