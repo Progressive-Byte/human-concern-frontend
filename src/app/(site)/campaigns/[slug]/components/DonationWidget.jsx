@@ -32,17 +32,21 @@ const DonationWidget = ({ campaign }) => {
 
   const handleDonate = () => {
     const isRamadan = Array.isArray(campaign.categories) &&
-      campaign.categories.some((c) => c.toLowerCase() === "ramadan");
+      campaign.categories.some((c) => {
+        const name = typeof c === "string" ? c : (c?.name ?? "");
+        return name.toLowerCase() === "ramadan";
+      });
     // const isRamadan = true; // For testing purposes.
     sessionStorage.setItem("donationIsRamadan", isRamadan ? "1" : "0");
     sessionStorage.setItem("campaignData", JSON.stringify({
-      id:               campaign.id,
-      name:             campaign.name             ?? "",
-      description:      campaign.description      ?? "",
-      suggestedAmounts: campaign.suggestedAmounts ?? [],
-      addOns:           campaign.addOns           ?? [],
-      goalsDates:       campaign.goalsDates        ?? {},
-      causes:           campaign.causes           ?? [],
+      id:                 campaign.id,
+      name:               campaign.name               ?? "",
+      description:        campaign.description        ?? "",
+      suggestedAmounts:   campaign.suggestedAmounts   ?? [],
+      addOns:             campaign.addOns             ?? [],
+      goalsDates:         campaign.goalsDates          ?? {},
+      causes:             campaign.causes             ?? [],
+      donationObjectives: campaign.objectives ?? [],
     }));
 
     const params = new URLSearchParams({ amount: String(finalAmount), currency });

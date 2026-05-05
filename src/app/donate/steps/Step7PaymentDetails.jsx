@@ -10,12 +10,6 @@ import Image from "next/image";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-const OBJECTIVE_LABELS = {
-  "all-30":     "All 30 Nights Donation",
-  "odd-nights": "Odd Nights Donation",
-  "27th-night": "27th Night Donation",
-  "last-10":    "Last 10 Nights",
-};
 
 const Step7PaymentDetails = () => {
   const { data, update }  = useDonation();
@@ -178,7 +172,7 @@ const Step7PaymentDetails = () => {
             <Row label="Cause" value={causeLabels} />
           )}
           {data.isRamadan && data.objective && (
-            <Row label="Objective" value={OBJECTIVE_LABELS[data.objective] ?? data.objective} />
+            <Row label="Objective" value={data.objectiveLabel ?? data.objective} />
           )}
           <Row label="Currency" value={currency} />
           <Row

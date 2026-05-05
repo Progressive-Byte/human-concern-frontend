@@ -43,7 +43,7 @@ export default function CampaignTabs({ campaign }) {
                 {campaign.objectives.map((obj, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-[16px] text-[#383838]">
                     {CircleCheckIcon}
-                    {obj}
+                    {typeof obj === "string" ? obj : obj.name ?? ""}
                   </li>
                 ))}
               </ul>
