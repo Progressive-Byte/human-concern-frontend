@@ -45,12 +45,8 @@ const DonationWidget = ({ campaign }) => {
       causes:           campaign.causes           ?? [],
     }));
 
-    const params = new URLSearchParams({
-      campaign: campaign.slug,
-      amount:       String(finalAmount),
-      currency,
-    });
-    router.push(`/donate/1?${params}`);
+    const params = new URLSearchParams({ amount: String(finalAmount), currency });
+    router.push(`/${campaign.slug}/1?${params}`);
   };
 
   const handleShare = async () => {

@@ -10,7 +10,7 @@ import StepLayout from "../DonateComponents/StepLayout";
 import Field from "@/components/ui/Field";
 import CustomDropdown from "@/components/common/CustomDropdown";
 
-const Step1Info = () => {
+const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
   const { user, isAuthenticated } = useAuth();
   const { handleNext } = useStepNavigation();
@@ -23,7 +23,7 @@ const Step1Info = () => {
   const prevAuthRef = useRef(isAuthenticated);
 
   useEffect(() => {
-    const campaign = searchParams.get("campaign");
+    const campaign = campaignSlug ?? searchParams.get("campaign");
     const amount       = searchParams.get("amount");
     const currency     = searchParams.get("currency");
     const isRamadan    = sessionStorage.getItem("donationIsRamadan") === "1";
