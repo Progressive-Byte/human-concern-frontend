@@ -125,15 +125,13 @@ const Step7PaymentDetails = () => {
   };
 
   const onNext = async () => {
-    console.log("Submitting with data:");
-    console.log(data);
+
     if (submitting) return;
 
     if (!data.causeIds?.length) {
       setSubmitError("Please go back to Step Cause' and select at least one cause.");
       return;
     }
-    console.log("Causes:", data.causeIds);
 
     update({ anonymous, paymentMethod: selectedGateway });
     setSubmitting(true);
@@ -146,7 +144,6 @@ const Step7PaymentDetails = () => {
       });
 
       const payment = res?.data?.payment ?? {};
-      console.log("Payment response:", res?.data);
       update({
         donationId:          res?.data?.donationId ?? null,
         stripeClientSecret:  payment.clientSecret  ?? null,
