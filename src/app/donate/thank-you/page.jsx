@@ -77,7 +77,7 @@ const ThankYouPage = () => {
 
   return (
     <main className="min-h-screen bg-[#F6F6F6] pb-20">
-      <div className="relative w-full overflow-hidden pt-[100px] lg:pt-[160px] pb-16">
+      <div className="relative w-full overflow-hidden pt-[100px] sm:pt-[120px] md:pt-[140px] lg:pt-[160px] pb-16 px-4 sm:px-6">
         {/* Left confetti */}
         <div className="absolute left-0 top-0 h-full pointer-events-none select-none z-[1] hidden md:block">
           <Image src="/images/left-celebration-background.png" alt="" width={320} height={600} className="h-full w-auto object-contain" />
@@ -88,11 +88,11 @@ const ThankYouPage = () => {
         </div>
 
         {/* Container */}
-        <div className="relative z-20 flex items-center justify-center px-4 sm:px-6">
-          <div className="relative w-full max-w-[1450px] min-h-[520px] flex flex-col md:flex-row items-center">
+        <div className="relative z-20 flex items-center justify-center">
+          <div className="relative w-full max-w-[1100px] min-h-[520px] flex flex-col md:flex-row items-center justify-center">
 
             {/* Left image */}
-            <div className="relative w-full md:absolute md:left-0 md:top-0 md:w-[52%] md:max-w-[721px] h-[260px] sm:h-[340px] md:h-[721px] rounded-[24px] overflow-hidden z-10">
+            <div className="relative w-full md:w-[55%] md:max-w-[600px] h-[260px] sm:h-[340px] md:h-[660px] rounded-[24px] overflow-hidden">
               <Image
                 src="/images/happy-thankyou.png"
                 alt="Happy children"
@@ -104,7 +104,7 @@ const ThankYouPage = () => {
             </div>
 
             {/* Card */}
-            <div className="relative z-20 w-full md:ml-auto md:w-[48%] md:max-w-[700px] h-auto md:h-[660px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 flex flex-col items-center text-center mt-4 md:mt-[30px] md:-translate-x-[12%] lg:-translate-x-[15%] shadow-2xl">
+            <div className="relative z-20 w-full md:w-[50%] md:max-w-[500px] h-auto md:h-[600px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 flex flex-col items-center text-center mt-4 md:-ml-[15%] lg:-ml-[18%] md:mt-[20px] shadow-2xl">
               <div className="mt-8">
                 {ThankyouIcon}
               </div>
