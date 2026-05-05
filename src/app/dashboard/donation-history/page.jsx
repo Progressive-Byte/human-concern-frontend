@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../components/DashboardHeader";
 import { ThankyouIcon, ShareCampaignIcon, CircleCheckIcon } from "@/components/common/SvgIcon";
@@ -17,7 +17,7 @@ const causes = ["All Causes", "Zakat", "Sadaqah", "Emergency"];
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-export default function DonationHistoryPage() {
+function DonationHistoryPage() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
@@ -282,5 +282,13 @@ export default function DonationHistoryPage() {
         </div>
       )}
     </>
+  );
+}
+
+export default function DonationHistory() {
+  return (
+    <Suspense fallback={<p className="text-white/50 text-sm">Loading…</p>}>
+      <DonationHistoryPage />
+    </Suspense>
   );
 }
