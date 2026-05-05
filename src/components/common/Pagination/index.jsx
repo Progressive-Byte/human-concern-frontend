@@ -24,7 +24,7 @@ const Pagination = ({ current = 1, total = 1, onPageChange }) => {
   }
 
   const btnBase =
-    "flex items-center gap-1 text-[10px] md:text-sm font-normal py-2 px-3 border rounded transition-all";
+    "flex items-center gap-1 text-[10px] md:text-sm font-normal py-2 px-3 border rounded transition-all cursor-pointer";
   const active  = "border-[#EA3335] bg-[#EA3335] text-white";
   const idle    = "border-gray-200 text-[#383838] hover:border-[#EA3335] hover:text-[#EA3335]";
   const disabled = "border-gray-100 text-gray-300 cursor-not-allowed";

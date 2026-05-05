@@ -16,7 +16,7 @@ const SORT_OPTIONS = [
 ];
 
 const ALL_OPTION = { label: "All", value: "" };
-const PAGE_SIZE  = 10;
+const PAGE_SIZE  = 1;
 
 function buildAPIParams({ q, categoryId, causeId, sort, page }) {
   const p = new URLSearchParams();
