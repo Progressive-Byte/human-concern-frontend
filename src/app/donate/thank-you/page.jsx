@@ -105,7 +105,7 @@ const ThankYouPage = () => {
 
             {/* Card */}
             <div className="relative z-20 w-full md:w-[50%] md:max-w-[500px] h-auto md:h-[600px] bg-white rounded-[24px] px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 flex flex-col items-center text-center mt-4 md:-ml-[15%] lg:-ml-[18%] md:mt-[20px] shadow-2xl">
-              <div className="mt-8">
+              <div className="mt-3">
                 {ThankyouIcon}
               </div>
 
