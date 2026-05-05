@@ -88,6 +88,7 @@ const Step7PaymentDetails = () => {
       causeIds: data.causeIds ?? [],
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: selectedGateway,
+      ...(anonymous && { isAnonymous: true }),
       addons: {
         items: addOnBreakdown.map((addon) => ({
           addOnId: addon.id,
