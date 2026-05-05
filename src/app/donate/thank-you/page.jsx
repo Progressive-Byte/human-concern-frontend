@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
-import { arrowIcon, ThankyouIcon, ShareCampaignIcon, CircleCheckIcon } from "@/components/common/SvgIcon";
+import { arrowIcon, ThankyouIcon, ShareCampaignIcon, CircleCheckIcon, DashboardTabIcon } from "@/components/common/SvgIcon";
 import { serverApiBase } from "@/utils/constants";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
@@ -178,10 +178,7 @@ const ThankYouPage = () => {
                   onClick={() => router.push("/dashboard")}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors active:scale-95 cursor-pointer"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                  </svg>
+                  {DashboardTabIcon}
                   View Dashboard
                 </button>
 
