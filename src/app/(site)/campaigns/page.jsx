@@ -246,7 +246,7 @@ const CampaignsPageInner = () => {
               options={causes}
               value={activeCause}
               onChange={handleCauseChange}
-              label="CAUSES"
+              label="CAMPAIGN CAUSES"
               icon={FilterIcon}
               showDot={!!activeCause}
               maxHeight="260px"
