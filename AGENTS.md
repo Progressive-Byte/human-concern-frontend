@@ -36,23 +36,25 @@ No test framework is configured.
 ### API layer
 
 - All calls through `src/services/api.js` using `fetch`.
-- `apiBase` = `/api/v1/` — Next.js rewrites this to `https://donation.api.sagsio.com/api/v1/*` via `next.config.mjs`. **No separate backend to run locally.**
+- `apiBase` = `/api/v1/` from `src/utils/constants.js` — Next.js rewrites this to `https://donation.api.sagsio.com/api/v1/*` via `next.config.mjs`. **No separate backend to run locally.**
 - `apiRequest` reads `token` cookie; `adminApiRequest` reads `adminToken` cookie. Both throw `Error` with server message on non-OK responses.
 - Cookie helpers in `src/utils/cookies.js` (browser-only — guards `typeof document === "undefined"`).
+- `/reset-password` redirects to `/user/reset-password` (next.config.mjs).
 
 ### Auth (two separate systems)
 
-- **User:** `AuthContext` — JWT in `token` cookie, user object in `localStorage["hc_user"]`.
-- **Admin:** `AdminAuthContext` — JWT in `adminToken` cookie.
+- **User:** `AuthContext` (`src/context/AuthContext.jsx`) — JWT in `token` cookie, user object in `localStorage["hc_user"]`.
+- **Admin:** `AdminAuthContext` (`src/context/AdminAuthContext.jsx`) — JWT in `adminToken` cookie.
 - `src/middleware.js` guards `/dashboard/*` (requires `token`) and `/admin/*` (requires `adminToken`), redirects authenticated users away from auth pages.
+- Auth routes: `/user/login`, `/user/register`, `/user/forgot-password`, `/user/reset-password` | Admin: `/admin/login`, `/admin/forgot-password`, `/admin/reset-password`
 
 ### Path aliases
 
 `@/` → `src/` (configured in `jsconfig.json`).
 
-### Styling
+### Contexts
 
-Tailwind CSS v4 via `@tailwindcss/postcss` plugin. Color palette uses inline hex literals (`#EA3335` red, `#055A46` green, `#383838` text, `#737373`/`#8C8C8C` muted). No CSS variables or theme tokens.
+`src/context/` — `AuthContext.jsx`, `AdminAuthContext.jsx`, `DonationContext.jsx`.
 
 ### Shared UI
 
@@ -63,3 +65,11 @@ Tailwind CSS v4 via `@tailwindcss/postcss` plugin. Color palette uses inline hex
 ### Services
 
 `src/services/` — `api.js`, `authService.js`, `adminAuthService.js`, `campaignService.js`, `donationService.js`
+
+### Utils
+
+`src/utils/` — `constants.js` (`apiBase`, `serverApiBase`), `cookies.js`, `helpers.js` (date/currency formatting)
+
+### Styling
+
+Tailwind CSS v4 via `@tailwindcss/postcss` plugin. Color palette uses inline hex literals (`#EA3335` red, `#055A46` green, `#383838` text, `#737373`/`#8C8C8C` muted). `postcss.config.mjs` defines a `custom-gradient` backgroundImage. No CSS variables or theme tokens.
