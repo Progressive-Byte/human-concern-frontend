@@ -229,7 +229,6 @@ const CampaignsPageInner = () => {
               />
             </div>
 
-            {/* Category filter — value is the category key (e.g. "education") */}
             <CustomDropdown
               options={categories}
               value={activeCategory}
