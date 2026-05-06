@@ -5,6 +5,7 @@ import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { useState, useMemo } from "react";
 import Select from "@/components/ui/Select";
+import MiniCalendar from "./StepComponents/MiniCalendar";
 
 const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time Payment", desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
