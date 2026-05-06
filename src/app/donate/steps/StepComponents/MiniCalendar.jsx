@@ -48,7 +48,7 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7">
         {DAY_LABELS.map((d) => (
           <span key={d} className="text-center text-[12px] font-medium text-[#AEAEAE]">
             {d}
@@ -56,7 +56,7 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
         ))}
       </div>
 
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 gap-1 mt-1">
         {cells.map((day, i) => {
           if (!day) return <span key={i} />;
           const dateStr = toDateStr(day);
