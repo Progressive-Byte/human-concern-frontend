@@ -83,3 +83,4 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
     </div>
   );
 }
+export default MiniCalendar;
