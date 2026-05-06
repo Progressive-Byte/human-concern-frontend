@@ -86,7 +86,7 @@ const Step2Cause = () => {
             <button
               key={cause.id ?? cause.label}
               onClick={() => toggle(cause)}
-              className={`flex flex-col items-start gap-2 rounded-xl p-4 border text-left transition-all
+              className={`flex flex-col items-start gap-2 rounded-xl p-4 border text-left transition-all cursor-pointer
                 ${active
                   ? "border-[#EA3335] bg-[#FFF5F5]"
                   : "border-[#E5E5E5] hover:border-[#CCCCCC] hover:bg-[#FAFAFA]"}`}
