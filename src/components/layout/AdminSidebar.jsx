@@ -5,22 +5,201 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
-function NavIcon({ children }) {
-  return <span className="inline-flex h-5 w-5 items-center justify-center text-[#A3A3A3]">{children}</span>;
+function Icon({ name }) {
+  if (name === "overview") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path
+          d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  if (name === "campaigns") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+      </svg>
+    );
+  }
+
+  if (name === "causes") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path
+          d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  if (name === "addons") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M4 4h16v16H4V4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" opacity="0.35" />
+      </svg>
+    );
+  }
+
+  if (name === "objectives") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M5 6h.01M5 12h.01M5 18h.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "donors") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path
+          d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M22 21v-2a4 4 0 0 0-3-3.87"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M16 3.13a4 4 0 0 1 0 7.75"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+
+  if (name === "transactions") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path
+          d="M4 7h16v10H4V7z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <path d="M4 10h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "donations") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path
+          d="M12 1v22"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  if (name === "schedules") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M8 7V3m8 4V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M4 8h16v12H4V8z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (name === "abandonments") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M4 7h16v13H4V7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M9 3h6l1 4H8l1-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M9 12l6 6M15 12l-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "settings") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path
+          d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
+        <path
+          d="M19.4 15a7.9 7.9 0 0 0 .1-2l2-1.2-2-3.5-2.3.6a7.7 7.7 0 0 0-1.7-1l-.3-2.4H11l-.3 2.4a7.7 7.7 0 0 0-1.7 1l-2.3-.6-2 3.5 2 1.2a7.9 7.9 0 0 0 .1 2l-2 1.2 2 3.5 2.3-.6c.5.4 1.1.8 1.7 1l.3 2.4h4l.3-2.4c.6-.2 1.2-.6 1.7-1l2.3.6 2-3.5-2-1.2z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+      <path
+        d="M12 20a8 8 0 1 0-8-8 8 8 0 0 0 8 8z"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <path
+        d="M12 8v4l2 2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function NavIcon({ name, className = "" }) {
+  return (
+    <span className={`inline-flex h-5 w-5 items-center justify-center ${className}`.trim()}>
+      <Icon name={name} />
+    </span>
+  );
 }
 
 const navItems = [
-  { href: "/admin", label: "Overview" },
-  { href: "/admin/campaigns", label: "Campaigns" },
-  { href: null, label: "Causes", disabled: true },
-  { href: null, label: "Addons", disabled: true },
-  { href: null, label: "Objectives", disabled: true },
-  { href: null, label: "Donors", disabled: true },
-  { href: null, label: "Transactions", disabled: true },
-  { href: "/admin/donations", label: "Donations" },
-  { href: null, label: "Schedules", disabled: true },
-  { href: null, label: "Abandonments", disabled: true },
-  { href: "/admin/adminSettings", label: "Settings" },
+  { href: "/admin", label: "Overview", icon: "overview" },
+  { href: "/admin/campaigns", label: "Campaigns", icon: "campaigns" },
+  { href: null, label: "Causes", icon: "causes", disabled: true },
+  { href: null, label: "Addons", icon: "addons", disabled: true },
+  { href: null, label: "Objectives", icon: "objectives", disabled: true },
+  { href: null, label: "Donors", icon: "donors", disabled: true },
+  { href: null, label: "Transactions", icon: "transactions", disabled: true },
+  { href: "/admin/donations", label: "Donations", icon: "donations" },
+  { href: null, label: "Schedules", icon: "schedules", disabled: true },
+  { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
+  { href: "/admin/adminSettings", label: "Settings", icon: "settings" },
 ];
 
 export default function AdminSidebar({ onNavigate }) {
@@ -53,16 +232,7 @@ export default function AdminSidebar({ onNavigate }) {
                 key={item.label}
                 className={`${base} cursor-not-allowed text-white/40`}
               >
-                <NavIcon>
-                  <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-                    <path
-                      d="M12 3l8 6v12H4V9l8-6z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </NavIcon>
+                <NavIcon name={item.icon} className="text-white/35" />
                 <span>{item.label}</span>
               </div>
             );
@@ -77,16 +247,7 @@ export default function AdminSidebar({ onNavigate }) {
                 active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <NavIcon>
-                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-                  <path
-                    d="M4 12h16M4 6h16M4 18h16"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </NavIcon>
+              <NavIcon name={item.icon} className={active ? "text-white" : "text-white/60"} />
               <span>{item.label}</span>
             </Link>
           );
@@ -99,7 +260,7 @@ export default function AdminSidebar({ onNavigate }) {
           onClick={logout}
           className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[14px] font-medium text-white/70 hover:bg-white/5 hover:text-white"
         >
-          <NavIcon>
+          <span className="inline-flex h-5 w-5 items-center justify-center text-white/60">
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
               <path
                 d="M10 17l-1 0a3 3 0 0 1-3-3V10a3 3 0 0 1 3-3h1"
@@ -121,7 +282,7 @@ export default function AdminSidebar({ onNavigate }) {
                 strokeLinecap="round"
               />
             </svg>
-          </NavIcon>
+          </span>
           <span>Sign Out</span>
         </button>
       </div>

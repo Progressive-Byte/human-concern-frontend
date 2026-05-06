@@ -1,0 +1,35 @@
+"use client";
+
+import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+
+export default function CampaignsHeader({ onCreate }) {
+  const { admin } = useAdminAuth();
+
+  return (
+    <div className="hc-animate-fade-up flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div>
+        <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">Campaigns</h1>
+        <p className="mt-1 text-[14px] text-[#6B7280]">Manage and monitor all fundraising campaigns</p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onCreate}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#262626] px-4 py-2.5 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-black"
+        >
+          <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-white/10">
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </span>
+          Create Campaign
+        </button>
+
+        <AdminAvatarMenu admin={admin} />
+      </div>
+    </div>
+  );
+}
+

@@ -5,7 +5,7 @@ export default function FundPerformanceTable({ items = [], currency = "USD" }) {
   const rows = Array.isArray(items) ? items : [];
 
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-[#E5E7EB] bg-white p-5">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
       <div className="mb-4">
         <h2 className="text-[16px] font-semibold text-[#111827]">Fund Performance</h2>
       </div>

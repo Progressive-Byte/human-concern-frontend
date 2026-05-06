@@ -32,7 +32,7 @@ export default function PromisedVsCollectedChart({ items = [] }) {
   }));
 
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-[#E5E7EB] bg-white p-5">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
       <div className="mb-4">
         <h2 className="text-[16px] font-semibold text-[#111827]">Promised vs Collected</h2>
       </div>

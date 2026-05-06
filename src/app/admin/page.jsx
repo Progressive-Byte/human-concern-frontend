@@ -112,11 +112,11 @@ function KpiIcon({ type }) {
 }
 
 function SkeletonCard() {
-  return <div className="h-24 animate-pulse rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA]" />;
+  return <div className="h-24 animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA]" />;
 }
 
 function SkeletonPanel({ className = "" }) {
-  return <div className={`h-80 animate-pulse rounded-2xl border border-[#E5E7EB] bg-white ${className}`.trim()} />;
+  return <div className={`h-80 animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-white ${className}`.trim()} />;
 }
 
 export default function AdminDashboardPage() {
@@ -183,7 +183,7 @@ export default function AdminDashboardPage() {
           </section>
 
           <section>
-            <div className="h-90 animate-pulse rounded-2xl border border-[#E5E7EB] bg-white" />
+            <div className="h-90 animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-white" />
           </section>
         </>
       ) : (

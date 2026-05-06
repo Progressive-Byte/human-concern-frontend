@@ -1,6 +1,6 @@
 export default function KpiCard({ label, value, icon }) {
   return (
-    <div className="group hc-animate-fade-up hc-hover-lift rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white">
+    <div className="group hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[12px] text-[#6B7280]">{label}</p>
