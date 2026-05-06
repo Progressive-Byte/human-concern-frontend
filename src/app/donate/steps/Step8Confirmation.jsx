@@ -49,7 +49,13 @@ const Step8Confirmation = () => {
               stripe={stripePromise}
               options={{ clientSecret: data.stripeClientSecret, appearance }}
             >
-              <StripeCheckoutForm grandTotal={data.grandTotal} currency={data.currency} isRecurring={isRecurring} />
+              <StripeCheckoutForm
+                grandTotal={data.grandTotal}
+                currency={data.currency}
+                isRecurring={isRecurring}
+                donationId={data.donationId}
+                guestSessionId={data.guestSessionId}
+              />
             </Elements>
           ) : isStripe ? (
             <div className="flex flex-col items-center gap-3 py-8 text-center">

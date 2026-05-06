@@ -134,8 +134,9 @@ const Step7PaymentDetails = () => {
 
       const payment = res?.data?.payment ?? {};
       update({
-        donationId:          res?.data?.donationId ?? null,
-        stripeClientSecret:  payment.clientSecret  ?? null,
+        donationId:           res?.data?.donationId    ?? null,
+        guestSessionId:       res?.data?.guestSessionId ?? null,
+        stripeClientSecret:   payment.clientSecret      ?? null,
         stripePublishableKey: publishableKey,
       });
 

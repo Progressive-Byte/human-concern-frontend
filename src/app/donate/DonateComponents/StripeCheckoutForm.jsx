@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-export default function StripeCheckoutForm({ grandTotal, currency, isRecurring }) {
+export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, donationId, guestSessionId }) {
   const stripe   = useStripe();
   const elements = useElements();
   const router   = useRouter();
@@ -53,9 +53,11 @@ export default function StripeCheckoutForm({ grandTotal, currency, isRecurring }
           await apiRequest("payment/setup-intent/confirm", {
             method: "POST",
             body: JSON.stringify({
+              donationId,
               setupIntentId:   setupIntent.id,
               paymentMethodId: setupIntent.payment_method,
             }),
+            headers: guestSessionId ? { "x-guest-session-id": guestSessionId } : {},
           });
         } catch (err) {
           setError(err.message ?? "Failed to confirm setup. Please contact support.");
