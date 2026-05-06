@@ -48,7 +48,7 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
         </button>
       </div>
 
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 gap-2">
         {DAY_LABELS.map((d) => (
           <span key={d} className="text-center text-[12px] font-medium text-[#AEAEAE]">
             {d}
@@ -72,7 +72,7 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
               disabled={isPast}
               onClick={() => onToggleDate(dateStr)}
               className={[
-                "w-full aspect-square flex items-center justify-center rounded text-[14px] font-medium transition-all",
+                "w-full aspect-square flex items-center justify-center rounded text-[12px] font-medium transition-all",
                 isPast ? "text-[#D0D0D0] cursor-not-allowed" : "cursor-pointer",
                 isSel
                   ? "bg-[#EA3335] text-white"
