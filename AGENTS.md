@@ -1,75 +1,126 @@
-# AGENTS.md
+# Workflow Orchestration
 
-## Commands
+Disciplined task execution with planning, verification, and self-improvement loops.
 
-```bash
-npm run dev      # Dev server (localhost:3000)
-npm run build    # Production build
-npm run lint     # ESLint (v9 + next/core-web-vitals)
-npm run start    # Serve production build
-```
+Use when:
+- Starting non-trivial tasks (3+ steps)
+- Fixing bugs
+- Building features
+- Refactoring code
+- When rigorous execution with quality gates is needed 
 
-No test framework is configured.
+Includes:
+- Subagent delegation
+- Lessons tracking
+- Staff-engineer-level verification
 
-## Architecture
+--------------------------------------------------
+Quick Reference
+--------------------------------------------------
 
-**Next.js 16 App Router** with React 19, Tailwind CSS v4, plain JavaScript (`.jsx`). No TypeScript.
+Plan Mode
+  Apply for any task with 3+ steps or architectural decisions
 
-### Route groups
+Subagents
+  Use for research, exploration, and parallel analysis
 
-| Group | Prefix | Purpose |
-|---|---|---|
-| `(site)` | `/`, `/campaigns` | Public marketing pages |
-| `(auth)` | `/user/*`, `/admin/login` etc. | Login / register / password reset |
-| `dashboard` | `/dashboard/*` | Authenticated user portal |
-| `admin` | `/admin/*` | Admin panel (separate auth) |
-| `donate` | `/donate/[step]` | Multi-step donation wizard |
+Lessons
+  Update after ANY user correction
 
-### Donate wizard (`src/app/donate/`)
+Verification
+  Required before marking any task complete
 
-- Driven by `donate/[step]/page.jsx` mapping step numbers 1–8 via a `STEPS` array.
-- Step order: Info → Cause → Objective (Ramadan only) → Payment → Add-ons → Summary → Payment Details → Confirmation.
-- When `isRamadan` is false, Step 3 is skipped and `StepLayout` adjusts display numbering (`displayStep = step > 3 ? step - 1 : step`).
-- Campaign metadata stored in `sessionStorage["campaignData"]` (set by `DonationWidget` before routing to `/donate/1`). `isRamadan` flag stored separately in `sessionStorage["donationIsRamadan"]`.
-- `DonationContext` (`src/context/DonationContext.jsx`) holds wizard state in-memory — **resets on page refresh**.
+Elegance Check
+  Apply to non-trivial changes only
 
-### API layer
+--------------------------------------------------
+1. Plan Mode Default
+--------------------------------------------------
 
-- All calls through `src/services/api.js` using `fetch`.
-- `apiBase` = `/api/v1/` from `src/utils/constants.js` — Next.js rewrites this to `https://donation.api.sagsio.com/api/v1/*` via `next.config.mjs`. **No separate backend to run locally.**
-- `apiRequest` reads `token` cookie; `adminApiRequest` reads `adminToken` cookie. Both throw `Error` with server message on non-OK responses.
-- Cookie helpers in `src/utils/cookies.js` (browser-only — guards `typeof document === "undefined"`).
-- `/reset-password` redirects to `/user/reset-password` (next.config.mjs).
+- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
+- If something goes sideways, STOP and re-plan immediately
+- Use plan mode for verification steps, not just building
+- Write detailed specs upfront to reduce ambiguity
 
-### Auth (two separate systems)
+--------------------------------------------------
+2. Subagent Strategy
+--------------------------------------------------
 
-- **User:** `AuthContext` (`src/context/AuthContext.jsx`) — JWT in `token` cookie, user object in `localStorage["hc_user"]`.
-- **Admin:** `AdminAuthContext` (`src/context/AdminAuthContext.jsx`) — JWT in `adminToken` cookie.
-- `src/middleware.js` guards `/dashboard/*` (requires `token`) and `/admin/*` (requires `adminToken`), redirects authenticated users away from auth pages.
-- Auth routes: `/user/login`, `/user/register`, `/user/forgot-password`, `/user/reset-password` | Admin: `/admin/login`, `/admin/forgot-password`, `/admin/reset-password`
+Keep the main context window clean:
 
-### Path aliases
+- Offload research, exploration, and parallel analysis to subagents
+- For complex problems, throw more compute at it via subagents
+- One task per subagent for focused execution
 
-`@/` → `src/` (configured in `jsconfig.json`).
+--------------------------------------------------
+3. Self-Improvement Loop
+--------------------------------------------------
 
-### Contexts
+After ANY correction from the user:
 
-`src/context/` — `AuthContext.jsx`, `AdminAuthContext.jsx`, `DonationContext.jsx`.
+- Update tasks/lessons.md with the pattern
+- Write rules that prevent the same mistake
+- Review lessons at session start
 
-### Shared UI
+See references/lessons-format.md for the template.
 
-- `src/components/ui/` — `Field`, `Input`, `Select`, `Toggle`, `Stepper`, `NumberInput`, `Row`, `Button`, `Card`
-- `src/components/common/CustomDropdown.jsx` — searchable country/state/city selects (uses `country-state-city` package)
-- `src/components/layout/` — `Navbar`, `Footer`, `Sidebar`, `AdminSidebar`
+--------------------------------------------------
+4. Verification Before Done
+--------------------------------------------------
 
-### Services
+- Never mark a task complete without proving it works
+- Diff behavior between main and your changes when relevant
+- Ask yourself: "Would a staff engineer approve this?"
+- Run tests, check logs, demonstrate corrections
 
-`src/services/` — `api.js`, `authService.js`, `adminAuthService.js`, `campaignService.js`, `donationService.js`
+--------------------------------------------------
+5. Demand Elegance (Balanced)
+--------------------------------------------------
 
-### Utils
+For non-trivial changes:
+- Pause and ask "is there a more elegant way?"
+- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
 
-`src/utils/` — `constants.js` (`apiBase`, `serverApiBase`), `cookies.js`, `helpers.js` (date/currency formatting)
+Skip this for simple, obvious fixes — don't over-engineer
 
-### Styling
+--------------------------------------------------
+6. Autonomous Bug Fixing
+--------------------------------------------------
 
-Tailwind CSS v4 via `@tailwindcss/postcss` plugin. Color palette uses inline hex literals (`#EA3335` red, `#055A46` green, `#383838` text, `#737373`/`#8C8C8C` muted). `postcss.config.mjs` defines a `custom-gradient` backgroundImage. No CSS variables or theme tokens.
+When given a bug report:
+
+- Just fix it. Don't ask for hand-holding
+- Point at logs, errors, failing tests — then resolve them
+- Zero context switching required from the user
+
+--------------------------------------------------
+Task Management Protocol
+--------------------------------------------------
+
+Plan First:
+- Write plan to tasks/todo.md with checkable items
+
+Verify Plan:
+- Check in before starting implementation
+
+Track Progress:
+- Mark items complete as you go
+
+Explain Changes:
+- High-level summary at each step
+
+Document Results:
+- Add review to tasks/todo.md
+
+Capture Lessons:
+- Update tasks/lessons.md after corrections
+
+See references/task-templates.md for file templates.
+
+--------------------------------------------------
+Core Principles
+--------------------------------------------------
+
+- Simplicity First: Make every change as simple as possible
+- No Laziness: Find root causes. No temporary fixes. Senior developer standards
+- Minimal Impact: Only touch what's necessary. Avoid introducing bugs
