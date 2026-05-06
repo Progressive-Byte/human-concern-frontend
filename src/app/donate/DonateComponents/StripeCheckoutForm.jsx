@@ -51,16 +51,16 @@ export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, 
       if (setupIntent?.status === "succeeded") {
         try {
           await apiRequest("payment/setup-intent/confirm", {
-  method: "POST",
-  body: JSON.stringify({
-    donationId,
-    setupIntentId: setupIntent.id,
-    paymentMethodId: setupIntent.payment_method,
-  }),
-  headers: guestSessionId
-    ? { "x-guest-session-id": String(guestSessionId) }
-    : {},
-});
+            method: "POST",
+            body: JSON.stringify({
+              donationId,
+              setupIntentId: setupIntent.id,
+              paymentMethodId: setupIntent.payment_method,
+            }),
+            headers: guestSessionId
+              ? { "x-guest-session-id": String(guestSessionId) }
+              : {},
+          });
         } catch (err) {
           setError(err.message ?? "Failed to confirm setup. Please contact support.");
           setLoading(false);
