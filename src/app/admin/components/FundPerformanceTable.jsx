@@ -5,7 +5,7 @@ export default function FundPerformanceTable({ items = [], currency = "USD" }) {
   const rows = Array.isArray(items) ? items : [];
 
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-[#E5E7EB] bg-white p-5">
       <div className="mb-4">
         <h2 className="text-[16px] font-semibold text-[#111827]">Fund Performance</h2>
       </div>
@@ -28,7 +28,10 @@ export default function FundPerformanceTable({ items = [], currency = "USD" }) {
             </thead>
             <tbody className="text-[13px] text-[#111827]">
               {rows.map((item) => (
-                <tr key={item?.fundKey || item?.fundCode || item?.fundCause} className="border-t border-[#F3F4F6]">
+                <tr
+                  key={item?.fundKey || item?.fundCode || item?.fundCause}
+                  className="border-t border-[#F3F4F6] transition-colors duration-200 hover:bg-[#F9FAFB]"
+                >
                   <td className="py-3 pr-4">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{item?.fundCause || "—"}</span>
@@ -58,4 +61,3 @@ export default function FundPerformanceTable({ items = [], currency = "USD" }) {
     </div>
   );
 }
-

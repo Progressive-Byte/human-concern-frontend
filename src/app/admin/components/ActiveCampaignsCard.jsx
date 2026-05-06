@@ -5,7 +5,7 @@ export default function ActiveCampaignsCard({ items = [], currency = "USD" }) {
   const rows = Array.isArray(items) ? items : [];
 
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-[#E5E7EB] bg-white p-5">
       <div className="mb-4">
         <h2 className="text-[16px] font-semibold text-[#111827]">Active Campaigns</h2>
       </div>
@@ -17,7 +17,10 @@ export default function ActiveCampaignsCard({ items = [], currency = "USD" }) {
       ) : (
         <div className="space-y-5">
           {rows.map((item) => (
-            <div key={item?.campaignId || item?.campaignName} className="space-y-2">
+            <div
+              key={item?.campaignId || item?.campaignName}
+              className="space-y-2 rounded-xl px-3 py-2 -mx-3 transition-colors duration-200 hover:bg-[#F9FAFB]"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="truncate text-[13px] font-medium text-[#111827]">
@@ -40,4 +43,3 @@ export default function ActiveCampaignsCard({ items = [], currency = "USD" }) {
     </div>
   );
 }
-

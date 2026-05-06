@@ -41,6 +41,74 @@
   .font-playfair {
     font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
   }
+
+  .hc-hover-lift {
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+    will-change: transform;
+  }
+
+  .hc-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
+  }
+
+  @keyframes hc-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes hc-dropdown {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .hc-animate-fade-up {
+    animation: hc-fade-up 220ms ease-out both;
+  }
+
+  .hc-animate-dropdown {
+    animation: hc-dropdown 160ms ease-out both;
+    transform-origin: top right;
+  }
+
+  .hc-delay-1 {
+    animation-delay: 60ms;
+  }
+
+  .hc-delay-2 {
+    animation-delay: 120ms;
+  }
+
+  .hc-delay-3 {
+    animation-delay: 180ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-hover-lift {
+      transition: none;
+    }
+    .hc-hover-lift:hover {
+      transform: none;
+      box-shadow: none;
+    }
+    .hc-animate-fade-up,
+    .hc-animate-dropdown {
+      animation: none;
+    }
+  }
 }
 .hc-navigation-button {
   display: flex;
