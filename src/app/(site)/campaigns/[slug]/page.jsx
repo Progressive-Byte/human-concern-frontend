@@ -78,15 +78,16 @@ export default async function CampaignPage({ params }) {
 
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   {campaign.zakatEligible && (
+                    console.log("Campaign is Zakat eligible", campaign),
                     <span className="bg-[#E6F9F0] text-[#10B981] rounded-full px-2.5 py-1 text-xs font-medium">
                       Zakat Eligible
                     </span>
                   )}
-                  {campaign.campaignType && (
-                    <span className="bg-white/90 text-[#383838] rounded-full px-2.5 py-1 text-xs font-medium capitalize">
-                      {campaign.campaignType}
+                  {campaign.categories?.length > 0 && campaign.categories.map((cat) => (
+                    <span key={cat.id} className="bg-white/90 text-[#383838] rounded-full px-2.5 py-1 text-xs font-medium capitalize">
+                      {cat.name}
                     </span>
-                  )}
+                  ))}
                 </div>
               </div>
             )}
