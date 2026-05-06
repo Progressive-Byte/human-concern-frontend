@@ -50,7 +50,7 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
 
       <div className="grid grid-cols-7">
         {DAY_LABELS.map((d) => (
-          <span key={d} className="text-center text-[8px] font-medium text-[#AEAEAE]">
+          <span key={d} className="text-center text-[12px] font-medium text-[#AEAEAE]">
             {d}
           </span>
         ))}
