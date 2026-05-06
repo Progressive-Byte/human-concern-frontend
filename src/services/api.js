@@ -9,14 +9,17 @@ function getCookieValue(name) {
 async function makeRequest(endpoint, options = {}, cookieName = "token") {
   const token = getCookieValue(cookieName);
 
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(options.headers || {}),
+  };
+
   const response = await fetch(`${apiBase}${endpoint}`, {
+    method: options.method || "GET",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
-    ...options,
+    headers,
+    body: options.body,
   });
 
   if (!response.ok) {
