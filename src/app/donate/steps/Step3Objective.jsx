@@ -48,7 +48,7 @@ const Step3Objectives = () => {
             <button
               key={obj.id}
               onClick={() => update({ objective: obj.id, objectiveLabel: obj.label })}
-              className={`w-full flex flex-col items-start rounded-3xl px-5 py-4 border text-left transition-all
+              className={`w-full flex flex-col items-start rounded-3xl px-5 py-4 border text-left transition-all cursor-pointer
                 ${active
                   ? "border-[#EA3335] bg-white"
                   : "border-[#E5E5E5] hover:border-[#CCCCCC] bg-white"}`}
