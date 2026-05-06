@@ -30,12 +30,6 @@ const CURRENCY_OPTIONS = [
   { label: "CAD (CA$)", value: "CAD", symbol: "CA$" },
 ];
 
-const MONTH_NAMES = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
-];
-const DAY_LABELS = ["Su","Mo","Tu","We","Th","Fr","Sa"];
-
 
 function countOccurrences(start, end, freq) {
   if (!start || !end) return 0;

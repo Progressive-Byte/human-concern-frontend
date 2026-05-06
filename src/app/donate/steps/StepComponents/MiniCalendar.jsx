@@ -1,5 +1,11 @@
 import { useState } from "react";
 
+const MONTH_NAMES = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+];
+const DAY_LABELS = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+
 const MiniCalendar = ({ selectedDates, onToggleDate }) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
