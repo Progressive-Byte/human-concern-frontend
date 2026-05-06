@@ -48,16 +48,17 @@ const Step7PaymentDetails = () => {
 
   const campaignName   = campaignMeta.name ?? "";
   const currency       = data.currency       ?? "USD";
-  const amountTier     = data.amountTier     ?? 0;
-  const paymentType    = data.paymentType    ?? "one-time";
-  const frequency      = data.frequency      ?? "Daily";
-  const numberOfDays   = data.numberOfDays   ?? 30;
-  const tipPct         = data.tipPct         ?? 0;
-  const addOnBreakdown = data.addOnBreakdown ?? [];
-  const isRecurring    = paymentType === "recurring";
+  const amountTier      = data.amountTier      ?? 0;
+  const paymentType     = data.paymentType     ?? "one-time";
+  const scheduleType    = data.scheduleType    ?? "date_range";
+  const scheduleConfig  = data.scheduleConfig  ?? {};
+  const installmentCount = data.installmentCount ?? data.numberOfDays ?? 1;
+  const tipPct          = data.tipPct          ?? 0;
+  const addOnBreakdown  = data.addOnBreakdown  ?? [];
+  const isRecurring     = paymentType === "recurring";
 
   const sym          = CURRENCY_SYMBOLS[currency] ?? "$";
-  const baseDonation = isRecurring ? amountTier * numberOfDays : amountTier;
+  const baseDonation = isRecurring ? amountTier * installmentCount : amountTier;
   const tipAmount    = Math.round((baseDonation * tipPct) / 100 * 100) / 100;
   const grandTotal   = data.grandTotal ?? (baseDonation + tipAmount);
 
@@ -92,20 +93,13 @@ const Step7PaymentDetails = () => {
     };
 
     if (isRecurring) {
-      const startDate = new Date();
-      const endDate   = new Date();
-      endDate.setDate(endDate.getDate() + numberOfDays - 1);
       body.payment = {
         paymentMode:    "split",
         amount:         amountTier,
         currency,
         ...(tipPct > 0 && { platformTipPercent: tipPct }),
-        scheduleType:   "date_range",
-        scheduleConfig: {
-          startDate: startDate.toISOString(),
-          endDate:   endDate.toISOString(),
-          frequency: frequency.toLowerCase(),
-        },
+        scheduleType,
+        scheduleConfig,
       };
     } else {
       body.payment = {
@@ -176,14 +170,35 @@ const Step7PaymentDetails = () => {
           )}
           <Row label="Currency" value={currency} />
           <Row
-            label={isRecurring ? `Donation Amount (per ${frequency.toLowerCase()})` : "Donation Amount"}
+            label={isRecurring ? "Donation Amount (per payment)" : "Donation Amount"}
             value={`${sym}${amountTier.toLocaleString()}`}
           />
           {isRecurring && (
             <>
-              <Row label="Frequency" value={frequency} />
               <Row
-                label={`Split Amount (${numberOfDays} Days)`}
+                label="Schedule"
+                value={scheduleType === "specific_dates" ? "Specific Dates" : "Date Range"}
+              />
+              {scheduleType === "date_range" && scheduleConfig.frequency && (
+                <>
+                  <Row
+                    label="Frequency"
+                    value={scheduleConfig.frequency.charAt(0).toUpperCase() + scheduleConfig.frequency.slice(1)}
+                  />
+                  <Row
+                    label="Period"
+                    value={`${scheduleConfig.startDate?.split("T")[0] ?? ""} → ${scheduleConfig.endDate?.split("T")[0] ?? ""}`}
+                  />
+                </>
+              )}
+              {scheduleType === "specific_dates" && (
+                <Row
+                  label="Dates Selected"
+                  value={`${installmentCount} date${installmentCount !== 1 ? "s" : ""}`}
+                />
+              )}
+              <Row
+                label={`Total Split (${installmentCount} payment${installmentCount !== 1 ? "s" : ""})`}
                 value={`${sym}${baseDonation.toLocaleString()}.00`}
               />
             </>

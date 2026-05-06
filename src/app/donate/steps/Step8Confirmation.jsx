@@ -27,7 +27,8 @@ const Step8Confirmation = () => {
     },
   };
 
-  const isStripe = data.paymentMethod === "stripe";
+  const isStripe     = data.paymentMethod === "stripe";
+  const isRecurring  = data.paymentType === "recurring";
   const hasStripeSession = data.stripeClientSecret && data.stripePublishableKey;
 
   return (
@@ -48,7 +49,7 @@ const Step8Confirmation = () => {
               stripe={stripePromise}
               options={{ clientSecret: data.stripeClientSecret, appearance }}
             >
-              <StripeCheckoutForm grandTotal={data.grandTotal} currency={data.currency} />
+              <StripeCheckoutForm grandTotal={data.grandTotal} currency={data.currency} isRecurring={isRecurring} />
             </Elements>
           ) : isStripe ? (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
