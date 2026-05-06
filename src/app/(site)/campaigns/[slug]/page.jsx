@@ -78,7 +78,6 @@ export default async function CampaignPage({ params }) {
 
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   {campaign.zakatEligible && (
-                    console.log("Campaign is Zakat eligible", campaign),
                     <span className="bg-[#E6F9F0] text-[#10B981] rounded-full px-2.5 py-1 text-xs font-medium">
                       Zakat Eligible
                     </span>
