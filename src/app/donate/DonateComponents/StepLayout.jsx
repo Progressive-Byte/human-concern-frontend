@@ -28,6 +28,7 @@ export default function StepLayout({
 }) {
   const router = useRouter();
   const { data } = useDonation();
+  const base = data.campaign ? `/${data.campaign}` : "/donate";
   const totalSteps = data.isRamadan ? STEP_LABELS.length : STEP_LABELS.length - 1;
   const displayStep = !data.isRamadan && step > 3 ? step - 1 : step;
 
@@ -54,7 +55,7 @@ export default function StepLayout({
             <div>
               {step > 1 ? (
                 <button
-                  onClick={() => onPrev ? onPrev() : router.push(`/donate/${step - 1}`)}
+                  onClick={() => onPrev ? onPrev() : router.push(`${base}/${step - 1}`)}
                   className="flex items-center gap-1.5 px-5 py-2.5 text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"
                 >
                   {ArrowPrevIcon}

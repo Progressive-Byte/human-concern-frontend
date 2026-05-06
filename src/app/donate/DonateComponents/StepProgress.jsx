@@ -19,6 +19,7 @@ const STEPS = [
 export default function StepProgress({ current }) {
   const { data } = useDonation();
   const maxStep = data.maxStep ?? 1;
+  const base = data.campaign ? `/${data.campaign}` : "/donate";
 
   const visibleSteps = STEPS
     .map((label, i) => ({ label, step: i + 1 }))
@@ -51,7 +52,7 @@ export default function StepProgress({ current }) {
           <div key={step} className="flex items-center">
             <div className="flex flex-col items-center gap-1">
               {reachable ? (
-                <Link href={`/donate/${step}`} className="flex flex-col items-center gap-1">
+                <Link href={`${base}/${step}`} className="flex flex-col items-center gap-1">
                   {dot}
                   <span
                     className={`text-[10px] font-medium hidden sm:block transition-colors whitespace-nowrap
