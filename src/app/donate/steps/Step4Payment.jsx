@@ -65,8 +65,9 @@ const Step4Payment = () => {
   const initAmount   = data.amountTier ?? Number(data.amount) ?? suggestedAmounts[0] ?? 25;
   const isCustomInit = initAmount && !suggestedAmounts.includes(initAmount);
 
-  const [selectedTier, setSelectedTier] = useState(isCustomInit ? null : (initAmount || suggestedAmounts[0]));
-  const [customAmount, setCustomAmount] = useState(isCustomInit ? String(initAmount) : "");
+  const [selectedTier,      setSelectedTier]      = useState(isCustomInit ? null : (initAmount || suggestedAmounts[0]));
+  const [customAmount,      setCustomAmount]      = useState(isCustomInit ? String(initAmount) : "");
+  const [customAmountError, setCustomAmountError] = useState("");
 
   const [scheduleType, setScheduleType] = useState(data.scheduleType ?? "specific_dates");
   const [selectedDates, setSelectedDates] = useState(() => {
@@ -115,6 +116,7 @@ const Step4Payment = () => {
       title="Payment"
       subtitle="Choose between a one-time or split donation, select an amount or enter a custom value"
       onNext={() => {
+        if (customAmountError) return;
         update({
           paymentType,
           currency,
@@ -287,17 +289,46 @@ const Step4Payment = () => {
             <input
               type="number"
               value={customAmount}
-              onChange={(e) => { setCustomAmount(e.target.value); setSelectedTier(null); }}
-              placeholder={`Enter amount${minDonation ? ` (min ${sym}${minDonation})` : ""}`}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomAmount(val);
+                setSelectedTier(null);
+                if (val === "") { setCustomAmountError(""); return; }
+                const num = Number(val);
+                if (num < minDonation) {
+                  setCustomAmountError(`Minimum donation amount is ${sym}${minDonation}`);
+                } else if (maxDonation && num > maxDonation) {
+                  setCustomAmountError(`Maximum donation amount is ${sym}${maxDonation}`);
+                } else {
+                  setCustomAmountError("");
+                }
+              }}
+              onBlur={() => {
+                if (!customAmount) return;
+                const num = Number(customAmount);
+                if (num < minDonation) {
+                  setCustomAmount(String(minDonation));
+                  setCustomAmountError("");
+                } else if (maxDonation && num > maxDonation) {
+                  setCustomAmount(String(maxDonation));
+                  setCustomAmountError("");
+                }
+              }}
+              placeholder={`Enter amount (${sym}${minDonation}${maxDonation ? ` – ${sym}${maxDonation}` : "+"})`}
               min={minDonation}
               max={maxDonation}
-              className={`w-full pl-9 pr-4 py-3 rounded-xl border text-[15px] outline-none transition-colors focus:border-[#EA3335] ${
-                customAmount
+              className={`w-full pl-9 pr-4 py-3 rounded-xl border text-[15px] outline-none transition-colors ${
+                customAmountError
                   ? "border-[#EA3335] bg-[#FFF5F5] text-[#383838]"
-                  : "border-[#E5E5E5] bg-white text-[#383838]"
+                  : customAmount
+                  ? "border-[#EA3335] bg-[#FFF5F5] text-[#383838]"
+                  : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335]"
               }`}
             />
           </div>
+          {customAmountError && (
+            <p className="text-[12px] text-[#EA3335] mt-1.5 px-1">{customAmountError}</p>
+          )}
         </div>
 
         {/* Total */}
