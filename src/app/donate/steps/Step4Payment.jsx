@@ -3,7 +3,7 @@
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Select from "@/components/ui/Select";
 import MiniCalendar from "./StepComponents/MiniCalendar";
 import countOccurrences from "./StepComponents/countOccurrences";
@@ -36,12 +36,28 @@ const Step4Payment = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 
-  const suggestedAmounts = useMemo(() => {
+  const { suggestedAmounts, allowRecurring, minDonation, maxDonation } = useMemo(() => {
     try {
-      const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
-      return meta.suggestedAmounts?.length ? meta.suggestedAmounts : [25, 50, 100];
-    } catch { return [25, 50, 100]; }
+      const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
+      const goalsDates = meta.goalsDates ?? {};
+      return {
+        suggestedAmounts: meta.suggestedAmounts?.length ? meta.suggestedAmounts : [25, 50, 100],
+        allowRecurring:   goalsDates.allowRecurringDonations ?? true,
+        minDonation:      goalsDates.minimumDonation         ?? 1,
+        maxDonation:      goalsDates.maximumDonation         ?? undefined,
+      };
+    } catch {
+      return { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined };
+    }
   }, []);
+
+  // If recurring is not allowed but was previously selected, reset to one-time
+  useEffect(() => {
+    if (!allowRecurring && data.paymentType === "recurring") {
+      update({ paymentType: "one-time" });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowRecurring]);
 
   const paymentType = data.paymentType ?? "one-time";
   const currency    = data.currency    ?? "USD";
@@ -118,7 +134,7 @@ const Step4Payment = () => {
       <div className="flex flex-col gap-4">
         {/* Payment type */}
         <div className="flex flex-col gap-2.5">
-          {PAYMENT_TYPES.map((type) => {
+          {PAYMENT_TYPES.filter((t) => t.value === "one-time" || allowRecurring).map((type) => {
             const active = paymentType === type.value;
             return (
               <button
@@ -272,8 +288,9 @@ const Step4Payment = () => {
               type="number"
               value={customAmount}
               onChange={(e) => { setCustomAmount(e.target.value); setSelectedTier(null); }}
-              placeholder="Enter amount"
-              min={1}
+              placeholder={`Enter amount${minDonation ? ` (min ${sym}${minDonation})` : ""}`}
+              min={minDonation}
+              max={maxDonation}
               className={`w-full pl-9 pr-4 py-3 rounded-xl border text-[15px] outline-none transition-colors focus:border-[#EA3335] ${
                 customAmount
                   ? "border-[#EA3335] bg-[#FFF5F5] text-[#383838]"
