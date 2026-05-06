@@ -116,6 +116,42 @@ const DonationWidget = ({ campaign }) => {
               <p className="text-[14px] font-normal text-[#383838] mt-0.5">Days Left</p>
             </div>
           </div>
+
+          {/* How Your Donation Helps */}
+          {suggestedAmounts.length > 0 && (
+            <div className="mt-5">
+              <p className="text-[16px] font-bold text-[#383838]">How Your Donation Helps</p>
+              <div className="mt-3">
+                <CustomDropdown
+                  options={CURRENCY_OPTIONS}
+                  value={currency}
+                  onChange={setCurrency}
+                  width="w-full"
+                  className="w-full rounded-2xl border border-[#CCCCCC] bg-white px-3 py-2.5 justify-between"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                {suggestedAmounts.map((amt) => {
+                  const isSelected = selectedAmount === amt && !customAmount;
+                  return (
+                    <button
+                      key={amt}
+                      onClick={() => { setSelectedAmount(amt); setCustomAmount(""); }}
+                      className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
+                        isSelected
+                          ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
+                          : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                      }`}
+                    >
+                      <span className={`text-[24px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
+                        ${amt}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Buttons */}
@@ -161,71 +197,30 @@ const DonationWidget = ({ campaign }) => {
           </div>
         )}
       </div>
+      
+      {/* Custom amount input */}
+      {/* <div className="relative mt-3">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
+        <input
+          type="number"
+          value={customAmount}
+          onChange={(e) => setCustomAmount(e.target.value)}
+          placeholder={`Other amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
+          min={limits.minimumDonation ?? 1}
+          max={limits.maximumDonation ?? undefined}
+          className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
+            customAmount
+              ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
+              : "border-[#CCCCCC] bg-white text-[#383838]"
+          } focus:border-[#055A46]`}
+        />
+      </div>
 
-      {/* Card 2: Choose Amount */}
-      {suggestedAmounts.length > 0 && (
-        <div className="bg-[#F9F9F9] rounded-2xl border border-dashed border-[#BFBFBF]">
-          <div className="px-5 py-5">
-            <p className="text-[20px] font-bold text-[#383838]">How Your Donation Helps</p>
-            <div className="mt-5">
-              <CustomDropdown
-                options={CURRENCY_OPTIONS}
-                value={currency}
-                onChange={setCurrency}
-                width="w-full"
-                className="w-full rounded-2xl border border-[#CCCCCC] bg-white px-3 py-2.5 justify-between"
-              />
-            </div>
-
-            {/* Suggested amount tiles */}
-            <div className="flex flex-col gap-3 mt-4">
-              {suggestedAmounts.map((amt) => {
-                const isSelected = selectedAmount === amt && !customAmount;
-                return (
-                  <button
-                    key={amt}
-                    onClick={() => { setSelectedAmount(amt); setCustomAmount(""); }}
-                    className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-6 border transition-all duration-200 cursor-pointer ${
-                      isSelected
-                        ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-                        : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
-                    }`}
-                  >
-                    <span className={`text-[28px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
-                      ${amt}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Custom amount input */}
-            {/* <div className="relative mt-3">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
-              <input
-                type="number"
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                placeholder={`Other amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
-                min={limits.minimumDonation ?? 1}
-                max={limits.maximumDonation ?? undefined}
-                className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
-                  customAmount
-                    ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
-                    : "border-[#CCCCCC] bg-white text-[#383838]"
-                } focus:border-[#055A46]`}
-              />
-            </div>
-
-            {limits.allowRecurringDonations && (
-              <p className="text-[12px] text-[#737373] mt-3 text-center">
-                Recurring donations available at checkout
-              </p>
-            )} */}
-          </div>
-        </div>
-      )}
-
+      {limits.allowRecurringDonations && (
+        <p className="text-[12px] text-[#737373] mt-3 text-center">
+          Recurring donations available at checkout
+        </p>
+      )} */}
     </div>
   );
 }
