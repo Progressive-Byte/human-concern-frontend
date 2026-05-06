@@ -67,7 +67,7 @@ export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, 
           return;
         }
 
-        router.push(user ? "/dashboard" : "/donate/thank-you");
+        router.push("/donate/thank-you");
       }
     } else {
       const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
