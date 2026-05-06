@@ -23,7 +23,7 @@ const CtaBanner = () => {
               Donate Now
             </Link>
             <Link
-              href="/register"
+              href="/user/register"
               className="px-7 py-3.5 border border-[#FFFFFF] text-white font-normal text-[18px] rounded-full hover:text-white hover:bg-white/5 hover:border-white/20 transition-all no-underline"
             >
               Get started
