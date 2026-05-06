@@ -30,7 +30,6 @@ const CURRENCY_OPTIONS = [
   { label: "CAD (CA$)", value: "CAD", symbol: "CA$" },
 ];
 
-
 function countOccurrences(start, end, freq) {
   if (!start || !end) return 0;
   const s = new Date(start);
