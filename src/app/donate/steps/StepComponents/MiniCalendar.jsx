@@ -27,22 +27,22 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
   return (
-    <div className="rounded-xl border border-[#E5E5E5] p-2.5 bg-white">
-      <div className="flex items-center justify-between mb-2">
+    <div className="rounded-lg border border-[#E5E5E5] p-1.5 bg-white">
+      <div className="flex items-center justify-between mb-1">
         <button
           type="button"
           onClick={() => setViewDate(new Date(year, month - 1, 1))}
-          className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-[#F5F5F5] text-[#737373] text-base transition-colors cursor-pointer"
+          className="w-5 h-5 flex items-center justify-center rounded hover:bg-[#F5F5F5] text-[#737373] text-sm transition-colors cursor-pointer"
         >
           ‹
         </button>
-        <span className="text-[12px] font-semibold text-[#383838]">
+        <span className="text-[10px] font-semibold text-[#383838]">
           {MONTH_NAMES[month]} {year}
         </span>
         <button
           type="button"
           onClick={() => setViewDate(new Date(year, month + 1, 1))}
-          className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-[#F5F5F5] text-[#737373] text-base transition-colors cursor-pointer"
+          className="w-5 h-5 flex items-center justify-center rounded hover:bg-[#F5F5F5] text-[#737373] text-sm transition-colors cursor-pointer"
         >
           ›
         </button>
@@ -50,13 +50,13 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
 
       <div className="grid grid-cols-7">
         {DAY_LABELS.map((d) => (
-          <span key={d} className="text-center text-[10px] font-medium text-[#AEAEAE] py-0.5">
+          <span key={d} className="text-center text-[8px] font-medium text-[#AEAEAE]">
             {d}
           </span>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-px">
+      <div className="grid grid-cols-7">
         {cells.map((day, i) => {
           if (!day) return <span key={i} />;
           const dateStr = toDateStr(day);
@@ -72,7 +72,7 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
               disabled={isPast}
               onClick={() => onToggleDate(dateStr)}
               className={[
-                "w-full aspect-square flex items-center justify-center rounded-md text-[11px] font-medium transition-all",
+                "w-full aspect-square flex items-center justify-center rounded text-[14px] font-medium transition-all",
                 isPast ? "text-[#D0D0D0] cursor-not-allowed" : "cursor-pointer",
                 isSel
                   ? "bg-[#EA3335] text-white"
