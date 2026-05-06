@@ -71,7 +71,7 @@ const Step4Payment = () => {
               <button
                 key={type.value}
                 onClick={() => update({ paymentType: type.value })}
-                className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 ${
+                className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 cursor-pointer ${
                   active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
                 }`}
               >
