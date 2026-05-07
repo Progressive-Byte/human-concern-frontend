@@ -356,3 +356,10 @@ export const DonationContentIcon = (
     <path d="M15 10.0002C16.2417 8.7835 17.5 7.32516 17.5 5.41683C17.5 4.20125 17.0172 3.03547 16.1576 2.17592C15.2981 1.31638 14.1323 0.833496 12.9167 0.833496C11.45 0.833496 10.4167 1.25016 9.16671 2.50016C7.91671 1.25016 6.88337 0.833496 5.41671 0.833496C4.20113 0.833496 3.03534 1.31638 2.1758 2.17592C1.31626 3.03547 0.833374 4.20125 0.833374 5.41683C0.833374 7.3335 2.08337 8.79183 3.33337 10.0002L9.16671 15.8335L15 10.0002Z" stroke="#262626" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 )
+
+export const DollarIcon = (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="2" x2="12" y2="22" />
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+  </svg>
+)
