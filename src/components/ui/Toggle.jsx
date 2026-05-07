@@ -5,7 +5,7 @@ const Toggle = ({ enabled, onChange }) => {
       role="switch"
       aria-checked={enabled}
       onClick={() => onChange(!enabled)}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0 ${
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0 cursor-pointer ${
         enabled ? "bg-[#EA3335]" : "bg-[#CCCCCC]"
       }`}
     >

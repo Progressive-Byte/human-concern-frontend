@@ -29,7 +29,6 @@ function calcAddOnTotal(addOn, inputValues) {
   return amount ?? 0;
 }
 
-/** Build a human-readable formula string e.g. "2 persons × $12.00" */
 function buildFormulaLabel(addOn, inputValues, sym) {
   const { pricing } = addOn;
   if (!pricing?.formula || !pricing?.inputs) return null;
@@ -63,20 +62,34 @@ const Step5Addons = () => {
   const sym          = currencyData.symbol;
   const baseDonation = isRecurring ? amountTier * numberOfDays : amountTier;
 
-  const [addOnEnabled, setAddOnEnabled] = useState(() =>
-    Object.fromEntries(campaignAddOns.map((a) => [a.id, true]))
-  );
-  const [addOnInputs, setAddOnInputs] = useState(() =>
-    Object.fromEntries(
+  // Restore addOnEnabled from previously saved breakdown (if user navigated back)
+  const [addOnEnabled, setAddOnEnabled] = useState(() => {
+    const breakdown = data.addOnBreakdown;
+    if (!breakdown) {
+      return Object.fromEntries(campaignAddOns.map((a) => [a.id, true]));
+    }
+    const enabledIds = new Set(breakdown.map((a) => a.id));
+    return Object.fromEntries(campaignAddOns.map((a) => [a.id, enabledIds.has(a.id)]));
+  });
+
+  // Restore addOnInputs from previously saved breakdown values
+  const [addOnInputs, setAddOnInputs] = useState(() => {
+    const breakdown = data.addOnBreakdown;
+    const savedValues = breakdown
+      ? Object.fromEntries(breakdown.map((a) => [a.id, a.values ?? {}]))
+      : {};
+    return Object.fromEntries(
       campaignAddOns.map((a) => [
         a.id,
-        Object.fromEntries(
+        savedValues[a.id] ?? Object.fromEntries(
           (a.pricing?.inputs ?? []).map((inp) => [inp.key, inp.defaultValue ?? 1])
         ),
       ])
-    )
-  );
-  const [tipPct, setTipPct] = useState(10);
+    );
+  });
+
+  // Restore tipPct from context
+  const [tipPct, setTipPct] = useState(data.tipPct ?? 10);
 
   const addOnsTotal = campaignAddOns.reduce((sum, addOn) => {
     if (!addOnEnabled[addOn.id]) return sum;
@@ -90,29 +103,36 @@ const Step5Addons = () => {
   const updateAddOnInput = (addOnId, key, val) =>
     setAddOnInputs((prev) => ({ ...prev, [addOnId]: { ...prev[addOnId], [key]: val } }));
 
+  const saveToContext = () => {
+    update({
+      tipPct,
+      grandTotal,
+      addOnsTotal,
+      addOnBreakdown: campaignAddOns
+        .filter((a) => addOnEnabled[a.id])
+        .map((a) => ({
+          id:        a.id,
+          name:      a.name,
+          iconEmoji: a.iconEmoji ?? "",
+          total:     calcAddOnTotal(a, addOnInputs[a.id] ?? {}),
+          values:    addOnInputs[a.id] ?? {},
+        })),
+    });
+  };
+
   return (
     <StepLayout
       step={5}
       title="Add-ons"
       subtitle="Enhance your donation with optional add-ons and support the platform"
       onNext={() => {
-        update({
-          tipPct,
-          grandTotal,
-          addOnsTotal,
-          addOnBreakdown: campaignAddOns
-            .filter((a) => addOnEnabled[a.id])
-            .map((a) => ({
-              id:        a.id,
-              name:      a.name,
-              iconEmoji: a.iconEmoji ?? "",
-              total:     calcAddOnTotal(a, addOnInputs[a.id] ?? {}),
-              values:    addOnInputs[a.id] ?? {},
-            })),
-        });
+        saveToContext();
         handleNext(6);
       }}
-      onPrev={() => handlePrev(4)}
+      onPrev={() => {
+        saveToContext();
+        handlePrev(4);
+      }}
       prevLabel="Back"
       nextLabel="Payment Details"
     >
@@ -148,7 +168,6 @@ const Step5Addons = () => {
                 />
               </div>
 
-              {/* Stepper inputs + total */}
               {enabled && inputs.length > 0 && (
                 <div className="px-4 pb-4 border-t border-[#F0F0F0] pt-3">
                   <div className="flex gap-3">
@@ -164,7 +183,6 @@ const Step5Addons = () => {
                       />
                     ))}
 
-                    {/* Green total box */}
                     <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl p-3 flex flex-col items-center justify-center flex-1 min-w-0">
                       <p className="text-[11px] font-medium text-[#065F46] text-center mb-1">Total</p>
                       <p className="text-[26px] font-bold text-[#065F46] leading-none">
@@ -195,7 +213,6 @@ const Step5Addons = () => {
               </span>
             </div>
 
-            {/* Range slider */}
             <div className="relative">
               <input
                 type="range"
@@ -228,6 +245,7 @@ const Step5Addons = () => {
             </p>
           </div>
         )}
+
         <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3">
           <p className="text-[13px] text-[#383838]">
             <span className="font-bold">Subtotal: </span>
