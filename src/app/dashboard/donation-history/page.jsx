@@ -5,9 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../components/DashboardHeader";
 import { ThankyouIcon, ShareCampaignIcon, CircleCheckIcon } from "@/components/common/SvgIcon";
 
-/* ------------------------------------------------------------------ */
-/* Static placeholder rows — replace with API data when available.    */
-/* ------------------------------------------------------------------ */
 const rows = [
   { id: 1, date: "Feb 1, 2026",  campaign: "Ramadan Food Distribution",            cause: "Zakat",     amount: 100, status: "Completed", payment: "Visa •••• 4242"        },
   { id: 2, date: "Jan 25, 2026", campaign: "Emergency Relief: Earthquake Response", cause: "Sadaqah",   amount: 250, status: "Completed", payment: "Mastercard •••• 5555" },
