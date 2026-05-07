@@ -122,6 +122,8 @@ function DonationHistoryPage() {
               onChange={setCause}
               variant="form"
               placeholder="All Causes"
+              showFilterIcon
+              triggerHeight="h-10"
             />
           </div>
         </div>
