@@ -1,4 +1,4 @@
-import { DonationContentIcon } from "@/components/common/SvgIcon";
+import { DollarIcon, DonationContentIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "./components/DashboardHeader";
 import StatCard from "./components/StatCard";
 
@@ -28,6 +28,8 @@ const stats = [
     hint: "Lifetime contributions",
     icon: DollarIcon,
     accent: "#055A46",
+    bgColor: "#ECF2FF",
+    borderColor: "#D8E4FF",
   },
   {
     label: "Active Schedules",
@@ -35,6 +37,8 @@ const stats = [
     hint: "Recurring donations",
     icon: CalendarIcon,
     accent: "#383838",
+    bgColor: "#FFF6EC",
+    borderColor: "#FFE7CC",
   },
   {
     label: "Next Payment",
@@ -42,6 +46,8 @@ const stats = [
     hint: "Feb 15, 2026",
     icon: ClockIcon,
     accent: "#EA3335",
+    bgColor: "#ECF2FF",
+    borderColor: "#D8E4FF",
   },
 ];
 
@@ -59,10 +65,12 @@ const causeBadgeStyles = {
 };
 
 const fundBreakdown = [
-  { label: "Zakat",            amount: 2500, percent: 65, color: "#055A46" },
-  { label: "Sadaqah",          amount: 1200, percent: 25, color: "#EA3335" },
-  { label: "Emergency Relief", amount: 350,  percent: 8,  color: "#F59E0B" },
+  { label: "Zakat",            amount: 2500, percent: 65 },
+  { label: "Sadaqah",          amount: 1200, percent: 25 },
+  { label: "Emergency Relief", amount: 350,  percent: 8  },
 ];
+
+const RANGE_COLOR = "#94C794";
 
 const activeSchedules = [
   { id: 1, title: "Ramadan Food Distribution", amount: 50,  frequency: "Weekly",  next: "Feb 15" },

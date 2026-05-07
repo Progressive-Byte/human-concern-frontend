@@ -14,11 +14,17 @@ import { isValidElement } from "react";
  *            (rendered inside a circular container)
  * - accent : optional accent color (hex) for the icon container background
  */
-const StatCard = ({ label, value, hint, icon, accent = "#055A46" }) => {
+const StatCard = ({ label, value, hint, icon, accent = "#055A46", bgColor = "#FFFFFF", borderColor }) => {
   const isReactIcon = isValidElement(icon);
 
   return (
-    <div className="rounded-2xl border border-[#26262633] bg-[#2626260D] p-[25px] hover:shadow-sm transition-shadow">
+    <div
+      className="rounded-2xl border p-[25px] hover:shadow-sm transition-shadow"
+      style={{
+        backgroundColor: bgColor,
+        borderColor: borderColor ?? "rgba(38, 38, 38, 0.08)",
+      }}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-sm text-[#737373]">{label}</p>
