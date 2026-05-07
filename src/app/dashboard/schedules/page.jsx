@@ -39,13 +39,6 @@ const schedules = [
 
 const frequencyLabel = { Weekly: "per week", Monthly: "per month", Daily: "per day" };
 
-const PauseIcon = (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <line x1="8" y1="5" x2="8" y2="19" />
-    <line x1="16" y1="5" x2="16" y2="19" />
-  </svg>
-);
-
 const PlayIcon = (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="5 3 19 12 5 21 5 3" />
