@@ -16,24 +16,23 @@ const stats = [
     icon: "/images/active-schedules.png",
   },
   {
-    label: "Next Scheduled Donation Payment",
+    label: "Next Payment",
     value: "$50",
-    hint: "Feb 15",
+    hint: "Feb 15, 2026",
     icon: "/images/next-payment.png",
   },
 ];
 
 const recentDonations = [
-  { id: 1, title: "Ramadan Food Distribution", date: "Feb 1, 2024", amount: 100, cause: "Zakat" },
-  { id: 2, title: "Emergency Relief: Earthquake Response", date: "Jan 25, 2024", amount: 250, cause: "Sadaqah" },
-  { id: 3, title: "Orphan Sponsorship Program", date: "Jan 15, 2024", amount: 50, cause: "Zakat" },
+  { id: 1, title: "Ramadan Food Distribution", date: "Feb 1, 2026", amount: 100, cause: "Zakat" },
+  { id: 2, title: "Earthquake Emergency Relief", date: "Jan 25, 2026", amount: 250, cause: "Emergency" },
+  { id: 3, title: "Orphan Sponsorship Program", date: "Jan 15, 2026", amount: 50, cause: "Sadaqah" },
 ];
 
 const fundBreakdown = [
-  { label: "Zakat", amount: 2500, percent: 75 },
-  { label: "Sadaqah", amount: 1200, percent: 35 },
-  { label: "Emergency Relief", amount: 350, percent: 12 },
-  { label: "Fitrana", amount: 200, percent: 8 },
+  { label: "Zakat", amount: 2500, percent: 65, color: "#055A46" },
+  { label: "Sadaqah", amount: 1200, percent: 25, color: "#EA3335" },
+  { label: "Emergency Relief", amount: 350, percent: 8, color: "#F59E0B" },
 ];
 
 const activeSchedules = [
@@ -41,98 +40,114 @@ const activeSchedules = [
   { id: 2, title: "Orphan Sponsorship Program", amount: 100, frequency: "Monthly", next: "Mar 1" },
 ];
 
-
 export default function DashboardPage() {
   return (
     <>
       <DashboardHeader />
-      <div className="flex-1 p-6 space-y-6">
-        <section className="grid grid-cols-1 gap-[22px] md:grid-cols-3">
-          {stats.map((s) => (
-            <StatCard key={s.label} {...s} />
+
+      <div className="flex-1 p-6 space-y-8 font-inter">
+        {/* Stats */}
+        <section className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          {stats.map((s, i) => (
+            <StatCard key={i} {...s} />
           ))}
         </section>
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-900">Recent Donations</h2>
-              <a href="/dashboard/donation-history" className="text-sm text-gray-600 hover:underline">
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          {/* Recent Donations */}
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-semibold text-[#383838]">Recent Donations</h2>
+              <a href="/dashboard/donation-history" className="text-sm text-[#055A46] hover:underline font-medium">
                 View All →
               </a>
             </div>
-            <ul className="divide-y divide-gray-100">
+
+            <div className="space-y-4">
               {recentDonations.map((d) => (
-                <li key={d.id} className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500">
+                <div key={d.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-[#055A46]">
                       {DonationContentIcon}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{d.title}</p>
+                      <p className="font-medium text-[#383838]">{d.title}</p>
                       <p className="text-xs text-gray-500">{d.date}</p>
                     </div>
                   </div>
+
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-gray-900">${d.amount}</p>
-                    <span className="inline-block mt-0.5 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                    <p className="font-semibold text-[#383838] text-lg">${d.amount}</p>
+                    <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600">
                       {d.cause}
                     </span>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-900">Fund Breakdown</h2>
-              <a href="/dashboard/fund-breakdown" className="text-sm text-gray-600 hover:underline">
+          {/* Fund Breakdown */}
+          <div className="lg:col-span-5 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-semibold text-[#383838]">Fund Breakdown</h2>
+              <a href="/dashboard/fund-breakdown" className="text-sm text-[#055A46] hover:underline font-medium">
                 Details
               </a>
             </div>
-            <ul className="space-y-3">
+
+            <div className="space-y-6 mt-2">
               {fundBreakdown.map((f) => (
-                <li key={f.label}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700">{f.label}</span>
-                    <span className="text-gray-900 font-medium">${f.amount.toLocaleString()}</span>
+                <div key={f.label}>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-[#383838]">{f.label}</span>
+                    <span className="font-medium">${f.amount}</span>
                   </div>
-                  <div className="mt-1 h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gray-900 rounded-full"
-                      style={{ width: `${f.percent}%` }}
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${f.percent}%`, backgroundColor: f.color }}
                     />
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
-        </section>
+        </div>
 
-        {/* Active schedules */}
-        <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900">Active Schedules</h2>
-            <a href="/dashboard/schedules" className="text-sm text-gray-600 hover:underline">
+        {/* Active Schedules */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-[#383838]">Active Schedules</h2>
+            <a href="/dashboard/schedules" className="text-sm text-[#055A46] hover:underline font-medium">
               Manage All →
             </a>
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {activeSchedules.map((s) => (
-              <div key={s.id} className="rounded-lg border border-gray-200 p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700">
-                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" /> Active
-                  </span>
-                  <span className="text-xs text-gray-500">{s.frequency}</span>
+              <div key={s.id} className="border border-gray-100 rounded-2xl p-5 hover:border-[#055A46]/30 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-emerald-50 text-[#055A46] px-3 py-1 rounded-full">
+                      <span className="w-2 h-2 bg-[#055A46] rounded-full animate-pulse" />
+                      ACTIVE
+                    </span>
+                    <p className="mt-4 font-medium text-[#383838] leading-tight">{s.title}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-semibold text-[#055A46]">${s.amount}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{s.frequency}</p>
+                  </div>
                 </div>
-                <p className="text-sm font-medium text-gray-900">{s.title}</p>
-                <p className="mt-1 text-lg font-semibold text-gray-900">${s.amount}</p>
-                <p className="mt-1 text-xs text-gray-500">Next: {s.next}</p>
+
+                <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-500">
+                  Next donation: <span className="font-medium text-[#383838]">{s.next}</span>
+                </div>
               </div>
             ))}
           </div>
-        </section>
+        </div>
       </div>
     </>
   );
