@@ -1,3 +1,4 @@
+import { CalendarIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "../components/DashboardHeader";
 
 const schedules = [
@@ -119,7 +120,7 @@ export default function SchedulesPage() {
               <div className="flex items-start gap-3 md:gap-4">
                 {/* Calendar icon */}
                 <div className="shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-xl bg-[#ECF9F3] flex items-center justify-center text-[#055A46]">
-                  {CalendarSquareIcon}
+                  {CalendarIcon}
                 </div>
 
                 {/* Middle: title + meta */}
