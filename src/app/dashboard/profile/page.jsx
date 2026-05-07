@@ -1,104 +1,229 @@
+"use client";
+
+import { useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
 
-// Static placeholder — wire to the user API later (and convert to a client form).
-const profile = {
-  fullName: "Ahmed Khan",
-  email: "ahmed@example.com",
-  phone: "+1 (555) 123-4567",
-  address: "123 Main St, New York, NY",
-  preferences: {
-    newsletter: true,
-    receipts: true,
-    smsAlerts: false,
-  },
+const UserIcon = (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const BellIcon = (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </svg>
+);
+
+const LockIcon = (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
+const SaveIcon = (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+    <polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" />
+  </svg>
+);
+
+const sections = {
+  user:  { bg: "#ECF9F3", color: "#055A46" },
+  bell:  { bg: "#FFF8EC", color: "#B45309" },
+  lock:  { bg: "#EFF6FF", color: "#1D4ED8" },
 };
 
-function Field({ label, value }) {
+function SectionHeader({ icon, title, variant = "user" }) {
+  const { bg, color } = sections[variant];
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+        style={{ backgroundColor: bg, color }}
+      >
+        {icon}
+      </span>
+      <h2 className="text-base font-semibold text-[#383838]">{title}</h2>
+    </div>
+  );
+}
+
+function Field({ label, value, type = "text", onChange }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-500 uppercase">
-        {label}
-      </label>
+      <label className="block text-xs font-medium text-[#737373] mb-1.5">{label}</label>
       <input
-        type="text"
-        defaultValue={value}
-        readOnly
-        className="mt-1 w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900"
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-xl border border-[#EBEBEB] bg-white px-4 py-2.5 text-sm text-[#383838] placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#055A46]/40 focus:ring-2 focus:ring-[#055A46]/10 transition"
       />
     </div>
   );
 }
 
+function Toggle({ label, desc, checked, onChange }) {
+  return (
+    <div
+      className={`flex items-center justify-between px-3 py-4 rounded-xl transition-colors ${
+        checked ? "bg-[#ECF9F3]" : "bg-transparent"
+      }`}
+    >
+      <div className="min-w-0 pr-4">
+        <p className={`text-sm font-medium transition-colors ${checked ? "text-[#055A46]" : "text-[#383838]"}`}>
+          {label}
+        </p>
+        <p className="text-xs text-[#8C8C8C] mt-0.5">{desc}</p>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+          checked ? "bg-[#055A46]" : "bg-[#DEDEDE]"
+        }`}
+      >
+        <span
+          className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200 ${
+            checked ? "translate-x-6" : "translate-x-1"
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
+
+function OutlineButton({ children, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="shrink-0 rounded-xl border border-[#EBEBEB] px-4 py-2 text-xs font-medium text-[#383838] hover:border-[#055A46]/40 hover:text-[#055A46] hover:bg-[#ECF9F3] transition-colors cursor-pointer"
+    >
+      {children}
+    </button>
+  );
+}
+
 export default function ProfilePage() {
+  const [form, setForm] = useState({
+    firstName: "Ahmed",
+    lastName:  "Hassan",
+    email:     "ahmed.h@email.com",
+    phone:     "+1 555 123 4567",
+  });
+
+  const [prefs, setPrefs] = useState({
+    emailNotifications: true,
+    donationReceipts:   true,
+    campaignUpdates:    false,
+  });
+
+  const set     = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
+  const setPref = (key) => (val) => setPrefs((p) => ({ ...p, [key]: val }));
+
   return (
     <>
       <DashboardHeader
-        title="Profile"
-        subtitle="Your personal information and preferences"
-        actions={
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700"
-          >
-            Edit Profile
-          </button>
-        }
+        title="Profile Settings"
+        subtitle="Manage your account information and preferences"
       />
 
-      <div className="flex-1 p-6 space-y-6">
-        {/* Identity */}
-        <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white text-lg font-semibold">
-              {profile.fullName.split(" ").map((s) => s[0]).slice(0, 2).join("")}
+      <div className="flex-1 p-4 md:p-6 space-y-5">
+
+        {/* Personal Information */}
+        <section className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
+          <SectionHeader icon={UserIcon} title="Personal Information" variant="user" />
+
+          <div className="mt-5 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="First Name" value={form.firstName} onChange={set("firstName")} />
+              <Field label="Last Name"  value={form.lastName}  onChange={set("lastName")} />
             </div>
-            <div>
-              <p className="text-base font-semibold text-gray-900">{profile.fullName}</p>
-              <p className="text-sm text-gray-500">{profile.email}</p>
+            <Field label="Email Address" value={form.email} type="email" onChange={set("email")} />
+            <Field label="Phone Number"  value={form.phone} type="tel"   onChange={set("phone")} />
+
+            <div className="pt-1">
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#055A46] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#044035] transition-colors cursor-pointer"
+              >
+                {SaveIcon}
+                Save Changes
+              </button>
             </div>
           </div>
         </section>
 
-        {/* Personal info */}
-        <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 className="font-semibold text-gray-900 mb-4">Personal information</h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Full name" value={profile.fullName} />
-            <Field label="Email"     value={profile.email} />
-            <Field label="Phone"     value={profile.phone} />
-            <Field label="Address"   value={profile.address} />
+        {/* Notification Preferences */}
+        <section className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
+          <SectionHeader icon={BellIcon} title="Notification Preferences" variant="bell" />
+
+          <div className="mt-4 space-y-2">
+            <Toggle
+              label="Email Notifications"
+              desc="Receive important updates via email"
+              checked={prefs.emailNotifications}
+              onChange={setPref("emailNotifications")}
+            />
+            <Toggle
+              label="Donation Receipts"
+              desc="Receive email receipts for every donation"
+              checked={prefs.donationReceipts}
+              onChange={setPref("donationReceipts")}
+            />
+            <Toggle
+              label="Campaign Updates"
+              desc="Get notified about campaign progress and impact"
+              checked={prefs.campaignUpdates}
+              onChange={setPref("campaignUpdates")}
+            />
           </div>
         </section>
 
-        {/* Preferences */}
-        <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 className="font-semibold text-gray-900 mb-4">Communication preferences</h2>
-          <ul className="divide-y divide-gray-100">
-            {[
-              { key: "newsletter", label: "Email newsletter",        desc: "Monthly updates on campaigns and impact." },
-              { key: "receipts",   label: "Email donation receipts", desc: "Get a receipt every time you donate." },
-              { key: "smsAlerts",  label: "SMS alerts",              desc: "Reminders for scheduled donations." },
-            ].map((p) => (
-              <li key={p.key} className="flex items-center justify-between py-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{p.label}</p>
-                  <p className="text-xs text-gray-500">{p.desc}</p>
-                </div>
-                <span
-                  className={`inline-flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${
-                    profile.preferences[p.key] ? "bg-gray-900" : "bg-gray-200"
-                  }`}
-                >
-                  <span
-                    className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                      profile.preferences[p.key] ? "translate-x-4" : "translate-x-0"
-                    }`}
-                  />
-                </span>
-              </li>
-            ))}
-          </ul>
+        {/* Security */}
+        <section className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
+          <SectionHeader icon={LockIcon} title="Security" variant="lock" />
+
+          <div className="mt-4 divide-y divide-[#F5F5F5]">
+            <div className="flex items-center justify-between py-4">
+              <div className="min-w-0 pr-4">
+                <p className="text-sm font-medium text-[#383838]">Password</p>
+                <p className="text-xs text-[#8C8C8C] mt-0.5">Last changed 30 days ago</p>
+              </div>
+              <OutlineButton>Change Password</OutlineButton>
+            </div>
+
+            <div className="flex items-center justify-between py-4">
+              <div className="min-w-0 pr-4">
+                <p className="text-sm font-medium text-[#383838]">Two-Factor Authentication</p>
+                <p className="text-xs text-[#8C8C8C] mt-0.5">Add an extra layer of security</p>
+              </div>
+              <OutlineButton>Enable</OutlineButton>
+            </div>
+          </div>
         </section>
+
+        {/* Account */}
+        <section className="bg-white rounded-2xl border border-[#EA3335]/20 p-5 md:p-6">
+          <h2 className="text-base font-semibold text-[#383838]">Account</h2>
+
+          <div className="mt-4 flex items-center justify-between gap-4 px-4 py-4 rounded-xl bg-[#FFF5F5] border border-[#EA3335]/15">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-[#EA3335]">Deactivate Account</p>
+              <p className="text-xs text-[#8C8C8C] mt-0.5">Temporarily archive your account and all data</p>
+            </div>
+            <button
+              type="button"
+              className="shrink-0 rounded-xl bg-[#383838] px-4 py-2 text-xs font-medium text-white hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+            >
+              Contact Support
+            </button>
+          </div>
+        </section>
+
       </div>
     </>
   );
