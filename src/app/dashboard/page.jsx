@@ -2,10 +2,6 @@ import { DonationContentIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "./components/DashboardHeader";
 import StatCard from "./components/StatCard";
 
-/* ------------------------------------------------------------------ */
-/* Inline SVG icons used by the stat cards.                           */
-/* Kept here to avoid depending on missing PNG assets.                */
-/* ------------------------------------------------------------------ */
 const DollarIcon = (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="12" y1="2" x2="12" y2="22" />
