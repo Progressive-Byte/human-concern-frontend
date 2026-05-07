@@ -382,15 +382,3 @@ export const IsActiveIcon = (
       <polyline points="20 6 9 17 4 12" />
   </svg>
 )
-// export const FilterIcon = (
-//   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-//     <g clip-path="url(#clip0_31_2961)">
-//     <path d="M14.6667 2H1.33337L6.66671 8.30667V12.6667L9.33337 14V8.30667L14.6667 2Z" stroke="#1A1A1A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-//     </g>
-//     <defs>
-//     <clipPath id="clip0_31_2961">
-//     <rect width="16" height="16" fill="white"/>
-//     </clipPath>
-//     </defs>
-//   </svg>
-// );
