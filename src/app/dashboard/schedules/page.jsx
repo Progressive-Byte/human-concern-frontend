@@ -1,4 +1,4 @@
-import { CalendarIcon } from "@/components/common/SvgIcon";
+import { CalendarIcon, ClockIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "../components/DashboardHeader";
 
 const schedules = [
@@ -38,13 +38,6 @@ const schedules = [
 ];
 
 const frequencyLabel = { Weekly: "per week", Monthly: "per month", Daily: "per day" };
-
-const ClockIcon = (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
 
 const PauseIcon = (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
