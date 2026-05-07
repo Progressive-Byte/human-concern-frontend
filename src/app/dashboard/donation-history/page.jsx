@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../components/DashboardHeader";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import ThankYouModal from "./ThankYouModal";
+import { EyeIcon } from "@/components/common/SvgIcon";
 
 const rows = [
   { id: 1, date: "Feb 1, 2026",  campaign: "Ramadan Food Distribution",            cause: "Zakat",     amount: 100, status: "Completed", payment: "Visa •••• 4242"        },
@@ -35,13 +36,6 @@ const SearchIcon = (
   <svg className="w-4 h-4 text-[#8C8C8C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="11" cy="11" r="8" />
     <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
-
-const EyeIcon = (
-  <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
   </svg>
 );
 
