@@ -6,6 +6,7 @@ import CampaignsHeader from "./components/CampaignsHeader";
 import CampaignsSummaryCards from "./components/CampaignsSummaryCards";
 import CampaignsFilters from "./components/CampaignsFilters";
 import CampaignsTable from "./components/CampaignsTable";
+import CampaignUpsertModal from "./components/CampaignUpsertModal";
 import { AlertIcon } from "@/components/common/SvgIcon";
 
 function useDebouncedValue(value, delayMs) {
@@ -35,6 +36,27 @@ export default function AdminCampaignsPage() {
   const [error, setError] = useState("");
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const [upsertOpen, setUpsertOpen] = useState(false);
+  const [upsertMode, setUpsertMode] = useState("create");
+  const [upsertCampaignId, setUpsertCampaignId] = useState("");
+
+  function refresh() {
+    setRefreshKey((v) => v + 1);
+  }
+
+  function openCreate() {
+    setUpsertMode("create");
+    setUpsertCampaignId("");
+    setUpsertOpen(true);
+  }
+
+  function openEdit(campaignId) {
+    setUpsertMode("edit");
+    setUpsertCampaignId(String(campaignId || ""));
+    setUpsertOpen(true);
+  }
 
   useEffect(() => {
     let alive = true;
@@ -69,7 +91,7 @@ export default function AdminCampaignsPage() {
     return () => {
       alive = false;
     };
-  }, [filters.page, filters.limit, filters.sort, filters.order, filters.status, debouncedQ]);
+  }, [filters.page, filters.limit, filters.sort, filters.order, filters.status, debouncedQ, refreshKey]);
 
   const currency = useMemo(() => items?.find((i) => i?.currency)?.currency || "USD", [items]);
   const summary = meta?.summary || {};
@@ -81,7 +103,7 @@ export default function AdminCampaignsPage() {
 
   return (
     <main className="min-w-0 p-4 md:p-6 space-y-6">
-      <CampaignsHeader onCreate={() => {}} />
+      <CampaignsHeader onCreate={openCreate} />
 
       {error && (
         <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
@@ -108,6 +130,16 @@ export default function AdminCampaignsPage() {
         pagination={pagination}
         onPrevPage={() => setPage(Math.max(1, Number(pagination?.page || 1) - 1))}
         onNextPage={() => setPage(Number(pagination?.page || 1) + 1)}
+        onEdit={openEdit}
+        onRefresh={refresh}
+      />
+
+      <CampaignUpsertModal
+        open={upsertOpen}
+        mode={upsertMode}
+        campaignId={upsertCampaignId}
+        onClose={() => setUpsertOpen(false)}
+        onSuccess={() => refresh()}
       />
     </main>
   );

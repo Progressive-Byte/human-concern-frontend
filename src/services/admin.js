@@ -32,3 +32,31 @@ export function getAdminCampaigns({ page, limit, sort, order, q, status } = {}) 
 
   return adminApiRequest(endpoint, { method: "GET" });
 }
+
+export function createAdminCampaign(payload) {
+  return adminApiRequest("/admin/campaigns", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function getAdminCampaignById(campaignId) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}`, { method: "GET" });
+}
+
+export function updateAdminCampaign(campaignId, payload) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function publishAdminCampaign(campaignId) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}/publish`, { method: "POST" });
+}
+
+export function unpublishAdminCampaign(campaignId) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}/unpublish`, { method: "POST" });
+}
+
+export function archiveAdminCampaign(campaignId) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}/archive`, { method: "POST" });
+}
+
+export function restoreAdminCampaign(campaignId) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}/restore`, { method: "POST" });
+}

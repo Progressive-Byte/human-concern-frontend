@@ -3,6 +3,7 @@ import ProgressBar from "@/app/admin/components/ProgressBar";
 import FormsPreviewChips from "./FormsPreviewChips";
 import StatusPill from "./StatusPill";
 import CampaignsPagination from "./CampaignsPagination";
+import CampaignRowActions from "./CampaignRowActions";
 
 function SkeletonRows() {
   return (
@@ -22,6 +23,8 @@ export default function CampaignsTable({
   pagination,
   onPrevPage,
   onNextPage,
+  onEdit,
+  onRefresh,
 }) {
   const rows = Array.isArray(items) ? items : [];
 
@@ -85,20 +88,7 @@ export default function CampaignsTable({
                     </td>
                     <td className="py-4 pr-4 align-top">{Number(item?.donorsCount || 0).toLocaleString()}</td>
                     <td className="py-4 pr-5 align-top text-right">
-                      <button
-                        type="button"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-white"
-                        aria-label="Row actions"
-                      >
-                        <svg viewBox="0 0 24 24" className="h-5 w-5 text-[#111827]" fill="none">
-                          <path
-                            d="M5 12h.01M12 12h.01M19 12h.01"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </button>
+                      <CampaignRowActions item={item} onEdit={onEdit} onRefresh={onRefresh} />
                     </td>
                   </tr>
                 );
@@ -114,4 +104,3 @@ export default function CampaignsTable({
     </section>
   );
 }
-
