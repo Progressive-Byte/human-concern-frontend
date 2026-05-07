@@ -1,4 +1,4 @@
-import { CalendarIcon, ClockIcon, EditIcon, PauseIcon, PlayIcon, TrashIcon } from "@/components/common/SvgIcon";
+import { CalendarIcon, ClockIcon, EditIcon, PauseIcon, PlayIcon, PlusIcon, TrashIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "../components/DashboardHeader";
 
 const schedules = [
@@ -38,13 +38,6 @@ const schedules = [
 ];
 
 const frequencyLabel = { Weekly: "per week", Monthly: "per month", Daily: "per day" };
-
-const PlusIcon = (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
 
 export default function SchedulesPage() {
   return (
