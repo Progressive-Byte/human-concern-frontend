@@ -1,22 +1,68 @@
 import DashboardHeader from "../components/DashboardHeader";
 
-// Static placeholder — wire to API later.
-const methods = [
-  { id: 1, brand: "Visa",       last4: "4242", exp: "08/27", isDefault: true  },
-  { id: 2, brand: "Mastercard", last4: "5555", exp: "11/26", isDefault: false },
-  { id: 3, brand: "PayPal",     last4: null,   exp: null,    isDefault: false, email: "ahmed@example.com" },
+const savedCards = [
+  { id: 1, brand: "Visa",       last4: "4242", exp: "12/25", isDefault: true  },
+  { id: 2, brand: "Mastercard", last4: "5555", exp: "08/26", isDefault: false },
 ];
 
-function BrandBadge({ brand }) {
-  const colors = {
-    Visa: "bg-blue-50 text-blue-700",
-    Mastercard: "bg-orange-50 text-orange-700",
-    PayPal: "bg-indigo-50 text-indigo-700",
-  };
+const otherMethods = [
+  {
+    id: "apple-pay",
+    name: "Apple Pay",
+    desc: "Pay with Face ID or Touch ID",
+    status: "available",
+    icon: "apple",
+  },
+  {
+    id: "paypal",
+    name: "PayPal",
+    desc: "Connect your PayPal account",
+    status: "connect",
+    icon: "paypal",
+  },
+];
+
+const PlusIcon = (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+const CardIcon = (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="5" width="20" height="14" rx="2" />
+    <line x1="2" y1="10" x2="22" y2="10" />
+  </svg>
+);
+
+const TrashIcon = (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    <path d="M10 11v6M14 11v6" />
+    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+  </svg>
+);
+
+const CheckIcon = (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+function AppleIcon() {
   return (
-    <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${colors[brand] || "bg-gray-100 text-gray-700"}`}>
-      {brand}
-    </span>
+    <div className="w-9 h-9 rounded-xl bg-[#F5F5F5] border border-[#EBEBEB] flex items-center justify-center text-base leading-none select-none">
+      🍎
+    </div>
+  );
+}
+
+function PayPalIcon() {
+  return (
+    <div className="w-9 h-9 rounded-xl bg-[#EEF4FF] border border-[#D4E3FF] flex items-center justify-center">
+      <span className="text-[#1D4ED8] font-extrabold text-sm leading-none">P</span>
+    </div>
   );
 }
 
@@ -25,62 +71,115 @@ export default function PaymentMethodsPage() {
     <>
       <DashboardHeader
         title="Payment Methods"
-        subtitle="Manage cards and accounts used for donations"
+        subtitle="Manage your saved payment methods"
         actions={
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#383838] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#1a1a1a] transition-colors cursor-pointer"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Add Method
+            {PlusIcon}
+            Add New Card
           </button>
         }
       />
 
-      <div className="flex-1 p-6">
-        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {methods.map((m) => (
-            <li
-              key={m.id}
-              className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm flex flex-col gap-3"
+      <div className="flex-1 p-4 md:p-6 space-y-6">
+
+        {/* Saved Cards */}
+        <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
+          {savedCards.map((card, idx) => (
+            <div
+              key={card.id}
+              className={`flex items-center gap-3 md:gap-4 px-4 md:px-5 py-4 md:py-5 hover:bg-[#FAFAFA] transition-colors ${
+                idx !== savedCards.length - 1 ? "border-b border-dashed border-[#EBEBEB]" : ""
+              }`}
             >
-              <div className="flex items-center justify-between">
-                <BrandBadge brand={m.brand} />
-                {m.isDefault && (
-                  <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700">
-                    Default
-                  </span>
-                )}
+              {/* Card icon */}
+              <div className="shrink-0 w-10 h-10 rounded-xl bg-[#F5F5F5] border border-[#EBEBEB] flex items-center justify-center text-[#737373]">
+                {CardIcon}
               </div>
 
-              <div>
-                {m.last4 ? (
-                  <>
-                    <p className="text-sm font-medium text-gray-900">
-                      •••• •••• •••• {m.last4}
-                    </p>
-                    <p className="mt-1 text-xs text-gray-500">Expires {m.exp}</p>
-                  </>
-                ) : (
-                  <p className="text-sm font-medium text-gray-900">{m.email}</p>
-                )}
+              {/* Card info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center flex-wrap gap-2">
+                  <p className="text-sm font-semibold text-[#383838]">
+                    {card.brand} ···· {card.last4}
+                  </p>
+                  {card.isDefault && (
+                    <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#ECF9F3] text-[#055A46]">
+                      Default
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#8C8C8C] mt-0.5">Expires {card.exp}</p>
               </div>
 
-              <div className="mt-auto flex items-center gap-3 pt-2 border-t border-gray-100">
-                {!m.isDefault && (
-                  <button type="button" className="text-sm text-gray-700 hover:underline">
-                    Set as default
+              {/* Actions */}
+              <div className="shrink-0 flex items-center gap-2">
+                {!card.isDefault && (
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] px-3 py-1.5 text-xs font-medium text-[#383838] hover:border-[#055A46]/40 hover:text-[#055A46] hover:bg-[#ECF9F3] transition-colors cursor-pointer"
+                  >
+                    {CheckIcon}
+                    Set Default
                   </button>
                 )}
-                <button type="button" className="ml-auto text-sm text-red-600 hover:underline">
-                  Remove
+                <button
+                  type="button"
+                  title="Remove"
+                  className="w-8 h-8 rounded-lg border border-[#EBEBEB] flex items-center justify-center text-[#8C8C8C] hover:border-[#EA3335]/40 hover:text-[#EA3335] hover:bg-[#FFF5F5] transition-colors cursor-pointer"
+                >
+                  {TrashIcon}
                 </button>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
+
+        {/* Other Payment Options */}
+        <div>
+          <h2 className="text-base font-semibold text-[#383838] mb-3">Other Payment Options</h2>
+
+          <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
+            {otherMethods.map((m, idx) => (
+              <div
+                key={m.id}
+                className={`flex items-center gap-3 md:gap-4 px-4 md:px-5 py-4 md:py-5 hover:bg-[#FAFAFA] transition-colors ${
+                  idx !== otherMethods.length - 1 ? "border-b border-dashed border-[#EBEBEB]" : ""
+                }`}
+              >
+                {/* Icon */}
+                {m.icon === "apple"  && <AppleIcon />}
+                {m.icon === "paypal" && <PayPalIcon />}
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-[#383838]">{m.name}</p>
+                  <p className="text-xs text-[#8C8C8C] mt-0.5">{m.desc}</p>
+                </div>
+
+                {/* Status / action */}
+                <div className="shrink-0">
+                  {m.status === "available" && (
+                    <span className="inline-flex items-center text-[11px] font-medium px-3 py-1 rounded-full border border-[#EBEBEB] bg-[#F5F5F5] text-[#737373]">
+                      Available
+                    </span>
+                  )}
+                  {m.status === "connect" && (
+                    <button
+                      type="button"
+                      className="inline-flex items-center rounded-xl border border-[#EBEBEB] px-4 py-1.5 text-xs font-semibold text-[#383838] hover:border-[#055A46]/40 hover:text-[#055A46] hover:bg-[#ECF9F3] transition-colors cursor-pointer"
+                    >
+                      Connect
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </>
   );
