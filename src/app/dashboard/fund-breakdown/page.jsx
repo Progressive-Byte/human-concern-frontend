@@ -30,7 +30,7 @@ const segments = funds.map((f) => {
   return seg;
 });
 
-export default function FundBreakdownPage() {
+const FundBreakdownPage = () => {
   return (
     <>
       <DashboardHeader
@@ -157,3 +157,4 @@ export default function FundBreakdownPage() {
     </>
   );
 }
+export default FundBreakdownPage;
