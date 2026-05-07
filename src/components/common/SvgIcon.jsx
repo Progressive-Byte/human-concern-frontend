@@ -377,3 +377,8 @@ export const ClockIcon = (
     <polyline points="12 6 12 12 16 14" />
   </svg>
 );
+export const IsActiveIcon = (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[#EA3335]">
+      <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
