@@ -1,4 +1,4 @@
-import { CheckIcon, NoCheckIcon, PlusIcon, TrashIcon } from "@/components/common/SvgIcon";
+import { CardIcon, CheckIcon, NoCheckIcon, PlusIcon, TrashIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "../components/DashboardHeader";
 
 const savedCards = [
@@ -22,15 +22,6 @@ const otherMethods = [
     icon: "paypal",
   },
 ];
-
-
-const CardIcon = (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="5" width="20" height="14" rx="2" />
-    <line x1="2" y1="10" x2="22" y2="10" />
-  </svg>
-);
-
 
 function AppleIcon() {
   return (
