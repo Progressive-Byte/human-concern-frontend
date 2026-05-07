@@ -3,8 +3,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../components/DashboardHeader";
-import { ThankyouIcon, ShareCampaignIcon, CircleCheckIcon } from "@/components/common/SvgIcon";
 import CustomDropdown from "@/components/common/CustomDropdown";
+import ThankYouModal from "./ThankYouModal";
 
 const rows = [
   { id: 1, date: "Feb 1, 2026",  campaign: "Ramadan Food Distribution",            cause: "Zakat",     amount: 100, status: "Completed", payment: "Visa •••• 4242"        },
@@ -27,8 +27,6 @@ const causeBadgeStyles = {
   Emergency: "bg-[#FFF5F5] text-[#EA3335]",
   Fitrana:   "bg-[#EFF6FF] text-[#1D4ED8]",
 };
-
-const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
 /* ------------------------------------------------------------------ */
 /* Inline icons                                                        */
@@ -67,7 +65,6 @@ function DonationHistoryPage() {
   // Thank-you popup state (post-donation flow)
   const [showPopup, setShowPopup]       = useState(false);
   const [thankyouData, setThankyouData] = useState(null);
-  const [copied, setCopied]             = useState(false);
 
   useEffect(() => {
     if (searchParams.get("thankyou") === "1") {
@@ -83,27 +80,11 @@ function DonationHistoryPage() {
     }
   }, [searchParams, router]);
 
-  const handleShare = async () => {
-    const url   = window.location.origin + "/campaigns";
-    const title = thankyouData?.campaignTitle || "Human Concern";
-    if (navigator.share) {
-      await navigator.share({ title, url });
-    } else {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
   const filtered = rows.filter((r) => {
     const matchesSearch = r.campaign.toLowerCase().includes(search.toLowerCase());
     const matchesCause  = cause === "All Causes" || r.cause === cause;
     return matchesSearch && matchesCause;
   });
-
-  const sym            = CURRENCY_SYMBOLS[thankyouData?.currency] || "$";
-  const donationAmount = thankyouData?.donationAmount;
-  const isRecurring    = thankyouData?.isRecurring;
 
   return (
     <>
@@ -255,123 +236,11 @@ function DonationHistoryPage() {
         </div>
       </div>
 
-      {/* Thank-you popup modal */}
       {showPopup && thankyouData && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowPopup(false); }}
-        >
-          <div className="relative w-full max-w-[460px] bg-white rounded-[24px] px-6 sm:px-10 py-8 flex flex-col items-center text-center shadow-2xl">
-            <button
-              onClick={() => setShowPopup(false)}
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-[#737373] transition-colors cursor-pointer"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-
-            <div className="mt-2">{ThankyouIcon}</div>
-
-            <h1 className="text-[26px] sm:text-[30px] font-bold text-[#383838] mt-5">Thank You!</h1>
-
-            <p className="text-[13px] text-[#737373] mt-2 mb-5">
-              Your donation of{" "}
-              {donationAmount ? (
-                <span className="font-bold text-[#383838]">
-                  {sym}{Number(donationAmount).toFixed(2)}
-                </span>
-              ) : "your generous amount"}{" "}
-              has been processed successfully.
-            </p>
-
-            <div className="w-full bg-[#F6F6F6] rounded-xl px-4 py-4 mb-5 text-left">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#AEAEAE] mb-3">
-                Donation Details
-              </p>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[12px] text-[#737373]">Project</span>
-                  <span className="text-[13px] font-semibold text-[#383838]">
-                    {thankyouData.isRamadan ? "Ramadan Project" : (thankyouData.campaignTitle || "—")}
-                  </span>
-                </div>
-
-                {(thankyouData.causes ?? []).length > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[12px] text-[#737373]">Cause</span>
-                    <span className="text-[13px] font-semibold text-[#383838]">
-                      {thankyouData.causes.join(", ")}
-                    </span>
-                  </div>
-                )}
-
-                {isRecurring && thankyouData.frequency && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[12px] text-[#737373]">Frequency</span>
-                    <span className="text-[13px] font-semibold text-[#383838]">{thankyouData.frequency}</span>
-                  </div>
-                )}
-
-                {isRecurring && thankyouData.numberOfDays > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[12px] text-[#737373]">Duration</span>
-                    <span className="text-[13px] font-semibold text-[#383838]">{thankyouData.numberOfDays} days</span>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between pt-2 border-t border-[#E5E5E5] mt-1">
-                  <span className="text-[12px] text-[#737373]">Total</span>
-                  <span className="text-[14px] font-bold text-[#055A46]">
-                    {sym}{donationAmount ? Number(donationAmount).toFixed(2) : "—"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2.5 w-full">
-              <button
-                onClick={() => setShowPopup(false)}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#383838] hover:bg-[#222] text-white text-[14px] font-semibold transition-colors active:scale-95 cursor-pointer"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7" />
-                  <rect x="14" y="3" width="7" height="7" />
-                  <rect x="14" y="14" width="7" height="7" />
-                  <rect x="3" y="14" width="7" height="7" />
-                </svg>
-                View Dashboard
-              </button>
-
-              <button
-                onClick={() => { setShowPopup(false); router.push("/campaigns"); }}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#EA3335] hover:bg-red-700 text-white text-[14px] font-semibold transition-colors active:scale-95 cursor-pointer"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                Browse Campaigns
-              </button>
-
-              <button
-                onClick={handleShare}
-                className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border text-[14px] font-medium transition-all duration-200 active:scale-95 cursor-pointer ${
-                  copied
-                    ? "bg-[#055A46] border-[#055A46] text-white"
-                    : "border-[#E5E5E5] hover:border-gray-400 text-[#383838]"
-                }`}
-              >
-                {copied ? (
-                  <>{CircleCheckIcon} Link Copied!</>
-                ) : (
-                  <>{ShareCampaignIcon} Share Campaign</>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ThankYouModal
+          thankyouData={thankyouData}
+          onClose={() => setShowPopup(false)}
+        />
       )}
     </>
   );
