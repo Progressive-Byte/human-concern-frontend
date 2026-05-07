@@ -224,7 +224,7 @@ export default function AdminSidebar({ onNavigate }) {
         {navItems.map((item) => {
           const active = isActive(item.href);
           const base =
-            "flex items-center gap-3 rounded-2xl px-3 py-3 text-[14px] font-medium transition-colors";
+            "flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 text-[14px] font-medium transition-colors";
 
           if (!item.href || item.disabled) {
             return (
@@ -258,7 +258,7 @@ export default function AdminSidebar({ onNavigate }) {
         <button
           type="button"
           onClick={logout}
-          className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[14px] font-medium text-white/70 hover:bg-white/5 hover:text-white"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 text-[14px] font-medium text-white/70 hover:bg-white/5 hover:text-white"
         >
           <span className="inline-flex h-5 w-5 items-center justify-center text-white/60">
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">

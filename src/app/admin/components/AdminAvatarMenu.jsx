@@ -43,7 +43,7 @@ export default function AdminAvatarMenu({ admin }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label="Open user menu"
-        className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#F3F4F6] text-[13px] font-semibold text-[#111827] transition-all duration-200 hover:shadow-sm hover:bg-[#EEF2FF] focus:outline-none focus:ring-2 focus:ring-[#111827]/15"
+        className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#F3F4F6] text-[13px] font-semibold text-[#111827] transition-all duration-200 hover:bg-[#EEF2FF] hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/15"
       >
         {initials}
       </button>
@@ -53,7 +53,7 @@ export default function AdminAvatarMenu({ admin }) {
           <button
             type="button"
             onClick={logout}
-            className="flex w-full items-center gap-2 px-4 py-3 text-sm text-[#111827] transition-colors duration-200 hover:bg-[#F3F4F6]"
+            className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-sm text-[#111827] transition-colors duration-200 hover:bg-[#F3F4F6]"
           >
             Log out
           </button>

@@ -17,7 +17,7 @@ export default function CampaignsHeader({ onCreate }) {
         <button
           type="button"
           onClick={onCreate}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#262626] px-4 py-2.5 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-black"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#262626] px-4 py-2.5 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-black"
         >
           <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-white/10">
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
@@ -32,4 +32,3 @@ export default function CampaignsHeader({ onCreate }) {
     </div>
   );
 }
-
