@@ -161,7 +161,7 @@ const DashboardPage = () => {
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
-                      style={{ width: `${f.percent}%`, backgroundColor: f.color }}
+                      style={{ width: `${f.percent}%`, backgroundColor: RANGE_COLOR }}
                     />
                   </div>
                 </div>
