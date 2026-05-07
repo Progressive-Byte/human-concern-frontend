@@ -163,6 +163,20 @@ function Icon({ name }) {
     );
   }
 
+  if (name === "forms") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path
+          d="M7 4h10a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <path d="M9 8h8M9 12h8M9 16h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
       <path
@@ -191,6 +205,7 @@ function NavIcon({ name, className = "" }) {
 const navItems = [
   { href: "/admin", label: "Overview", icon: "overview" },
   { href: "/admin/campaigns", label: "Campaigns", icon: "campaigns" },
+  { href: "/admin/forms", label: "Forms", icon: "forms" },
   { href: null, label: "Causes", icon: "causes", disabled: true },
   { href: null, label: "Addons", icon: "addons", disabled: true },
   { href: null, label: "Objectives", icon: "objectives", disabled: true },
@@ -244,10 +259,10 @@ export default function AdminSidebar({ onNavigate }) {
               href={item.href}
               onClick={() => onNavigate?.()}
               className={`${base} ${
-                active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5 hover:text-white"
+                active ? "bg-red-600/15 text-white ring-1 ring-inset ring-red-500/25" : "text-white/70 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <NavIcon name={item.icon} className={active ? "text-white" : "text-white/60"} />
+              <NavIcon name={item.icon} className={active ? "text-red-200" : "text-white/60"} />
               <span>{item.label}</span>
             </Link>
           );

@@ -60,3 +60,52 @@ export function archiveAdminCampaign(campaignId) {
 export function restoreAdminCampaign(campaignId) {
   return adminApiRequest(`/admin/campaigns/${campaignId}/restore`, { method: "POST" });
 }
+
+export function getAdminForms({ page, limit, sort, order, q, status, campaignId } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (typeof campaignId === "string" && campaignId.trim()) params.set("campaignId", campaignId.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/forms?${query}` : "/admin/forms";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminCampaignForms(campaignId) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}/forms`, { method: "GET" });
+}
+
+export function createAdminCampaignForm(campaignId, payload) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}/forms`, { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function getAdminFormBasics(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/basics`, { method: "GET" });
+}
+
+export function updateAdminFormBasics(formId, payload) {
+  return adminApiRequest(`/admin/forms/${formId}/basics`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function publishAdminForm(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/publish`, { method: "POST" });
+}
+
+export function unpublishAdminForm(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/unpublish`, { method: "POST" });
+}
+
+export function archiveAdminForm(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/archive`, { method: "POST" });
+}
+
+export function restoreAdminForm(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/restore`, { method: "POST" });
+}

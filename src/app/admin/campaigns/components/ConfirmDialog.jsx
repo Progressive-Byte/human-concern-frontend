@@ -32,7 +32,7 @@ export default function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className="rounded-xl bg-[#262626] px-4 py-2 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-black disabled:opacity-60"
+            className="rounded-xl bg-red-600 px-4 py-2 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-red-700 disabled:opacity-60"
           >
             {loading ? "Please wait..." : confirmText}
           </button>
@@ -41,4 +41,3 @@ export default function ConfirmDialog({
     </div>
   );
 }
-

@@ -27,7 +27,7 @@ export default function ActiveCampaignsCard({ items = [], currency = "USD" }) {
                     {item?.campaignName || "—"}
                   </div>
                 </div>
-                <div className="text-[12px] text-[#6B7280]">{Number(item?.progressPercent || 0)}%</div>
+                <div className="text-[12px] font-semibold text-red-700">{Number(item?.progressPercent || 0)}%</div>
               </div>
 
               <ProgressBar value={item?.progressPercent || 0} />

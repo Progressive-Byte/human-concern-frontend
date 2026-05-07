@@ -1,19 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import ConfirmDialog from "./ConfirmDialog";
-import { useToast } from "./ToastProvider";
-import {
-  archiveAdminCampaign,
-  publishAdminCampaign,
-  restoreAdminCampaign,
-  unpublishAdminCampaign,
-} from "@/services/admin";
+import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
+import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import { archiveAdminForm, publishAdminForm, restoreAdminForm, unpublishAdminForm } from "@/services/admin";
 
 function buildMenu(status) {
   const s = String(status || "").toLowerCase();
-  const items = [{ key: "view", label: "View" }, { key: "edit", label: "Edit" }];
+  const items = [];
 
   if (s === "draft") items.push({ key: "publish", label: "Publish" }, { key: "archive", label: "Archive" });
   if (s === "published") items.push({ key: "unpublish", label: "Unpublish" }, { key: "archive", label: "Archive" });
@@ -23,15 +17,14 @@ function buildMenu(status) {
 }
 
 function getConfirmCopy(action) {
-  if (action === "publish") return { title: "Publish campaign?", description: "This will make the campaign available as published." };
-  if (action === "unpublish") return { title: "Unpublish campaign?", description: "This will move the campaign back from published state." };
-  if (action === "archive") return { title: "Archive campaign?", description: "Archived campaigns are removed from active use." };
-  if (action === "restore") return { title: "Restore campaign?", description: "This will restore the campaign from archived state." };
+  if (action === "publish") return { title: "Publish form?", description: "This will make the form available as published." };
+  if (action === "unpublish") return { title: "Unpublish form?", description: "This will move the form back from published state." };
+  if (action === "archive") return { title: "Archive form?", description: "Archived forms are removed from active use." };
+  if (action === "restore") return { title: "Restore form?", description: "This will restore the form from archived state." };
   return { title: "Confirm action", description: "" };
 }
 
-export default function CampaignRowActions({ item, onEdit, onRefresh }) {
-  const router = useRouter();
+export default function FormRowActions({ item, onRefresh }) {
   const toast = useToast();
   const wrapRef = useRef(null);
 
@@ -39,6 +32,7 @@ export default function CampaignRowActions({ item, onEdit, onRefresh }) {
   const [confirmAction, setConfirmAction] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const id = item?.id || item?.formId || item?._id;
   const menu = useMemo(() => buildMenu(item?.status), [item?.status]);
 
   useEffect(() => {
@@ -54,15 +48,13 @@ export default function CampaignRowActions({ item, onEdit, onRefresh }) {
   }, [open]);
 
   async function runAction(action) {
-    const id = item?.id;
     if (!id) return;
-
     setLoading(true);
     try {
-      if (action === "publish") await publishAdminCampaign(id);
-      if (action === "unpublish") await unpublishAdminCampaign(id);
-      if (action === "archive") await archiveAdminCampaign(id);
-      if (action === "restore") await restoreAdminCampaign(id);
+      if (action === "publish") await publishAdminForm(id);
+      if (action === "unpublish") await unpublishAdminForm(id);
+      if (action === "archive") await archiveAdminForm(id);
+      if (action === "restore") await restoreAdminForm(id);
 
       toast.success(
         action === "publish"
@@ -77,19 +69,22 @@ export default function CampaignRowActions({ item, onEdit, onRefresh }) {
       );
       onRefresh?.();
     } catch (e) {
-      const msg = e?.message || "Action failed.";
-      toast.error(msg);
+      toast.error(e?.message || "Action failed.");
     } finally {
       setLoading(false);
       setConfirmAction("");
     }
   }
 
+  if (!menu.length) {
+    return <span className="text-[12px] text-[#6B7280]">—</span>;
+  }
+
   return (
     <div ref={wrapRef} className="relative inline-flex">
       <button
         type="button"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-red-500/10"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-white"
         aria-label="Row actions"
         onClick={() => setOpen((v) => !v)}
       >
@@ -106,9 +101,7 @@ export default function CampaignRowActions({ item, onEdit, onRefresh }) {
               type="button"
               onClick={() => {
                 setOpen(false);
-                if (m.key === "edit") onEdit?.(item?.id);
-                else if (m.key === "view") router.push(`/admin/campaigns/${item?.id}`);
-                else setConfirmAction(m.key);
+                setConfirmAction(m.key);
               }}
               className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
             >
@@ -130,3 +123,4 @@ export default function CampaignRowActions({ item, onEdit, onRefresh }) {
     </div>
   );
 }
+

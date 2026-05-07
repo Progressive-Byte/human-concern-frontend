@@ -36,7 +36,7 @@ export default function FundPerformanceTable({ items = [], currency = "USD" }) {
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{item?.fundCause || "—"}</span>
                       {item?.fundCode ? (
-                        <span className="rounded-full bg-[#F3F4F6] px-2 py-0.5 text-[11px] text-[#6B7280]">
+                        <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-700">
                           {item.fundCode}
                         </span>
                       ) : null}
