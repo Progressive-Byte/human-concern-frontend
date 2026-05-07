@@ -1,4 +1,4 @@
-import { CalendarIcon, ClockIcon } from "@/components/common/SvgIcon";
+import { CalendarIcon, ClockIcon, PauseIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "../components/DashboardHeader";
 
 const schedules = [
