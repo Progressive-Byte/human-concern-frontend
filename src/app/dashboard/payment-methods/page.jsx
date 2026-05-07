@@ -1,5 +1,6 @@
 import { CardIcon, CheckIcon, NoCheckIcon, PlusIcon, TrashIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "../components/DashboardHeader";
+import Image from "next/image";
 
 const savedCards = [
   { id: 1, brand: "Visa",       last4: "4242", exp: "12/25", isDefault: true  },
@@ -22,22 +23,6 @@ const otherMethods = [
     icon: "paypal",
   },
 ];
-
-function AppleIcon() {
-  return (
-    <div className="w-9 h-9 rounded-xl bg-[#F5F5F5] border border-[#EBEBEB] flex items-center justify-center text-base leading-none select-none">
-      🍎
-    </div>
-  );
-}
-
-function PayPalIcon() {
-  return (
-    <div className="w-9 h-9 rounded-xl bg-[#EEF4FF] border border-[#D4E3FF] flex items-center justify-center">
-      <span className="text-[#1D4ED8] font-extrabold text-sm leading-none">P</span>
-    </div>
-  );
-}
 
 const PaymentMethodsPage = () => {
   return (
@@ -119,30 +104,49 @@ const PaymentMethodsPage = () => {
               <div
                 key={m.id}
                 className={`flex items-center gap-3 md:gap-4 px-4 md:px-5 py-4 md:py-5 hover:bg-[#FAFAFA] transition-colors ${
-                  idx !== otherMethods.length - 1 ? "border-b border-dashed border-[#EBEBEB]" : ""
+                  idx !== otherMethods.length - 1
+                    ? "border-b border-dashed border-[#EBEBEB]"
+                    : ""
                 }`}
               >
-                {/* Icon */}
-                {m.icon === "apple"  && <AppleIcon />}
-                {m.icon === "paypal" && <PayPalIcon />}
+                {/* Logo */}
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#F6F6F6] border border-[#EEEEEE]">
+                  <Image
+                    src={
+                      m.icon === "apple"
+                        ? "/images/apple.png"
+                        : "/images/paypal-icon.png"
+                    }
+                    alt={m.name}
+                    width={22}
+                    height={22}
+                    className="object-contain"
+                  />
+                </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#383838]">{m.name}</p>
-                  <p className="text-xs text-[#8C8C8C] mt-0.5">{m.desc}</p>
+                  <p className="text-sm font-semibold text-[#383838]">
+                    {m.name}
+                  </p>
+
+                  <p className="mt-0.5 text-xs text-[#8C8C8C]">
+                    {m.desc}
+                  </p>
                 </div>
 
-                {/* Status / action */}
+                {/* Action */}
                 <div className="shrink-0">
                   {m.status === "available" && (
-                    <span className="inline-flex items-center text-[11px] font-medium px-3 py-1 rounded-full border border-[#EBEBEB] bg-[#F5F5F5] text-[#737373]">
+                    <span className="inline-flex items-center rounded-full border border-[#EBEBEB] bg-[#F5F5F5] px-3 py-1 text-[11px] font-medium text-[#737373]">
                       Available
                     </span>
                   )}
+
                   {m.status === "connect" && (
                     <button
                       type="button"
-                      className="inline-flex items-center rounded-xl border border-[#EBEBEB] px-4 py-1.5 text-xs font-semibold text-[#383838] hover:border-[#055A46]/40 hover:text-[#055A46] hover:bg-[#ECF9F3] transition-colors cursor-pointer"
+                      className="inline-flex items-center rounded-xl border border-[#EBEBEB] px-4 py-1.5 text-xs font-semibold text-[#383838] transition-colors hover:border-[#055A46]/40 hover:bg-[#ECF9F3] hover:text-[#055A46] cursor-pointer"
                     >
                       Connect
                     </button>
