@@ -1,13 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownIcon, IsActiveIcon } from "@/components/common/SvgIcon";
+import { ArrowDownIcon, FilterIcon, IsActiveIcon } from "@/components/common/SvgIcon";
 
-const FilterIcon = (
-  <svg className="w-4 h-4 text-[#8C8C8C] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-  </svg>
-);
 
 export default function CustomDropdown({
   options = [],
