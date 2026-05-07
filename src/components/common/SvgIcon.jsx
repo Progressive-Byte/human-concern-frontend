@@ -419,3 +419,12 @@ export const EditIcon = (
     </defs>
   </svg>
 );
+export const TrashIcon = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 4H14" stroke="#666666" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12.6666 4V13.3333C12.6666 14 11.9999 14.6667 11.3333 14.6667H4.66659C3.99992 14.6667 3.33325 14 3.33325 13.3333V4" stroke="#666666" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5.33325 4.00016V2.66683C5.33325 2.00016 5.99992 1.3335 6.66659 1.3335H9.33325C9.99992 1.3335 10.6666 2.00016 10.6666 2.66683V4.00016" stroke="#666666" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6.66675 7.3335V11.3335" stroke="#666666" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9.33325 7.3335V11.3335" stroke="#666666" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+);
