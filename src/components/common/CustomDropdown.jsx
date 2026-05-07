@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownIcon } from "@/components/common/SvgIcon";
+import { ArrowDownIcon, IsActiveIcon } from "@/components/common/SvgIcon";
 
 export default function CustomDropdown({
   options = [],
@@ -107,19 +107,7 @@ export default function CustomDropdown({
                   >
                     <span>{opt.label}</span>
                     {isActive && (
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="shrink-0 text-[#EA3335]"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
+                      IsActiveIcon
                     )}
                   </button>
                 </li>
