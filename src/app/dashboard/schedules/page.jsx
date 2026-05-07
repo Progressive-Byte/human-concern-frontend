@@ -40,7 +40,7 @@ const schedules = [
 
 const frequencyLabel = { Weekly: "per week", Monthly: "per month", Daily: "per day" };
 
-export default function SchedulesPage() {
+const SchedulesPage = () => {
   return (
     <>
       <DashboardHeader
@@ -131,3 +131,4 @@ export default function SchedulesPage() {
     </>
   );
 }
+export default SchedulesPage;
