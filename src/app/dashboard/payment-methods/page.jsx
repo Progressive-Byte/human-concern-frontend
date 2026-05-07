@@ -39,7 +39,7 @@ function PayPalIcon() {
   );
 }
 
-export default function PaymentMethodsPage() {
+const PaymentMethodsPage = () => {
   return (
     <>
       <DashboardHeader
@@ -157,3 +157,4 @@ export default function PaymentMethodsPage() {
     </>
   );
 }
+export default PaymentMethodsPage;
