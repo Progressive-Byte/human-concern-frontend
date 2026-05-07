@@ -45,7 +45,13 @@ const DonationWidget = ({ campaign }) => {
       suggestedAmounts:   campaign.suggestedAmounts   ?? [],
       addOns:             campaign.addOns             ?? [],
       goalsDates:         campaign.goalsDates          ?? {},
-      causes:             campaign.causes             ?? [],
+      causes: (campaign.causes ?? []).map((c) => ({
+        id:            c.id,
+        name:          c.name          ?? "",
+        description:   c.description   ?? "",
+        iconEmoji:     c.iconEmoji     ?? "",
+        zakatEligible: c.zakatEligible ?? false,
+      })),
       donationObjectives: campaign.objectives ?? [],
     }));
 
