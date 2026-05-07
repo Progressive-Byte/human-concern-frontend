@@ -18,7 +18,7 @@ const Stepper = ({ label, hint, value, onChange, min = 1, max = 99 }) => {
           type="button"
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value >= max}
-          className="w-7 h-7 rounded-full border border-[#E5E5E5] flex items-center justify-center text-[#383838] font-bold text-lg leading-none hover:bg-gray-50 disabled:opacity-30 transition-colors"
+          className="w-7 h-7 rounded-full border border-[#E5E5E5] flex items-center justify-center text-[#383838] font-bold text-lg leading-none hover:bg-gray-50 disabled:opacity-30 transition-colors cursror-pointer"
         >
           +
         </button>
