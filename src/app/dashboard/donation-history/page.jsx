@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../components/DashboardHeader";
 import { ThankyouIcon, ShareCampaignIcon, CircleCheckIcon } from "@/components/common/SvgIcon";
+import CustomDropdown from "@/components/common/CustomDropdown";
 
 const rows = [
   { id: 1, date: "Feb 1, 2026",  campaign: "Ramadan Food Distribution",            cause: "Zakat",     amount: 100, status: "Completed", payment: "Visa •••• 4242"        },
@@ -13,7 +14,12 @@ const rows = [
   { id: 5, date: "Dec 20, 2025", campaign: "Winter Aid for Refugees",               cause: "Emergency", amount: 120, status: "Completed", payment: "Visa •••• 4242"         },
 ];
 
-const causes = ["All Causes", "Zakat", "Sadaqah", "Emergency"];
+const CAUSE_OPTIONS = [
+  { value: "All Causes", label: "All Causes" },
+  { value: "Zakat",      label: "Zakat"      },
+  { value: "Sadaqah",    label: "Sadaqah"    },
+  { value: "Emergency",  label: "Emergency"  },
+];
 
 const causeBadgeStyles = {
   Zakat:     "bg-[#ECF9F3] text-[#055A46]",
@@ -34,24 +40,6 @@ const SearchIcon = (
   </svg>
 );
 
-const FilterIcon = (
-  <svg className="w-4 h-4 text-[#8C8C8C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-  </svg>
-);
-
-const ChevronDownIcon = (
-  <svg className="w-4 h-4 text-[#737373]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-);
-
-const CheckIcon = (
-  <svg className="w-4 h-4 text-[#055A46]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
-
 const EyeIcon = (
   <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -66,68 +54,6 @@ const DownloadIcon = (
     <line x1="12" y1="15" x2="12" y2="3" />
   </svg>
 );
-
-/* ------------------------------------------------------------------ */
-/* Custom cause-filter dropdown                                        */
-/* ------------------------------------------------------------------ */
-const CauseFilter = ({ value, onChange }) => {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const onDocClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, []);
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center justify-between gap-3 min-w-[170px] rounded-xl border border-[#EBEBEB] bg-white px-4 py-2.5 text-sm text-[#383838] hover:border-[#055A46]/40 transition-colors cursor-pointer"
-      >
-        <span className="flex items-center gap-2">
-          {FilterIcon}
-          <span className="font-medium">{value}</span>
-        </span>
-        <span
-          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        >
-          {ChevronDownIcon}
-        </span>
-      </button>
-
-      {open && (
-        <div className="absolute right-0 mt-2 w-[200px] rounded-xl border border-[#EBEBEB] bg-white shadow-lg p-1.5 z-20 hc-animate-dropdown">
-          {causes.map((c) => {
-            const selected = c === value;
-            return (
-              <button
-                key={c}
-                type="button"
-                onClick={() => {
-                  onChange(c);
-                  setOpen(false);
-                }}
-                className={`flex items-center justify-between w-full px-3 py-2 text-sm rounded-lg cursor-pointer transition-colors ${
-                  selected
-                    ? "text-[#055A46] font-medium bg-[#ECF9F3]"
-                    : "text-[#383838] hover:bg-[#F9F9F9]"
-                }`}
-              >
-                <span>{c}</span>
-                {selected && CheckIcon}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-};
 
 /* ------------------------------------------------------------------ */
 /* Page                                                                */
@@ -208,7 +134,15 @@ function DonationHistoryPage() {
               className="w-full rounded-xl border border-[#EBEBEB] bg-white pl-10 pr-4 py-2.5 text-sm text-[#383838] placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#055A46]/40 focus:ring-2 focus:ring-[#055A46]/10 transition"
             />
           </div>
-          <CauseFilter value={cause} onChange={setCause} />
+          <div className="min-w-[170px]">
+            <CustomDropdown
+              options={CAUSE_OPTIONS}
+              value={cause}
+              onChange={setCause}
+              variant="form"
+              placeholder="All Causes"
+            />
+          </div>
         </div>
 
         {/* Table card */}
