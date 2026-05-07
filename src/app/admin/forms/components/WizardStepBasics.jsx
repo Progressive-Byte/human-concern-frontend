@@ -197,9 +197,9 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
     if (pub.campaignType !== "seasonal" && pub.campaignType !== "ongoing") errors["public.campaignType"] = "Choose seasonal or ongoing";
 
     const uniqueCats = Array.from(new Set(pub.categoryIds.map((x) => String(x).trim()).filter(Boolean)));
-    if (uniqueCats.length < 1) errors["public.categoryIds"] = "Add at least 1 category id";
-    if (uniqueCats.length > 10) errors["public.categoryIds"] = "Max 10 category ids";
-    if (uniqueCats.some((id) => !isMongoId(id))) errors["public.categoryIds"] = "Each category id must be a Mongo ObjectId (24 hex chars)";
+    if (uniqueCats.length < 1) errors["public.categoryIds"] = "Add at least 1 category";
+    if (uniqueCats.length > 10) errors["public.categoryIds"] = "Max 10 categories";
+    if (uniqueCats.some((id) => !isMongoId(id))) errors["public.categoryIds"] = "Each category must be a Mongo ObjectId (24 hex chars)";
 
     const payload = {
       internal: {
