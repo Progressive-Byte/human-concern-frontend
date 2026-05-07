@@ -65,7 +65,6 @@ export default function SchedulesPage() {
               key={s.id}
               className="bg-white rounded-2xl border border-[#EBEBEB] p-4 md:p-5 hover:border-[#055A46]/30 hover:shadow-sm transition-all"
             >
-              {/* Single main row: icon · title/meta · amount + actions */}
               <div className="flex items-start gap-3 md:gap-4">
                 <div className="shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-xl bg-[#ECF9F3] flex items-center justify-center text-[#055A46]">
                   {CalendarIcon}
