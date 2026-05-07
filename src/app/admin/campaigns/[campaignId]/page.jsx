@@ -52,8 +52,10 @@ export default function AdminCampaignDetailsPage({ params }) {
     (async () => {
       try {
         const res = await getAdminCampaignById(campaignId);
+        
         if (!alive) return;
-        setData(res?.data || null);
+        const campaign = res?.data?.data || res?.data?.item || res?.data?.campaign || res?.data || null;
+        setData(campaign);
       } catch (e) {
         if (!alive) return;
         setError(e?.message || "Failed to load campaign.");
@@ -99,6 +101,14 @@ export default function AdminCampaignDetailsPage({ params }) {
 
   const title = data?.name || "Campaign";
   const subtitle = data?.slug ? `/${data.slug}` : "Campaign details";
+  
+  const forms = Array.isArray(data?.forms)
+    ? data.forms
+    : Array.isArray(data?.campaignForms)
+      ? data.campaignForms
+      : Array.isArray(data?.formsPreview)
+        ? data.formsPreview
+        : [];
 
   return (
     <main className="min-w-0 p-4 md:p-6 space-y-6">
@@ -183,6 +193,28 @@ export default function AdminCampaignDetailsPage({ params }) {
             <div>
               <div className="text-[12px] font-medium text-[#6B7280]">Description</div>
               <div className="mt-1 whitespace-pre-wrap text-[#111827]">{data?.description || "—"}</div>
+            </div>
+            <div>
+              <div className="text-[12px] font-medium text-[#6B7280]">Forms</div>
+              {forms.length === 0 ? (
+                <div className="mt-1 text-[#6B7280]">—</div>
+              ) : (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {forms.map((f) => {
+                    const key = f?.formId || f?.id || f?._id || f?.name || Math.random().toString(16);
+                    const label = f?.name || f?.formName || "—";
+                    
+                    return (
+                      <span
+                        key={key}
+                        className="inline-flex items-center rounded-full border border-dashed border-[#E5E7EB] bg-[#F3F4F6] px-3 py-1 text-[11px] font-medium text-[#111827]"
+                      >
+                        {label}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         ) : (

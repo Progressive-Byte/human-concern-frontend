@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { formatCurrency } from "@/utils/helpers";
 import ProgressBar from "@/app/admin/components/ProgressBar";
-import FormsPreviewChips from "./FormsPreviewChips";
 import StatusPill from "./StatusPill";
 import CampaignsPagination from "./CampaignsPagination";
 import CampaignRowActions from "./CampaignRowActions";
@@ -66,8 +66,12 @@ export default function CampaignsTable({
                     className="border-t border-[#F3F4F6] transition-colors duration-200 hover:bg-[#F9FAFB]"
                   >
                     <td className="px-5 py-4 align-top">
-                      <div className="font-medium">{item?.name || "—"}</div>
-                      <FormsPreviewChips items={item?.formsPreview || []} />
+                      <Link
+                        href={`/admin/campaigns/${item?.id}`}
+                        className="cursor-pointer font-medium text-[#111827] transition hover:underline"
+                      >
+                        {item?.name || "—"}
+                      </Link>
                     </td>
                     <td className="py-4 pr-4 align-top">
                       <StatusPill status={item?.status} />

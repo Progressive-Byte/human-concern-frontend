@@ -49,7 +49,7 @@ export default function CampaignUpsertModal({ open, mode, campaignId, onClose, o
       try {
         const res = await getAdminCampaignById(campaignId);
         if (!alive) return;
-        const d = res?.data || {};
+        const d = res?.data?.data || res?.data?.item || res?.data?.campaign || res?.data || {};
         setName(String(d?.name || ""));
         setSlug(String(d?.slug || ""));
         setDescription(String(d?.description || ""));
