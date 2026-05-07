@@ -395,7 +395,7 @@ export const DownloadIcon = (
     <line x1="12" y1="15" x2="12" y2="3" />
   </svg>
 );
- const PauseIcon = (
+export const PauseIcon = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M11.3333 2.6665H9.99992C9.63173 2.6665 9.33325 2.96498 9.33325 3.33317V12.6665C9.33325 13.0347 9.63173 13.3332 9.99992 13.3332H11.3333C11.7014 13.3332 11.9999 13.0347 11.9999 12.6665V3.33317C11.9999 2.96498 11.7014 2.6665 11.3333 2.6665Z" stroke="#1A1A1A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M6 2.6665H4.66667C4.29848 2.6665 4 2.96498 4 3.33317V12.6665C4 13.0347 4.29848 13.3332 4.66667 13.3332H6C6.36819 13.3332 6.66667 13.0347 6.66667 12.6665V3.33317C6.66667 2.96498 6.36819 2.6665 6 2.6665Z" stroke="#1A1A1A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
