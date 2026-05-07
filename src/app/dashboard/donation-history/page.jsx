@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../components/DashboardHeader";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import ThankYouModal from "./ThankYouModal";
-import { EyeIcon } from "@/components/common/SvgIcon";
+import { EyeIcon, SearchIconFront } from "@/components/common/SvgIcon";
 
 const rows = [
   { id: 1, date: "Feb 1, 2026",  campaign: "Ramadan Food Distribution",            cause: "Zakat",     amount: 100, status: "Completed", payment: "Visa •••• 4242"        },
@@ -28,16 +28,6 @@ const causeBadgeStyles = {
   Emergency: "bg-[#FFF5F5] text-[#EA3335]",
   Fitrana:   "bg-[#EFF6FF] text-[#1D4ED8]",
 };
-
-/* ------------------------------------------------------------------ */
-/* Inline icons                                                        */
-/* ------------------------------------------------------------------ */
-const SearchIcon = (
-  <svg className="w-4 h-4 text-[#8C8C8C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
 
 const DownloadIcon = (
   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -100,7 +90,7 @@ function DonationHistoryPage() {
         {/* Filter bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2">{SearchIcon}</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2">{SearchIconFront}</span>
             <input
               type="text"
               value={search}
