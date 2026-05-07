@@ -82,6 +82,22 @@ export function getAdminCampaignForms(campaignId) {
   return adminApiRequest(`/admin/campaigns/${campaignId}/forms`, { method: "GET" });
 }
 
+export function getAdminCategories({ page, limit, sort, order, q, status } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/categories?${query}` : "/admin/categories";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
 export function createAdminCampaignForm(campaignId, payload) {
   return adminApiRequest(`/admin/campaigns/${campaignId}/forms`, { method: "POST", body: JSON.stringify(payload) });
 }

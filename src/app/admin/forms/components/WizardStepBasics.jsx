@@ -2,24 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
-import { createAdminCampaignForm, getAdminFormBasics, updateAdminFormBasics } from "@/services/admin";
+import { createAdminCampaignForm, getAdminCategories, getAdminFormBasics, updateAdminFormBasics } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import FieldError from "./FieldError";
-import TagInput from "./TagInput";
 import WizardFooterNav from "./WizardFooterNav";
-
-function toSlug(input) {
-  return String(input || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 64);
-}
 
 function isMongoId(value) {
   return /^[a-fA-F0-9]{24}$/.test(String(value || "").trim());
+}
+
+function isSlugLike(value) {
+  return /^[a-z0-9]+(-[a-z0-9]+)*$/.test(String(value || "").trim());
 }
 
 function isDigits(value) {
@@ -49,6 +42,7 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
   const [beneficiaryId, setBeneficiaryId] = useState("");
   const [designation, setDesignation] = useState("");
   const [locationId, setLocationId] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
 
   const [displayName, setDisplayName] = useState("");
   const [description, setDescription] = useState("");
@@ -56,7 +50,54 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
   const [categoryIds, setCategoryIds] = useState([]);
   const [featured, setFeatured] = useState(false);
 
-  const shortDescription = useMemo(() => toSlug(displayName), [displayName]);
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState("");
+  const [categoryQuery, setCategoryQuery] = useState("");
+
+  const categoryOptions = useMemo(() => (Array.isArray(categories) ? categories : []), [categories]);
+  const filteredCategoryOptions = useMemo(() => {
+    const q = String(categoryQuery || "").trim().toLowerCase();
+    if (!q) return categoryOptions;
+    return categoryOptions.filter((c) => {
+      const name = String(c?.name || c?.title || c?.slug || "").toLowerCase();
+      const id = String(c?.id || c?._id || "").toLowerCase();
+      return name.includes(q) || id.includes(q);
+    });
+  }, [categoryOptions, categoryQuery]);
+  const categoryNameById = useMemo(() => {
+    const map = new Map();
+    for (const c of categoryOptions) {
+      const id = String(c?.id || c?._id || "").trim();
+      if (!id) continue;
+      map.set(id, String(c?.name || c?.title || c?.slug || "Category"));
+    }
+    return map;
+  }, [categoryOptions]);
+
+  useEffect(() => {
+    let alive = true;
+    setCategoriesLoading(true);
+    setCategoriesError("");
+    (async () => {
+      try {
+        const res = await getAdminCategories({ page: "1", limit: "200", order: "asc" });
+        if (!alive) return;
+        const items = res?.data?.items || res?.data?.data?.items || res?.items || [];
+        setCategories(Array.isArray(items) ? items : []);
+      } catch (e) {
+        if (!alive) return;
+        setCategories([]);
+        setCategoriesError(e?.message || "Failed to load categories.");
+      } finally {
+        if (!alive) return;
+        setCategoriesLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!formId) return;
@@ -76,12 +117,17 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
         setFundCode(String(internal?.fundCode ?? ""));
         setBeneficiaryId(String(internal?.beneficiaryId ?? ""));
         setDesignation(String(internal?.designation || ""));
+        setShortDescription(String(internal?.shortDescription || ""));
         setLocationId(String(internal?.locationId || ""));
 
         setDisplayName(String(pub?.displayName || ""));
         setDescription(String(pub?.description || ""));
         setCampaignType(String(pub?.campaignType || "seasonal"));
-        setCategoryIds(Array.isArray(pub?.categoryIds) ? pub.categoryIds : []);
+        setCategoryIds(
+          Array.isArray(pub?.categoryIds)
+            ? pub.categoryIds.map((x) => String(x).trim()).filter(Boolean)
+            : []
+        );
         setFeatured(Boolean(pub?.featured));
       } catch (e) {
         if (!alive) return;
@@ -136,6 +182,8 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
     else if (internal.designation.length > 64) errors["internal.designation"] = "Max 64 characters";
 
     if (!internal.shortDescription) errors["internal.shortDescription"] = "Required";
+    else if (internal.shortDescription.length > 64) errors["internal.shortDescription"] = "Max 64 characters";
+    else if (!isSlugLike(internal.shortDescription)) errors["internal.shortDescription"] = "Use lowercase letters, digits, and hyphens only";
 
     if (!internal.locationId) errors["internal.locationId"] = "Required";
     else if (internal.locationId.length > 100) errors["internal.locationId"] = "Max 100 characters";
@@ -173,6 +221,21 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
     };
 
     return { errors, payload };
+  }
+
+  function toggleCategoryId(id) {
+    const key = String(id || "").trim();
+    if (!key) return;
+
+    setCategoryIds((prev) => {
+      const current = Array.isArray(prev) ? prev.map((x) => String(x).trim()).filter(Boolean) : [];
+      if (current.includes(key)) return current.filter((x) => x !== key);
+      if (current.length >= 10) {
+        toast.error("Max 10 categories");
+        return current;
+      }
+      return [...current, key];
+    });
   }
 
   async function save() {
@@ -355,6 +418,21 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
             />
             <FieldError message={fieldErrors["internal.locationId"]} />
           </div>
+
+          <div className="md:col-span-2">
+            <div className="mb-2 text-[13px] font-semibold text-[#111827]">
+              Short Description <span className="text-red-600">*</span>
+            </div>
+            <input
+              value={shortDescription}
+              onChange={(e) => setShortDescription(e.target.value)}
+              placeholder="e.g. child-sponsorship"
+              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              disabled={saving}
+            />
+            <div className="mt-1 text-[12px] text-[#6B7280]">Lowercase letters, digits, and hyphens only.</div>
+            <FieldError message={fieldErrors["internal.shortDescription"]} />
+          </div>
         </div>
 
         <div className="mt-5 rounded-2xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] p-4">
@@ -435,20 +513,90 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
               <FieldError message={fieldErrors["public.campaignType"]} />
             </div>
 
-            <TagInput
-              label={
-                <span>
-                  Category IDs <span className="text-red-600">*</span>
-                </span>
-              }
-              placeholder="Paste Mongo ObjectIds and press Enter"
-              values={categoryIds}
-              onChange={setCategoryIds}
-              error={fieldErrors["public.categoryIds"]}
-              helper="Add 1–10 unique Mongo ObjectIds."
-              max={10}
-              validateToken={(t) => isMongoId(t)}
-            />
+            <div>
+              <div className="mb-2 text-[13px] font-semibold text-[#111827]">
+                Categories <span className="text-red-600">*</span>
+              </div>
+              <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white p-3">
+                <div className="flex items-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 focus-within:border-red-500/40">
+                  <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#9CA3AF]" fill="none">
+                    <path
+                      d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <input
+                    value={categoryQuery}
+                    onChange={(e) => setCategoryQuery(e.target.value)}
+                    placeholder="Search categories..."
+                    className="w-full bg-transparent text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+                    disabled={saving || categoriesLoading}
+                  />
+                </div>
+
+                <div className="mt-3 max-h-[220px] overflow-auto rounded-xl border border-[#E5E7EB] bg-white">
+                  {categoriesLoading ? (
+                    <div className="px-3 py-3 text-[13px] text-[#6B7280]">Loading categories...</div>
+                  ) : filteredCategoryOptions.length === 0 ? (
+                    <div className="px-3 py-3 text-[13px] text-[#6B7280]">No categories found</div>
+                  ) : (
+                    <div className="divide-y divide-[#F3F4F6]">
+                      {filteredCategoryOptions.map((c) => {
+                        const id = String(c?.id || c?._id || "").trim();
+                        if (!id) return null;
+                        const label = String(c?.name || c?.title || c?.slug || "Category");
+                        const checked = Array.isArray(categoryIds) && categoryIds.map(String).includes(id);
+
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={() => toggleCategoryId(id)}
+                            disabled={saving}
+                            className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span
+                                className={`inline-flex h-5 w-5 items-center justify-center rounded border ${
+                                  checked ? "border-red-500/40 bg-red-600 text-white" : "border-[#E5E7EB] bg-white"
+                                }`}
+                                aria-hidden="true"
+                              >
+                                {checked ? (
+                                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
+                                    <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                                  </svg>
+                                ) : null}
+                              </span>
+                              <span className="truncate">{label}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {categoriesError ? <div className="mt-1 text-[12px] text-red-600">{categoriesError}</div> : null}
+              <div className="mt-1 text-[12px] text-[#6B7280]">
+                Select 1–10 categories{categoriesLoading ? " (loading...)" : ""}.
+              </div>
+              {Array.isArray(categoryIds) && categoryIds.length ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {categoryIds.map((id) => (
+                    <span
+                      key={id}
+                      className="inline-flex items-center rounded-full bg-red-500/10 px-3 py-1 text-[11px] font-medium text-red-700"
+                    >
+                      {categoryNameById.get(String(id)) || String(id)}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              <FieldError message={fieldErrors["public.categoryIds"]} />
+            </div>
 
             <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
               <div className="flex items-center justify-between gap-4">
@@ -460,18 +608,6 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
               </div>
             </div>
 
-            <div>
-              <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-                Short Description <span className="text-red-600">*</span>
-              </div>
-              <input
-                value={shortDescription}
-                readOnly
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2.5 text-[13px] text-[#111827] outline-none"
-              />
-              <div className="mt-1 text-[12px] text-[#6B7280]">Auto-generated from Display Name.</div>
-              <FieldError message={fieldErrors["internal.shortDescription"]} />
-            </div>
           </div>
         </div>
       </section>
