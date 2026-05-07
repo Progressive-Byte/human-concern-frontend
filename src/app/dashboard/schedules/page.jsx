@@ -65,77 +65,62 @@ export default function SchedulesPage() {
               key={s.id}
               className="bg-white rounded-2xl border border-[#EBEBEB] p-4 md:p-5 hover:border-[#055A46]/30 hover:shadow-sm transition-all"
             >
-              {/* Top section */}
+              {/* Single main row: icon · title/meta · amount + actions */}
               <div className="flex items-start gap-3 md:gap-4">
-                {/* Calendar icon */}
                 <div className="shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-xl bg-[#ECF9F3] flex items-center justify-center text-[#055A46]">
                   {CalendarIcon}
                 </div>
 
-                {/* Middle: title + meta */}
-                <div className="flex-1 min-w-0">
-                  {/* Title row */}
-                  <div className="flex items-center flex-wrap gap-2">
-                    <h3 className="font-semibold text-[#383838] text-sm md:text-base leading-snug">
-                      {s.title}
-                    </h3>
-                    <span
-                      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
-                        isActive
-                          ? "bg-[#ECF9F3] text-[#055A46]"
-                          : "bg-[#FFF8EC] text-[#B45309]"
-                      }`}
-                    >
+                <div className="flex-1 min-w-0 flex items-start justify-between gap-3">
+                  {/* Left: title + badge + meta */}
+                  <div className="min-w-0">
+                    <div className="flex items-center flex-wrap gap-1.5">
+                      <h3 className="font-semibold text-[#383838] text-sm md:text-base leading-snug">
+                        {s.title}
+                      </h3>
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          isActive ? "bg-[#055A46] animate-pulse" : "bg-[#B45309]"
+                        className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
+                          isActive ? "bg-[#ECF9F3] text-[#055A46]" : "bg-[#FFF8EC] text-[#B45309]"
                         }`}
-                      />
-                      {s.status}
-                    </span>
-                  </div>
-
-                  {/* Meta row */}
-                  <p className="text-xs text-[#8C8C8C] mt-1">
-                    {s.frequency}&nbsp;•&nbsp;{s.cause}&nbsp;•&nbsp;Started {s.started}
-                  </p>
-                </div>
-
-                {/* Right: amount + actions — hidden on mobile, shown md+ */}
-                <div className="hidden md:flex items-start gap-4 shrink-0">
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-[#055A46] leading-none">${s.amount}</p>
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isActive ? "bg-[#055A46] animate-pulse" : "bg-[#B45309]"
+                          }`}
+                        />
+                        {s.status}
+                      </span>
+                    </div>
                     <p className="text-xs text-[#8C8C8C] mt-1">
-                      {frequencyLabel[s.frequency] ?? s.frequency.toLowerCase()}
+                      {s.frequency}&nbsp;•&nbsp;{s.cause}&nbsp;•&nbsp;Started {s.started}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <ActionButtons isActive={isActive} />
+
+                  {/* Right: amount + actions */}
+                  <div className="shrink-0 flex items-center gap-2 md:gap-3">
+                    <div className="text-right">
+                      <p className="text-xl md:text-2xl font-bold text-[#055A46] leading-none">
+                        ${s.amount}
+                      </p>
+                      <p className="text-[11px] text-[#8C8C8C] mt-0.5">
+                        {frequencyLabel[s.frequency] ?? s.frequency.toLowerCase()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <ActionButtons isActive={isActive} />
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Mobile: amount + actions row */}
-              <div className="flex md:hidden items-center justify-between mt-3 pt-3 border-t border-[#F5F5F5]">
-                <div>
-                  <span className="text-xl font-bold text-[#055A46]">${s.amount}</span>
-                  <span className="text-xs text-[#8C8C8C] ml-1.5">
-                    {frequencyLabel[s.frequency] ?? s.frequency.toLowerCase()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <ActionButtons isActive={isActive} />
-                </div>
-              </div>
-
-              {/* Bottom: next donation + total */}
+              {/* Footer row */}
               <div className="mt-3 pt-3 border-t border-[#F0F0F0] flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-[#8C8C8C]">
                 <span className="inline-flex items-center gap-1.5">
                   {ClockIcon}
                   Next donation:&nbsp;
                   <span className="font-semibold text-[#383838]">{s.next}</span>
                 </span>
-                <span className="flex items-center gap-1">
+                <span>
                   Total donated:&nbsp;
                   <span className="font-semibold text-[#383838]">${s.totalDonated}</span>
                 </span>
