@@ -434,3 +434,8 @@ export const PlusIcon = (
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
+export const NoCheckIcon = (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
