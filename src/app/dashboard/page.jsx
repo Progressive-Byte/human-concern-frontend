@@ -1,3 +1,4 @@
+import { DonationContentIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "./components/DashboardHeader";
 import StatCard from "./components/StatCard";
 
@@ -63,10 +64,8 @@ export default function DashboardPage() {
               {recentDonations.map((d) => (
                 <li key={d.id} className="flex items-center justify-between py-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gray-100 text-gray-500">
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z" />
-                      </svg>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500">
+                      {DonationContentIcon}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">{d.title}</p>
