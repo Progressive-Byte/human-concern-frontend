@@ -50,8 +50,9 @@ const donationHistory = [
 
 const frequencyLabel = { Weekly: "week", Monthly: "month", Daily: "day" };
 
-const ScheduleDetailPage = ({ params }) => {
-  const schedule = schedules.find((s) => s.id === Number(params.id));
+const ScheduleDetailPage = async ({ params }) => {
+  const { id } = await params;
+  const schedule = schedules.find((s) => s.id === Number(id));
   if (!schedule) notFound();
 
   const perLabel = frequencyLabel[schedule.frequency] ?? schedule.frequency.toLowerCase();
