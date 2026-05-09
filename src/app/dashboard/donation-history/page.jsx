@@ -133,11 +133,8 @@ function DonationHistoryPage() {
                         {r.cause}
                       </span>
                     </td>
-
-                    {/* Campaign — always visible, status dot below on mobile */}
                     <td className="px-4 py-4">
                       <p className="text-[#383838] text-sm leading-snug">{r.campaign}</p>
-                      {/* Status — only on xs/sm (hidden md+) */}
                       <span className="md:hidden mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-[#055A46]">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#055A46]" />
                         {r.status}
