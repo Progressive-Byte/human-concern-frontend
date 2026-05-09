@@ -29,9 +29,6 @@ const causeBadgeStyles = {
   Fitrana:   "bg-[#EFF6FF] text-[#1D4ED8]",
 };
 
-/* ------------------------------------------------------------------ */
-/* Page                                                                */
-/* ------------------------------------------------------------------ */
 function DonationHistoryPage() {
   const router       = useRouter();
   const searchParams = useSearchParams();
