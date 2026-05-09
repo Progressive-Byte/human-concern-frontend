@@ -35,7 +35,7 @@ const ProfilePage = () => {
       <div className="flex-1 p-4 md:p-6 space-y-5">
 
         {/* Personal Information */}
-        <section className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
+        <section className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
           <UserSectionHeader icon={UserIcon} title="Personal Information" variant="user" />
 
           <div className="mt-5 space-y-4">
@@ -49,7 +49,7 @@ const ProfilePage = () => {
             <div className="pt-1">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#055A46] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#044035] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#EA3335] px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 transition-colors cursor-pointer"
               >
                 {SaveIcon}
                 Save Changes
@@ -59,7 +59,7 @@ const ProfilePage = () => {
         </section>
 
         {/* Notification Preferences */}
-        <section className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
+        <section className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
           <UserSectionHeader icon={BellIcon} title="Notification Preferences" variant="bell" />
 
           <div className="mt-4 space-y-2">
@@ -85,22 +85,22 @@ const ProfilePage = () => {
         </section>
 
         {/* Security */}
-        <section className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
+        <section className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
           <UserSectionHeader icon={LockIcon} title="Security" variant="lock" />
 
-          <div className="mt-4 divide-y divide-[#F5F5F5]">
+          <div className="mt-4 divide-y divide-[#E5E7EB]">
             <div className="flex items-center justify-between py-4">
               <div className="min-w-0 pr-4">
-                <p className="text-sm font-medium text-[#383838]">Password</p>
-                <p className="text-xs text-[#8C8C8C] mt-0.5">Last changed 30 days ago</p>
+                <p className="text-sm font-medium text-[#111827]">Password</p>
+                <p className="text-xs text-[#6B7280] mt-0.5">Last changed 30 days ago</p>
               </div>
               <OutlineButton>Change Password</OutlineButton>
             </div>
 
             <div className="flex items-center justify-between py-4">
               <div className="min-w-0 pr-4">
-                <p className="text-sm font-medium text-[#383838]">Two-Factor Authentication</p>
-                <p className="text-xs text-[#8C8C8C] mt-0.5">Add an extra layer of security</p>
+                <p className="text-sm font-medium text-[#111827]">Two-Factor Authentication</p>
+                <p className="text-xs text-[#6B7280] mt-0.5">Add an extra layer of security</p>
               </div>
               <OutlineButton>Enable</OutlineButton>
             </div>
@@ -108,17 +108,17 @@ const ProfilePage = () => {
         </section>
 
         {/* Account */}
-        <section className="bg-white rounded-2xl border border-[#EA3335]/20 p-5 md:p-6">
-          <h2 className="text-base font-semibold text-[#383838]">Account</h2>
+        <section className="bg-white rounded-2xl border border-dashed border-[#EA3335]/20 p-5 md:p-6">
+          <h2 className="text-base font-semibold text-[#111827]">Account</h2>
 
-          <div className="mt-4 flex items-center justify-between gap-4 px-4 py-4 rounded-xl bg-[#FFF5F5] border border-[#EA3335]/15">
+          <div className="mt-4 flex items-center justify-between gap-4 px-4 py-4 rounded-xl bg-[#FFF5F5] border border-dashed border-[#EA3335]/15">
             <div className="min-w-0">
               <p className="text-sm font-medium text-[#EA3335]">Deactivate Account</p>
-              <p className="text-xs text-[#8C8C8C] mt-0.5">Temporarily archive your account and all data</p>
+              <p className="text-xs text-[#6B7280] mt-0.5">Temporarily archive your account and all data</p>
             </div>
             <button
               type="button"
-              className="shrink-0 rounded-xl bg-[#383838] px-4 py-2 text-xs font-medium text-white hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+              className="shrink-0 rounded-xl bg-[#1A1A1A] px-4 py-2 text-xs font-medium text-white hover:bg-[#333333] transition-colors cursor-pointer"
             >
               Contact Support
             </button>
