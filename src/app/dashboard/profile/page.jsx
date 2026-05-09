@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
-import { BellIcon, LockIcon, UserIcon } from "@/components/common/SvgIcon";
+import { BellIcon, LockIcon, SaveIcon, UserIcon } from "@/components/common/SvgIcon";
 import Toggle from "@/components/ui/Toggle";
 import UserToggle from "@/components/ui/UserToggle";
 import Field from "@/components/ui/Field";
