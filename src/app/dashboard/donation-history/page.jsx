@@ -103,7 +103,6 @@ function DonationHistoryPage() {
 
         {/* Table card */}
         <div className="rounded-2xl border border-[#EBEBEB] bg-white overflow-hidden">
-          {/* Desktop table */}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
