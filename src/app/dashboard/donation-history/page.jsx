@@ -23,7 +23,7 @@ const CAUSE_OPTIONS = [
 ];
 
 const causeBadgeStyles = {
-  Zakat:     "bg-[#ECF9F3] text-[#055A46]",
+  Zakat:     "bg-[#ECFDF5] text-[#047857]",
   Sadaqah:   "bg-[#FFF8EC] text-[#B45309]",
   Emergency: "bg-[#FFF5F5] text-[#EA3335]",
   Fitrana:   "bg-[#EFF6FF] text-[#1D4ED8]",
@@ -35,7 +35,6 @@ function DonationHistoryPage() {
   const [search, setSearch] = useState("");
   const [cause, setCause]   = useState("All Causes");
 
-  // Thank-you popup state (post-donation flow)
   const [showPopup, setShowPopup]       = useState(false);
   const [thankyouData, setThankyouData] = useState(null);
 
@@ -67,7 +66,7 @@ function DonationHistoryPage() {
         actions={
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-white px-4 py-2.5 text-sm font-medium text-[#383838] hover:border-[#055A46]/40 hover:text-[#055A46] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#111827] hover:border-red-500/40 hover:text-red-600 transition-colors cursor-pointer"
           >
             {DownloadIcon}
             Export CSV
@@ -85,7 +84,7 @@ function DonationHistoryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search campaigns..."
-              className="w-full rounded-xl border border-[#EBEBEB] bg-white pl-10 pr-4 py-2.5 text-sm text-[#383838] placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#055A46]/40 focus:ring-2 focus:ring-[#055A46]/10 transition"
+              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white pl-10 pr-4 py-2.5 text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#EA3335]/40 focus:ring-2 focus:ring-[#EA3335]/10 transition"
             />
           </div>
           <div className="min-w-[170px]">
@@ -102,11 +101,11 @@ function DonationHistoryPage() {
         </div>
 
         {/* Table card */}
-        <div className="rounded-2xl border border-[#EBEBEB] bg-white overflow-hidden">
+        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-wide text-[#8C8C8C] border-b border-[#EBEBEB]">
+                <tr className="text-left text-xs uppercase tracking-wide text-[#6B7280] border-b border-dashed border-[#E5E7EB]">
                   <th className="px-4 py-4 font-medium">Date</th>
                   <th className="px-4 py-4 font-medium">Campaign</th>
                   <th className="hidden sm:table-cell px-4 py-4 font-medium">Cause</th>
@@ -120,51 +119,49 @@ function DonationHistoryPage() {
                 {filtered.map((r, idx) => (
                   <tr
                     key={r.id}
-                    className={`hover:bg-[#FAFAFA] transition-colors ${
-                      idx !== filtered.length - 1 ? "border-b border-[#F0F0F0]" : ""
+                    className={`hover:bg-[#F9FAFB] transition-colors ${
+                      idx !== filtered.length - 1 ? "border-b border-[#E5E7EB]" : ""
                     }`}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <p className="text-[#383838] font-medium text-sm">{r.date}</p>
-                      {/* Cause badge — only on xs (hidden sm+) */}
+                      <p className="text-[#111827] font-medium text-sm">{r.date}</p>
                       <span className={`sm:hidden mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
-                        causeBadgeStyles[r.cause] || "bg-[#F5F5F5] text-[#737373]"
+                        causeBadgeStyles[r.cause] || "bg-[#F3F4F6] text-[#6B7280]"
                       }`}>
                         {r.cause}
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <p className="text-[#383838] text-sm leading-snug">{r.campaign}</p>
-                      <span className="md:hidden mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-[#055A46]">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#055A46]" />
+                      <p className="text-[#111827] text-sm leading-snug">{r.campaign}</p>
+                      <span className="md:hidden mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-[#047857]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#047857]" />
                         {r.status}
                       </span>
                     </td>
                     <td className="hidden sm:table-cell px-4 py-4">
                       <span className={`inline-block rounded-full px-3 py-1 text-[11px] font-medium ${
-                        causeBadgeStyles[r.cause] || "bg-[#F5F5F5] text-[#737373]"
+                        causeBadgeStyles[r.cause] || "bg-[#F3F4F6] text-[#6B7280]"
                       }`}>
                         {r.cause}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-[#383838] font-semibold whitespace-nowrap">
+                    <td className="px-4 py-4 text-[#111827] font-semibold whitespace-nowrap">
                       ${r.amount}
                     </td>
                     <td className="hidden md:table-cell px-4 py-4">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#055A46]">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#055A46]" />
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#047857]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#047857]" />
                         {r.status}
                       </span>
                     </td>
-                    <td className="hidden lg:table-cell px-4 py-4 text-[#737373] whitespace-nowrap">
+                    <td className="hidden lg:table-cell px-4 py-4 text-[#6B7280] whitespace-nowrap">
                       {r.payment}
                     </td>
 
-                    {/* Action */}
                     <td className="px-4 py-4 text-right">
                       <button
                         type="button"
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#8C8C8C] hover:text-[#055A46] hover:bg-[#ECF9F3] transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#6B7280] hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
                       >
                         {EyeIcon}
                       </button>
@@ -173,7 +170,7 @@ function DonationHistoryPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#8C8C8C]">
+                    <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#6B7280]">
                       No donations found.
                     </td>
                   </tr>
@@ -196,7 +193,7 @@ function DonationHistoryPage() {
 
 export default function DonationHistory() {
   return (
-    <Suspense fallback={<p className="text-sm text-[#8C8C8C] p-6">Loading…</p>}>
+    <Suspense fallback={<p className="text-sm text-[#6B7280] p-6">Loading…</p>}>
       <DonationHistoryPage />
     </Suspense>
   );
