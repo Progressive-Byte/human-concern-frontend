@@ -6,27 +6,9 @@ import { BellIcon, LockIcon, SaveIcon, UserIcon } from "@/components/common/SvgI
 import UserToggle from "@/components/ui/UserToggle";
 import Field from "@/components/ui/Field";
 import OutlineButton from "@/components/ui/OutlineButton";
+import UserSectionHeader from "@/components/ui/UserSectionHeader";
 
-const sections = {
-  user:  { bg: "#ECF9F3", color: "#055A46" },
-  bell:  { bg: "#FFF8EC", color: "#B45309" },
-  lock:  { bg: "#EFF6FF", color: "#1D4ED8" },
-};
 
-function SectionHeader({ icon, title, variant = "user" }) {
-  const { bg, color } = sections[variant];
-  return (
-    <div className="flex items-center gap-3">
-      <span
-        className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-        style={{ backgroundColor: bg, color }}
-      >
-        {icon}
-      </span>
-      <h2 className="text-base font-semibold text-[#383838]">{title}</h2>
-    </div>
-  );
-}
 
 export default function ProfilePage() {
   const [form, setForm] = useState({
@@ -56,7 +38,7 @@ export default function ProfilePage() {
 
         {/* Personal Information */}
         <section className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
-          <SectionHeader icon={UserIcon} title="Personal Information" variant="user" />
+          <UserSectionHeader icon={UserIcon} title="Personal Information" variant="user" />
 
           <div className="mt-5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -80,7 +62,7 @@ export default function ProfilePage() {
 
         {/* Notification Preferences */}
         <section className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
-          <SectionHeader icon={BellIcon} title="Notification Preferences" variant="bell" />
+          <UserSectionHeader icon={BellIcon} title="Notification Preferences" variant="bell" />
 
           <div className="mt-4 space-y-2">
             <UserToggle
@@ -106,7 +88,7 @@ export default function ProfilePage() {
 
         {/* Security */}
         <section className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
-          <SectionHeader icon={LockIcon} title="Security" variant="lock" />
+          <UserSectionHeader icon={LockIcon} title="Security" variant="lock" />
 
           <div className="mt-4 divide-y divide-[#F5F5F5]">
             <div className="flex items-center justify-between py-4">
