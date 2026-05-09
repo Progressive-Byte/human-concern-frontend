@@ -156,8 +156,6 @@ function DonationHistoryPage() {
                         {r.status}
                       </span>
                     </td>
-
-                    {/* Payment — hidden on xs/sm/md */}
                     <td className="hidden lg:table-cell px-4 py-4 text-[#737373] whitespace-nowrap">
                       {r.payment}
                     </td>
