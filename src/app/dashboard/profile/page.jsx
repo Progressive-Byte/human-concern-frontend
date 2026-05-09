@@ -4,6 +4,7 @@ import { useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
 import { BellIcon, UserIcon } from "@/components/common/SvgIcon";
 import Toggle from "@/components/ui/Toggle";
+import UserToggle from "@/components/ui/UserToggle";
 
 const LockIcon = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -120,19 +121,19 @@ export default function ProfilePage() {
           <SectionHeader icon={BellIcon} title="Notification Preferences" variant="bell" />
 
           <div className="mt-4 space-y-2">
-            <Toggle
+            <UserToggle
               label="Email Notifications"
               desc="Receive important updates via email"
               checked={prefs.emailNotifications}
               onChange={setPref("emailNotifications")}
             />
-            <Toggle
+            <UserToggle
               label="Donation Receipts"
               desc="Receive email receipts for every donation"
               checked={prefs.donationReceipts}
               onChange={setPref("donationReceipts")}
             />
-            <Toggle
+            <UserToggle
               label="Campaign Updates"
               desc="Get notified about campaign progress and impact"
               checked={prefs.campaignUpdates}
