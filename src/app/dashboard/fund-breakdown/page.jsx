@@ -22,7 +22,7 @@ const STROKE = 30;
 const C     = 2 * Math.PI * R;
 const GAP   = 4;
 
-export default function FundBreakdownPage() {
+const FundBreakdownPage = () => {
   const [hovered, setHovered] = useState(null);
 
   const { segments, total } = useMemo(() => {
@@ -210,3 +210,4 @@ export default function FundBreakdownPage() {
     </>
   );
 }
+export default FundBreakdownPage;
