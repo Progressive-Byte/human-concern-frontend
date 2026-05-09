@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DashboardHeader from "../../components/DashboardHeader";
 import DetailRow from "@/components/ui/DetailRow";
+import { CancelScheduleIcon } from "@/components/common/SvgIcon";
 
 const schedules = [
   {
@@ -193,7 +194,7 @@ const ScheduleDetailPage = async ({ params }) => {
                     type="button"
                     className="inline-flex items-center gap-2 text-sm text-[#6B7280] hover:text-[#EA3335] transition-colors cursor-pointer"
                   >
-                   
+                   {CancelScheduleIcon}
                     Cancel Schedule
                   </button>
                 </div>
