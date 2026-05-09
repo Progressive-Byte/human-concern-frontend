@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ThankyouIcon, ShareCampaignIcon, CircleCheckIcon, VideoDashboard, BrowserCampaignIcon } from "@/components/common/SvgIcon";
+import { ThankyouIcon, ShareCampaignIcon, CircleCheckIcon, VideoDashboard, BrowserCampaignIcon, CloseModal } from "@/components/common/SvgIcon";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
@@ -37,10 +37,7 @@ export default function ThankYouModal({ thankyouData, onClose }) {
           onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F5F5] text-[#737373] transition-colors cursor-pointer"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          {CloseModal}
         </button>
 
         <div className="mt-2">{ThankyouIcon}</div>
