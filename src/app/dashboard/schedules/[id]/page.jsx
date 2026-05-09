@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DashboardHeader from "../../components/DashboardHeader";
 import DetailRow from "@/components/ui/DetailRow";
-import { BackToScheduleIcon, CancelScheduleIcon } from "@/components/common/SvgIcon";
+import { BacklinkIcon, CancelScheduleIcon } from "@/components/common/SvgIcon";
 
 const schedules = [
   {
