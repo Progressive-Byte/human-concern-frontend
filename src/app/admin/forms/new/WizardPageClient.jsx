@@ -7,6 +7,9 @@ import WizardStepBasics from "../components/WizardStepBasics";
 import WizardStepGoalsDates from "../components/WizardStepGoalsDates";
 import WizardStepCauses from "../components/WizardStepCauses";
 import WizardStepObjectives from "../components/WizardStepObjectives";
+import WizardStepAddons from "../components/WizardStepAddons";
+import WizardStepMedia from "../components/WizardStepMedia";
+import WizardStepReview from "../components/WizardStepReview";
 import WizardStepPlaceholder from "../components/WizardStepPlaceholder";
 import { getAdminCategories, getAdminFormBasics, getAdminFormById } from "@/services/admin";
 
@@ -281,18 +284,53 @@ export default function WizardPageClient() {
           />
         )
       ) : step === "addons" ? (
-        <WizardStepPlaceholder
-          title="Add-ons"
-          description="Attach add-ons that donors can optionally include."
-          onBack={() => navigateToStep(isRamadanForm === false ? "causes" : "objectives", initialFormId)}
-          onNext={() => navigateToStep("media", initialFormId)}
+        <WizardStepAddons
+          campaignId={campaignId}
+          formId={initialFormId}
+          backStep={isRamadanForm === false ? "causes" : "objectives"}
+          onSaved={() => refreshFormMeta(initialFormId)}
+          onExit={({ nextStep } = {}) => {
+            if (nextStep) {
+              navigateToStep(nextStep, initialFormId);
+              return;
+            }
+            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+          }}
         />
       ) : step === "media" ? (
-        <WizardStepPlaceholder
-          title="Media"
-          description="Upload thumbnail and slider images for this form."
-          onBack={() => navigateToStep("addons", initialFormId)}
-          onNext={() => navigateToStep("review", initialFormId)}
+        <WizardStepMedia
+          campaignId={campaignId}
+          formId={initialFormId}
+          onSaved={() => refreshFormMeta(initialFormId)}
+          onExit={({ nextStep } = {}) => {
+            if (nextStep) {
+              navigateToStep(nextStep, initialFormId);
+              return;
+            }
+            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+          }}
+        />
+      ) : step === "review" ? (
+        <WizardStepReview
+          campaignId={campaignId}
+          formId={initialFormId}
+          isRamadanForm={isRamadanForm}
+          onSaved={() => refreshFormMeta(initialFormId)}
+          onExit={({ nextStep } = {}) => {
+            if (nextStep === "finish") {
+              router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+              return;
+            }
+            if (nextStep) {
+              if (nextStep === "objectives" && isRamadanForm === false) {
+                navigateToStep("addons", initialFormId);
+              } else {
+                navigateToStep(nextStep, initialFormId);
+              }
+              return;
+            }
+            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+          }}
         />
       ) : (
         <WizardStepPlaceholder

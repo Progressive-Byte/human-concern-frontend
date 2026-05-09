@@ -172,6 +172,23 @@ export function getAdminObjectives({ page, limit, sort, order, q, status, enable
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
+export function getAdminAddOns({ page, limit, sort, order, q, status, enabled } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (enabled !== undefined && enabled !== null && String(enabled).trim()) params.set("enabled", String(enabled).trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/add-ons?${query}` : "/admin/add-ons";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
 export function getAdminFormCauses(formId) {
   return adminApiRequest(`/admin/forms/${formId}/causes`, { method: "GET" });
 }
@@ -186,4 +203,24 @@ export function getAdminFormObjectives(formId) {
 
 export function updateAdminFormObjectives(formId, payload) {
   return adminApiRequest(`/admin/forms/${formId}/objectives`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function getAdminFormAddons(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/addons`, { method: "GET" });
+}
+
+export function updateAdminFormAddons(formId, payload) {
+  return adminApiRequest(`/admin/forms/${formId}/addons`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function getAdminFormMedia(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/media`, { method: "GET" });
+}
+
+export function updateAdminFormMedia(formId, body) {
+  return adminApiRequest(`/admin/forms/${formId}/media`, { method: "PATCH", body });
+}
+
+export function getAdminFormReview(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/review`, { method: "GET" });
 }

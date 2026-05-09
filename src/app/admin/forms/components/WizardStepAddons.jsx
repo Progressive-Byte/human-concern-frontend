@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getAdminFormObjectives, getAdminObjectives, updateAdminFormObjectives } from "@/services/admin";
+import { getAdminAddOns, getAdminFormAddons, updateAdminFormAddons } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import WizardFooterNav from "./WizardFooterNav";
 
@@ -10,11 +10,11 @@ function normalizeItemsResponse(res) {
   return Array.isArray(items) ? items : [];
 }
 
-function normalizeSelectedObjectiveIds(res) {
+function normalizeSelectedAddOnIds(res) {
   const raw =
-    res?.data?.objectiveIds ||
-    res?.data?.data?.objectiveIds ||
-    res?.objectiveIds ||
+    res?.data?.addOnIds ||
+    res?.data?.data?.addOnIds ||
+    res?.addOnIds ||
     res?.data?.items ||
     res?.data?.data?.items ||
     res?.items ||
@@ -47,12 +47,26 @@ function normalizeSelectedObjectiveIds(res) {
   return Array.from(new Set(ids));
 }
 
-function isSelectableObjective(obj) {
-  if (!obj) return false;
-  if (obj.enabled === false) return false;
-  const status = String(obj.status || "").trim().toLowerCase();
+function isSelectableAddOn(addon) {
+  if (!addon) return false;
+  if (addon.enabled === false) return false;
+  const status = String(addon.status || "").trim().toLowerCase();
   if (status && status !== "active") return false;
   return true;
+}
+
+function formatAmount(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return String(value ?? "");
+  if (Number.isInteger(n)) return `$${n}`;
+  return `$${n.toFixed(2)}`;
+}
+
+function pricingTypeLabel(type) {
+  const t = String(type || "").trim().toLowerCase();
+  if (t === "fixed") return "Fixed";
+  if (t === "formula") return "Formula";
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : "";
 }
 
 function SkeletonGrid() {
@@ -67,25 +81,25 @@ function SkeletonGrid() {
           <div className="mt-3 h-4 w-2/3 rounded bg-[#E5E7EB]" />
           <div className="mt-2 h-3 w-full rounded bg-[#E5E7EB]" />
           <div className="mt-1 h-3 w-5/6 rounded bg-[#E5E7EB]" />
-          <div className="mt-3 h-5 w-28 rounded-full border border-[#E5E7EB] bg-white" />
+          <div className="mt-3 h-16 rounded-xl border border-[#E5E7EB] bg-white" />
         </div>
       ))}
     </div>
   );
 }
 
-export default function WizardStepObjectives({ campaignId, formId, onExit, onSaved }) {
+export default function WizardStepAddons({ campaignId, formId, onExit, onSaved, backStep }) {
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [topError, setTopError] = useState("");
 
-  const [allObjectives, setAllObjectives] = useState([]);
-  const [selectedObjectiveIds, setSelectedObjectiveIds] = useState([]);
+  const [allAddons, setAllAddons] = useState([]);
+  const [selectedAddOnIds, setSelectedAddOnIds] = useState([]);
 
-  const objectives = useMemo(() => (Array.isArray(allObjectives) ? allObjectives : []), [allObjectives]);
-  const selectedCount = selectedObjectiveIds.length;
+  const addons = useMemo(() => (Array.isArray(allAddons) ? allAddons : []), [allAddons]);
+  const selectedCount = selectedAddOnIds.length;
 
   useEffect(() => {
     if (!formId) {
@@ -99,27 +113,27 @@ export default function WizardStepObjectives({ campaignId, formId, onExit, onSav
 
     (async () => {
       try {
-        const [objectivesRes, selectedRes] = await Promise.all([
-          getAdminObjectives({ page: "1", limit: "200", order: "asc" }),
-          getAdminFormObjectives(formId),
+        const [addOnsRes, selectedRes] = await Promise.all([
+          getAdminAddOns({ page: "1", limit: "200", order: "asc" }),
+          getAdminFormAddons(formId),
         ]);
         if (!alive) return;
 
-        const nextAll = normalizeItemsResponse(objectivesRes).filter((o) => o?.enabled !== false);
-        const nextSelected = normalizeSelectedObjectiveIds(selectedRes);
+        const nextAll = normalizeItemsResponse(addOnsRes).filter((a) => a?.enabled !== false);
+        const nextSelected = normalizeSelectedAddOnIds(selectedRes);
         const enabledIdSet = new Set(
           nextAll
-            .map((o) => String(o?._id || o?.id || "").trim())
+            .map((a) => String(a?._id || a?.id || "").trim())
             .filter(Boolean)
         );
 
-        setAllObjectives(nextAll);
-        setSelectedObjectiveIds(nextSelected.filter((id) => enabledIdSet.has(id)));
+        setAllAddons(nextAll);
+        setSelectedAddOnIds(nextSelected.filter((id) => enabledIdSet.has(id)));
       } catch (e) {
         if (!alive) return;
-        setAllObjectives([]);
-        setSelectedObjectiveIds([]);
-        setTopError(e?.message || "Failed to load objectives.");
+        setAllAddons([]);
+        setSelectedAddOnIds([]);
+        setTopError(e?.message || "Failed to load add-ons.");
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -131,12 +145,12 @@ export default function WizardStepObjectives({ campaignId, formId, onExit, onSav
     };
   }, [formId]);
 
-  function toggleObjective(obj) {
-    const id = String(obj?._id || obj?.id || "").trim();
+  function toggleAddOn(addon) {
+    const id = String(addon?._id || addon?.id || "").trim();
     if (!id) return;
-    if (!isSelectableObjective(obj)) return;
+    if (!isSelectableAddOn(addon)) return;
 
-    setSelectedObjectiveIds((prev) => {
+    setSelectedAddOnIds((prev) => {
       const current = Array.isArray(prev) ? prev.map((x) => String(x).trim()).filter(Boolean) : [];
       const has = current.includes(id);
       if (has) return current.filter((x) => x !== id);
@@ -157,28 +171,28 @@ export default function WizardStepObjectives({ campaignId, formId, onExit, onSav
     }
 
     const enabledIdSet = new Set(
-      objectives
-        .map((o) => String(o?._id || o?.id || "").trim())
+      addons
+        .map((a) => String(a?._id || a?.id || "").trim())
         .filter(Boolean)
     );
     const payload = {
-      objectiveIds: Array.from(new Set(selectedObjectiveIds.map((x) => String(x).trim()).filter(Boolean))).filter((id) =>
+      addOnIds: Array.from(new Set(selectedAddOnIds.map((x) => String(x).trim()).filter(Boolean))).filter((id) =>
         enabledIdSet.has(id)
       ),
     };
 
     setSaving(true);
     try {
-      await updateAdminFormObjectives(formId, payload);
-      toast.success("Objectives saved");
+      await updateAdminFormAddons(formId, payload);
+      toast.success("Add-ons saved");
       onSaved?.();
 
       if (goNext) {
-        onExit?.({ nextStep: "addons" });
+        onExit?.({ nextStep: "media" });
       }
       return { ok: true };
     } catch (e) {
-      const msg = e?.message || "Failed to save objectives.";
+      const msg = e?.message || "Failed to save add-ons.";
       setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
       toast.error(msg);
       return { ok: false };
@@ -215,35 +229,42 @@ export default function WizardStepObjectives({ campaignId, formId, onExit, onSav
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Campaign Objectives</h2>
-            <p className="mt-1 text-[13px] text-[#6B7280]">Select which objectives appear for donors in this form</p>
+            <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Optional Add-ons</h2>
+            <p className="mt-1 text-[13px] text-[#6B7280]">Select which add-ons donors can include with this form</p>
           </div>
 
           <div className="text-[13px] text-[#6B7280] sm:text-right">
-            <span className="text-[#111827] font-semibold">{selectedCount} Selected</span> Out of {objectives.length}
+            <span className="text-[#111827] font-semibold">{selectedCount} Selected</span> Out of {addons.length}
           </div>
         </div>
 
         {loading ? (
           <SkeletonGrid />
-        ) : objectives.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-[#6B7280]">No objectives available.</div>
+        ) : addons.length === 0 ? (
+          <div className="py-10 text-center text-[13px] text-[#6B7280]">No add-ons available.</div>
         ) : (
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {objectives.map((obj) => {
-              const id = String(obj?._id || obj?.id || "").trim();
-              const selected = id ? selectedObjectiveIds.includes(id) : false;
-              const selectable = isSelectableObjective(obj);
-              const emoji = String(obj?.iconEmoji || "").trim();
-              const name = String(obj?.name || "").trim();
-              const desc = String(obj?.description || "").trim();
-              const ramadanOnly = Boolean(obj?.ramadanOnly);
+            {addons.map((addon) => {
+              const id = String(addon?._id || addon?.id || "").trim();
+              const selected = id ? selectedAddOnIds.includes(id) : false;
+              const selectable = isSelectableAddOn(addon);
+
+              const emoji = String(addon?.iconEmoji || "").trim();
+              const name = String(addon?.addonName || addon?.name || "").trim();
+              const desc = String(addon?.shortDescription || "").trim();
+              const amountFieldLabel = String(addon?.amountFieldLabel || "Amount").trim();
+              const amount = addon?.amount;
+              const labelUnderAmount = String(addon?.labelUnderAmount || "").trim();
+
+              const pricing = addon?.pricing || {};
+              const pricingType = String(pricing?.type || "").trim().toLowerCase();
+              const baseUnitAmount = pricing?.baseUnitAmount;
 
               return (
                 <button
                   key={id || name || desc}
                   type="button"
-                  onClick={() => toggleObjective(obj)}
+                  onClick={() => toggleAddOn(addon)}
                   disabled={!selectable || saving}
                   className={`hc-hover-lift relative w-full text-left rounded-2xl border p-4 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600/40 focus-visible:ring-offset-2 ${
                     selected ? "border-red-600/40 bg-red-600/5" : "border-[#E5E7EB] bg-[#F9FAFB] hover:bg-white"
@@ -274,12 +295,24 @@ export default function WizardStepObjectives({ campaignId, formId, onExit, onSav
                     </div>
                   </div>
 
-                  <div className="mt-3 text-[14px] font-semibold text-[#111827]">{name || "Objective"}</div>
+                  <div className="mt-3 text-[14px] font-semibold text-[#111827]">{name || "Add-on"}</div>
                   {desc ? <div className="mt-1 text-[12px] leading-snug text-[#6B7280]">{desc}</div> : null}
 
-                  {ramadanOnly ? (
+                  <div className="mt-3 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2">
+                    <div className="text-[12px] font-semibold text-[#111827]">{amountFieldLabel}</div>
+                    {pricingType === "formula" ? (
+                      <div className="mt-1 text-[13px] font-semibold text-[#111827]">
+                        Base: {formatAmount(baseUnitAmount)} • Formula pricing
+                      </div>
+                    ) : (
+                      <div className="mt-1 text-[16px] font-semibold text-[#111827]">{formatAmount(amount)}</div>
+                    )}
+                    {labelUnderAmount ? <div className="mt-1 text-[12px] text-[#6B7280]">{labelUnderAmount}</div> : null}
+                  </div>
+
+                  {pricingType ? (
                     <div className="mt-3 inline-flex items-center rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-[#111827] border border-[#E5E7EB]">
-                      Ramadan Only
+                      {pricingTypeLabel(pricingType)}
                     </div>
                   ) : null}
                 </button>
@@ -291,7 +324,7 @@ export default function WizardStepObjectives({ campaignId, formId, onExit, onSav
 
       <WizardFooterNav
         saving={saving}
-        onBack={() => onExit?.({ nextStep: "causes" })}
+        onBack={() => onExit?.({ nextStep: backStep || "objectives" })}
         onSave={() => save({ goNext: false })}
         onNext={() => save({ goNext: true })}
         nextLabel="Next"

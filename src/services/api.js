@@ -8,12 +8,16 @@ function getCookieValue(name) {
 
 async function makeRequest(endpoint, options = {}, cookieName = "token") {
   const token = getCookieValue(cookieName);
+  const isFormDataBody = typeof FormData !== "undefined" && options?.body instanceof FormData;
 
   const headers = {
-    "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
     ...(options.headers || {}),
   };
+
+  if (!isFormDataBody && !("Content-Type" in headers)) {
+    headers["Content-Type"] = "application/json";
+  }
 
   const response = await fetch(`${apiBase}${endpoint}`, {
     method: options.method || "GET",

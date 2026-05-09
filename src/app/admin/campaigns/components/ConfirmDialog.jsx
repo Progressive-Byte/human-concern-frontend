@@ -16,10 +16,10 @@ export default function ConfirmDialog({
     <div className="fixed inset-0 z-[90] flex items-center justify-center px-4">
       <button type="button" aria-label="Close confirm dialog" className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="hc-animate-dropdown relative w-full max-w-[460px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
-        <div className="text-[16px] font-semibold text-[#111827]">{title}</div>
-        {description ? <div className="mt-2 text-sm text-[#6B7280]">{description}</div> : null}
+        <div className="text-center text-[16px] font-semibold text-[#111827]">{title}</div>
+        {description ? <div className="mt-2 text-center text-sm text-[#6B7280]">{description}</div> : null}
 
-        <div className="mt-5 flex items-center justify-end gap-3">
+        <div className="mt-5 flex items-center justify-center gap-3">
           <button
             type="button"
             onClick={onClose}
