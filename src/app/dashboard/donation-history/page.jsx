@@ -113,7 +113,7 @@ function DonationHistoryPage() {
                   <th className="px-4 py-4 font-medium">Amount</th>
                   <th className="hidden md:table-cell px-4 py-4 font-medium">Status</th>
                   <th className="hidden lg:table-cell px-4 py-4 font-medium">Payment</th>
-                  <th className="px-4 py-4" />
+                  <th className="px-4 py-4 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
