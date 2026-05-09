@@ -50,12 +50,9 @@ const PaymentMethodsPage = () => {
                 idx !== savedCards.length - 1 ? "border-b border-dashed border-[#EBEBEB]" : ""
               }`}
             >
-              {/* Card icon */}
               <div className="shrink-0 w-10 h-10 rounded-xl bg-[#F5F5F5] border border-[#EBEBEB] flex items-center justify-center text-[#737373]">
                 {CardIcon}
               </div>
-
-              {/* Card info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center flex-wrap gap-2">
                   <p className="text-sm font-semibold text-[#383838]">
