@@ -3,14 +3,14 @@
 import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
-export default function CampaignsHeader({ onCreate }) {
+export default function FormsHeader({ onCreate }) {
   const { admin } = useAdminAuth();
 
   return (
     <div className="hc-animate-fade-up flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div>
-        <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">Campaigns</h1>
-        <p className="mt-1 text-[14px] text-[#6B7280]">Manage and monitor all fundraising campaigns</p>
+        <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">Forms</h1>
+        <p className="mt-1 text-[14px] text-[#6B7280]">Manage campaign forms across the platform</p>
       </div>
 
       <div className="flex items-center gap-3">
@@ -24,7 +24,7 @@ export default function CampaignsHeader({ onCreate }) {
               <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </span>
-          Create Campaign
+          Create Form
         </button>
 
         <AdminAvatarMenu admin={admin} />

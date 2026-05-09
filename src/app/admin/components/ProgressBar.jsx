@@ -5,7 +5,7 @@ export default function ProgressBar({ value = 0, className = "", trackClassName 
   return (
     <div className={`h-1.5 w-full overflow-hidden rounded-full bg-[#E5E7EB] ${trackClassName} ${className}`.trim()}>
       <div
-        className={`h-full rounded-full bg-[#111827] transition-[width] duration-500 ease-out ${fillClassName}`.trim()}
+        className={`h-full rounded-full bg-red-600 transition-[width] duration-500 ease-out ${fillClassName}`.trim()}
         style={{ width: `${percent}%` }}
       />
     </div>

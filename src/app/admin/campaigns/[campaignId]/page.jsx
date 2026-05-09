@@ -145,7 +145,7 @@ export default function AdminCampaignDetailsPage({ params }) {
             <button
               type="button"
               onClick={() => setConfirmAction(primaryAction)}
-              className="rounded-xl bg-[#262626] px-4 py-2.5 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-black"
+              className="rounded-xl bg-red-600 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-red-700"
             >
               {primaryAction === "publish" ? "Publish" : primaryAction === "unpublish" ? "Unpublish" : "Restore"}
             </button>

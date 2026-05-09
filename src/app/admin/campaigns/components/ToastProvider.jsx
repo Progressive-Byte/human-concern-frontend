@@ -24,7 +24,7 @@ function ToastItem({ toast, onClose }) {
           type="button"
           aria-label="Close toast"
           onClick={() => onClose(toast.id)}
-          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-current/70 transition hover:bg-black/5 hover:text-current"
+          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-current/70 transition hover:bg-red-500/10 hover:text-red-700"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
             <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -94,4 +94,3 @@ export function useToast() {
   }
   return ctx;
 }
-

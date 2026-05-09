@@ -75,8 +75,8 @@ export default function PromisedVsCollectedChart({ items = [] }) {
                 iconType="square"
                 formatter={(value) => <span className="text-[12px] text-[#6B7280]">{value}</span>}
               />
-              <Bar dataKey="goal" name="Goal" fill="#4B5563" radius={[6, 6, 0, 0]} barSize={22} animationDuration={500} />
-              <Bar dataKey="collected" name="Collected" fill="#111827" radius={[6, 6, 0, 0]} barSize={22} animationDuration={500} />
+              <Bar dataKey="goal" name="Goal" fill="#FCA5A5" radius={[6, 6, 0, 0]} barSize={22} animationDuration={500} />
+              <Bar dataKey="collected" name="Collected" fill="#DC2626" radius={[6, 6, 0, 0]} barSize={22} animationDuration={500} />
             </BarChart>
           </ResponsiveContainer>
         </div>

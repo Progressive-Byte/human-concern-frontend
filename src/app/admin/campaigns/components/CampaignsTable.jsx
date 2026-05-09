@@ -68,7 +68,7 @@ export default function CampaignsTable({
                     <td className="px-5 py-4 align-top">
                       <Link
                         href={`/admin/campaigns/${item?.id}`}
-                        className="cursor-pointer font-medium text-[#111827] transition hover:underline"
+                        className="cursor-pointer font-medium text-[#111827] transition hover:text-red-700 hover:underline decoration-red-500"
                       >
                         {item?.name || "—"}
                       </Link>
@@ -86,7 +86,7 @@ export default function CampaignsTable({
                           <div className="w-[140px]">
                             <ProgressBar value={showPercent} />
                           </div>
-                          <div className="text-[12px] text-[#6B7280]">{showPercent}%</div>
+                            <div className="text-[12px] font-semibold text-red-700">{showPercent}%</div>
                         </div>
                       )}
                     </td>
