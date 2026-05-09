@@ -110,6 +110,14 @@ export function updateAdminFormBasics(formId, payload) {
   return adminApiRequest(`/admin/forms/${formId}/basics`, { method: "PATCH", body: JSON.stringify(payload) });
 }
 
+export function getAdminFormGoalsDates(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/goals-dates`, { method: "GET" });
+}
+
+export function updateAdminFormGoalsDates(formId, payload) {
+  return adminApiRequest(`/admin/forms/${formId}/goals-dates`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
 export function publishAdminForm(formId) {
   return adminApiRequest(`/admin/forms/${formId}/publish`, { method: "POST" });
 }

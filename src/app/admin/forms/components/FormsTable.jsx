@@ -34,24 +34,11 @@ function labelCampaignType(value) {
 }
 
 function computeCompletionPercent(item) {
-  const internal = item?.basics?.internal || item?.internal || {};
-  const pub = item?.basics?.public || item?.public || {};
+  const sections = item?.sectionsCompleted || {};
+  const keys = ["basics", "goalsDates", "causes", "objectives", "addons", "media"];
 
-  const checks = [
-    Boolean(String(internal?.campaignId || "").trim()),
-    Boolean(String(internal?.fundCause || "").trim()),
-    Boolean(String(internal?.fundCode || "").trim()),
-    Boolean(String(internal?.beneficiaryId || "").trim()),
-    Boolean(String(internal?.designation || "").trim()),
-    Boolean(String(internal?.locationId || "").trim()),
-    Boolean(String(internal?.shortDescription || "").trim()),
-    Boolean(String(pub?.displayName || "").trim()),
-    pub?.campaignType === "seasonal" || pub?.campaignType === "ongoing",
-    Array.isArray(pub?.categoryIds) && pub.categoryIds.filter(Boolean).length > 0,
-  ];
-
-  const filled = checks.filter(Boolean).length;
-  const total = checks.length;
+  const total = keys.length;
+  const filled = keys.filter((k) => Boolean(sections?.[k])).length;
   return Math.round((filled / total) * 100);
 }
 

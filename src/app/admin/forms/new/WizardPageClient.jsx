@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import FormWizardShell from "../components/FormWizardShell";
 import WizardStepBasics from "../components/WizardStepBasics";
+import WizardStepGoalsDates from "../components/WizardStepGoalsDates";
 
 export default function WizardPageClient() {
   const router = useRouter();
@@ -33,12 +34,30 @@ export default function WizardPageClient() {
 
   return (
     <FormWizardShell step={step} title="Create Form">
-      <WizardStepBasics
-        campaignId={campaignId}
-        initialFormId={initialFormId}
-        onExit={() => router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`)}
-      />
+      {step === "goals-dates" ? (
+        <WizardStepGoalsDates
+          campaignId={campaignId}
+          formId={initialFormId}
+          onExit={({ nextStep } = {}) => {
+            const next = String(nextStep || "").trim();
+            if (next) {
+              const params = new URLSearchParams();
+              params.set("step", next);
+              params.set("campaignId", campaignId);
+              if (initialFormId) params.set("formId", initialFormId);
+              router.push(`/admin/forms/new?${params.toString()}`);
+              return;
+            }
+            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+          }}
+        />
+      ) : (
+        <WizardStepBasics
+          campaignId={campaignId}
+          initialFormId={initialFormId}
+          onExit={() => router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`)}
+        />
+      )}
     </FormWizardShell>
   );
 }
-
