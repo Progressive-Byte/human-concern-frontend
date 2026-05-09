@@ -6,6 +6,7 @@ import { BellIcon, LockIcon, UserIcon } from "@/components/common/SvgIcon";
 import Toggle from "@/components/ui/Toggle";
 import UserToggle from "@/components/ui/UserToggle";
 import Field from "@/components/ui/Field";
+import OutlineButton from "@/components/ui/OutlineButton";
 
 
 const SaveIcon = (
