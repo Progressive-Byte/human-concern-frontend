@@ -124,7 +124,6 @@ function DonationHistoryPage() {
                       idx !== filtered.length - 1 ? "border-b border-[#F0F0F0]" : ""
                     }`}
                   >
-                    {/* Date — always visible, stacks cause badge below on mobile */}
                     <td className="px-4 py-4 whitespace-nowrap">
                       <p className="text-[#383838] font-medium text-sm">{r.date}</p>
                       {/* Cause badge — only on xs (hidden sm+) */}
