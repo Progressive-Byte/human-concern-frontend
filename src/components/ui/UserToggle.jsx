@@ -16,7 +16,7 @@ const UserToggle = ({ label, desc, checked, onChange }) => {
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+        className={`shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${
           checked ? "bg-[#055A46]" : "bg-[#DEDEDE]"
         }`}
       >
