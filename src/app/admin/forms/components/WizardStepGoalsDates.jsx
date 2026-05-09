@@ -94,6 +94,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit }) {
 
   const [allowRecurringDonations, setAllowRecurringDonations] = useState(false);
   const [enableTipping, setEnableTipping] = useState(false);
+  const [allowAnonymousDonations, setAllowAnonymousDonations] = useState(false);
 
   const currencyOptions = useMemo(() => CURRENCY_OPTIONS, []);
 
@@ -123,6 +124,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit }) {
 
         setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
         setEnableTipping(Boolean(d?.enableTipping));
+        setAllowAnonymousDonations(Boolean(d?.allowAnonymousDonations));
       } catch (e) {
         if (!alive) return;
         setTopError(e?.message || "Failed to load goals & dates.");
@@ -197,6 +199,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit }) {
       suggestedAmounts: sugg ? sugg : undefined,
       allowRecurringDonations: Boolean(allowRecurringDonations),
       enableTipping: Boolean(enableTipping),
+      allowAnonymousDonations: Boolean(allowAnonymousDonations),
     };
 
     return { errors, payload };
@@ -400,6 +403,16 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit }) {
               <Toggle enabled={enableTipping} onChange={setEnableTipping} />
             </div>
           </div>
+
+          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-[13px] font-semibold text-[#111827]">Allow Anonymous Donations</div>
+                <div className="mt-1 text-[12px] text-[#6B7280]">Let donors hide their name on the public donation feed</div>
+              </div>
+              <Toggle enabled={allowAnonymousDonations} onChange={setAllowAnonymousDonations} />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -413,4 +426,3 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit }) {
     </div>
   );
 }
-

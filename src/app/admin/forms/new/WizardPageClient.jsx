@@ -4,6 +4,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import FormWizardShell from "../components/FormWizardShell";
 import WizardStepBasics from "../components/WizardStepBasics";
 import WizardStepGoalsDates from "../components/WizardStepGoalsDates";
+import WizardStepCauses from "../components/WizardStepCauses";
+import WizardStepPlaceholder from "../components/WizardStepPlaceholder";
 
 export default function WizardPageClient() {
   const router = useRouter();
@@ -12,6 +14,17 @@ export default function WizardPageClient() {
   const step = searchParams.get("step") || "basics";
   const campaignId = searchParams.get("campaignId") || "";
   const initialFormId = searchParams.get("formId") || "";
+
+  function navigateToStep(nextStep, nextFormId = initialFormId) {
+    const s = String(nextStep || "").trim();
+    if (!s) return;
+    const params = new URLSearchParams();
+    params.set("step", s);
+    params.set("campaignId", campaignId);
+    const fid = String(nextFormId || "").trim();
+    if (fid) params.set("formId", fid);
+    router.push(`/admin/forms/new?${params.toString()}`);
+  }
 
   if (!campaignId) {
     return (
@@ -34,28 +47,70 @@ export default function WizardPageClient() {
 
   return (
     <FormWizardShell step={step} title="Create Form">
-      {step === "goals-dates" ? (
-        <WizardStepGoalsDates
+      {step === "basics" ? (
+        <WizardStepBasics
           campaignId={campaignId}
-          formId={initialFormId}
-          onExit={({ nextStep } = {}) => {
-            const next = String(nextStep || "").trim();
-            if (next) {
-              const params = new URLSearchParams();
-              params.set("step", next);
-              params.set("campaignId", campaignId);
-              if (initialFormId) params.set("formId", initialFormId);
-              router.push(`/admin/forms/new?${params.toString()}`);
+          initialFormId={initialFormId}
+          onExit={({ nextStep, formId } = {}) => {
+            if (nextStep) {
+              navigateToStep(nextStep, formId || initialFormId);
               return;
             }
             router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
           }}
         />
-      ) : (
-        <WizardStepBasics
+      ) : step === "goals-dates" ? (
+        <WizardStepGoalsDates
           campaignId={campaignId}
-          initialFormId={initialFormId}
-          onExit={() => router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`)}
+          formId={initialFormId}
+          onExit={({ nextStep } = {}) => {
+            if (nextStep) {
+              navigateToStep(nextStep, initialFormId);
+              return;
+            }
+            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+          }}
+        />
+      ) : step === "causes" ? (
+        <WizardStepCauses
+          campaignId={campaignId}
+          formId={initialFormId}
+          onExit={({ nextStep } = {}) => {
+            if (nextStep) {
+              navigateToStep(nextStep, initialFormId);
+              return;
+            }
+            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+          }}
+        />
+      ) : step === "objectives" ? (
+        <WizardStepPlaceholder
+          title="Objectives"
+          description="Pick objectives to show on the public campaign page."
+          onBack={() => navigateToStep("causes", initialFormId)}
+          onNext={() => navigateToStep("addons", initialFormId)}
+        />
+      ) : step === "addons" ? (
+        <WizardStepPlaceholder
+          title="Add-ons"
+          description="Attach add-ons that donors can optionally include."
+          onBack={() => navigateToStep("objectives", initialFormId)}
+          onNext={() => navigateToStep("media", initialFormId)}
+        />
+      ) : step === "media" ? (
+        <WizardStepPlaceholder
+          title="Media"
+          description="Upload thumbnail and slider images for this form."
+          onBack={() => navigateToStep("addons", initialFormId)}
+          onNext={() => navigateToStep("review", initialFormId)}
+        />
+      ) : (
+        <WizardStepPlaceholder
+          title="Review"
+          description="Review readiness to publish."
+          onBack={() => navigateToStep("media", initialFormId)}
+          onNext={() => router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`)}
+          nextLabel="Finish"
         />
       )}
     </FormWizardShell>

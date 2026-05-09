@@ -283,8 +283,9 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
   async function handleNext() {
     const res = await save();
     if (!res.ok) return;
-    toast.success("Basics complete. Next step will be added next.");
-    onExit?.();
+    const nextFormId = String(res.formId || formId || "").trim();
+    toast.success("Basics complete");
+    onExit?.({ nextStep: "goals-dates", formId: nextFormId || undefined });
   }
 
   if (loading) {
