@@ -100,7 +100,6 @@ const PaymentMethodsPage = () => {
                     : ""
                 }`}
               >
-                {/* Logo */}
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#F6F6F6] border border-[#EEEEEE]">
                   <Image
                     src={
@@ -114,8 +113,6 @@ const PaymentMethodsPage = () => {
                     className="object-contain"
                   />
                 </div>
-
-                {/* Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[#383838]">
                     {m.name}
@@ -125,8 +122,6 @@ const PaymentMethodsPage = () => {
                     {m.desc}
                   </p>
                 </div>
-
-                {/* Action */}
                 <div className="shrink-0">
                   {m.status === "available" && (
                     <span className="inline-flex items-center rounded-full border border-[#EBEBEB] bg-[#F5F5F5] px-3 py-1 text-[11px] font-medium text-[#737373]">
