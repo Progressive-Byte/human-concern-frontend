@@ -21,7 +21,7 @@ const DashboardHeader = ({ title, subtitle, actions }) => {
 
   return (
     <>
-      <header className="flex items-center justify-between gap-4 px-4 md:px-6 py-4 md:py-5 border-b border-dashed border-[#E5E7EB] bg-white">
+      <header className="flex items-center justify-between gap-4 px-4 md:px-6 py-4 md:py-5">
         <div className="min-w-0">
           <h1 className="text-xl md:text-2xl font-bold text-[#111827] truncate">{heading}</h1>
           {sub && <p className="mt-0.5 text-[14px] md:text-[16px] text-[#6B7280]">{sub}</p>}
