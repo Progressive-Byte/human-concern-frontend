@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { archiveAdminForm, publishAdminForm, restoreAdminForm, unpublishAdminForm } from "@/services/admin";
@@ -9,6 +10,7 @@ function buildMenu(status) {
   const s = String(status || "").toLowerCase();
   const items = [];
 
+  items.push({ key: "edit", label: "Edit" });
   if (s === "draft") items.push({ key: "publish", label: "Publish" }, { key: "archive", label: "Archive" });
   if (s === "published") items.push({ key: "unpublish", label: "Unpublish" }, { key: "archive", label: "Archive" });
   if (s === "archived") items.push({ key: "restore", label: "Restore" });
@@ -24,7 +26,8 @@ function getConfirmCopy(action) {
   return { title: "Confirm action", description: "" };
 }
 
-export default function FormRowActions({ item, onRefresh }) {
+export default function FormRowActions({ item, onRefresh, campaignIdFilter = "" }) {
+  const router = useRouter();
   const toast = useToast();
   const wrapRef = useRef(null);
 
@@ -33,6 +36,7 @@ export default function FormRowActions({ item, onRefresh }) {
   const [loading, setLoading] = useState(false);
 
   const id = item?.id || item?.formId || item?._id;
+  const campaignId = item?.campaignId || item?.campaign?._id || item?.campaign?.id || campaignIdFilter;
   const menu = useMemo(() => buildMenu(item?.status), [item?.status]);
 
   useEffect(() => {
@@ -76,7 +80,7 @@ export default function FormRowActions({ item, onRefresh }) {
     }
   }
 
-  if (!menu.length) {
+  if (!id) {
     return <span className="text-[12px] text-[#6B7280]">—</span>;
   }
 
@@ -101,6 +105,17 @@ export default function FormRowActions({ item, onRefresh }) {
               type="button"
               onClick={() => {
                 setOpen(false);
+                if (m.key === "edit") {
+                  const cid = String(campaignId || "").trim();
+                  if (!cid) {
+                    toast.error("Missing campaignId for this form");
+                    return;
+                  }
+                  router.push(
+                    `/admin/forms/new?step=basics&campaignId=${encodeURIComponent(cid)}&formId=${encodeURIComponent(String(id))}`
+                  );
+                  return;
+                }
                 setConfirmAction(m.key);
               }}
               className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
@@ -123,4 +138,3 @@ export default function FormRowActions({ item, onRefresh }) {
     </div>
   );
 }
-

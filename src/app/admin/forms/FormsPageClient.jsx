@@ -192,6 +192,7 @@ export default function FormsPageClient() {
         items={items}
         loading={loading}
         pagination={pagination}
+        campaignIdFilter={filters.campaignId}
         onRefresh={() => setRefreshKey((k) => k + 1)}
         onPrevPage={() => setPage(Math.max(1, Number(pagination?.page || 1) - 1))}
         onNextPage={() => setPage(Number(pagination?.page || 1) + 1)}

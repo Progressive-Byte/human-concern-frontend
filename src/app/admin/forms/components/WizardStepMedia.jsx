@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getAdminFormMedia, updateAdminFormMedia } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import { siteUrl } from "@/utils/constants";
 import WizardFooterNav from "./WizardFooterNav";
 
 function normalizeMediaResponse(res) {
@@ -20,6 +21,14 @@ function toImageObj(value) {
 function toImageList(value) {
   const list = Array.isArray(value) ? value : [];
   return list.map(toImageObj).filter(Boolean);
+}
+
+function resolveAssetUrl(path) {
+  const p = String(path || "").trim();
+  if (!p) return "";
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  if (p.startsWith("/")) return `${siteUrl}${p}`;
+  return `${siteUrl}/${p}`;
 }
 
 function isValidUrl(value) {
@@ -87,10 +96,10 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
   const hasLocalThumbnail = Boolean(thumbnailFile && thumbnailPreviewUrl);
   const hasLocalSlider = sliderFiles.length > 0 && sliderPreviewUrls.length > 0;
 
-  const activeThumbnailPreview = hasLocalThumbnail ? thumbnailPreviewUrl : serverThumbnail?.path || "";
+  const activeThumbnailPreview = hasLocalThumbnail ? thumbnailPreviewUrl : resolveAssetUrl(serverThumbnail?.path);
   const activeSliderPreviews = useMemo(() => {
     if (hasLocalSlider) return sliderPreviewUrls;
-    return serverSliderImages.map((x) => x.path).filter(Boolean);
+    return serverSliderImages.map((x) => resolveAssetUrl(x.path)).filter(Boolean);
   }, [hasLocalSlider, sliderPreviewUrls, serverSliderImages]);
 
   useEffect(() => {

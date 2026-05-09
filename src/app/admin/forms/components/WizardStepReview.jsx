@@ -85,8 +85,8 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
   const canPublish = Boolean(data?.canPublish);
 
   const form = data?.form || {};
-
   const basics = form?.basics || {};
+
   const goalsDates = form?.goalsDates || {};
   const causes = Array.isArray(form?.causes) ? form.causes : [];
   const objectives = Array.isArray(form?.objectives) ? form.objectives : [];

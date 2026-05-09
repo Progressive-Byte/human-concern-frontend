@@ -42,7 +42,7 @@ function computeCompletionPercent(item) {
   return Math.round((filled / total) * 100);
 }
 
-export default function FormsTable({ items, loading, pagination, onPrevPage, onNextPage, onRefresh }) {
+export default function FormsTable({ items, loading, pagination, campaignIdFilter = "", onPrevPage, onNextPage, onRefresh }) {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -109,7 +109,7 @@ export default function FormsTable({ items, loading, pagination, onPrevPage, onN
                     <td className="py-4 pr-4 align-top">{String(fundCode)}</td>
                     <td className="py-4 pr-4 align-top">{String(designation)}</td>
                     <td className="py-4 pr-5 align-top text-right">
-                      <FormRowActions item={item} onRefresh={onRefresh} />
+                      <FormRowActions item={item} onRefresh={onRefresh} campaignIdFilter={campaignIdFilter} />
                     </td>
                   </tr>
                 );
