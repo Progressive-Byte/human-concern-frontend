@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { EyeIcon, PauseIcon, PlayIcon, TrashIcon } from "@/components/common/SvgIcon";
 
-const ActionButtons = ({ isActive, id }) => {
+const ActionButtons = ({ isActive, slug }) => {
   return (
     <>
       <button
