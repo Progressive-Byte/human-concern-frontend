@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-export default function TopNoticeBar() {
+const TopNoticeBar = () => {
   const pathname = usePathname();
 
   // Only show on the home page
@@ -26,3 +26,5 @@ export default function TopNoticeBar() {
     </div>
   );
 }
+
+export default TopNoticeBar;
