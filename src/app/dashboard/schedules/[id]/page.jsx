@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DashboardHeader from "../../components/DashboardHeader";
 import DetailRow from "@/components/ui/DetailRow";
-import { CancelScheduleIcon } from "@/components/common/SvgIcon";
+import { BackToScheduleIcon, CancelScheduleIcon } from "@/components/common/SvgIcon";
 
 const schedules = [
   {
@@ -76,9 +76,7 @@ const ScheduleDetailPage = async ({ params }) => {
           href="/dashboard/schedules"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-[#EA3335] hover:text-red-700 transition-colors"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7" />
-          </svg>
+          {BackToScheduleIcon}
           Back to Schedules
         </Link>
 
