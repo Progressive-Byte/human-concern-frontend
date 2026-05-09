@@ -1,4 +1,4 @@
-const Toggle = ({ label, desc, checked, onChange }) => {
+const UserToggle = ({ label, desc, checked, onChange }) => {
   return (
     <div
       className={`flex items-center justify-between px-3 py-4 rounded-xl transition-colors ${
@@ -29,4 +29,4 @@ const Toggle = ({ label, desc, checked, onChange }) => {
     </div>
   );
 }
-export default Toggle;
+export default UserToggle;
