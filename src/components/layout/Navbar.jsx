@@ -11,7 +11,7 @@ const navLinks = [
   { label: "Campaigns", href: "/campaigns" },
 ];
 
-export default function Navbar() {
+const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -179,3 +179,5 @@ export default function Navbar() {
     </header>
   );
 }
+
+export default Navbar;
