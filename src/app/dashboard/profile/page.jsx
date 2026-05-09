@@ -8,8 +8,6 @@ import Field from "@/components/ui/Field";
 import OutlineButton from "@/components/ui/OutlineButton";
 import UserSectionHeader from "@/components/ui/UserSectionHeader";
 
-
-
 export default function ProfilePage() {
   const [form, setForm] = useState({
     firstName: "Ahmed",

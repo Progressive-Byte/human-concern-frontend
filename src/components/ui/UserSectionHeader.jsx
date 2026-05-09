@@ -1,3 +1,8 @@
+const sections = {
+  user:  { bg: "#ECF9F3", color: "#055A46" },
+  bell:  { bg: "#FFF8EC", color: "#B45309" },
+  lock:  { bg: "#EFF6FF", color: "#1D4ED8" },
+};
 const UserSectionHeader = ({ icon, title, variant = "user" }) => {
   const { bg, color } = sections[variant];
   return (
