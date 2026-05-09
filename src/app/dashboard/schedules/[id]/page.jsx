@@ -169,35 +169,37 @@ const ScheduleDetailPage = async ({ params }) => {
             <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] overflow-hidden">
 
               {/* Total Contributed */}
-              <div className="bg-[#1A1A1A] px-5 py-6">
-                <p className="text-xs font-semibold tracking-widest uppercase text-[#9CA3AF] mb-1">Total Contributed</p>
-                <p className="text-3xl font-bold text-white">${schedule.totalDonated}</p>
-                <p className="mt-1 text-xs text-[#6B7280]">Lifetime for this schedule</p>
-              </div>
-
-              {/* Next Donation */}
-              <div className="px-5 py-4 border-b border-dashed border-[#E5E7EB]">
-                <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280] mb-1">Next Donation</p>
-                <p className="text-sm font-semibold text-[#111827]">{schedule.next}</p>
-                <div className="mt-3 pt-3 border-t border-dashed border-[#E5E7EB] flex items-center justify-between text-xs text-[#6B7280]">
-                  <span>{schedule.frequency}</span>
-                  <span className="font-semibold text-[#EA3335]">${schedule.amount}</span>
+              <div className="px-5 py-4 ">
+                <div className="bg-[#1A1A1A] rounded-2xl">
+                  <p className="text-xs font-semibold tracking-widest uppercase text-[#9CA3AF] mb-1">Total Contributed</p>
+                  <p className="text-3xl font-bold text-white">${schedule.totalDonated}</p>
+                  <p className="mt-1 text-xs text-[#6B7280]">Lifetime for this schedule</p>
                 </div>
-              </div>
 
-              {/* Actions */}
-              <div className="px-5 py-4">
-                <h3 className="text-sm font-semibold text-[#111827] mb-3">Actions</h3>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 text-sm text-[#6B7280] hover:text-[#EA3335] transition-colors cursor-pointer"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                  Cancel Schedule
-                </button>
+                {/* Next Donation */}
+                <div className=" border-b border-dashed border-[#E5E7EB]">
+                  <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280] mb-1">Next Donation</p>
+                  <p className="text-sm font-semibold text-[#111827]">{schedule.next}</p>
+                  <div className="mt-3 pt-3 border-t border-dashed border-[#E5E7EB] flex items-center justify-between text-xs text-[#6B7280]">
+                    <span>{schedule.frequency}</span>
+                    <span className="font-semibold text-[#EA3335]">${schedule.amount}</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="px-5 py-4">
+                  <h3 className="text-sm font-semibold text-[#111827] mb-3">Actions</h3>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 text-sm text-[#6B7280] hover:text-[#EA3335] transition-colors cursor-pointer"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                    Cancel Schedule
+                  </button>
+                </div>
               </div>
             </div>
           </div>
