@@ -143,8 +143,6 @@ function DonationHistoryPage() {
                         {r.status}
                       </span>
                     </td>
-
-                    {/* Cause — hidden on xs */}
                     <td className="hidden sm:table-cell px-4 py-4">
                       <span className={`inline-block rounded-full px-3 py-1 text-[11px] font-medium ${
                         causeBadgeStyles[r.cause] || "bg-[#F5F5F5] text-[#737373]"
@@ -152,13 +150,9 @@ function DonationHistoryPage() {
                         {r.cause}
                       </span>
                     </td>
-
-                    {/* Amount — always visible */}
                     <td className="px-4 py-4 text-[#383838] font-semibold whitespace-nowrap">
                       ${r.amount}
                     </td>
-
-                    {/* Status — hidden on xs/sm */}
                     <td className="hidden md:table-cell px-4 py-4">
                       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#055A46]">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#055A46]" />
