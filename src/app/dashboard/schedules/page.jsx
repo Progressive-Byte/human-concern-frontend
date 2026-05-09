@@ -4,7 +4,7 @@ import ActionButtons from "../components/ActionButtons";
 
 const schedules = [
   {
-    id: 1,
+    slug: "ramadan-food-distribution",
     title: "Ramadan Food Distribution",
     amount: 50,
     frequency: "Weekly",
@@ -15,7 +15,7 @@ const schedules = [
     status: "Active",
   },
   {
-    id: 2,
+    slug: "orphan-sponsorship-program",
     title: "Orphan Sponsorship Program",
     amount: 100,
     frequency: "Monthly",
@@ -26,7 +26,7 @@ const schedules = [
     status: "Active",
   },
   {
-    id: 3,
+    slug: "friday-jummah-giving",
     title: "Friday Jummah Giving",
     amount: 25,
     frequency: "Weekly",
@@ -108,7 +108,7 @@ const SchedulesPage = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
-                      <ActionButtons isActive={isActive} id={s.id} />
+                      <ActionButtons isActive={isActive} slug={s.slug} />
                     </div>
                   </div>
                 </div>
