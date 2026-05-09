@@ -80,9 +80,9 @@ const ScheduleDetailPage = async ({ params }) => {
           Back to Schedules
         </Link>
 
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-5 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-4 md:gap-5 items-start">
           {/* ── Left column ── */}
-          <div className="flex-1 min-w-0 space-y-4 md:space-y-5">
+          <div className="min-w-0 space-y-4 md:space-y-5">
 
             {/* Schedule Details */}
             <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
@@ -164,7 +164,7 @@ const ScheduleDetailPage = async ({ params }) => {
           </div>
 
           {/* ── Right sidebar ── */}
-          <div className="w-full lg:w-64 xl:w-72 shrink-0">
+          <div className="w-full">
             <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] overflow-hidden">
 
               {/* Total Contributed */}
