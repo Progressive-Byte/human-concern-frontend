@@ -31,6 +31,14 @@ function resolveAssetUrl(path) {
   return `${siteUrl}/${p}`;
 }
 
+async function fetchRemoteFile(path, fileName) {
+  const url = resolveAssetUrl(path);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to load existing image");
+  const blob = await res.blob();
+  return new File([blob], fileName, { type: blob.type || undefined });
+}
+
 function isValidUrl(value) {
   const s = String(value || "").trim();
   if (!s) return true;
@@ -94,13 +102,16 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
   const [serverSliderImages, setServerSliderImages] = useState([]);
 
   const hasLocalThumbnail = Boolean(thumbnailFile && thumbnailPreviewUrl);
-  const hasLocalSlider = sliderFiles.length > 0 && sliderPreviewUrls.length > 0;
 
   const activeThumbnailPreview = hasLocalThumbnail ? thumbnailPreviewUrl : resolveAssetUrl(serverThumbnail?.path);
-  const activeSliderPreviews = useMemo(() => {
-    if (hasLocalSlider) return sliderPreviewUrls;
-    return serverSliderImages.map((x) => resolveAssetUrl(x.path)).filter(Boolean);
-  }, [hasLocalSlider, sliderPreviewUrls, serverSliderImages]);
+  const serverSliderPreviews = useMemo(
+    () => serverSliderImages.map((x) => resolveAssetUrl(x.path)).filter(Boolean),
+    [serverSliderImages]
+  );
+  const activeSliderPreviews = useMemo(
+    () => [...serverSliderPreviews, ...sliderPreviewUrls].filter(Boolean),
+    [serverSliderPreviews, sliderPreviewUrls]
+  );
 
   useEffect(() => {
     return () => {
@@ -170,10 +181,22 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
 
   function onSliderChange(e) {
     const files = Array.from(e?.target?.files || []);
-    for (const u of sliderPreviewUrls) URL.revokeObjectURL(u);
-    const clipped = files.slice(0, 10);
-    setSliderFiles(clipped);
-    setSliderPreviewUrls(clipped.map((f) => URL.createObjectURL(f)));
+    if (!files.length) return;
+
+    const remaining = Math.max(0, 10 - serverSliderImages.length - sliderFiles.length);
+    if (remaining <= 0) {
+      toast.error("You can select up to 10 slider images");
+      if (sliderInputRef.current) sliderInputRef.current.value = "";
+      return;
+    }
+
+    const toAdd = files.slice(0, remaining);
+    const urls = toAdd.map((f) => URL.createObjectURL(f));
+
+    setSliderFiles((prev) => [...(Array.isArray(prev) ? prev : []), ...toAdd]);
+    setSliderPreviewUrls((prev) => [...(Array.isArray(prev) ? prev : []), ...urls]);
+
+    if (sliderInputRef.current) sliderInputRef.current.value = "";
   }
 
   function removeThumbnail() {
@@ -183,7 +206,7 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
     if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
   }
 
-  function removeSliderAt(index) {
+  function removeLocalSliderAt(index) {
     setSliderFiles((prev) => {
       const next = Array.isArray(prev) ? [...prev] : [];
       next.splice(index, 1);
@@ -222,8 +245,30 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
     let body;
     if (hasAnyFile) {
       const fd = new FormData();
-      if (thumbnailFile) fd.append("thumbnailImage", thumbnailFile);
-      for (const f of sliderFiles) fd.append("sliderImages", f);
+      if (thumbnailFile) {
+        fd.append("thumbnailImage", thumbnailFile);
+      } else if (hasServerThumbnail) {
+        try {
+          fd.append("thumbnailImage", await fetchRemoteFile(serverThumbnail.path, "thumbnail.jpg"));
+        } catch {
+          toast.error("Thumbnail image is required");
+          return { ok: false };
+        }
+      }
+
+      const serverSliderPaths = serverSliderImages.map((x) => x?.path).filter(Boolean);
+      let serverSliderFiles = [];
+      try {
+        serverSliderFiles = await Promise.all(
+          serverSliderPaths.map((p, idx) => fetchRemoteFile(p, `slider_${idx + 1}.jpg`))
+        );
+      } catch {
+        toast.error("Failed to load existing slider images");
+        return { ok: false };
+      }
+
+      const allSliderFiles = [...serverSliderFiles, ...sliderFiles].slice(0, 10);
+      for (const f of allSliderFiles) fd.append("sliderImages", f);
       if (nextVideoUrl) fd.append("videoUrl", nextVideoUrl);
       body = fd;
       if (!thumbnailFile && !hasServerThumbnail) {
@@ -239,7 +284,7 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
         ...(Array.isArray(serverSliderImages) && serverSliderImages.length
           ? { sliderImages: serverSliderImages.map((x) => ({ path: x.path, alt: x.alt || undefined })) }
           : {}),
-        ...(nextVideoUrl ? { videoUrl: nextVideoUrl } : { videoUrl: "" }),
+        ...(nextVideoUrl ? { videoUrl: nextVideoUrl } : {}),
       });
     }
 
@@ -366,7 +411,9 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
               >
                 Choose Images
               </button>
-              {sliderFiles.length ? <div className="text-[12px] text-[#6B7280]">{sliderFiles.length} selected</div> : null}
+              {serverSliderImages.length + sliderFiles.length ? (
+                <div className="text-[12px] text-[#6B7280]">{serverSliderImages.length + sliderFiles.length} selected</div>
+              ) : null}
             </div>
 
             {loading ? (
@@ -381,24 +428,28 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
               </div>
             ) : (
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {activeSliderPreviews.map((src, idx) => {
-                  const canRemoveLocal = hasLocalSlider;
-                  return (
-                    <div key={`${src}-${idx}`} className="hc-hover-lift relative rounded-2xl border border-[#E5E7EB] bg-white p-2">
-                      {canRemoveLocal ? (
-                        <button
-                          type="button"
-                          onClick={() => removeSliderAt(idx)}
-                          disabled={saving}
-                          className="absolute right-2 top-2 rounded-lg border border-[#E5E7EB] bg-white px-2 py-1 text-[11px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          Remove
-                        </button>
-                      ) : null}
-                      <img src={src} alt={`Slider preview ${idx + 1}`} className="w-full aspect-4/3 object-cover rounded-xl" />
-                    </div>
-                  );
-                })}
+                {serverSliderPreviews.map((src, idx) => (
+                  <div key={`${src}-${idx}`} className="hc-hover-lift relative rounded-2xl border border-[#E5E7EB] bg-white p-2">
+                    <img src={src} alt={`Slider preview ${idx + 1}`} className="w-full aspect-[4/3] object-cover rounded-xl" />
+                  </div>
+                ))}
+                {sliderPreviewUrls.map((src, idx) => (
+                  <div key={`${src}-${idx}`} className="hc-hover-lift relative rounded-2xl border border-[#E5E7EB] bg-white p-2">
+                    <button
+                      type="button"
+                      onClick={() => removeLocalSliderAt(idx)}
+                      disabled={saving}
+                      className="absolute right-2 top-2 rounded-lg border border-[#E5E7EB] bg-white px-2 py-1 text-[11px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Remove
+                    </button>
+                    <img
+                      src={src}
+                      alt={`Slider preview ${serverSliderPreviews.length + idx + 1}`}
+                      className="w-full aspect-[4/3] object-cover rounded-xl"
+                    />
+                  </div>
+                ))}
               </div>
             )}
           </div>

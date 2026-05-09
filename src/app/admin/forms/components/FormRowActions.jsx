@@ -12,7 +12,7 @@ function buildMenu(status) {
 
   items.push({ key: "edit", label: "Edit" });
   if (s === "draft") items.push({ key: "publish", label: "Publish" }, { key: "archive", label: "Archive" });
-  if (s === "published") items.push({ key: "unpublish", label: "Unpublish" }, { key: "archive", label: "Archive" });
+  if (s === "published") items.push({ key: "unpublish", label: "Move to Draft" }, { key: "archive", label: "Archive" });
   if (s === "archived") items.push({ key: "restore", label: "Restore" });
 
   return items;
@@ -20,7 +20,7 @@ function buildMenu(status) {
 
 function getConfirmCopy(action) {
   if (action === "publish") return { title: "Publish form?", description: "This will make the form available as published." };
-  if (action === "unpublish") return { title: "Unpublish form?", description: "This will move the form back from published state." };
+  if (action === "unpublish") return { title: "Move to draft?", description: "This will move the form back to draft state." };
   if (action === "archive") return { title: "Archive form?", description: "Archived forms are removed from active use." };
   if (action === "restore") return { title: "Restore form?", description: "This will restore the form from archived state." };
   return { title: "Confirm action", description: "" };

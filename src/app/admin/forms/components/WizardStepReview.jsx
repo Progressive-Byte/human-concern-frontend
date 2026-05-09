@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getAdminFormReview, publishAdminForm } from "@/services/admin";
+import { getAdminFormReview, publishAdminForm, unpublishAdminForm } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 
 function normalizeReviewResponse(res) {
@@ -75,6 +75,7 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
 
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
+  const [drafting, setDrafting] = useState(false);
   const [topError, setTopError] = useState("");
 
   const [review, setReview] = useState(null);
@@ -152,6 +153,37 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
       toast.error(msg);
     } finally {
       setPublishing(false);
+    }
+  }
+
+  async function createOrMoveToDraft() {
+    setTopError("");
+
+    if (!formId) {
+      toast.error("Missing formId");
+      return;
+    }
+
+    const currentStatus = String(form?.status || "").trim().toLowerCase();
+    if (currentStatus !== "published") {
+      toast.success("Draft saved");
+      onSaved?.();
+      onExit?.({ nextStep: "finish" });
+      return;
+    }
+
+    setDrafting(true);
+    try {
+      await unpublishAdminForm(formId);
+      toast.success("Moved to draft");
+      onSaved?.();
+      onExit?.({ nextStep: "finish" });
+    } catch (e) {
+      const msg = e?.message || "Failed to move to draft.";
+      setTopError(msg);
+      toast.error(msg);
+    } finally {
+      setDrafting(false);
     }
   }
 
@@ -312,7 +344,7 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
             <button
               type="button"
               onClick={() => onExit?.({ nextStep: "media" })}
-              disabled={publishing}
+              disabled={publishing || drafting}
               className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Back
@@ -321,16 +353,20 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => onExit?.({ nextStep: "finish" })}
-                disabled={publishing}
+                onClick={createOrMoveToDraft}
+                disabled={publishing || drafting}
                 className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Create as Draft
+                {drafting
+                  ? "Saving..."
+                  : String(form?.status || "").trim().toLowerCase() === "published"
+                    ? "Move to Draft"
+                    : "Create as Draft"}
               </button>
               <button
                 type="button"
                 onClick={publish}
-                disabled={publishing || !canPublish}
+                disabled={publishing || drafting || !canPublish}
                 className="cursor-pointer rounded-xl bg-red-600 px-4 py-2 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {publishing ? "Publishing..." : "Publish"}
