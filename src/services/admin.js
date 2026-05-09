@@ -102,6 +102,10 @@ export function createAdminCampaignForm(campaignId, payload) {
   return adminApiRequest(`/admin/campaigns/${campaignId}/forms`, { method: "POST", body: JSON.stringify(payload) });
 }
 
+export function getAdminFormById(formId) {
+  return adminApiRequest(`/admin/forms/${formId}`, { method: "GET" });
+}
+
 export function getAdminFormBasics(formId) {
   return adminApiRequest(`/admin/forms/${formId}/basics`, { method: "GET" });
 }
@@ -151,10 +155,35 @@ export function getAdminCauses({ page, limit, sort, order, q, status, enabled } 
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
+export function getAdminObjectives({ page, limit, sort, order, q, status, enabled } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (enabled !== undefined && enabled !== null && String(enabled).trim()) params.set("enabled", String(enabled).trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/objectives?${query}` : "/admin/objectives";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
 export function getAdminFormCauses(formId) {
   return adminApiRequest(`/admin/forms/${formId}/causes`, { method: "GET" });
 }
 
 export function updateAdminFormCauses(formId, payload) {
   return adminApiRequest(`/admin/forms/${formId}/causes`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function getAdminFormObjectives(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/objectives`, { method: "GET" });
+}
+
+export function updateAdminFormObjectives(formId, payload) {
+  return adminApiRequest(`/admin/forms/${formId}/objectives`, { method: "PATCH", body: JSON.stringify(payload) });
 }

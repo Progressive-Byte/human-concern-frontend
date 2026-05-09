@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getAdminCauses, getAdminFormCauses, updateAdminFormCauses } from "@/services/admin";
+import { getAdminFormObjectives, getAdminObjectives, updateAdminFormObjectives } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import WizardFooterNav from "./WizardFooterNav";
 
@@ -10,11 +10,11 @@ function normalizeItemsResponse(res) {
   return Array.isArray(items) ? items : [];
 }
 
-function normalizeSelectedCauseIds(res) {
+function normalizeSelectedObjectiveIds(res) {
   const raw =
-    res?.data?.causeIds ||
-    res?.data?.data?.causeIds ||
-    res?.causeIds ||
+    res?.data?.objectiveIds ||
+    res?.data?.data?.objectiveIds ||
+    res?.objectiveIds ||
     res?.data?.items ||
     res?.data?.data?.items ||
     res?.items ||
@@ -29,10 +29,10 @@ function normalizeSelectedCauseIds(res) {
   return Array.from(new Set(ids));
 }
 
-function isSelectableCause(cause) {
-  if (!cause) return false;
-  if (cause.enabled === false) return false;
-  const status = String(cause.status || "").trim().toLowerCase();
+function isSelectableObjective(obj) {
+  if (!obj) return false;
+  if (obj.enabled === false) return false;
+  const status = String(obj.status || "").trim().toLowerCase();
   if (status && status !== "active") return false;
   return true;
 }
@@ -40,7 +40,7 @@ function isSelectableCause(cause) {
 function SkeletonGrid() {
   return (
     <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 4 }).map((_, idx) => (
+      {Array.from({ length: 6 }).map((_, idx) => (
         <div key={idx} className="animate-pulse rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-4">
           <div className="flex items-center justify-between">
             <div className="h-9 w-9 rounded-xl border border-[#E5E7EB] bg-white" />
@@ -56,18 +56,18 @@ function SkeletonGrid() {
   );
 }
 
-export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }) {
+export default function WizardStepObjectives({ campaignId, formId, onExit, onSaved }) {
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [topError, setTopError] = useState("");
 
-  const [allCauses, setAllCauses] = useState([]);
-  const [selectedCauseIds, setSelectedCauseIds] = useState([]);
+  const [allObjectives, setAllObjectives] = useState([]);
+  const [selectedObjectiveIds, setSelectedObjectiveIds] = useState([]);
 
-  const causes = useMemo(() => (Array.isArray(allCauses) ? allCauses : []), [allCauses]);
-  const selectedCount = selectedCauseIds.length;
+  const objectives = useMemo(() => (Array.isArray(allObjectives) ? allObjectives : []), [allObjectives]);
+  const selectedCount = selectedObjectiveIds.length;
 
   useEffect(() => {
     if (!formId) {
@@ -81,27 +81,27 @@ export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }
 
     (async () => {
       try {
-        const [causesRes, selectedRes] = await Promise.all([
-          getAdminCauses({ page: "1", limit: "200", order: "asc" }),
-          getAdminFormCauses(formId),
+        const [objectivesRes, selectedRes] = await Promise.all([
+          getAdminObjectives({ page: "1", limit: "200", order: "asc" }),
+          getAdminFormObjectives(formId),
         ]);
         if (!alive) return;
 
-        const nextAll = normalizeItemsResponse(causesRes).filter((c) => c?.enabled !== false);
-        const nextSelected = normalizeSelectedCauseIds(selectedRes);
+        const nextAll = normalizeItemsResponse(objectivesRes).filter((o) => o?.enabled !== false);
+        const nextSelected = normalizeSelectedObjectiveIds(selectedRes);
         const enabledIdSet = new Set(
           nextAll
-            .map((c) => String(c?._id || c?.id || "").trim())
+            .map((o) => String(o?._id || o?.id || "").trim())
             .filter(Boolean)
         );
 
-        setAllCauses(nextAll);
-        setSelectedCauseIds(nextSelected.filter((id) => enabledIdSet.has(id)));
+        setAllObjectives(nextAll);
+        setSelectedObjectiveIds(nextSelected.filter((id) => enabledIdSet.has(id)));
       } catch (e) {
         if (!alive) return;
-        setAllCauses([]);
-        setSelectedCauseIds([]);
-        setTopError(e?.message || "Failed to load causes.");
+        setAllObjectives([]);
+        setSelectedObjectiveIds([]);
+        setTopError(e?.message || "Failed to load objectives.");
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -113,12 +113,12 @@ export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }
     };
   }, [formId]);
 
-  function toggleCauseId(cause) {
-    const id = String(cause?._id || cause?.id || "").trim();
+  function toggleObjective(obj) {
+    const id = String(obj?._id || obj?.id || "").trim();
     if (!id) return;
-    if (!isSelectableCause(cause)) return;
+    if (!isSelectableObjective(obj)) return;
 
-    setSelectedCauseIds((prev) => {
+    setSelectedObjectiveIds((prev) => {
       const current = Array.isArray(prev) ? prev.map((x) => String(x).trim()).filter(Boolean) : [];
       const has = current.includes(id);
       if (has) return current.filter((x) => x !== id);
@@ -139,28 +139,28 @@ export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }
     }
 
     const enabledIdSet = new Set(
-      causes
-        .map((c) => String(c?._id || c?.id || "").trim())
+      objectives
+        .map((o) => String(o?._id || o?.id || "").trim())
         .filter(Boolean)
     );
     const payload = {
-      causeIds: Array.from(new Set(selectedCauseIds.map((x) => String(x).trim()).filter(Boolean))).filter((id) =>
+      objectiveIds: Array.from(new Set(selectedObjectiveIds.map((x) => String(x).trim()).filter(Boolean))).filter((id) =>
         enabledIdSet.has(id)
       ),
     };
 
     setSaving(true);
     try {
-      await updateAdminFormCauses(formId, payload);
-      toast.success("Causes saved");
+      await updateAdminFormObjectives(formId, payload);
+      toast.success("Objectives saved");
       onSaved?.();
 
       if (goNext) {
-        onExit?.({ nextStep: "objectives" });
+        onExit?.({ nextStep: "addons" });
       }
       return { ok: true };
     } catch (e) {
-      const msg = e?.message || "Failed to save causes.";
+      const msg = e?.message || "Failed to save objectives.";
       setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
       toast.error(msg);
       return { ok: false };
@@ -197,35 +197,35 @@ export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Allowed Donation Causes</h2>
-            <p className="mt-1 text-[13px] text-[#6B7280]">Select which donation causes apply to this form</p>
+            <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Campaign Objectives</h2>
+            <p className="mt-1 text-[13px] text-[#6B7280]">Select which objectives appear for donors in this form</p>
           </div>
 
           <div className="text-[13px] text-[#6B7280] sm:text-right">
-            <span className="text-[#111827] font-semibold">{selectedCount} Selected</span> Out of {causes.length}
+            <span className="text-[#111827] font-semibold">{selectedCount} Selected</span> Out of {objectives.length}
           </div>
         </div>
 
         {loading ? (
           <SkeletonGrid />
-        ) : causes.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-[#6B7280]">No causes available.</div>
+        ) : objectives.length === 0 ? (
+          <div className="py-10 text-center text-[13px] text-[#6B7280]">No objectives available.</div>
         ) : (
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {causes.map((cause) => {
-              const id = String(cause?._id || cause?.id || "").trim();
-              const selected = id ? selectedCauseIds.includes(id) : false;
-              const selectable = isSelectableCause(cause);
-              const emoji = String(cause?.iconEmoji || "").trim();
-              const name = String(cause?.name || "").trim();
-              const desc = String(cause?.description || "").trim();
-              const zakatEligible = Boolean(cause?.zakatEligible);
+            {objectives.map((obj) => {
+              const id = String(obj?._id || obj?.id || "").trim();
+              const selected = id ? selectedObjectiveIds.includes(id) : false;
+              const selectable = isSelectableObjective(obj);
+              const emoji = String(obj?.iconEmoji || "").trim();
+              const name = String(obj?.name || "").trim();
+              const desc = String(obj?.description || "").trim();
+              const ramadanOnly = Boolean(obj?.ramadanOnly);
 
               return (
                 <button
                   key={id || name || desc}
                   type="button"
-                  onClick={() => toggleCauseId(cause)}
+                  onClick={() => toggleObjective(obj)}
                   disabled={!selectable || saving}
                   className={`hc-hover-lift relative w-full text-left rounded-2xl border p-4 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600/40 focus-visible:ring-offset-2 ${
                     selected ? "border-red-600/40 bg-red-600/5" : "border-[#E5E7EB] bg-[#F9FAFB] hover:bg-white"
@@ -256,12 +256,14 @@ export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }
                     </div>
                   </div>
 
-                  <div className="mt-3 text-[14px] font-semibold text-[#111827]">{name || "Cause"}</div>
+                  <div className="mt-3 text-[14px] font-semibold text-[#111827]">{name || "Objective"}</div>
                   {desc ? <div className="mt-1 text-[12px] leading-snug text-[#6B7280]">{desc}</div> : null}
 
-                  <div className="mt-3 inline-flex items-center rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-[#111827] border border-[#E5E7EB]">
-                    {zakatEligible ? "Zakat Eligible" : "Not Zakat Eligible"}
-                  </div>
+                  {ramadanOnly ? (
+                    <div className="mt-3 inline-flex items-center rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-[#111827] border border-[#E5E7EB]">
+                      Ramadan Only
+                    </div>
+                  ) : null}
                 </button>
               );
             })}
@@ -271,7 +273,7 @@ export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }
 
       <WizardFooterNav
         saving={saving}
-        onBack={() => onExit?.({ nextStep: "goals-dates" })}
+        onBack={() => onExit?.({ nextStep: "causes" })}
         onSave={() => save({ goNext: false })}
         onNext={() => save({ goNext: true })}
         nextLabel="Next"

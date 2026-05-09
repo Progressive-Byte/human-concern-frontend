@@ -23,7 +23,7 @@ function normalizeBasicsResponse(res) {
   return res?.data?.data || res?.data?.item || res?.data?.basics || res?.data || {};
 }
 
-export default function WizardStepBasics({ campaignId, initialFormId = "", onExit }) {
+export default function WizardStepBasics({ campaignId, initialFormId = "", onExit, onSaved }) {
   const toast = useToast();
 
   const [formId, setFormId] = useState(String(initialFormId || ""));
@@ -256,11 +256,13 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
         const createdId =
           res?.data?.formId || res?.data?.id || res?.data?.data?.formId || res?.data?.data?.id || res?.formId || res?.id;
         if (createdId) setFormId(String(createdId));
+        onSaved?.(createdId || null);
         toast.success("Basics saved");
         return { ok: true, formId: createdId || null };
       }
 
       await updateAdminFormBasics(formId, payload);
+      onSaved?.(formId);
       toast.success("Basics saved");
       return { ok: true, formId };
     } catch (e) {

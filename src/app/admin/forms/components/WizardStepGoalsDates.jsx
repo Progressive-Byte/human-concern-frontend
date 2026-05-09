@@ -75,7 +75,7 @@ function Skeleton() {
   );
 }
 
-export default function WizardStepGoalsDates({ campaignId, formId, onExit }) {
+export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSaved }) {
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -229,6 +229,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit }) {
     try {
       await updateAdminFormGoalsDates(formId, payload);
       toast.success("Goals & dates saved");
+      onSaved?.();
 
       if (goNext) {
         onExit?.({ nextStep: "causes" });
