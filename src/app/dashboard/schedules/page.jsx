@@ -106,7 +106,7 @@ const SchedulesPage = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
-                      <ActionButtons isActive={isActive} />
+                      <ActionButtons isActive={isActive} id={s.id} />
                     </div>
                   </div>
                 </div>
