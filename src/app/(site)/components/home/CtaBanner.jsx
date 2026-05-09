@@ -17,7 +17,7 @@ const CtaBanner = () => {
           </div>
           <div className="flex gap-3 flex-wrap shrink-0">
             <Link
-              href="/donate"
+              href="/campaigns"
               className="px-7 py-3.5 bg-[#EA3335] text-white font-normal text-[18px] rounded-full hover:bg-red-700 hover:-translate-y-0.5 transition-all no-underline"
             >
               Donate Now
