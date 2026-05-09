@@ -1,4 +1,4 @@
-import { CardIcon, CheckIcon, NoCheckIcon, PlusIcon, TrashIcon } from "@/components/common/SvgIcon";
+import { CardIcon, NoCheckIcon, PlusIcon, TrashIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "../components/DashboardHeader";
 import Image from "next/image";
 
