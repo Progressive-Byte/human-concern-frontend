@@ -42,8 +42,6 @@ const PaymentMethodsPage = () => {
       />
 
       <div className="flex-1 p-4 md:p-6 space-y-6">
-
-        {/* Saved Cards */}
         <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
           {savedCards.map((card, idx) => (
             <div
