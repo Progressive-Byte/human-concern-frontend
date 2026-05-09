@@ -5,6 +5,7 @@ import DashboardHeader from "../components/DashboardHeader";
 import { BellIcon, LockIcon, UserIcon } from "@/components/common/SvgIcon";
 import Toggle from "@/components/ui/Toggle";
 import UserToggle from "@/components/ui/UserToggle";
+import Field from "@/components/ui/Field";
 
 
 const SaveIcon = (
@@ -31,20 +32,6 @@ function SectionHeader({ icon, title, variant = "user" }) {
         {icon}
       </span>
       <h2 className="text-base font-semibold text-[#383838]">{title}</h2>
-    </div>
-  );
-}
-
-function Field({ label, value, type = "text", onChange }) {
-  return (
-    <div>
-      <label className="block text-xs font-medium text-[#737373] mb-1.5">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-[#EBEBEB] bg-white px-4 py-2.5 text-sm text-[#383838] placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#055A46]/40 focus:ring-2 focus:ring-[#055A46]/10 transition"
-      />
     </div>
   );
 }
