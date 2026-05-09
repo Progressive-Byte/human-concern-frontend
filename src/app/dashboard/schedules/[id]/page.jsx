@@ -76,7 +76,7 @@ const ScheduleDetailPage = async ({ params }) => {
           href="/dashboard/schedules"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-[#EA3335] hover:text-red-700 transition-colors"
         >
-          {BackToScheduleIcon}
+          {BacklinkIcon}
           Back to Schedules
         </Link>
 
