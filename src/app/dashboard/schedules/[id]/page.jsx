@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import DashboardHeader from "../../components/DashboardHeader";
+import DetailRow from "@/components/ui/DetailRow";
 
 const schedules = [
   {
@@ -56,13 +57,6 @@ const causeBadgeStyles = {
 };
 
 const frequencyLabel = { Weekly: "week", Monthly: "month", Daily: "day" };
-
-const DetailRow = ({ label, value, valueClass = "text-sm font-semibold text-[#111827]" }) => (
-  <div>
-    <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280] mb-1">{label}</p>
-    <p className={valueClass}>{value}</p>
-  </div>
-);
 
 const ScheduleDetailPage = async ({ params }) => {
   const { id } = await params;
