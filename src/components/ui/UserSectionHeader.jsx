@@ -1,8 +1,9 @@
 const sections = {
-  user:  { bg: "#ECF9F3", color: "#055A46" },
-  bell:  { bg: "#FFF8EC", color: "#B45309" },
-  lock:  { bg: "#EFF6FF", color: "#1D4ED8" },
+  user:  { bg: "#FFF5F5",  color: "#EA3335" },
+  bell:  { bg: "#FFF8EC",  color: "#B45309" },
+  lock:  { bg: "#EFF6FF",  color: "#1D4ED8" },
 };
+
 const UserSectionHeader = ({ icon, title, variant = "user" }) => {
   const { bg, color } = sections[variant];
   return (
@@ -13,7 +14,7 @@ const UserSectionHeader = ({ icon, title, variant = "user" }) => {
       >
         {icon}
       </span>
-      <h2 className="text-base font-semibold text-[#383838]">{title}</h2>
+      <h2 className="text-base font-semibold text-[#111827]">{title}</h2>
     </div>
   );
 }
