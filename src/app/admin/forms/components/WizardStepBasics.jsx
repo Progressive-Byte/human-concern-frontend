@@ -11,10 +11,6 @@ function isMongoId(value) {
   return /^[a-fA-F0-9]{24}$/.test(String(value || "").trim());
 }
 
-function isSlugLike(value) {
-  return /^[a-z0-9]+(-[a-z0-9]+)*$/.test(String(value || "").trim());
-}
-
 function isDigits(value) {
   return /^[0-9]+$/.test(String(value || "").trim());
 }
@@ -182,8 +178,7 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
     else if (internal.designation.length > 64) errors["internal.designation"] = "Max 64 characters";
 
     if (!internal.shortDescription) errors["internal.shortDescription"] = "Required";
-    else if (internal.shortDescription.length > 64) errors["internal.shortDescription"] = "Max 64 characters";
-    else if (!isSlugLike(internal.shortDescription)) errors["internal.shortDescription"] = "Use lowercase letters, digits, and hyphens only";
+    else if (internal.shortDescription.length > 200) errors["internal.shortDescription"] = "Max 200 characters";
 
     if (!internal.locationId) errors["internal.locationId"] = "Required";
     else if (internal.locationId.length > 100) errors["internal.locationId"] = "Max 100 characters";
@@ -426,11 +421,11 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
             <input
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
-              placeholder="e.g. child-sponsorship"
+              placeholder="Short description"
               className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={saving}
             />
-            <div className="mt-1 text-[12px] text-[#6B7280]">Lowercase letters, digits, and hyphens only.</div>
+            <div className="mt-1 text-[12px] text-[#6B7280]">{Math.min(200, String(shortDescription || "").length)}/200 characters</div>
             <FieldError message={fieldErrors["internal.shortDescription"]} />
           </div>
         </div>
