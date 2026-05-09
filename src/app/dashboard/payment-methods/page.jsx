@@ -66,8 +66,6 @@ const PaymentMethodsPage = () => {
                 </div>
                 <p className="text-xs text-[#8C8C8C] mt-0.5">Expires {card.exp}</p>
               </div>
-
-              {/* Actions */}
               <div className="shrink-0 flex items-center gap-2">
                 {!card.isDefault && (
                   <button
@@ -89,8 +87,6 @@ const PaymentMethodsPage = () => {
             </div>
           ))}
         </div>
-
-        {/* Other Payment Options */}
         <div>
           <h2 className="text-base font-semibold text-[#383838] mb-3">Other Payment Options</h2>
 
