@@ -15,6 +15,10 @@ const nextConfig = {
         source: "/api/v1/:path*",
         destination: "https://donation.api.sagsio.com/api/v1/:path*",
       },
+      {
+        source: "/uploads/:path*",
+        destination: "https://donation.api.sagsio.com/uploads/:path*",
+      },
     ];
   },
   images: {

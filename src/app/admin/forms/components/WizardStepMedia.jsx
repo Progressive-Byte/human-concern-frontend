@@ -24,7 +24,7 @@ function toImageList(value) {
 }
 
 function resolveAssetUrl(path) {
-  const p = String(path || "").trim();
+  const p = String(path || "").trim(); 
   if (!p) return "";
   if (p.startsWith("http://") || p.startsWith("https://")) return p;
   if (p.startsWith("/")) return `${siteUrl}${p}`;
@@ -395,7 +395,7 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
                           Remove
                         </button>
                       ) : null}
-                      <img src={src} alt={`Slider preview ${idx + 1}`} className="w-full aspect-[4/3] object-cover rounded-xl" />
+                      <img src={src} alt={`Slider preview ${idx + 1}`} className="w-full aspect-4/3 object-cover rounded-xl" />
                     </div>
                   );
                 })}
