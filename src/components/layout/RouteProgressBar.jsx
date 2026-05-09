@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-export default function RouteProgressBar() {
+const RouteProgressBar = () => {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -77,3 +77,5 @@ export default function RouteProgressBar() {
     />
   );
 }
+
+export default RouteProgressBar;
