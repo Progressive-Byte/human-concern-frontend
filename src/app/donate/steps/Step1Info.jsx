@@ -250,20 +250,24 @@ const Step1Info = ({ campaignSlug }) => {
       setError("Please select at least one cause.");
       return;
     }
-    if (isAuthenticated && editMode) {
+    if (isAuthenticated) {
       updateUser({
         organization: data.organization,
         firstName:    data.firstName,
         lastName:     data.lastName,
         email:        data.email,
         phone:        data.phone,
-        addressLine1: data.addressLine1,
-        city:         data.city,
-        province:     data.province,
-        zip:          data.zip,
         country:      data.country,
+        address: {
+          ...(user?.address ?? {}),
+          line1:      data.addressLine1,
+          city:       data.city,
+          state:      data.province,
+          postalCode: data.zip,
+          country:    data.country,
+        },
       });
-      setEditMode(false);
+      if (editMode) setEditMode(false);
     }
     handleNext(4);
   };
