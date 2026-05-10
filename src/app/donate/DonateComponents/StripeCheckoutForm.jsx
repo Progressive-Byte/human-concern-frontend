@@ -67,6 +67,7 @@ export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, 
           return;
         }
 
+        sessionStorage.setItem("hc_donation_done", "1");
         router.push("/donate/thank-you");
       }
     } else {
@@ -82,6 +83,7 @@ export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, 
         setError(confirmError.message);
         setLoading(false);
       } else if (paymentIntent?.status === "succeeded") {
+        sessionStorage.setItem("hc_donation_done", "1");
         router.push("/donate/thank-you");
       }
     }
