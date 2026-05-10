@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useDonation } from "@/context/DonationContext";
@@ -11,15 +11,26 @@ import DonationPreview from "../DonateComponents/DonationPreview";
 import { NoticeIcon } from "@/components/common/SvgIcon";
 
 const Step8Confirmation = () => {
-  const { data } = useDonation();
-  const router   = useRouter();
+  const { data }          = useDonation();
+  const router            = useRouter();
+  const params            = useParams();
+  const [ready, setReady] = useState(false);
 
-  // If payment was already completed, redirect back to thank-you so the
-  // browser back button never lands here after a successful payment.
   useEffect(() => {
+    // If payment was already completed, send back to thank-you.
     if (sessionStorage.getItem("hc_donation_done") === "1") {
       router.replace("/donate/thank-you");
+      return;
     }
+
+    // No valid payment session — redirect to campaigns listing.
+    if (!data.stripeClientSecret) {
+      router.replace("/campaigns");
+      return;
+    }
+
+    // Session is valid — allow rendering.
+    setReady(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -38,56 +49,11 @@ const Step8Confirmation = () => {
     },
   };
 
-  const isStripe        = data.paymentMethod === "stripe";
-  const isRecurring     = data.paymentType   === "recurring";
-  const hasStripeSession = data.stripeClientSecret && data.stripePublishableKey;
+  const isStripe    = data.paymentMethod === "stripe";
+  const isRecurring = data.paymentType   === "recurring";
 
-  const renderPaymentBody = () => {
-    if (isStripe && hasStripeSession) {
-      return (
-        <Elements
-          stripe={stripePromise}
-          options={{ clientSecret: data.stripeClientSecret, appearance }}
-        >
-          <StripeCheckoutForm
-            grandTotal={data.grandTotal}
-            currency={data.currency}
-            isRecurring={isRecurring}
-            donationId={data.donationId}
-            guestSessionId={data.guestSessionId}
-          />
-        </Elements>
-      );
-    }
-
-    if (isStripe && !hasStripeSession) {
-      // Session was lost (e.g. cleared manually). Guide user to restart.
-      return (
-        <div className="flex flex-col items-center gap-4 py-8 text-center">
-          <p className="text-[14px] text-[#737373]">
-            Your payment session has expired. Please start the donation again.
-          </p>
-          <button
-            onClick={() => router.push(data.campaign ? `/${data.campaign}/1` : "/donate/1")}
-            className="px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333] text-white text-[14px] font-semibold transition-all cursor-pointer"
-          >
-            Start New Donation
-          </button>
-        </div>
-      );
-    }
-
-    // Non-stripe gateway (PayPal etc.)
-    return (
-      <div className="flex flex-col items-center gap-3 py-8 text-center">
-        <p className="text-[14px] text-[#737373]">
-          {data.paymentMethod
-            ? `${data.paymentMethod} payment gateway coming soon`
-            : "No payment method selected."}
-        </p>
-      </div>
-    );
-  };
+  // Suppress any flash while the redirect is in flight.
+  if (!ready) return null;
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
@@ -103,7 +69,28 @@ const Step8Confirmation = () => {
                 : `Complete your payment using ${data.paymentMethod}`}
             </p>
 
-            {renderPaymentBody()}
+            {isStripe ? (
+              <Elements
+                stripe={stripePromise}
+                options={{ clientSecret: data.stripeClientSecret, appearance }}
+              >
+                <StripeCheckoutForm
+                  grandTotal={data.grandTotal}
+                  currency={data.currency}
+                  isRecurring={isRecurring}
+                  donationId={data.donationId}
+                  guestSessionId={data.guestSessionId}
+                />
+              </Elements>
+            ) : (
+              <div className="flex flex-col items-center gap-3 py-8 text-center">
+                <p className="text-[14px] text-[#737373]">
+                  {data.paymentMethod
+                    ? `${data.paymentMethod} payment gateway coming soon`
+                    : "No payment method selected."}
+                </p>
+              </div>
+            )}
 
             <div className="mt-6 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
               {NoticeIcon}
