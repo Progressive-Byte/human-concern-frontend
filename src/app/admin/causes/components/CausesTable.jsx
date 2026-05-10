@@ -1,5 +1,6 @@
 import Toggle from "@/components/ui/Toggle";
 import CauseRowActions from "./CauseRowActions";
+import CauseStatusPill from "./CauseStatusPill";
 
 function SkeletonRows() {
   return (
@@ -43,6 +44,7 @@ export default function CausesTable({ items, loading, onEdit, onToggleEnabled, o
                 <th className="px-5 py-3">Cause</th>
                 <th className="py-3 pr-4">Description</th>
                 <th className="py-3 pr-4">Zakat Eligible</th>
+                <th className="py-3 pr-4">Status</th>
                 <th className="py-3 pr-4">Enabled</th>
                 <th className="py-3 pr-5 text-right">Actions</th>
               </tr>
@@ -67,6 +69,10 @@ export default function CausesTable({ items, loading, onEdit, onToggleEnabled, o
                   </td>
 
                   <td className="py-4 pr-4 align-top">{item?.zakatEligible ? yesPill("Yes") : <span className="text-[#6B7280]">—</span>}</td>
+
+                  <td className="py-4 pr-4 align-top">
+                    <CauseStatusPill status={item?.status} />
+                  </td>
 
                   <td className="py-4 pr-4 align-top">
                     <Toggle enabled={Boolean(item?.enabled)} onChange={(next) => onToggleEnabled?.(item?.id, next)} />

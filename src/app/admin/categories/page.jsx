@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { deleteAdminCategory, getAdminCategories } from "@/services/admin";
+import { archiveAdminCategory, getAdminCategories, restoreAdminCategory } from "@/services/admin";
 import CategoriesHeader from "./components/CategoriesHeader";
 import CategoriesSummaryCards from "./components/CategoriesSummaryCards";
 import CategoriesFilters from "./components/CategoriesFilters";
@@ -118,16 +118,29 @@ export default function AdminCategoriesPage() {
     };
   }, [filters.page, filters.limit, filters.sort, filters.order, filters.status, debouncedQ, refreshKey]);
 
-  async function handleDelete(category) {
+  async function handleArchive(category) {
     const id = category?.id;
     if (!id) return;
 
     try {
-      await deleteAdminCategory(id);
-      toast.success("Deleted");
-      setItems((prev) => prev.filter((c) => c.id !== id));
+      await archiveAdminCategory(id);
+      toast.success("Archived");
+      refresh();
     } catch (e) {
-      toast.error(e?.message || "Delete failed.");
+      toast.error(e?.message || "Archive failed.");
+    }
+  }
+
+  async function handleRestore(category) {
+    const id = category?.id;
+    if (!id) return;
+
+    try {
+      await restoreAdminCategory(id);
+      toast.success("Restored");
+      refresh();
+    } catch (e) {
+      toast.error(e?.message || "Restore failed.");
     }
   }
 
@@ -178,7 +191,8 @@ export default function AdminCategoriesPage() {
         onPrevPage={() => setPage(Math.max(1, currentPage - 1))}
         onNextPage={() => setPage(Math.min(totalPages, currentPage + 1))}
         onEdit={openEdit}
-        onDelete={handleDelete}
+        onArchive={handleArchive}
+        onRestore={handleRestore}
       />
 
       <CategoryUpsertModal
@@ -191,4 +205,3 @@ export default function AdminCategoriesPage() {
     </main>
   );
 }
-

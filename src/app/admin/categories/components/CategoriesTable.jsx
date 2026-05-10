@@ -46,7 +46,7 @@ function PaginationBar({ pagination, onPrev, onNext }) {
   );
 }
 
-export default function CategoriesTable({ items, loading, pagination, onPrevPage, onNextPage, onEdit, onDelete }) {
+export default function CategoriesTable({ items, loading, pagination, onPrevPage, onNextPage, onEdit, onArchive, onRestore }) {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -87,7 +87,7 @@ export default function CategoriesTable({ items, loading, pagination, onPrevPage
                   </td>
 
                   <td className="py-4 pr-5 align-top text-right">
-                    <CategoryRowActions item={item} onEdit={onEdit} onDelete={onDelete} />
+                    <CategoryRowActions item={item} onEdit={onEdit} onArchive={onArchive} onRestore={onRestore} />
                   </td>
                 </tr>
               ))}

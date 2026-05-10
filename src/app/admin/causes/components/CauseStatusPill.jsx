@@ -1,0 +1,17 @@
+export default function CauseStatusPill({ status }) {
+  const s = String(status || "").toLowerCase();
+
+  const cls =
+    s === "published" || s === "active"
+      ? "bg-[#ECFDF5] text-[#047857]"
+      : s === "draft"
+        ? "bg-[#F3F4F6] text-[#6B7280]"
+        : s === "archived"
+          ? "bg-[#FEF3C7] text-[#92400E]"
+          : "bg-[#F3F4F6] text-[#6B7280]";
+
+  const label = s ? s.charAt(0).toUpperCase() + s.slice(1) : "—";
+
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-semibold ${cls}`}>{label}</span>;
+}
+

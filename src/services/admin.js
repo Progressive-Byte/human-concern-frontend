@@ -114,6 +114,14 @@ export function deleteAdminCategory(categoryId) {
   return adminApiRequest(`/admin/categories/${categoryId}`, { method: "DELETE" });
 }
 
+export function archiveAdminCategory(categoryId) {
+  return adminApiRequest(`/admin/categories/${categoryId}/archive`, { method: "POST" });
+}
+
+export function restoreAdminCategory(categoryId) {
+  return adminApiRequest(`/admin/categories/${categoryId}/restore`, { method: "POST" });
+}
+
 export function createAdminCampaignForm(campaignId, payload) {
   return adminApiRequest(`/admin/campaigns/${campaignId}/forms`, { method: "POST", body: JSON.stringify(payload) });
 }

@@ -3,21 +3,30 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
 
-function buildMenu() {
-  return [
-    { key: "edit", label: "Edit" },
-    { key: "delete", label: "Delete" },
-  ];
+function buildMenu(status) {
+  const s = String(status || "").toLowerCase();
+  const items = [{ key: "edit", label: "Edit" }];
+
+  if (s === "archived") items.push({ key: "restore", label: "Restore" });
+  else items.push({ key: "archive", label: "Archive" });
+
+  return items;
 }
 
-export default function CategoryRowActions({ item, onEdit, onDelete }) {
+function getConfirmCopy(action) {
+  if (action === "archive") return { title: "Archive category?", description: "Archived categories are removed from active use.", confirmText: "Archive" };
+  if (action === "restore") return { title: "Restore category?", description: "This will restore the category from archived state.", confirmText: "Restore" };
+  return { title: "Confirm action", description: "", confirmText: "Confirm" };
+}
+
+export default function CategoryRowActions({ item, onEdit, onArchive, onRestore }) {
   const wrapRef = useRef(null);
 
   const [open, setOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const menu = useMemo(() => buildMenu(), []);
+  const menu = useMemo(() => buildMenu(item?.status), [item?.status]);
 
   useEffect(() => {
     if (!open) return;
@@ -35,9 +44,8 @@ export default function CategoryRowActions({ item, onEdit, onDelete }) {
     if (!item?.id) return;
     setLoading(true);
     try {
-      if (action === "delete") {
-        await onDelete?.(item);
-      }
+      if (action === "archive") await onArchive?.(item);
+      if (action === "restore") await onRestore?.(item);
     } finally {
       setLoading(false);
       setConfirmAction("");
@@ -77,10 +85,10 @@ export default function CategoryRowActions({ item, onEdit, onDelete }) {
       ) : null}
 
       <ConfirmDialog
-        open={confirmAction === "delete"}
-        title="Delete category?"
-        description="This will remove the category."
-        confirmText="Delete"
+        open={Boolean(confirmAction)}
+        title={getConfirmCopy(confirmAction).title}
+        description={getConfirmCopy(confirmAction).description}
+        confirmText={getConfirmCopy(confirmAction).confirmText}
         loading={loading}
         onClose={() => setConfirmAction("")}
         onConfirm={() => runAction(confirmAction)}
@@ -88,4 +96,3 @@ export default function CategoryRowActions({ item, onEdit, onDelete }) {
     </div>
   );
 }
-
