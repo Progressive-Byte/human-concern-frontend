@@ -13,9 +13,10 @@ function Section({ label, children }) {
   );
 }
 
-export default function DonationPreview({ currentStep }) {
+const DonationPreview = ({ currentStep }) => {
   const { data } = useDonation();
   const sym = CURRENCY_SYMBOLS[data.currency] ?? "$";
+  console.log("DonationPreview render", { currentStep, data });
 
   const showPayment = Boolean(data.amountTier);
   const showAddons  = data.addOnBreakdown?.length > 0 || data.tipPct > 0 || data.grandTotal > 0;
@@ -130,3 +131,5 @@ export default function DonationPreview({ currentStep }) {
     </div>
   );
 }
+
+export default DonationPreview;
