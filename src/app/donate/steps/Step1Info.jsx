@@ -11,6 +11,37 @@ import Field from "@/components/ui/Field";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import { ChevronIcon } from "@/components/common/SvgIcon";
 
+// Common 3-letter ISO → 2-letter ISO map for countries stored as abbreviations
+const ISO3_TO_ISO2 = {
+  USA: "US", GBR: "GB", CAN: "CA", AUS: "AU", ARE: "AE",
+  IND: "IN", PAK: "PK", BGD: "BD", NZL: "NZ", DEU: "DE",
+  FRA: "FR", SAU: "SA", QAT: "QA", KWT: "KW", TUR: "TR",
+};
+
+function resolveCountryIso(value) {
+  if (!value) return null;
+  const all = Country.getAllCountries();
+  const upper = value.toUpperCase();
+  return (
+    all.find((c) => c.name === value)?.isoCode ||
+    all.find((c) => c.isoCode === upper)?.isoCode ||
+    all.find((c) => c.isoCode === ISO3_TO_ISO2[upper])?.isoCode ||
+    all.find((c) => c.name.toLowerCase() === value.toLowerCase())?.isoCode ||
+    null
+  );
+}
+
+function resolveStateIso(stateName, countryIso) {
+  if (!stateName || !countryIso) return null;
+  const states = State.getStatesOfCountry(countryIso);
+  return (
+    states.find((s) => s.name === stateName)?.isoCode ||
+    states.find((s) => s.isoCode === stateName.toUpperCase())?.isoCode ||
+    states.find((s) => s.name.toLowerCase() === stateName.toLowerCase())?.isoCode ||
+    null
+  );
+}
+
 const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
   const { user, isAuthenticated } = useAuth();
@@ -18,11 +49,8 @@ const Step1Info = ({ campaignSlug }) => {
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState(false);
-
-  console.log("Step1Info render", { data, user, isAuthenticated });
-
-  const hasAddress = Boolean(data.addressLine1?.trim() || data.city?.trim());
-  const [addressExpanded, setAddressExpanded] = useState(!hasAddress);
+  const [addressExpanded, setAddressExpanded] = useState(true);
+  const didAutoCollapse = useRef(false);
 
   const [countryCode, setCountryCode] = useState("");
   const [stateCode, setStateCode] = useState("");
@@ -54,25 +82,33 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync countryCode from country name (fires when data.country changes)
+  // Auto-collapse address section the first time address data arrives
+  useEffect(() => {
+    if (!didAutoCollapse.current && (data.addressLine1?.trim() || data.city?.trim())) {
+      setAddressExpanded(false);
+      didAutoCollapse.current = true;
+    }
+  }, [data.addressLine1, data.city]);
+
+  // Sync countryCode — handles full names, 2-letter codes, and 3-letter abbreviations (e.g. "USA")
   useEffect(() => {
     if (data.country && !countryCode) {
-      const found = Country.getAllCountries().find((c) => c.name === data.country);
-      if (found) setCountryCode(found.isoCode);
+      const iso = resolveCountryIso(data.country);
+      if (iso) setCountryCode(iso);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.country]);
 
-  // Sync stateCode from province name (fires when province or countryCode is available)
+  // Sync stateCode after countryCode is resolved
   useEffect(() => {
     if (data.province && countryCode && !stateCode) {
-      const found = State.getStatesOfCountry(countryCode).find((s) => s.name === data.province);
-      if (found) setStateCode(found.isoCode);
+      const iso = resolveStateIso(data.province, countryCode);
+      if (iso) setStateCode(iso);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.province, countryCode]);
 
-  // Prefill personal fields from user profile when authenticated
+  // Prefill personal + address fields from user profile
   useEffect(() => {
     if (isAuthenticated && user) {
       update({
@@ -91,7 +127,7 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
-  // Clear personal fields when user logs out (not on mount)
+  // Clear fields on logout
   useEffect(() => {
     const wasAuth = prevAuthRef.current;
     prevAuthRef.current = isAuthenticated;
@@ -103,6 +139,8 @@ const Step1Info = ({ campaignSlug }) => {
       setCountryCode("");
       setStateCode("");
       setEditMode(false);
+      didAutoCollapse.current = false;
+      setAddressExpanded(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
@@ -120,7 +158,7 @@ const Step1Info = ({ campaignSlug }) => {
     [countryCode, stateCode]
   );
 
-  // A personal field is locked when authenticated, not in edit mode, AND has a value
+  // Personal field is locked when authenticated, not editing, and has a value
   const isLocked = (key) => isAuthenticated && !editMode && Boolean(data[key]?.trim());
 
   const personalField = (key) => ({
