@@ -17,8 +17,8 @@ export default function DonationPreview({ currentStep }) {
   const { data } = useDonation();
   const sym = CURRENCY_SYMBOLS[data.currency] ?? "$";
 
-  const showPayment  = currentStep > 4 && data.amountTier;
-  const showAddons   = currentStep > 5;
+  const showPayment = Boolean(data.amountTier);
+  const showAddons  = data.addOnBreakdown?.length > 0 || data.tipPct > 0 || data.grandTotal > 0;
 
   const baseTotal = (data.amountTier ?? 0) * (data.installmentCount ?? 1);
   const tipAmount = data.tipPct ? (baseTotal * data.tipPct) / 100 : 0;
