@@ -203,7 +203,7 @@ export function restoreAdminCause(causeId) {
   return adminApiRequest(`/admin/causes/${causeId}/restore`, { method: "POST" });
 }
 
-export function getAdminObjectives({ page, limit, sort, order, q, status, enabled } = {}) {
+export function getAdminObjectives({ page, limit, sort, order, q, status, ramadanOnly } = {}) {
   const params = new URLSearchParams();
 
   if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
@@ -212,7 +212,7 @@ export function getAdminObjectives({ page, limit, sort, order, q, status, enable
   if (typeof order === "string" && order.trim()) params.set("order", order.trim());
   if (typeof q === "string" && q.trim()) params.set("q", q.trim());
   if (typeof status === "string" && status.trim()) params.set("status", status.trim());
-  if (enabled !== undefined && enabled !== null && String(enabled).trim()) params.set("enabled", String(enabled).trim());
+  if (ramadanOnly !== undefined && ramadanOnly !== null && String(ramadanOnly).trim()) params.set("ramadanOnly", String(ramadanOnly).trim());
 
   const query = params.toString();
   const endpoint = query ? `/admin/objectives?${query}` : "/admin/objectives";
