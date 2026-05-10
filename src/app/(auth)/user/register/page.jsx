@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { Country, State, City } from "country-state-city";
 import { useAuth } from "@/context/AuthContext";
 import { AlertIcon, EyeIcon, EyeOffIcon, Spinner } from "@/components/common/SvgIcon";
 import { FormField, FormInput, getPasswordStrength } from "@/components/common/FormInput";
-import CustomDropdown from "@/components/common/CustomDropdown";
 import { validateRegister } from "@/utils/validateRegister";
 
 const INITIAL = {
@@ -14,16 +12,8 @@ const INITIAL = {
   firstName: "",
   lastName: "",
   email: "",
-  phone: "",
-  addressLine1: "",
-  streetName: "",
-  city: "",
-  state: "",
-  postalCode: "",
-  country: "",
   password: "",
   confirmPassword: "",
-  terms: false,
 };
 
 const RegisterPage = () => {
@@ -36,53 +26,12 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [countryCode, setCountryCode] = useState("");
-  const [stateCode, setStateCode]     = useState("");
 
   const strength = getPasswordStrength(values.password);
 
-  const countryOptions = useMemo(
-    () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
-    []
-  );
-  const stateOptions = useMemo(
-    () => countryCode ? State.getStatesOfCountry(countryCode).map((s) => ({ value: s.isoCode, label: s.name })) : [],
-    [countryCode]
-  );
-  const cityOptions = useMemo(
-    () => countryCode && stateCode ? City.getCitiesOfState(countryCode, stateCode).map((c) => ({ value: c.name, label: c.name })) : [],
-    [countryCode, stateCode]
-  );
-
-  function handleCountryChange(isoCode) {
-    const country = Country.getCountryByCode(isoCode);
-    setCountryCode(isoCode);
-    setStateCode("");
-    const next = { ...values, country: country?.name ?? "", state: "", city: "" };
-    setValues(next);
-    setTouched((prev) => ({ ...prev, country: true }));
-    setErrors((prev) => ({ ...prev, country: validateRegister(next).country, state: undefined, city: undefined }));
-  }
-
-  function handleStateChange(isoCode) {
-    const state = State.getStateByCodeAndCountry(isoCode, countryCode);
-    setStateCode(isoCode);
-    const next = { ...values, state: state?.name ?? "", city: "" };
-    setValues(next);
-    setTouched((prev) => ({ ...prev, state: true }));
-    setErrors((prev) => ({ ...prev, state: validateRegister(next).state, city: undefined }));
-  }
-
-  function handleCityChange(cityName) {
-    const next = { ...values, city: cityName };
-    setValues(next);
-    setTouched((prev) => ({ ...prev, city: true }));
-    setErrors((prev) => ({ ...prev, city: validateRegister(next).city }));
-  }
-
   function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-    const next = { ...values, [name]: type === "checkbox" ? checked : value };
+    const { name, value } = e.target;
+    const next = { ...values, [name]: value };
     setValues(next);
     if (touched[name]) setErrors((prev) => ({ ...prev, [name]: validateRegister(next)[name] }));
   }
@@ -105,17 +54,10 @@ const RegisterPage = () => {
     setServerError("");
     try {
       await register({
-        organization: values.organization.trim(),
+        ...(values.organization.trim() && { organization: values.organization.trim() }),
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         email: values.email.trim(),
-        ...(values.phone.trim() && { phone: values.phone.trim() }),
-        addressLine1: values.addressLine1.trim(),
-        streetName: values.streetName.trim(),
-        city: values.city.trim(),
-        state: values.state.trim(),
-        postalCode: values.postalCode.trim(),
-        country: values.country.trim(),
         password: values.password,
       });
     } catch (err) {
@@ -140,7 +82,7 @@ const RegisterPage = () => {
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
 
-        <FormField label="Organization" error={fieldError("organization")}>
+        <FormField label="Organization (optional)" error={fieldError("organization")}>
           <FormInput
             id="organization" name="organization" type="text"
             autoComplete="organization" placeholder="Your organization or company"
@@ -166,69 +108,6 @@ const RegisterPage = () => {
           <FormInput id="email" name="email" type="email" autoComplete="email"
             placeholder="you@example.com" value={values.email} onChange={handleChange} onBlur={handleBlur}
             hasError={Boolean(fieldError("email"))} />
-        </FormField>
-
-        <FormField label="Phone (optional)" error={fieldError("phone")}>
-          <FormInput id="phone" name="phone" type="tel" autoComplete="tel"
-            placeholder="+1 234 567 8900" value={values.phone} onChange={handleChange} onBlur={handleBlur}
-            hasError={Boolean(fieldError("phone"))} />
-        </FormField>
-
-        <FormField label="Address line 1" error={fieldError("addressLine1")}>
-          <FormInput id="addressLine1" name="addressLine1" type="text" autoComplete="address-line1"
-            placeholder="22 Baker Street" value={values.addressLine1} onChange={handleChange} onBlur={handleBlur}
-            hasError={Boolean(fieldError("addressLine1"))} />
-        </FormField>
-
-        <FormField label="Street name" error={fieldError("streetName")}>
-          <FormInput id="streetName" name="streetName" type="text"
-            placeholder="Baker Street" value={values.streetName} onChange={handleChange} onBlur={handleBlur}
-            hasError={Boolean(fieldError("streetName"))} />
-        </FormField>
-
-        <FormField label="Country" error={fieldError("country")}>
-          <CustomDropdown
-            variant="form"
-            options={countryOptions}
-            value={countryCode}
-            onChange={handleCountryChange}
-            placeholder="Select country"
-            label="Countries"
-            maxHeight="220px"
-          />
-        </FormField>
-
-        <div className="grid grid-cols-2 gap-3">
-          <FormField label="State / Province" error={fieldError("state")}>
-            <CustomDropdown
-              variant="form"
-              options={stateOptions}
-              value={stateCode}
-              onChange={handleStateChange}
-              placeholder={countryCode ? "Select state" : "Select country first"}
-              label="States"
-              maxHeight="220px"
-              disabled={!countryCode}
-            />
-          </FormField>
-          <FormField label="City" error={fieldError("city")}>
-            <CustomDropdown
-              variant="form"
-              options={cityOptions}
-              value={values.city}
-              onChange={handleCityChange}
-              placeholder={stateCode ? "Select city" : "Select state first"}
-              label="Cities"
-              maxHeight="220px"
-              disabled={!stateCode}
-            />
-          </FormField>
-        </div>
-
-        <FormField label="Postal code" error={fieldError("postalCode")}>
-          <FormInput id="postalCode" name="postalCode" type="text" autoComplete="postal-code"
-            placeholder="12345" value={values.postalCode} onChange={handleChange} onBlur={handleBlur}
-            hasError={Boolean(fieldError("postalCode"))} />
         </FormField>
 
         <FormField label="Password" error={fieldError("password")}>
@@ -280,27 +159,6 @@ const RegisterPage = () => {
           </div>
         </FormField>
 
-        <div>
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input id="terms" name="terms" type="checkbox" checked={values.terms}
-              onChange={handleChange} onBlur={handleBlur}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/10 text-[#EA3335] accent-[#EA3335] cursor-pointer"
-            />
-            <span className="text-[13px] text-white/60 leading-snug">
-              I agree to the{" "}
-              <Link href="/terms" className="text-white/80 hover:text-white font-medium transition-colors">Terms of Service</Link>
-              {" "}and{" "}
-              <Link href="/privacy" className="text-white/80 hover:text-white font-medium transition-colors">Privacy Policy</Link>
-            </span>
-          </label>
-          {fieldError("terms") && (
-            <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400">
-              <AlertIcon />
-              {errors.terms}
-            </p>
-          )}
-        </div>
-
         <button type="submit" disabled={isLoading}
           className="w-full rounded-lg py-3 text-[15px] font-semibold text-white bg-[#EA3335] hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1 cursor-pointer">
           {isLoading ? (
@@ -317,5 +175,6 @@ const RegisterPage = () => {
       </p>
     </div>
   );
-}
+};
+
 export default RegisterPage;

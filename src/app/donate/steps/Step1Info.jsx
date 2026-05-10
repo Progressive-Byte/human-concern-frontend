@@ -10,23 +10,38 @@ import StepLayout from "../DonateComponents/StepLayout";
 import Field from "@/components/ui/Field";
 import CustomDropdown from "@/components/common/CustomDropdown";
 
+const ChevronIcon = ({ open }) => (
+  <svg
+    width="16" height="16" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+  >
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
 const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
   const { user, isAuthenticated } = useAuth();
   const { handleNext } = useStepNavigation();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
+  const [editMode, setEditMode] = useState(false);
+
+  const hasAddress = Boolean(data.addressLine1?.trim() || data.city?.trim());
+  const [addressExpanded, setAddressExpanded] = useState(!hasAddress);
 
   const [countryCode, setCountryCode] = useState("");
   const [stateCode, setStateCode] = useState("");
 
   const prevAuthRef = useRef(isAuthenticated);
 
+  // Read sessionStorage campaign data on mount
   useEffect(() => {
     const campaign = campaignSlug ?? searchParams.get("campaign");
-    const amount       = searchParams.get("amount");
-    const currency     = searchParams.get("currency");
-    const isRamadan    = sessionStorage.getItem("donationIsRamadan") === "1";
+    const amount    = searchParams.get("amount");
+    const currency  = searchParams.get("currency");
+    const isRamadan = sessionStorage.getItem("donationIsRamadan") === "1";
 
     let campaignId = null;
     try {
@@ -46,23 +61,25 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sync countryCode from country name (fires when data.country changes)
   useEffect(() => {
-    if (!isAuthenticated && data.country && !countryCode) {
+    if (data.country && !countryCode) {
       const found = Country.getAllCountries().find((c) => c.name === data.country);
-      if (found) {
-        setCountryCode(found.isoCode);
-        if (data.province) {
-          const foundState = State.getStatesOfCountry(found.isoCode).find(
-            (s) => s.name === data.province
-          );
-          if (foundState) setStateCode(foundState.isoCode);
-        }
-      }
+      if (found) setCountryCode(found.isoCode);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [data.country]);
 
-  // Effect 3: Update personal fields when user logs in or when user data changes
+  // Sync stateCode from province name (fires when province or countryCode is available)
+  useEffect(() => {
+    if (data.province && countryCode && !stateCode) {
+      const found = State.getStatesOfCountry(countryCode).find((s) => s.name === data.province);
+      if (found) setStateCode(found.isoCode);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.province, countryCode]);
+
+  // Prefill personal fields from user profile when authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
       update({
@@ -81,7 +98,7 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
-  // Effect 4: Clear personal fields only when user actually logs out (not on mount)
+  // Clear personal fields when user logs out (not on mount)
   useEffect(() => {
     const wasAuth = prevAuthRef.current;
     prevAuthRef.current = isAuthenticated;
@@ -92,31 +109,37 @@ const Step1Info = ({ campaignSlug }) => {
       });
       setCountryCode("");
       setStateCode("");
+      setEditMode(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  // ── Dropdown option lists (memoised)
   const countryOptions = useMemo(
     () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
     []
   );
-
   const stateOptions = useMemo(
-    () =>
-      countryCode
-        ? State.getStatesOfCountry(countryCode).map((s) => ({ value: s.isoCode, label: s.name }))
-        : [],
+    () => countryCode ? State.getStatesOfCountry(countryCode).map((s) => ({ value: s.isoCode, label: s.name })) : [],
     [countryCode]
   );
-
   const cityOptions = useMemo(
-    () =>
-      countryCode && stateCode
-        ? City.getCitiesOfState(countryCode, stateCode).map((c) => ({ value: c.name, label: c.name }))
-        : [],
+    () => countryCode && stateCode ? City.getCitiesOfState(countryCode, stateCode).map((c) => ({ value: c.name, label: c.name })) : [],
     [countryCode, stateCode]
   );
+
+  // A personal field is locked when authenticated, not in edit mode, AND has a value
+  const isLocked = (key) => isAuthenticated && !editMode && Boolean(data[key]?.trim());
+
+  const personalField = (key) => ({
+    value:    data[key] ?? "",
+    onChange: isLocked(key) ? undefined : (e) => { update({ [key]: e.target.value }); setError(""); },
+    readOnly: isLocked(key),
+  });
+
+  const addressField = (key) => ({
+    value:    data[key] ?? "",
+    onChange: (e) => { update({ [key]: e.target.value }); setError(""); },
+  });
 
   const handleCountryChange = (isoCode) => {
     const country = Country.getCountryByCode(isoCode);
@@ -150,6 +173,7 @@ const Step1Info = ({ campaignSlug }) => {
       !data.country?.trim()
     ) {
       setError("Please fill in all required fields.");
+      if (!addressExpanded) setAddressExpanded(true);
       return;
     }
     if (!/\S+@\S+\.\S+/.test(data.email)) {
@@ -158,20 +182,6 @@ const Step1Info = ({ campaignSlug }) => {
     }
     handleNext(2);
   };
-
-  const field = (key) => ({
-    value:    data[key] ?? "",
-    onChange: isAuthenticated ? undefined : (e) => { update({ [key]: e.target.value }); setError(""); },
-    readOnly: isAuthenticated,
-  });
-
-  const readOnlyInput = (key) => (
-    <input
-      readOnly
-      value={data[key] ?? ""}
-      className="w-full border border-[#E0E0E0] rounded-xl px-4 py-3 text-[14px] text-[#888888] bg-[#F5F5F5] cursor-default focus:outline-none"
-    />
-  );
 
   return (
     <StepLayout
@@ -183,94 +193,137 @@ const Step1Info = ({ campaignSlug }) => {
     >
       <div className="flex flex-col gap-4">
 
-        {isAuthenticated && (
+        {/* Personal info header */}
+        <div className="flex items-center justify-between">
+          <p className="text-[13px] font-semibold text-[#383838]">Personal Information</p>
+          {isAuthenticated && !editMode && (
+            <button
+              type="button"
+              onClick={() => setEditMode(true)}
+              className="text-[12px] font-medium text-[#EA3335] hover:underline transition-colors cursor-pointer"
+            >
+              Edit Information
+            </button>
+          )}
+          {isAuthenticated && editMode && (
+            <button
+              type="button"
+              onClick={() => setEditMode(false)}
+              className="text-[12px] font-medium text-[#737373] hover:text-[#383838] transition-colors cursor-pointer"
+            >
+              Lock Fields
+            </button>
+          )}
+        </div>
+
+        {isAuthenticated && !editMode && (
           <p className="text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
-            Your account information has been pre-filled. These fields are read-only.
+            Your account information has been pre-filled. Click <strong>Edit Information</strong> to make changes.
           </p>
         )}
 
-        <Field label="Organization" placeholder="xyz ltd" {...field("organization")} />
+        <Field label="Organization" placeholder="xyz ltd" {...personalField("organization")} />
 
         <div className="grid grid-cols-2 gap-4">
-          <Field label="First Name" required placeholder="John" {...field("firstName")} />
-          <Field label="Last Name"  required placeholder="Doe"  {...field("lastName")}  />
+          <Field label="First Name" required placeholder="John" {...personalField("firstName")} />
+          <Field label="Last Name"  required placeholder="Doe"  {...personalField("lastName")}  />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Email"            required type="email" placeholder="you@example.com" {...field("email")} />
-          <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...field("phone")} />
+          <Field label="Email"            required type="email" placeholder="you@example.com" {...personalField("email")} />
+          <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...personalField("phone")} />
         </div>
 
-        <div className="h-px bg-[#F0F0F0] my-1" />
-        <Field
-          label="Address Line 1"
-          required
-          placeholder="Street number, house number and street name"
-          {...field("addressLine1")}
-        />
-        <div className="flex flex-col gap-1">
-          <label className="text-[13px] font-medium text-[#383838]">
-            Country<span className="text-[#EA3335] ml-0.5">*</span>
-          </label>
-          {isAuthenticated ? readOnlyInput("country") : (
-            <CustomDropdown
-              variant="form"
-              options={countryOptions}
-              value={countryCode}
-              onChange={handleCountryChange}
-              placeholder="Select country"
-              label="Countries"
-              maxHeight="220px"
-            />
+        {/* Address section - collapsible */}
+        <div className="border border-dashed border-[#E5E7EB] rounded-2xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setAddressExpanded((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-[#F9F9F9] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <p className="text-[13px] font-semibold text-[#383838]">Address Information</p>
+              {!addressExpanded && data.addressLine1?.trim() && (
+                <span className="text-[11px] text-[#737373] bg-white border border-[#E5E5E5] rounded-full px-2 py-0.5">
+                  {data.city ? `${data.city}, ${data.country}` : data.country}
+                </span>
+              )}
+            </div>
+            <ChevronIcon open={addressExpanded} />
+          </button>
+
+          {addressExpanded && (
+            <div className="flex flex-col gap-4 px-4 py-4">
+              <Field
+                label="Address Line 1"
+                required
+                placeholder="Street number, house number and street name"
+                {...addressField("addressLine1")}
+              />
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[13px] font-medium text-[#111827]">
+                  Country<span className="text-[#EA3335] ml-0.5">*</span>
+                </label>
+                <CustomDropdown
+                  variant="form"
+                  options={countryOptions}
+                  value={countryCode}
+                  onChange={handleCountryChange}
+                  placeholder="Select country"
+                  label="Countries"
+                  maxHeight="220px"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[13px] font-medium text-[#111827]">
+                    Province or State<span className="text-[#EA3335] ml-0.5">*</span>
+                  </label>
+                  <CustomDropdown
+                    variant="form"
+                    options={stateOptions}
+                    value={stateCode}
+                    onChange={handleStateChange}
+                    placeholder={countryCode ? "Select state" : "Select country first"}
+                    label="States"
+                    maxHeight="220px"
+                    disabled={!countryCode}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[13px] font-medium text-[#111827]">
+                    City<span className="text-[#EA3335] ml-0.5">*</span>
+                  </label>
+                  <CustomDropdown
+                    variant="form"
+                    options={cityOptions}
+                    value={data.city ?? ""}
+                    onChange={handleCityChange}
+                    placeholder={stateCode ? "Select city" : "Select state first"}
+                    label="Cities"
+                    maxHeight="220px"
+                    disabled={!stateCode}
+                  />
+                </div>
+              </div>
+
+              <Field
+                label="Zip or Postal Code"
+                required
+                placeholder="e.g. 10001"
+                {...addressField("zip")}
+              />
+            </div>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-[13px] font-medium text-[#383838]">
-              Province or State<span className="text-[#EA3335] ml-0.5">*</span>
-            </label>
-            {isAuthenticated ? readOnlyInput("province") : (
-              <CustomDropdown
-                variant="form"
-                options={stateOptions}
-                value={stateCode}
-                onChange={handleStateChange}
-                placeholder={countryCode ? "Select state" : "Select country first"}
-                label="States"
-                maxHeight="220px"
-                disabled={!countryCode}
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-[13px] font-medium text-[#383838]">
-              City<span className="text-[#EA3335] ml-0.5">*</span>
-            </label>
-            {isAuthenticated ? readOnlyInput("city") : (
-              <CustomDropdown
-                variant="form"
-                options={cityOptions}
-                value={data.city ?? ""}
-                onChange={handleCityChange}
-                placeholder={stateCode ? "Select city" : "Select state first"}
-                label="Cities"
-                maxHeight="220px"
-                disabled={!stateCode}
-              />
-            )}
-          </div>
-        </div>
-        <Field
-          label="Zip or Postal Code"
-          required
-          placeholder="e.g. 10001"
-          {...field("zip")}
-        />
 
         {error && <p className="text-[#EA3335] text-[13px]">{error}</p>}
 
       </div>
     </StepLayout>
   );
-}
+};
+
 export default Step1Info;
