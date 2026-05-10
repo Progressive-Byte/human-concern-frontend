@@ -99,8 +99,6 @@ const Step1Info = ({ campaignSlug }) => {
     setError("");
   };
 
-  // ── Effects ──────────────────────────────────────────────
-
   // Read sessionStorage campaign data on mount
   useEffect(() => {
     const campaign = campaignSlug ?? searchParams.get("campaign");
