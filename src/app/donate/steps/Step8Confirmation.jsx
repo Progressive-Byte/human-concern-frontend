@@ -34,7 +34,7 @@ const Step8Confirmation = () => {
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
       <div className="max-w-[700px] mx-auto">
-        <StepProgress current={8} />
+        <StepProgress current={6} />
 
         <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8">
           <h2 className="text-[24px] font-bold text-[#383838] mb-1">Complete Payment</h2>
