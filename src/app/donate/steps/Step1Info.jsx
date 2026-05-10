@@ -43,7 +43,7 @@ function resolveStateIso(stateName, countryIso) {
 
 const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, updateUser } = useAuth();
   const { handleNext } = useStepNavigation();
   const searchParams = useSearchParams();
 
@@ -266,6 +266,21 @@ const Step1Info = ({ campaignSlug }) => {
     if (causes.length > 0 && selectedCauseIds.length === 0) {
       setError("Please select at least one cause.");
       return;
+    }
+    if (isAuthenticated && editMode) {
+      updateUser({
+        organization: data.organization,
+        firstName:    data.firstName,
+        lastName:     data.lastName,
+        email:        data.email,
+        phone:        data.phone,
+        addressLine1: data.addressLine1,
+        city:         data.city,
+        province:     data.province,
+        zip:          data.zip,
+        country:      data.country,
+      });
+      setEditMode(false);
     }
     handleNext(4);
   };

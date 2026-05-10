@@ -104,6 +104,12 @@ export function AuthProvider({ children }) {
     return res;
   }
 
+  function updateUser(fields) {
+    const updated = { ...user, ...fields };
+    saveUser(updated);
+    setUser(updated);
+  }
+
   function logout() {
     doLogout();
   }
@@ -117,6 +123,7 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}
