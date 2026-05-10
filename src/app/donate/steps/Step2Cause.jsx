@@ -13,7 +13,6 @@ const Step2Cause = () => {
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
       const campaignCauses = meta.causes ?? [];
-      console.log("Campaign causes from sessionStorage:", campaignCauses);
       if (campaignCauses.length > 0) {
         return campaignCauses.map((c) => ({
           id:            c.id,
