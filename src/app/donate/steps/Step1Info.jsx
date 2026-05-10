@@ -190,7 +190,7 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  // ── Dropdown options ──────────────────────────────────────
+  // ── Dropdown options
 
   const countryOptions = useMemo(
     () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
