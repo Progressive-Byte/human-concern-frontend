@@ -11,7 +11,6 @@ import Field from "@/components/ui/Field";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import { ChevronIcon } from "@/components/common/SvgIcon";
 
-// Common 3-letter ISO → 2-letter ISO map for countries stored as abbreviations
 const ISO3_TO_ISO2 = {
   USA: "US", GBR: "GB", CAN: "CA", AUS: "AU", ARE: "AE",
   IND: "IN", PAK: "PK", BGD: "BD", NZL: "NZ", DEU: "DE",
@@ -42,20 +41,66 @@ function resolveStateIso(stateName, countryIso) {
   );
 }
 
+
 const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
   const { user, isAuthenticated } = useAuth();
   const { handleNext } = useStepNavigation();
   const searchParams = useSearchParams();
-  const [error, setError] = useState("");
-  const [editMode, setEditMode] = useState(false);
+
+  const [error, setError]           = useState("");
+  const [editMode, setEditMode]     = useState(false);
   const [addressExpanded, setAddressExpanded] = useState(true);
   const didAutoCollapse = useRef(false);
+  const prevAuthRef     = useRef(isAuthenticated);
 
   const [countryCode, setCountryCode] = useState("");
-  const [stateCode, setStateCode] = useState("");
+  const [stateCode,   setStateCode]   = useState("");
 
-  const prevAuthRef = useRef(isAuthenticated);
+  // ── Causes from sessionStorage (merged from Step2)
+  const causes = useMemo(() => {
+    try {
+      const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
+      const list = meta.causes ?? [];
+      return list.map((c) => ({
+        id:            c.id,
+        label:         c.name,
+        desc:          c.description  ?? "",
+        emoji:         c.iconEmoji    ?? "",
+        zakatEligible: c.zakatEligible ?? false,
+      }));
+    } catch { return []; }
+  }, []);
+
+  // ── Objectives from sessionStorage (merged from Step3, Ramadan only)
+  const objectives = useMemo(() => {
+    if (!data.isRamadan) return [];
+    try {
+      const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
+      return (meta.donationObjectives ?? []).map((obj) => ({
+        id:    obj.id,
+        label: obj.name  ?? obj.label ?? "",
+        desc:  obj.description ?? obj.desc ?? "",
+      }));
+    } catch { return []; }
+  }, [data.isRamadan]);
+
+  const selectedCauseIds = data.causeIds ?? [];
+
+  const toggleCause = (cause) => {
+    const isSelected = selectedCauseIds.includes(cause.id);
+    update({
+      causeIds: isSelected
+        ? selectedCauseIds.filter((id) => id !== cause.id)
+        : [...selectedCauseIds, cause.id],
+      causes: isSelected
+        ? (data.causes ?? []).filter((l) => l !== cause.label)
+        : [...(data.causes ?? []), cause.label],
+    });
+    setError("");
+  };
+
+  // ── Effects ──────────────────────────────────────────────
 
   // Read sessionStorage campaign data on mount
   useEffect(() => {
@@ -90,7 +135,7 @@ const Step1Info = ({ campaignSlug }) => {
     }
   }, [data.addressLine1, data.city]);
 
-  // Sync countryCode — handles full names, 2-letter codes, and 3-letter abbreviations (e.g. "USA")
+  // Sync countryCode
   useEffect(() => {
     if (data.country && !countryCode) {
       const iso = resolveCountryIso(data.country);
@@ -99,7 +144,7 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.country]);
 
-  // Sync stateCode after countryCode is resolved
+  // Sync stateCode after countryCode resolves
   useEffect(() => {
     if (data.province && countryCode && !stateCode) {
       const iso = resolveStateIso(data.province, countryCode);
@@ -108,20 +153,20 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.province, countryCode]);
 
-  // Prefill personal + address fields from user profile
+  // Prefill from user profile
   useEffect(() => {
     if (isAuthenticated && user) {
       update({
-        organization: user.organization             ?? "",
-        firstName:    user.firstName                ?? "",
-        lastName:     user.lastName                 ?? "",
-        email:        user.email                    ?? "",
-        phone:        user.phone                    ?? "",
-        addressLine1: user.address?.line1           ?? user.addressLine1   ?? "",
-        city:         user.address?.city            ?? user.city           ?? "",
-        province:     user.address?.state           ?? user.state          ?? "",
-        zip:          user.address?.postalCode      ?? user.postalCode     ?? "",
-        country:      user.country                  ?? user.address?.country ?? "",
+        organization: user.organization           ?? "",
+        firstName:    user.firstName              ?? "",
+        lastName:     user.lastName               ?? "",
+        email:        user.email                  ?? "",
+        phone:        user.phone                  ?? "",
+        addressLine1: user.address?.line1         ?? user.addressLine1 ?? "",
+        city:         user.address?.city          ?? user.city         ?? "",
+        province:     user.address?.state         ?? user.state        ?? "",
+        zip:          user.address?.postalCode    ?? user.postalCode   ?? "",
+        country:      user.country                ?? user.address?.country ?? "",
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,6 +180,7 @@ const Step1Info = ({ campaignSlug }) => {
       update({
         organization: "", firstName: "", lastName: "", email: "", phone: "",
         addressLine1: "", city: "", province: "", zip: "", country: "",
+        causeIds: [], causes: [], objective: null, objectiveLabel: "",
       });
       setCountryCode("");
       setStateCode("");
@@ -145,6 +191,8 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
+  // ── Dropdown options ──────────────────────────────────────
+
   const countryOptions = useMemo(
     () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
     []
@@ -154,11 +202,14 @@ const Step1Info = ({ campaignSlug }) => {
     [countryCode]
   );
   const cityOptions = useMemo(
-    () => countryCode && stateCode ? City.getCitiesOfState(countryCode, stateCode).map((c) => ({ value: c.name, label: c.name })) : [],
+    () => countryCode && stateCode
+      ? City.getCitiesOfState(countryCode, stateCode).map((c) => ({ value: c.name, label: c.name }))
+      : [],
     [countryCode, stateCode]
   );
 
-  // Personal field is locked when authenticated, not editing, and has a value
+  // ── Field helpers ─────────────────────────────────────────
+
   const isLocked = (key) => isAuthenticated && !editMode && Boolean(data[key]?.trim());
 
   const personalField = (key) => ({
@@ -192,6 +243,8 @@ const Step1Info = ({ campaignSlug }) => {
     setError("");
   };
 
+  // ── Validation + Submit ───────────────────────────────────
+
   const validateAndNext = () => {
     if (
       !data.firstName?.trim()    ||
@@ -211,60 +264,68 @@ const Step1Info = ({ campaignSlug }) => {
       setError("Enter a valid email address.");
       return;
     }
-    handleNext(2);
+    if (causes.length > 0 && selectedCauseIds.length === 0) {
+      setError("Please select at least one cause.");
+      return;
+    }
+    handleNext(4);
   };
+
+  // ── Render ────────────────────────────────────────────────
 
   return (
     <StepLayout
       step={1}
       title="Personal Info"
-      subtitle="Share some necessary personal information for security"
+      subtitle="Fill in your details, select your cause, and configure your donation"
       onNext={validateAndNext}
-      nextLabel="Cause"
+      nextLabel="Payment"
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-5">
 
-        {/* Personal info header */}
-        <div className="flex items-center justify-between">
-          <p className="text-[13px] font-semibold text-[#383838]">Personal Information</p>
+        {/* ── Personal info ── */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <p className="text-[13px] font-semibold text-[#383838]">Personal Information</p>
+            {isAuthenticated && !editMode && (
+              <button
+                type="button"
+                onClick={() => setEditMode(true)}
+                className="text-[12px] font-medium text-[#EA3335] hover:underline transition-colors cursor-pointer"
+              >
+                Edit Information
+              </button>
+            )}
+            {isAuthenticated && editMode && (
+              <button
+                type="button"
+                onClick={() => setEditMode(false)}
+                className="text-[12px] font-medium text-[#737373] hover:text-[#383838] transition-colors cursor-pointer"
+              >
+                Lock Fields
+              </button>
+            )}
+          </div>
+
           {isAuthenticated && !editMode && (
-            <button
-              type="button"
-              onClick={() => setEditMode(true)}
-              className="text-[12px] font-medium text-[#EA3335] hover:underline transition-colors cursor-pointer"
-            >
-              Edit Information
-            </button>
+            <p className="text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
+              Your account information has been pre-filled. Click <strong>Edit Information</strong> to make changes.
+            </p>
           )}
-          {isAuthenticated && editMode && (
-            <button
-              type="button"
-              onClick={() => setEditMode(false)}
-              className="text-[12px] font-medium text-[#737373] hover:text-[#383838] transition-colors cursor-pointer"
-            >
-              Lock Fields
-            </button>
-          )}
+
+          <Field label="Organization" placeholder="xyz ltd" {...personalField("organization")} />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="First Name" required placeholder="John" {...personalField("firstName")} />
+            <Field label="Last Name"  required placeholder="Doe"  {...personalField("lastName")}  />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Email"            required type="email" placeholder="you@example.com" {...personalField("email")} />
+            <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...personalField("phone")} />
+          </div>
         </div>
 
-        {isAuthenticated && !editMode && (
-          <p className="text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
-            Your account information has been pre-filled. Click <strong>Edit Information</strong> to make changes.
-          </p>
-        )}
-
-        <Field label="Organization" placeholder="xyz ltd" {...personalField("organization")} />
-
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="First Name" required placeholder="John" {...personalField("firstName")} />
-          <Field label="Last Name"  required placeholder="Doe"  {...personalField("lastName")}  />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Email"            required type="email" placeholder="you@example.com" {...personalField("email")} />
-          <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...personalField("phone")} />
-        </div>
-
-        {/* Address section - collapsible */}
+        {/* ── Address (collapsible) ── */}
         <div className="border border-dashed border-[#E5E7EB] rounded-2xl">
           <button
             type="button"
@@ -311,32 +372,66 @@ const Step1Info = ({ campaignSlug }) => {
                   <label className="text-[13px] font-medium text-[#111827]">
                     Province or State<span className="text-[#EA3335] ml-0.5">*</span>
                   </label>
-                  <CustomDropdown
-                    variant="form"
-                    options={stateOptions}
-                    value={stateCode}
-                    onChange={handleStateChange}
-                    placeholder={countryCode ? "Select state" : "Select country first"}
-                    label="States"
-                    maxHeight="220px"
-                    disabled={!countryCode}
-                  />
+                  {!stateCode && data.province?.trim() ? (
+                    <div className="relative">
+                      <input
+                        readOnly
+                        value={data.province}
+                        className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { update({ province: "", city: "" }); setStateCode(""); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  ) : (
+                    <CustomDropdown
+                      variant="form"
+                      options={stateOptions}
+                      value={stateCode}
+                      onChange={handleStateChange}
+                      placeholder={countryCode ? "Select state" : "Select country first"}
+                      label="States"
+                      maxHeight="220px"
+                      disabled={!countryCode}
+                    />
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-1">
                   <label className="text-[13px] font-medium text-[#111827]">
                     City<span className="text-[#EA3335] ml-0.5">*</span>
                   </label>
-                  <CustomDropdown
-                    variant="form"
-                    options={cityOptions}
-                    value={data.city ?? ""}
-                    onChange={handleCityChange}
-                    placeholder={stateCode ? "Select city" : "Select state first"}
-                    label="Cities"
-                    maxHeight="220px"
-                    disabled={!stateCode}
-                  />
+                  {!stateCode && data.city?.trim() ? (
+                    <div className="relative">
+                      <input
+                        readOnly
+                        value={data.city}
+                        className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { update({ city: "" }); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  ) : (
+                    <CustomDropdown
+                      variant="form"
+                      options={cityOptions}
+                      value={data.city ?? ""}
+                      onChange={handleCityChange}
+                      placeholder={stateCode ? "Select city" : "Select state first"}
+                      label="Cities"
+                      maxHeight="220px"
+                      disabled={!stateCode}
+                    />
+                  )}
                 </div>
               </div>
 
@@ -349,6 +444,81 @@ const Step1Info = ({ campaignSlug }) => {
             </div>
           )}
         </div>
+
+        {/* ── Causes (merged from Step2) ── */}
+        {causes.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[13px] font-semibold text-[#383838]">Select Cause</p>
+              <span className="text-[13px] text-[#8C8C8C]">
+                <span className="text-[#000000] font-normal">{selectedCauseIds.length} selected</span>
+                {" "}of {causes.length}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {causes.map((cause) => {
+                const active = selectedCauseIds.includes(cause.id);
+                return (
+                  <button
+                    key={cause.id}
+                    type="button"
+                    onClick={() => toggleCause(cause)}
+                    className={`flex flex-col items-start gap-2 rounded-xl p-4 border text-left transition-all cursor-pointer ${
+                      active
+                        ? "border-[#EA3335] bg-[#FFF5F5]"
+                        : "border-[#E5E5E5] hover:border-[#CCCCCC] hover:bg-[#FAFAFA]"
+                    }`}
+                  >
+                    {cause.emoji && (
+                      <span className="text-[28px] leading-none">{cause.emoji}</span>
+                    )}
+                    <div>
+                      <p className="text-[14px] font-semibold text-[#383838]">{cause.label}</p>
+                      {cause.desc && (
+                        <p className="text-[12px] text-[#8C8C8C] mt-0.5">{cause.desc}</p>
+                      )}
+                      {cause.zakatEligible && (
+                        <span className="inline-block mt-2 text-[11px] font-medium text-[#8C8C8C] bg-white rounded-full px-1.5 py-0.5">
+                          Zakat Eligible
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Objectives (merged from Step3, Ramadan only) ── */}
+        {data.isRamadan && objectives.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <p className="text-[13px] font-semibold text-[#383838]">
+              Select Objective
+              <span className="ml-1.5 text-[#8C8C8C] font-normal">(optional)</span>
+            </p>
+            {objectives.map((obj) => {
+              const active = data.objective === obj.id;
+              return (
+                <button
+                  key={obj.id}
+                  type="button"
+                  onClick={() => update({ objective: obj.id, objectiveLabel: obj.label })}
+                  className={`w-full flex flex-col items-start rounded-2xl px-5 py-4 border text-left transition-all cursor-pointer ${
+                    active
+                      ? "border-[#EA3335] bg-white"
+                      : "border-[#E5E5E5] hover:border-[#CCCCCC] bg-white"
+                  }`}
+                >
+                  <p className="text-[14px] font-semibold text-[#383838]">{obj.label}</p>
+                  {obj.desc && (
+                    <p className="text-[12px] text-[#8C8C8C] mt-0.5">{obj.desc}</p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {error && <p className="text-[#EA3335] text-[13px]">{error}</p>}
 

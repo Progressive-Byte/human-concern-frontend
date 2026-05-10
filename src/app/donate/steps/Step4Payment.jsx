@@ -129,7 +129,7 @@ const Step4Payment = () => {
         });
         handleNext(5);
       }}
-      onPrev={() => handlePrev(data.isRamadan ? 3 : 2)}
+      onPrev={() => handlePrev(1)}
       prevLabel="Back"
       nextLabel="Add-ons"
     >
