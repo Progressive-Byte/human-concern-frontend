@@ -10,9 +10,7 @@ const STEPS = [
   "Cause",
   "Objectives",
   "Payment",
-  "Addons",
-  "Summary",
-  "Payment Details",
+  "Add-ons & Pay",
   "Confirmation",
 ];
 
