@@ -99,7 +99,7 @@ const DonationPreview = ({ currentStep }) => {
                 <div key={addon.id ?? addon.name} className="flex items-center justify-between gap-2">
                   <p className="text-[12px] text-[#383838] truncate">{addon.name}</p>
                   <p className="text-[12px] font-medium text-[#383838] shrink-0">
-                    {sym}{Number(addon.amount ?? 0).toFixed(2)}
+                    {sym}{Number(addon.total ?? 0).toFixed(2)}
                   </p>
                 </div>
               ))}
