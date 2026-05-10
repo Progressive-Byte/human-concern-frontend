@@ -41,7 +41,6 @@ function resolveStateIso(stateName, countryIso) {
   );
 }
 
-
 const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
   const { user, isAuthenticated } = useAuth();
