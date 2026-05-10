@@ -98,6 +98,22 @@ export function getAdminCategories({ page, limit, sort, order, q, status } = {})
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
+export function createAdminCategory(payload) {
+  return adminApiRequest("/admin/categories", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function getAdminCategoryById(categoryId) {
+  return adminApiRequest(`/admin/categories/${categoryId}`, { method: "GET" });
+}
+
+export function updateAdminCategory(categoryId, payload) {
+  return adminApiRequest(`/admin/categories/${categoryId}`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function deleteAdminCategory(categoryId) {
+  return adminApiRequest(`/admin/categories/${categoryId}`, { method: "DELETE" });
+}
+
 export function createAdminCampaignForm(campaignId, payload) {
   return adminApiRequest(`/admin/campaigns/${campaignId}/forms`, { method: "POST", body: JSON.stringify(payload) });
 }
@@ -153,6 +169,30 @@ export function getAdminCauses({ page, limit, sort, order, q, status, enabled } 
   const endpoint = query ? `/admin/causes?${query}` : "/admin/causes";
 
   return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function createAdminCause(payload) {
+  return adminApiRequest("/admin/causes", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function getAdminCauseById(causeId) {
+  return adminApiRequest(`/admin/causes/${causeId}`, { method: "GET" });
+}
+
+export function updateAdminCause(causeId, payload) {
+  return adminApiRequest(`/admin/causes/${causeId}`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function deleteAdminCause(causeId) {
+  return adminApiRequest(`/admin/causes/${causeId}`, { method: "DELETE" });
+}
+
+export function archiveAdminCause(causeId) {
+  return adminApiRequest(`/admin/causes/${causeId}/archive`, { method: "POST" });
+}
+
+export function restoreAdminCause(causeId) {
+  return adminApiRequest(`/admin/causes/${causeId}/restore`, { method: "POST" });
 }
 
 export function getAdminObjectives({ page, limit, sort, order, q, status, enabled } = {}) {

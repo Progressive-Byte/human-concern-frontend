@@ -177,6 +177,20 @@ function Icon({ name }) {
     );
   }
 
+  if (name === "categories") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path
+          d="M20 13l-7 7-11-11V2h7L20 13z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <path d="M7.5 7.5h.01" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
       <path
@@ -206,7 +220,8 @@ const navItems = [
   { href: "/admin", label: "Overview", icon: "overview" },
   { href: "/admin/campaigns", label: "Campaigns", icon: "campaigns" },
   { href: "/admin/forms", label: "Forms", icon: "forms" },
-  { href: null, label: "Causes", icon: "causes", disabled: true },
+  { href: "/admin/categories", label: "Categories", icon: "categories" },
+  { href: "/admin/causes", label: "Causes", icon: "causes" },
   { href: null, label: "Addons", icon: "addons", disabled: true },
   { href: null, label: "Objectives", icon: "objectives", disabled: true },
   { href: null, label: "Donors", icon: "donors", disabled: true },
