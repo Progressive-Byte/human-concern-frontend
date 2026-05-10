@@ -11,9 +11,7 @@ const STEP_LABELS = [
   "Cause",
   "Objectives",
   "Payment",
-  "Addons",
-  "Summary",
-  "Payment Details",
+  "Add-ons & Pay",
   "Confirmation",
 ];
 
