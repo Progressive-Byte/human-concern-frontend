@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import StepProgress from "./StepProgress";
+import DonationPreview from "./DonationPreview";
 import { ArrowNextIcon, ArrowPrevIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
 const STEP_LABELS = [
