@@ -242,7 +242,7 @@ const Step1Info = ({ campaignSlug }) => {
     setError("");
   };
 
-  // ── Validation + Submit ───────────────────────────────────
+  // ── Validation + Submit
 
   const validateAndNext = () => {
     if (
