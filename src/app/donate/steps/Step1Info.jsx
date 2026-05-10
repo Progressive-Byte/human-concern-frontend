@@ -207,7 +207,7 @@ const Step1Info = ({ campaignSlug }) => {
     [countryCode, stateCode]
   );
 
-  // ── Field helpers ─────────────────────────────────────────
+  // ── Field helpers
 
   const isLocked = (key) => isAuthenticated && !editMode && Boolean(data[key]?.trim());
 
