@@ -12,7 +12,7 @@ export default function CategoryUpsertModal({ open, mode, category, onClose, onS
   const [error, setError] = useState("");
 
   const [name, setName] = useState("");
-  const [active, setActive] = useState(true);
+  const [archived, setArchived] = useState(false);
 
   const title = useMemo(() => (isEdit ? "Edit Category" : "Create New Category"), [isEdit]);
   const primaryLabel = useMemo(() => (isEdit ? "Save Changes" : "Create Category"), [isEdit]);
@@ -33,12 +33,12 @@ export default function CategoryUpsertModal({ open, mode, category, onClose, onS
 
     if (!isEdit) {
       setName("");
-      setActive(true);
+      setArchived(false);
       return;
     }
 
     setName(String(category?.name || ""));
-    setActive(String(category?.status || "").toLowerCase() === "active");
+    setArchived(String(category?.status || "").toLowerCase() === "archived");
   }, [open, isEdit, category]);
 
   useEffect(() => {
@@ -56,7 +56,6 @@ export default function CategoryUpsertModal({ open, mode, category, onClose, onS
 
     const payload = {
       name: String(name || "").trim(),
-      status: active ? "active" : "inactive",
     };
 
     if (!payload.name) {
@@ -69,7 +68,11 @@ export default function CategoryUpsertModal({ open, mode, category, onClose, onS
       if (isEdit) {
         const id = String(category?.id || "");
         if (!id) throw new Error("Missing category id.");
-        await updateAdminCategory(id, payload);
+        const updatePayload = {
+          ...payload,
+          status: archived ? "archived" : "active",
+        };
+        await updateAdminCategory(id, updatePayload);
         toast.success("Category updated");
       } else {
         await createAdminCategory(payload);
@@ -127,22 +130,19 @@ export default function CategoryUpsertModal({ open, mode, category, onClose, onS
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-[13px] font-semibold text-[#111827]">
-                <input
-                  type="checkbox"
-                  checked={active}
-                  onChange={(e) => setActive(e.target.checked)}
-                  className="h-4 w-4 accent-red-600"
-                />
-                Active
-              </label>
-              {isEdit ? (
-                <div className="text-[12px] text-[#6B7280]">
-                  Key: <span className="font-semibold text-[#111827]">{String(category?.key || "—")}</span>
-                </div>
-              ) : null}
-            </div>
+            {isEdit ? (
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-[13px] font-semibold text-[#111827]">
+                  <input
+                    type="checkbox"
+                    checked={archived}
+                    onChange={(e) => setArchived(e.target.checked)}
+                    className="h-4 w-4 accent-red-600"
+                  />
+                  Archived
+                </label>
+              </div>
+            ) : null}
 
             <div className="flex items-center justify-end gap-3 pt-1">
               <button

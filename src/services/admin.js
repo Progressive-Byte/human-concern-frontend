@@ -220,6 +220,26 @@ export function getAdminObjectives({ page, limit, sort, order, q, status, enable
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
+export function createAdminObjective(payload) {
+  return adminApiRequest("/admin/objectives", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function getAdminObjectiveById(objectiveId) {
+  return adminApiRequest(`/admin/objectives/${objectiveId}`, { method: "GET" });
+}
+
+export function updateAdminObjective(objectiveId, payload) {
+  return adminApiRequest(`/admin/objectives/${objectiveId}`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function archiveAdminObjective(objectiveId) {
+  return adminApiRequest(`/admin/objectives/${objectiveId}/archive`, { method: "POST" });
+}
+
+export function restoreAdminObjective(objectiveId) {
+  return adminApiRequest(`/admin/objectives/${objectiveId}/restore`, { method: "POST" });
+}
+
 export function getAdminAddOns({ page, limit, sort, order, q, status, enabled } = {}) {
   const params = new URLSearchParams();
 

@@ -223,7 +223,7 @@ const navItems = [
   { href: "/admin/categories", label: "Categories", icon: "categories" },
   { href: "/admin/causes", label: "Causes", icon: "causes" },
   { href: null, label: "Addons", icon: "addons", disabled: true },
-  { href: null, label: "Objectives", icon: "objectives", disabled: true },
+  { href: "/admin/objectives", label: "Objectives", icon: "objectives" },
   { href: null, label: "Donors", icon: "donors", disabled: true },
   { href: null, label: "Transactions", icon: "transactions", disabled: true },
   { href: "/admin/donations", label: "Donations", icon: "donations" },

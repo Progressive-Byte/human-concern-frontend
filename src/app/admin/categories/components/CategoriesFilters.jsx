@@ -28,9 +28,8 @@ export default function CategoriesFilters({ q, status, onChangeQ, onChangeStatus
       >
         <option value="">All Status</option>
         <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
+        <option value="archived">Archived</option>
       </select>
     </div>
   );
 }
-

@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { archiveAdminCategory, getAdminCategories, restoreAdminCategory } from "@/services/admin";
-import CategoriesHeader from "./components/CategoriesHeader";
-import CategoriesSummaryCards from "./components/CategoriesSummaryCards";
-import CategoriesFilters from "./components/CategoriesFilters";
-import CategoriesTable from "./components/CategoriesTable";
-import CategoryUpsertModal from "./components/CategoryUpsertModal";
+import { archiveAdminObjective, getAdminObjectives, restoreAdminObjective } from "@/services/admin";
+import ObjectivesHeader from "./components/ObjectivesHeader";
+import ObjectivesSummaryCards from "./components/ObjectivesSummaryCards";
+import ObjectivesFilters from "./components/ObjectivesFilters";
+import ObjectivesTable from "./components/ObjectivesTable";
+import ObjectiveUpsertModal from "./components/ObjectiveUpsertModal";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { AlertIcon } from "@/components/common/SvgIcon";
 
@@ -25,31 +25,30 @@ function normalizeItemsResponse(res) {
   return res?.data?.items || res?.data?.data?.items || res?.items || [];
 }
 
-function normalizeMeta(res) {
-  return res?.meta || res?.data?.meta || res?.data?.data?.meta || null;
-}
-
-function normalizeCategory(raw) {
-  const id = String(raw?._id || raw?.id || "");
-  const key = String(raw?.key || "");
+function normalizeObjective(raw) {
+  const id = String(raw?.id || raw?._id || "");
   const name = String(raw?.name || "");
+  const slug = String(raw?.slug || "");
+  const description = String(raw?.description || "");
+  const iconEmoji = String(raw?.iconEmoji || raw?.icon || raw?.emoji || "");
+  const ramadanOnly = Boolean(raw?.ramadanOnly ?? false);
   const status = String(raw?.status || "");
   const createdAt = String(raw?.createdAt || "");
-  const updatedAt = String(raw?.updatedAt || "");
 
-  return { id, key, name, status, createdAt, updatedAt };
+  return { id, name, slug, description, iconEmoji, ramadanOnly, status, createdAt };
 }
 
-export default function AdminCategoriesPage() {
+export default function AdminObjectivesPage() {
   const toast = useToast();
 
   const [filters, setFilters] = useState({
     page: "1",
-    limit: "10",
+    limit: "20",
     sort: "createdAt",
     order: "desc",
     q: "",
     status: "",
+    ramadanOnly: "",
   });
 
   const debouncedQ = useDebouncedValue(filters.q, 300);
@@ -62,7 +61,7 @@ export default function AdminCategoriesPage() {
 
   const [upsertOpen, setUpsertOpen] = useState(false);
   const [upsertMode, setUpsertMode] = useState("create");
-  const [upsertCategory, setUpsertCategory] = useState(null);
+  const [upsertObjective, setUpsertObjective] = useState(null);
 
   function refresh() {
     setRefreshKey((v) => v + 1);
@@ -70,13 +69,13 @@ export default function AdminCategoriesPage() {
 
   function openCreate() {
     setUpsertMode("create");
-    setUpsertCategory(null);
+    setUpsertObjective(null);
     setUpsertOpen(true);
   }
 
-  function openEdit(category) {
+  function openEdit(objective) {
     setUpsertMode("edit");
-    setUpsertCategory(category || null);
+    setUpsertObjective(objective || null);
     setUpsertOpen(true);
   }
 
@@ -87,23 +86,24 @@ export default function AdminCategoriesPage() {
       setLoading(true);
       setError("");
       try {
-        const res = await getAdminCategories({
+        const res = await getAdminObjectives({
           page: filters.page,
           limit: filters.limit,
           sort: filters.sort,
           order: filters.order,
           q: debouncedQ,
           status: filters.status,
+          ramadanOnly: filters.ramadanOnly,
         });
         if (!alive) return;
 
         const rawItems = normalizeItemsResponse(res);
-        const normalized = (Array.isArray(rawItems) ? rawItems : []).map(normalizeCategory);
+        const normalized = (Array.isArray(rawItems) ? rawItems : []).map(normalizeObjective);
         setItems(normalized);
-        setMeta(normalizeMeta(res));
+        setMeta(res?.meta || res?.data?.meta || res?.data?.data?.meta || null);
       } catch (err) {
         if (!alive) return;
-        setError(err?.message || "Failed to load categories.");
+        setError(err?.message || "Failed to load objectives.");
         setItems([]);
         setMeta(null);
       } finally {
@@ -116,14 +116,23 @@ export default function AdminCategoriesPage() {
     return () => {
       alive = false;
     };
-  }, [filters.page, filters.limit, filters.sort, filters.order, filters.status, debouncedQ, refreshKey]);
+  }, [
+    filters.page,
+    filters.limit,
+    filters.sort,
+    filters.order,
+    filters.status,
+    filters.ramadanOnly,
+    debouncedQ,
+    refreshKey,
+  ]);
 
-  async function handleArchive(category) {
-    const id = category?.id;
+  async function handleArchive(objective) {
+    const id = objective?.id;
     if (!id) return;
 
     try {
-      await archiveAdminCategory(id);
+      await archiveAdminObjective(id);
       toast.success("Archived");
       refresh();
     } catch (e) {
@@ -131,12 +140,12 @@ export default function AdminCategoriesPage() {
     }
   }
 
-  async function handleRestore(category) {
-    const id = category?.id;
+  async function handleRestore(objective) {
+    const id = objective?.id;
     if (!id) return;
 
     try {
-      await restoreAdminCategory(id);
+      await restoreAdminObjective(id);
       toast.success("Restored");
       refresh();
     } catch (e) {
@@ -144,27 +153,16 @@ export default function AdminCategoriesPage() {
     }
   }
 
-  const computedSummary = useMemo(() => {
+  const summary = useMemo(() => {
     const total = items.length;
-    const active = items.filter((c) => String(c.status).toLowerCase() === "active").length;
-    const archived = items.filter((c) => String(c.status).toLowerCase() === "archived").length;
-    return { total, active, archived };
+    const active = items.filter((i) => String(i.status).toLowerCase() === "active").length;
+    const ramadanOnly = items.filter((i) => i.ramadanOnly).length;
+    return { total, active, ramadanOnly };
   }, [items]);
-
-  const pagination = meta?.pagination || meta?.meta?.pagination || null;
-
-  function setPage(next) {
-    setFilters((prev) => ({ ...prev, page: String(next) }));
-  }
-
-  const currentPage = Number(pagination?.page || filters.page || 1);
-  const limit = Number(pagination?.limit || filters.limit || 10);
-  const total = Number(pagination?.total || 0);
-  const totalPages = total ? Math.max(1, Math.ceil(total / Math.max(1, limit))) : 1;
 
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
-      <CategoriesHeader onCreate={openCreate} />
+      <ObjectivesHeader onCreate={openCreate} />
 
       {error ? (
         <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
@@ -173,32 +171,31 @@ export default function AdminCategoriesPage() {
         </div>
       ) : null}
 
-      <CategoriesSummaryCards summary={meta?.summary || computedSummary} loading={loading} />
+      <ObjectivesSummaryCards summary={meta?.summary || summary} loading={loading} />
 
       <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
-        <CategoriesFilters
+        <ObjectivesFilters
           q={filters.q}
           status={filters.status}
+          ramadanOnly={filters.ramadanOnly}
           onChangeQ={(next) => setFilters((prev) => ({ ...prev, page: "1", q: next }))}
           onChangeStatus={(next) => setFilters((prev) => ({ ...prev, page: "1", status: next }))}
+          onChangeRamadanOnly={(next) => setFilters((prev) => ({ ...prev, page: "1", ramadanOnly: next }))}
         />
       </div>
 
-      <CategoriesTable
+      <ObjectivesTable
         items={items}
         loading={loading}
-        pagination={{ page: currentPage, totalPages, total, limit }}
-        onPrevPage={() => setPage(Math.max(1, currentPage - 1))}
-        onNextPage={() => setPage(Math.min(totalPages, currentPage + 1))}
         onEdit={openEdit}
         onArchive={handleArchive}
         onRestore={handleRestore}
       />
 
-      <CategoryUpsertModal
+      <ObjectiveUpsertModal
         open={upsertOpen}
         mode={upsertMode}
-        category={upsertCategory}
+        objective={upsertObjective}
         onClose={() => setUpsertOpen(false)}
         onSuccess={() => refresh()}
       />

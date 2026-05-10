@@ -1,15 +1,10 @@
 import KpiCard from "@/app/admin/components/KpiCard";
 
-function TagIcon() {
+function TargetIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-      <path
-        d="M20 13l-7 7-11-11V2h7L20 13z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path d="M7.5 7.5h.01" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }
@@ -22,10 +17,15 @@ function CheckIcon() {
   );
 }
 
-function MinusIcon() {
+function MoonIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-      <path d="M6 12h12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      <path
+        d="M21 14.5A8.5 8.5 0 0 1 9.5 3a7 7 0 1 0 11.5 11.5z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -44,7 +44,7 @@ function SkeletonCard() {
   );
 }
 
-export default function CategoriesSummaryCards({ summary, loading }) {
+export default function ObjectivesSummaryCards({ summary, loading }) {
   const s = summary || {};
 
   return (
@@ -57,9 +57,9 @@ export default function CategoriesSummaryCards({ summary, loading }) {
         </>
       ) : (
         <>
-          <KpiCard label="Total Categories" value={Number(s.total || 0)} icon={<TagIcon />} iconPosition="left" />
+          <KpiCard label="Total Objectives" value={Number(s.total || 0)} icon={<TargetIcon />} iconPosition="left" />
           <KpiCard label="Active" value={Number(s.active || 0)} icon={<CheckIcon />} iconPosition="left" />
-          <KpiCard label="Archived" value={Number(s.archived || 0)} icon={<MinusIcon />} iconPosition="left" />
+          <KpiCard label="Ramadan Only" value={Number(s.ramadanOnly || 0)} icon={<MoonIcon />} iconPosition="left" />
         </>
       )}
     </section>
