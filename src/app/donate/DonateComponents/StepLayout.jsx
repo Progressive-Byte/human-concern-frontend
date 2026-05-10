@@ -17,7 +17,7 @@ const STEP_LABELS = [
   "Confirmation",
 ];
 
-export default function StepLayout({
+const StepLayout = ({
   step,
   title,
   subtitle = "Share some necessary personal information for security",
@@ -26,7 +26,7 @@ export default function StepLayout({
   onPrev,
   nextLabel,
   prevLabel,
-}) {
+}) => {
   const router = useRouter();
   const { data } = useDonation();
   const base = data.campaign ? `/${data.campaign}` : "/donate";
@@ -89,3 +89,4 @@ export default function StepLayout({
     </main>
   );
 }
+export default StepLayout;
