@@ -19,6 +19,8 @@ const Step1Info = ({ campaignSlug }) => {
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState(false);
 
+  console.log("Step1Info render", { data, user, isAuthenticated });
+
   const hasAddress = Boolean(data.addressLine1?.trim() || data.city?.trim());
   const [addressExpanded, setAddressExpanded] = useState(!hasAddress);
 
