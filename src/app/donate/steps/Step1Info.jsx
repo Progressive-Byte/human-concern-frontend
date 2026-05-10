@@ -265,7 +265,7 @@ const Step1Info = ({ campaignSlug }) => {
         </div>
 
         {/* Address section - collapsible */}
-        <div className="border border-dashed border-[#E5E7EB] rounded-2xl overflow-hidden">
+        <div className="border border-dashed border-[#E5E7EB] rounded-2xl">
           <button
             type="button"
             onClick={() => setAddressExpanded((v) => !v)}
