@@ -285,8 +285,6 @@ const Step1Info = ({ campaignSlug }) => {
     handleNext(4);
   };
 
-  // ── Render ────────────────────────────────────────────────
-
   return (
     <StepLayout
       step={1}
