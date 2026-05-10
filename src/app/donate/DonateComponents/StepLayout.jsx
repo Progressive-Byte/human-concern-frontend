@@ -36,44 +36,50 @@ export default function StepLayout({
   const resolvedNextLabel = nextLabel ?? STEP_LABELS[step] ?? "Continue";
   const resolvedPrevLabel = prevLabel ?? STEP_LABELS[step - 2] ?? "Back";
 
+  const showPreview = step >= 4;
+
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
-      <div className="max-w-[700px] mx-auto">
+      <div className={`mx-auto ${showPreview ? "max-w-[1024px]" : "max-w-[700px]"}`}>
         <StepProgress current={step} />
 
-        <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8">
-          <h2 className="text-[24px] font-bold text-[#383838] mb-1">{title}</h2>
-          <p className="text-sm text-[#8C8C8C] font-normal mb-6">{subtitle}</p>
-          {children}
+        <div className={showPreview ? "flex flex-col lg:flex-row items-start gap-5" : ""}>
+          <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8 flex-1 min-w-0 w-full">
+            <h2 className="text-[24px] font-bold text-[#383838] mb-1">{title}</h2>
+            <p className="text-sm text-[#8C8C8C] font-normal mb-6">{subtitle}</p>
+            {children}
 
-          <div className="mt-8 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
-            {NoticeIcon}
-            <span className="text-[12px] text-[#AEAEAE]">
-              Your payment is secured with 256-bit SSL encryption
-            </span>
-          </div>
-          <div className="flex items-center justify-between mt-5 gap-3">
-            <div>
-              {step > 1 ? (
-                <button
-                  onClick={() => onPrev ? onPrev() : router.push(`${base}/${step - 1}`)}
-                  className="flex items-center gap-1.5 px-5 py-2.5 text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"
-                >
-                  {ArrowPrevIcon}
-                  {resolvedPrevLabel}
-                </button>
-              ) : (
-                <div />
-              )}
+            <div className="mt-8 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
+              {NoticeIcon}
+              <span className="text-[12px] text-[#AEAEAE]">
+                Your payment is secured with 256-bit SSL encryption
+              </span>
             </div>
-            <button
-              onClick={onNext}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[14px] font-semibold transition-all cursor-pointer"
-            >
-              {resolvedNextLabel}
-              {ArrowNextIcon}
-            </button>
+            <div className="flex items-center justify-between mt-5 gap-3">
+              <div>
+                {step > 1 ? (
+                  <button
+                    onClick={() => onPrev ? onPrev() : router.push(`${base}/${step - 1}`)}
+                    className="flex items-center gap-1.5 px-5 py-2.5 text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"
+                  >
+                    {ArrowPrevIcon}
+                    {resolvedPrevLabel}
+                  </button>
+                ) : (
+                  <div />
+                )}
+              </div>
+              <button
+                onClick={onNext}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[14px] font-semibold transition-all cursor-pointer"
+              >
+                {resolvedNextLabel}
+                {ArrowNextIcon}
+              </button>
+            </div>
           </div>
+
+          {showPreview && <DonationPreview currentStep={step} />}
         </div>
 
         <p className="text-center text-[12px] text-[#AEAEAE] mt-4">
