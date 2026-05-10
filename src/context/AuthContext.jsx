@@ -42,6 +42,17 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      deleteCookie("token");
+      saveUser(null);
+      setUser(null);
+      router.push("/user/login");
+    };
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, [router]);
+
   async function login(credentials) {
     const res = await apiLogin(credentials);
     const { user, accessToken } = res.data;
