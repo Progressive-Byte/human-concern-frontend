@@ -81,7 +81,7 @@ const Step8Confirmation = () => {
           </div>
 
           <p className="text-center text-[12px] text-[#AEAEAE] mt-4">
-            Step 8 of {data.isRamadan ? 8 : 7} — Your information is secure and encrypted.
+            Your information is secure and encrypted.
           </p>
         </div>
       </div>
