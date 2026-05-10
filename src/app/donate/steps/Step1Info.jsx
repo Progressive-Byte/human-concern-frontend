@@ -56,12 +56,10 @@ const Step1Info = ({ campaignSlug }) => {
   const [countryCode, setCountryCode] = useState("");
   const [stateCode,   setStateCode]   = useState("");
 
-  // ── Causes from sessionStorage (merged from Step2)
   const causes = useMemo(() => {
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
-      const list = meta.causes ?? [];
-      return list.map((c) => ({
+      return (meta.causes ?? []).map((c) => ({
         id:            c.id,
         label:         c.name,
         desc:          c.description  ?? "",
@@ -71,7 +69,6 @@ const Step1Info = ({ campaignSlug }) => {
     } catch { return []; }
   }, []);
 
-  // ── Objectives from sessionStorage (merged from Step3, Ramadan only)
   const objectives = useMemo(() => {
     if (!data.isRamadan) return [];
     try {
@@ -99,7 +96,6 @@ const Step1Info = ({ campaignSlug }) => {
     setError("");
   };
 
-  // Read sessionStorage campaign data on mount
   useEffect(() => {
     const campaign = campaignSlug ?? searchParams.get("campaign");
     const amount    = searchParams.get("amount");
@@ -124,7 +120,6 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-collapse address section the first time address data arrives
   useEffect(() => {
     if (!didAutoCollapse.current && (data.addressLine1?.trim() || data.city?.trim())) {
       setAddressExpanded(false);
@@ -132,7 +127,6 @@ const Step1Info = ({ campaignSlug }) => {
     }
   }, [data.addressLine1, data.city]);
 
-  // Sync countryCode
   useEffect(() => {
     if (data.country && !countryCode) {
       const iso = resolveCountryIso(data.country);
@@ -141,7 +135,6 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.country]);
 
-  // Sync stateCode after countryCode resolves
   useEffect(() => {
     if (data.province && countryCode && !stateCode) {
       const iso = resolveStateIso(data.province, countryCode);
@@ -150,7 +143,6 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.province, countryCode]);
 
-  // Prefill from user profile
   useEffect(() => {
     if (isAuthenticated && user) {
       update({
@@ -169,7 +161,6 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
-  // Clear fields on logout
   useEffect(() => {
     const wasAuth = prevAuthRef.current;
     prevAuthRef.current = isAuthenticated;
@@ -188,8 +179,6 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  // ── Dropdown options
-
   const countryOptions = useMemo(
     () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
     []
@@ -204,8 +193,6 @@ const Step1Info = ({ campaignSlug }) => {
       : [],
     [countryCode, stateCode]
   );
-
-  // ── Field helpers
 
   const isLocked = (key) => isAuthenticated && !editMode && Boolean(data[key]?.trim());
 
@@ -239,8 +226,6 @@ const Step1Info = ({ campaignSlug }) => {
     update({ city: cityName });
     setError("");
   };
-
-  // ── Validation + Submit
 
   const validateAndNext = () => {
     if (
@@ -293,7 +278,6 @@ const Step1Info = ({ campaignSlug }) => {
     >
       <div className="flex flex-col gap-5">
 
-        {/* ── Personal info ── */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <p className="text-[13px] font-semibold text-[#383838]">Personal Information</p>
@@ -335,7 +319,6 @@ const Step1Info = ({ campaignSlug }) => {
           </div>
         </div>
 
-        {/* ── Address (collapsible) ── */}
         <div className="border border-dashed border-[#E5E7EB] rounded-2xl">
           <button
             type="button"
@@ -455,7 +438,6 @@ const Step1Info = ({ campaignSlug }) => {
           )}
         </div>
 
-        {/* ── Causes (merged from Step2) ── */}
         {causes.length > 0 && (
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
@@ -500,7 +482,6 @@ const Step1Info = ({ campaignSlug }) => {
           </div>
         )}
 
-        {/* ── Objectives (merged from Step3, Ramadan only) ── */}
         {data.isRamadan && objectives.length > 0 && (
           <div className="flex flex-col gap-3">
             <p className="text-[13px] font-semibold text-[#383838]">
