@@ -23,7 +23,7 @@ export default function StepProgress({ current }) {
 
   const visibleSteps = STEPS
     .map((label, i) => ({ label, step: i + 1 }))
-    .filter(({ step }) => step !== 3 || data.isRamadan);
+    .filter(({ step }) => step !== 2 && step !== 3);
 
   return (
     <div className="flex items-center justify-center mb-8">
