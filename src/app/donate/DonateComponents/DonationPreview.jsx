@@ -1,5 +1,6 @@
 "use client";
 
+import Section from "@/components/ui/Section";
 import { useDonation } from "@/context/DonationContext";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
