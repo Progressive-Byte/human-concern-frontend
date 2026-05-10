@@ -257,6 +257,30 @@ export function getAdminAddOns({ page, limit, sort, order, q, status, enabled } 
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
+export function getAdminAddOnById(addOnId) {
+  return adminApiRequest(`/admin/add-ons/${addOnId}`, { method: "GET" });
+}
+
+export function createAdminAddOn(payload) {
+  return adminApiRequest("/admin/add-ons", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function updateAdminAddOn(addOnId, payload) {
+  return adminApiRequest(`/admin/add-ons/${addOnId}`, { method: "PUT", body: JSON.stringify(payload) });
+}
+
+export function archiveAdminAddOn(addOnId) {
+  return adminApiRequest(`/admin/add-ons/${addOnId}/archive`, { method: "POST" });
+}
+
+export function restoreAdminAddOn(addOnId) {
+  return adminApiRequest(`/admin/add-ons/${addOnId}/restore`, { method: "POST" });
+}
+
+export function toggleAdminAddOn(addOnId, enabled) {
+  return adminApiRequest(`/admin/add-ons/${addOnId}/toggle`, { method: "PATCH", body: JSON.stringify({ enabled: Boolean(enabled) }) });
+}
+
 export function getAdminFormCauses(formId) {
   return adminApiRequest(`/admin/forms/${formId}/causes`, { method: "GET" });
 }
