@@ -1,4 +1,4 @@
-export default function AddOnsFilters({ q, status, enabled, onChangeQ, onChangeStatus, onChangeEnabled }) {
+export default function AddOnsFilters({ q, status, onChangeQ, onChangeStatus }) {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="relative flex-1">
@@ -21,7 +21,7 @@ export default function AddOnsFilters({ q, status, enabled, onChangeQ, onChangeS
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:w-auto">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-1 md:w-auto">
         <select
           value={status}
           onChange={(e) => onChangeStatus?.(e.target.value)}
@@ -30,16 +30,6 @@ export default function AddOnsFilters({ q, status, enabled, onChangeQ, onChangeS
           <option value="">All Status</option>
           <option value="active">Active</option>
           <option value="archived">Archived</option>
-        </select>
-
-        <select
-          value={enabled}
-          onChange={(e) => onChangeEnabled?.(e.target.value)}
-          className="w-full md:w-[160px] rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-        >
-          <option value="">Enabled: All</option>
-          <option value="true">Enabled</option>
-          <option value="false">Disabled</option>
         </select>
       </div>
     </div>

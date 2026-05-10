@@ -62,7 +62,6 @@ export default function AdminAddOnsPage() {
     order: "desc",
     q: "",
     status: "",
-    enabled: "",
   });
 
   const debouncedQ = useDebouncedValue(filters.q, 300);
@@ -107,7 +106,6 @@ export default function AdminAddOnsPage() {
           order: filters.order,
           q: debouncedQ,
           status: filters.status,
-          enabled: filters.enabled,
         });
         if (!alive) return;
 
@@ -136,7 +134,6 @@ export default function AdminAddOnsPage() {
     filters.sort,
     filters.order,
     filters.status,
-    filters.enabled,
     debouncedQ,
     refreshKey,
   ]);
@@ -207,10 +204,8 @@ export default function AdminAddOnsPage() {
         <AddOnsFilters
           q={filters.q}
           status={filters.status}
-          enabled={filters.enabled}
           onChangeQ={(next) => setFilters((prev) => ({ ...prev, page: "1", q: next }))}
           onChangeStatus={(next) => setFilters((prev) => ({ ...prev, page: "1", status: next }))}
-          onChangeEnabled={(next) => setFilters((prev) => ({ ...prev, page: "1", enabled: next }))}
         />
       </div>
 
