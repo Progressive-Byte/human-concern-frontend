@@ -6,3 +6,5 @@ const Section = { label, children }) => {
     </div>
   );
 }
+
+export default Section;
