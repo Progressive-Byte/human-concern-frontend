@@ -213,7 +213,6 @@ const Step3Addons = () => {
       grandTotal,
       addOnsTotal,
       addOnBreakdown: computedBreakdown,
-      anonymous,
       paymentMethod: selectedGateway,
     });
 
