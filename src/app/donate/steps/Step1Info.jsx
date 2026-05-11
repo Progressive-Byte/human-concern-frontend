@@ -548,6 +548,47 @@ const Step1Info = ({ campaignSlug }) => {
           <span className="text-[14px] text-[#383838]">Make my donation anonymous</span>
         </button>
 
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !showMessage;
+              setShowMessage(next);
+              if (!next) update({ donorMessage: "" });
+            }}
+            className="flex items-center gap-3 w-full text-left"
+          >
+            <span
+              className={`w-5 h-5 shrink-0 rounded-md border-2 flex items-center justify-center transition-colors ${
+                showMessage ? "border-[#EA3335] bg-[#EA3335]" : "border-[#CCCCCC]"
+              }`}
+            >
+              {showMessage && (
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                  <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </span>
+            <span className="text-[14px] text-[#383838]">Add a personal message</span>
+          </button>
+
+          {showMessage && (
+            <textarea
+              value={data.donorMessage ?? ""}
+              onChange={(e) => update({ donorMessage: e.target.value })}
+              placeholder="Share a message, dedication, or anything you'd like us to know…"
+              rows={3}
+              maxLength={500}
+              className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#EA3335] resize-none transition-colors"
+            />
+          )}
+          {showMessage && (
+            <p className="text-[11px] text-[#AEAEAE] text-right">
+              {(data.donorMessage ?? "").length} / 500
+            </p>
+          )}
+        </div>
+
         {error && <p className="text-[#EA3335] text-[13px]">{error}</p>}
 
       </div>
