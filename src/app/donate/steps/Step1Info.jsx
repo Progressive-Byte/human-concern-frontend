@@ -56,8 +56,9 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [anonymous, setAnonymous]   = useState(data.anonymous ?? false);
-  const [error, setError]           = useState("");
+  const [anonymous, setAnonymous]       = useState(data.anonymous ?? false);
+  const [showMessage, setShowMessage]   = useState(!!data.donorMessage);
+  const [error, setError]               = useState("");
   const [editMode, setEditMode]     = useState(false);
   const [addressExpanded, setAddressExpanded] = useState(true);
   const didAutoCollapse = useRef(false);
