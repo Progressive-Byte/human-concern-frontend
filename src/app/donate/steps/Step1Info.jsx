@@ -528,6 +528,25 @@ const Step1Info = ({ campaignSlug }) => {
           </div>
         )}
 
+        <button
+          type="button"
+          onClick={() => {
+            const next = !anonymous;
+            setAnonymous(next);
+            update({ anonymous: next });
+          }}
+          className="flex items-center gap-3 w-full text-left"
+        >
+          <span
+            className={`w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
+              anonymous ? "border-[#EA3335]" : "border-[#CCCCCC]"
+            }`}
+          >
+            {anonymous && <span className="w-2.5 h-2.5 rounded-full bg-[#EA3335]" />}
+          </span>
+          <span className="text-[14px] text-[#383838]">Make my donation anonymous</span>
+        </button>
+
         {error && <p className="text-[#EA3335] text-[13px]">{error}</p>}
 
       </div>
