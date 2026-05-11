@@ -1,5 +1,11 @@
 import { adminApiRequest } from "./api";
 
+// Admin API service layer.
+// Each function returns the parsed response from the backend and is responsible for building the request URL + query params.
+
+// -----------------------------
+// Dashboard
+// -----------------------------
 export function getAdminDashboardOverview({ currency, activeLimit } = {}) {
   const params = new URLSearchParams();
 
@@ -17,6 +23,9 @@ export function getAdminDashboardOverview({ currency, activeLimit } = {}) {
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
+// -----------------------------
+// Campaigns
+// -----------------------------
 export function getAdminCampaigns({ page, limit, sort, order, q, status } = {}) {
   const params = new URLSearchParams();
 
@@ -61,6 +70,9 @@ export function restoreAdminCampaign(campaignId) {
   return adminApiRequest(`/admin/campaigns/${campaignId}/restore`, { method: "POST" });
 }
 
+// -----------------------------
+// Forms
+// -----------------------------
 export function getAdminForms({ page, limit, sort, order, q, status, campaignId } = {}) {
   const params = new URLSearchParams();
 
@@ -82,6 +94,9 @@ export function getAdminCampaignForms(campaignId) {
   return adminApiRequest(`/admin/campaigns/${campaignId}/forms`, { method: "GET" });
 }
 
+// -----------------------------
+// Categories
+// -----------------------------
 export function getAdminCategories({ page, limit, sort, order, q, status } = {}) {
   const params = new URLSearchParams();
 
@@ -162,6 +177,9 @@ export function restoreAdminForm(formId) {
   return adminApiRequest(`/admin/forms/${formId}/restore`, { method: "POST" });
 }
 
+// -----------------------------
+// Causes
+// -----------------------------
 export function getAdminCauses({ page, limit, sort, order, q, status, enabled } = {}) {
   const params = new URLSearchParams();
 
@@ -203,6 +221,9 @@ export function restoreAdminCause(causeId) {
   return adminApiRequest(`/admin/causes/${causeId}/restore`, { method: "POST" });
 }
 
+// -----------------------------
+// Objectives
+// -----------------------------
 export function getAdminObjectives({ page, limit, sort, order, q, status, ramadanOnly } = {}) {
   const params = new URLSearchParams();
 
@@ -240,6 +261,9 @@ export function restoreAdminObjective(objectiveId) {
   return adminApiRequest(`/admin/objectives/${objectiveId}/restore`, { method: "POST" });
 }
 
+// -----------------------------
+// Donors
+// -----------------------------
 export function getAdminDonors({ page, limit, sort, order, q, status, type } = {}) {
   const params = new URLSearchParams();
 
@@ -295,8 +319,7 @@ export function getAdminDonorActivity(donorKey, { page, limit } = {}) {
   if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
   if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
 
-  const query = params.toString();
-  const endpoint = query ? `/admin/donors/${donorKey}/activity?${query}` : `/admin/donors/${donorKey}/activity`;
+  const endpoint = `/admin/donors/${donorKey}/activity`;
 
   return adminApiRequest(endpoint, { method: "GET" });
 }
@@ -313,6 +336,9 @@ export function sendAdminDonorEmail(donorKey, payload) {
   return adminApiRequest(`/admin/donors/${donorKey}/email`, { method: "POST", body: JSON.stringify(payload) });
 }
 
+// -----------------------------
+// Add-ons
+// -----------------------------
 export function getAdminAddOns({ page, limit, sort, order, q, status, enabled } = {}) {
   const params = new URLSearchParams();
 
@@ -354,6 +380,9 @@ export function toggleAdminAddOn(addOnId, enabled) {
   return adminApiRequest(`/admin/add-ons/${addOnId}/toggle`, { method: "PATCH", body: JSON.stringify({ enabled: Boolean(enabled) }) });
 }
 
+// -----------------------------
+// Form Sub-Resources
+// -----------------------------
 export function getAdminFormCauses(formId) {
   return adminApiRequest(`/admin/forms/${formId}/causes`, { method: "GET" });
 }

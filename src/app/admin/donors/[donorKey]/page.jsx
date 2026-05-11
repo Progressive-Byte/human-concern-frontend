@@ -235,16 +235,6 @@ export default function AdminDonorDetailPage() {
         <DonorDonationsTable donations={donations} loading={loading} onViewAll={() => setTxOpen(true)} />
       </div>
 
-      <div className="flex items-center justify-end">
-        <button
-          type="button"
-          onClick={() => setActivityOpen(true)}
-          className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
-        >
-          View all activity
-        </button>
-      </div>
-
       <DonorActivityTimeline activity={activity} loading={loading} />
 
       <ConfirmDialog

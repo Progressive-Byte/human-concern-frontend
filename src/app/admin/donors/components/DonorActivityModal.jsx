@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getAdminDonorActivity } from "@/services/admin";
+import { formatCurrency } from "@/utils/helpers";
 
 function formatDateTime(value) {
   if (!value) return "—";
@@ -165,9 +166,12 @@ export default function DonorActivityModal({ open, donorKey, onClose }) {
               <div className="rounded-xl bg-[#F9FAFB] px-4 py-4 text-sm text-[#6B7280]">No activity.</div>
             ) : (
               rows.map((ev, idx) => {
-                const desc = String(ev?.description || "Activity");
-                const ts = ev?.timestamp || null;
-                const amt = ev?.amount;
+                const desc = String(ev?.summary || ev?.description || "Activity");
+                const ts = ev?.at || ev?.timestamp || null;
+                const meta = ev?.meta && typeof ev.meta === "object" ? ev.meta : null;
+                const formName = typeof meta?.formName === "string" ? meta.formName : "";
+                const amt = meta?.amount ?? ev?.amount;
+                const currency = String(meta?.currency || ev?.currency || "USD");
                 const showAmount = typeof amt === "number" && Number.isFinite(amt);
                 return (
                   <div key={`${idx}-${desc}`} className="flex items-start gap-3">
@@ -179,7 +183,8 @@ export default function DonorActivityModal({ open, donorKey, onClose }) {
                         <div className="min-w-0 truncate text-[13px] font-semibold text-[#111827]">{desc}</div>
                         <div className="shrink-0 text-[12px] text-[#6B7280]">{formatDateTime(ts)}</div>
                       </div>
-                      {showAmount ? <div className="mt-1 text-[12px] font-semibold text-[#111827]">${amt.toFixed(2)}</div> : null}
+                      {formName ? <div className="mt-1 text-[12px] text-[#6B7280]">{formName}</div> : null}
+                      {showAmount ? <div className="mt-1 text-[12px] font-semibold text-[#111827]">{formatCurrency(amt, currency)}</div> : null}
                     </div>
                   </div>
                 );
