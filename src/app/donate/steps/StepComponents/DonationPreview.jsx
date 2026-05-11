@@ -200,7 +200,7 @@ const DonationPreview = ({ currentStep }) => {
                 </div>
               )}
 
-              {/* Date range: from / to / frequency / total */}
+              {/* Date range: schedule info + optional per-date breakdown */}
               {isDateRange && data.scheduleConfig?.startDate && (
                 <div className="mt-2 flex flex-col gap-1">
                   <div className="flex items-center justify-between text-[11px]">
@@ -221,6 +221,44 @@ const DonationPreview = ({ currentStep }) => {
                       {data.scheduleConfig.frequency}
                     </span>
                   </div>
+
+                  {/* Per-date breakdown when custom amounts exist */}
+                  {dateRangeRows.length > 0 && (
+                    <>
+                      <div className="flex items-center justify-between text-[10px] font-semibold text-[#AEAEAE] uppercase tracking-wide mt-2 mb-0.5 px-0.5">
+                        <span>Date</span>
+                        <span>Amount</span>
+                      </div>
+                      {visibleRangeRows.map(({ d, amt, isCustom }) => (
+                        <div
+                          key={d}
+                          className={`flex items-center justify-between px-2 py-1 rounded-lg ${
+                            isCustom ? "bg-[#FFF5F5]" : "bg-[#F9F9F9]"
+                          }`}
+                        >
+                          <span className="text-[11px] text-[#737373] tabular-nums">{d}</span>
+                          <div className="flex items-center gap-1">
+                            {isCustom && (
+                              <span className="text-[9px] font-semibold text-[#EA3335] bg-[#FFEEEE] rounded px-1 leading-4">
+                                custom
+                              </span>
+                            )}
+                            <span className={`text-[11px] font-semibold tabular-nums ${
+                              isCustom ? "text-[#EA3335]" : "text-[#383838]"
+                            }`}>
+                              {sym}{amt.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                      {hiddenRangeCount > 0 && (
+                        <p className="text-[11px] text-[#AEAEAE] text-center py-0.5">
+                          +{hiddenRangeCount} more date{hiddenRangeCount !== 1 ? "s" : ""}
+                        </p>
+                      )}
+                    </>
+                  )}
+
                   <div className="flex items-center justify-between pt-1.5 mt-0.5 border-t border-[#EBEBEB]">
                     <span className="text-[11px] font-semibold text-[#383838]">Subtotal</span>
                     <span className="text-[13px] font-bold text-[#383838] tabular-nums">
