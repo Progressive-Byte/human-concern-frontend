@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout        from "./StepComponents/StepLayout";
-import countOccurrences  from "./StepComponents/countOccurrences";
+import countOccurrences, { generateDatesInRange } from "./StepComponents/countOccurrences";
 import RecurringSchedule from "./StepComponents/Step2components/RecurringSchedule";
 import AmountSelector    from "./StepComponents/Step2components/AmountSelector";
 
@@ -68,18 +68,40 @@ const Step2Payment = () => {
     scheduleConfig: data.scheduleConfig ?? {},
   });
 
-  // Compute per-date total reactively: sum of (override ?? effectiveAmount) for each selected date.
-  // Only applies to specific_dates with at least one date selected.
+  // Compute per-date total reactively: sum of (override ?? effectiveAmount) for every payment date.
+  // Works for both specific_dates (from selected dates) and date_range (from generated dates).
   const perDateTotal = useMemo(() => {
-    if (!isRecurring || scheduleState.scheduleType !== "specific_dates") return null;
-    const dates = scheduleState.scheduleConfig?.dates;
-    if (!dates?.length) return null;
-    const overrides = scheduleState.scheduleConfig?.dateAmounts ?? {};
-    return dates.reduce((sum, isoDate) => {
-      const d   = isoDate.split("T")[0];
-      const amt = overrides[d] !== undefined ? Number(overrides[d]) : effectiveAmount;
-      return sum + (isNaN(amt) ? effectiveAmount : amt);
-    }, 0);
+    if (!isRecurring) return null;
+    const config    = scheduleState.scheduleConfig ?? {};
+    const overrides = config.dateAmounts ?? {};
+
+    if (scheduleState.scheduleType === "specific_dates") {
+      const dates = config.dates ?? [];
+      if (!dates.length) return null;
+      return dates.reduce((sum, isoDate) => {
+        const d   = isoDate.split("T")[0];
+        const amt = overrides[d] !== undefined ? Number(overrides[d]) : effectiveAmount;
+        return sum + (isNaN(amt) ? effectiveAmount : amt);
+      }, 0);
+    }
+
+    if (scheduleState.scheduleType === "date_range") {
+      const start = config.startDate?.split("T")[0];
+      const end   = config.endDate?.split("T")[0];
+      const freq  = config.frequency ?? "daily";
+      if (!start || !end) return null;
+      const dates = generateDatesInRange(start, end, freq);
+      if (!dates.length) return null;
+      // Only override the total when at least one date has a custom amount
+      const hasOverrides = Object.keys(overrides).length > 0;
+      if (!hasOverrides) return null;
+      return dates.reduce((sum, d) => {
+        const amt = overrides[d] !== undefined ? Number(overrides[d]) : effectiveAmount;
+        return sum + (isNaN(amt) ? effectiveAmount : amt);
+      }, 0);
+    }
+
+    return null;
   }, [isRecurring, scheduleState, effectiveAmount]);
 
   const handleAmountChange = (amount, hasError) => {
