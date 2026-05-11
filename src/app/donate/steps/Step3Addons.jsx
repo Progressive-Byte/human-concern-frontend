@@ -185,10 +185,14 @@ const Step3Addons = () => {
 
     if (isRecurring) {
       body.payment = {
-        paymentMode:    "split",
-        amount:         amountTier,
+        paymentMode: "split",
+        amount:      amountTier,
         currency,
-        ...(tipPct > 0 && { platformTipPercent: tipPct }),
+        ...(tipAmount > 0
+          ? customTipParsed !== null
+            ? { platformTipAmount: tipAmount }
+            : { platformTipPercent: tipPct }
+          : {}),
         scheduleType,
         scheduleConfig,
       };
