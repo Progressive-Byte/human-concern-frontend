@@ -131,8 +131,11 @@ const Step3Addons = () => {
     return sum + calcAddOnTotal(addOn, addOnInputs[addOn.id] ?? {});
   }, 0);
 
-  const sliderMax  = 15;
-  const tipAmount  = enableTipping ? Math.round((baseDonation * tipPct) / 100 * 100) / 100 : 0;
+  const sliderMax       = 15;
+  const customTipParsed = customTipAmount !== "" ? Math.max(0, Number(customTipAmount) || 0) : null;
+  const tipAmount       = enableTipping
+    ? (customTipParsed !== null ? customTipParsed : Math.round((baseDonation * tipPct) / 100 * 100) / 100)
+    : 0;
   const grandTotal = baseDonation + addOnsTotal + tipAmount;
 
   const updateAddOnInput = (addOnId, key, val) =>
