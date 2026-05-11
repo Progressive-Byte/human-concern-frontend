@@ -388,7 +388,7 @@ const Step3Addons = () => {
               {customTipAmount !== "" && (
                 <button
                   type="button"
-                  onClick={() => setCustomTipAmount("")}
+                  onClick={() => { setCustomTipAmount(""); update({ customTipAmount: "" }); }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[#AEAEAE] hover:text-[#383838] text-[20px] leading-none cursor-pointer"
                 >
                   ×
