@@ -116,11 +116,11 @@ const DonationPreview = ({ currentStep }) => {
             </Section>
           )}
 
-          {showAddons && data.grandTotal > 0 && (
+          {showAddons && (
             <div className="flex items-center justify-between pt-3.5">
               <p className="text-[13px] font-semibold text-[#383838]">Total</p>
               <p className="text-[20px] font-bold text-[#EA3335] leading-none">
-                {sym}{data.grandTotal?.toLocaleString()}
+                {sym}{(baseTotal + (data.addOnsTotal ?? 0) + tipAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
           )}
