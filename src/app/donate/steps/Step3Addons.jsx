@@ -375,7 +375,7 @@ const Step3Addons = () => {
                 value={customTipAmount}
                 min={0}
                 placeholder="Enter custom amount"
-                onChange={(e) => setCustomTipAmount(e.target.value)}
+                onChange={(e) => { setCustomTipAmount(e.target.value); update({ customTipAmount: e.target.value }); }}
                 onBlur={() => {
                   if (customTipAmount !== "" && Number(customTipAmount) < 0) setCustomTipAmount("0");
                 }}
