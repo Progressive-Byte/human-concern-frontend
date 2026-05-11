@@ -42,7 +42,7 @@ function buildFormulaLabel(addOn, inputValues, sym) {
   return `${parts.join(" × ")} × ${sym}${base}`;
 }
 
-const Step5Addons = () => {
+const Step3Addons = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 

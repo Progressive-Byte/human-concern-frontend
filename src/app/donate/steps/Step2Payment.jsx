@@ -32,7 +32,7 @@ const CURRENCY_OPTIONS = [
 ];
 
 
-const Step4Payment = () => {
+const Step2Payment = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 
@@ -350,4 +350,4 @@ const Step4Payment = () => {
   );
 };
 
-export default Step4Payment;
+export default Step2Payment;

@@ -10,7 +10,7 @@ import StepProgress from "../DonateComponents/StepProgress";
 import DonationPreview from "../DonateComponents/DonationPreview";
 import { NoticeIcon } from "@/components/common/SvgIcon";
 
-const Step8Confirmation = () => {
+const Step4Confirmation = () => {
   const { data }          = useDonation();
   const router            = useRouter();
   const params            = useParams();
