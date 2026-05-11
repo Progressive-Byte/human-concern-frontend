@@ -112,7 +112,7 @@ const Step4Payment = () => {
 
   return (
     <StepLayout
-      step={4}
+      step={2}
       title="Payment"
       subtitle="Choose between a one-time or split donation, select an amount or enter a custom value"
       onNext={() => {
@@ -127,7 +127,7 @@ const Step4Payment = () => {
           numberOfDays:     isRecurring ? occurrences : 1,
           frequency:        isRecurring && scheduleType === "date_range" ? rangeFreq : undefined,
         });
-        handleNext(5);
+        handleNext(3);
       }}
       onPrev={() => handlePrev(1)}
       prevLabel="Back"

@@ -28,13 +28,13 @@ const StepLayout = ({
   const router = useRouter();
   const { data } = useDonation();
   const base = data.campaign ? `/${data.campaign}` : "/donate";
-  const totalSteps = data.isRamadan ? STEP_LABELS.length : STEP_LABELS.length - 1;
-  const displayStep = !data.isRamadan && step > 3 ? step - 1 : step;
+  const totalSteps = 4;
+  const displayStep = step;
 
   const resolvedNextLabel = nextLabel ?? STEP_LABELS[step] ?? "Continue";
   const resolvedPrevLabel = prevLabel ?? STEP_LABELS[step - 2] ?? "Back";
 
-  const showPreview = step >= 4;
+  const showPreview = step >= 2;
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">

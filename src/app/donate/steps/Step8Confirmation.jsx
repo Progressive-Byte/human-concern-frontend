@@ -58,7 +58,7 @@ const Step8Confirmation = () => {
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
       <div className="max-w-[1024px] mx-auto">
-        <StepProgress current={6} />
+        <StepProgress current={4} />
 
         <div className="flex flex-col lg:flex-row items-start gap-5">
           <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8 flex-1 min-w-0 w-full">
@@ -100,7 +100,7 @@ const Step8Confirmation = () => {
             </div>
           </div>
 
-          <DonationPreview currentStep={6} />
+          <DonationPreview currentStep={4} />
         </div>
 
         <p className="text-center text-[12px] text-[#AEAEAE] mt-4">

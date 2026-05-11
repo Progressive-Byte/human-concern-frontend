@@ -272,7 +272,7 @@ const Step1Info = ({ campaignSlug }) => {
       });
       if (editMode) setEditMode(false);
     }
-    handleNext(4);
+    handleNext(2);
   };
 
   return (

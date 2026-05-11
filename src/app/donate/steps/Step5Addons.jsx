@@ -223,7 +223,7 @@ const Step5Addons = () => {
         stripeClientSecret:   payment.clientSecret       ?? null,
         stripePublishableKey: publishableKey,
       });
-      handleNext(6);
+      handleNext(4);
     } catch (err) {
       console.error(err);
       setSubmitError(err.message ?? "Submission failed. Please try again.");
@@ -233,13 +233,13 @@ const Step5Addons = () => {
 
   return (
     <StepLayout
-      step={5}
+      step={3}
       title="Add-ons & Payment"
       subtitle="Enhance your donation with optional add-ons and complete your payment setup"
       onNext={handleSubmit}
       onPrev={() => {
         update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown });
-        handlePrev(4);
+        handlePrev(2);
       }}
       prevLabel="Back"
       nextLabel={submitting ? "Submitting…" : "Complete Donation"}

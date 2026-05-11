@@ -7,8 +7,6 @@ import { ProgressCheckIcon } from "@/components/common/SvgIcon";
 
 const STEPS = [
   "Info",
-  "Cause",
-  "Objectives",
   "Payment",
   "Add-ons & Pay",
   "Confirmation",
@@ -19,9 +17,7 @@ export default function StepProgress({ current }) {
   const maxStep = data.maxStep ?? 1;
   const base = data.campaign ? `/${data.campaign}` : "/donate";
 
-  const visibleSteps = STEPS
-    .map((label, i) => ({ label, step: i + 1 }))
-    .filter(({ step }) => step !== 2 && step !== 3);
+  const visibleSteps = STEPS.map((label, i) => ({ label, step: i + 1 }));
 
   return (
     <div className="flex items-center justify-center mb-8">
