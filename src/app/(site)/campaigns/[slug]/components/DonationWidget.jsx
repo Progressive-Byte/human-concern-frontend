@@ -159,6 +159,29 @@ const DonationWidget = ({ campaign }) => {
             </div>
           )}
         </div>
+        {/* Custom amount input */}
+        <div className="relative mt-3">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
+          <input
+            type="number"
+            value={customAmount}
+            onChange={(e) => setCustomAmount(e.target.value)}
+            placeholder={`Other amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
+            min={limits.minimumDonation ?? 1}
+            max={limits.maximumDonation ?? undefined}
+            className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
+              customAmount
+                ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
+                : "border-[#CCCCCC] bg-white text-[#383838]"
+            } focus:border-[#055A46]`}
+          />
+        </div>
+
+        {limits.allowRecurringDonations && (
+          <p className="text-[12px] text-[#737373] mt-3 text-center">
+            Recurring donations available at checkout
+          </p>
+        )}
 
         {/* Buttons */}
         <div className="px-5 pt-5 pb-5 flex flex-col gap-2.5">
