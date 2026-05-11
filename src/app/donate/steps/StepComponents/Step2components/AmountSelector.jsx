@@ -20,6 +20,7 @@ const AmountSelector = ({
   initialAmount,
   onAmountChange,
   onCurrencyChange,
+  overrideTotal,
 }) => {
   const isCustomInit = initialAmount && !suggestedAmounts.includes(initialAmount);
 
@@ -30,7 +31,11 @@ const AmountSelector = ({
   const currencyData    = CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0];
   const sym             = currencyData.symbol;
   const effectiveAmount = customAmount ? Number(customAmount) : (selectedTier ?? 0);
-  const totalAmount     = effectiveAmount * occurrences;
+  const uniformTotal    = effectiveAmount * occurrences;
+
+  // When per-date custom amounts exist, use their sum; otherwise fall back to uniform total
+  const displayTotal = (overrideTotal !== null && overrideTotal !== undefined) ? overrideTotal : uniformTotal;
+  const hasPerDateAmounts = overrideTotal !== null && overrideTotal !== undefined && overrideTotal !== uniformTotal;
 
   const handleTileClick = (amt) => {
     setSelectedTier(amt);
@@ -128,15 +133,22 @@ const AmountSelector = ({
       </div>
 
       <div>
-        <label className="block text-[13px] font-medium text-[#383838] mb-2">
-          {isRecurring
-            ? `Total Amount (${occurrences} payment${occurrences !== 1 ? "s" : ""})`
-            : "Total Amount"}
-        </label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-[13px] font-medium text-[#383838]">
+            {isRecurring
+              ? `Total Amount (${occurrences} payment${occurrences !== 1 ? "s" : ""})`
+              : "Total Amount"}
+          </label>
+          {hasPerDateAmounts && (
+            <span className="text-[11px] text-[#737373] bg-[#F3F4F6] rounded-full px-2 py-0.5">
+              includes per-date amounts
+            </span>
+          )}
+        </div>
         <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3 flex items-center gap-2">
           <span className="text-[16px] text-[#737373] font-medium">{sym}</span>
           <span className="text-[28px] font-bold text-[#383838] leading-none">
-            {totalAmount.toLocaleString()}
+            {displayTotal.toLocaleString()}
           </span>
         </div>
       </div>
