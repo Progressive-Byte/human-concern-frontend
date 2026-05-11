@@ -9,7 +9,7 @@ import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import Field from "@/components/ui/Field";
 import CustomDropdown from "@/components/common/CustomDropdown";
-import { ChevronIcon } from "@/components/common/SvgIcon";
+import { ChevronIcon, showMessageIcon } from "@/components/common/SvgIcon";
 import { resolveCountryIso, resolveStateIso } from "@/utils/isoHelpers";
 
 const Step1Info = ({ campaignSlug }) => {
@@ -535,9 +535,7 @@ const Step1Info = ({ campaignSlug }) => {
               }`}
             >
               {showMessage && (
-                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                  <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                showMessageIcon
               )}
             </span>
             <span className="text-[14px] text-[#383838]">Add a personal message</span>
