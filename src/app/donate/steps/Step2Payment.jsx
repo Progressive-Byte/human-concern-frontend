@@ -6,8 +6,8 @@ import StepLayout from "../DonateComponents/StepLayout";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Select from "@/components/ui/Select";
-import MiniCalendar from "./StepComponents/MiniCalendar";
-import countOccurrences from "./StepComponents/countOccurrences";
+import MiniCalendar from "./StepComponents/Step2components/MiniCalendar";
+import countOccurrences from "./StepComponents/Step2components/countOccurrences";
 
 const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time Payment", desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
