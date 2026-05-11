@@ -125,7 +125,6 @@ export default function DonorCausesModal({ open, donorKey, onClose }) {
                   <th className="px-5 py-3">Cause</th>
                   <th className="py-3 pr-4">Total Donated</th>
                   <th className="py-3 pr-4">Donations</th>
-                  <th className="py-3 pr-5 text-right">Average</th>
                 </tr>
               </thead>
               <tbody>
@@ -143,16 +142,14 @@ export default function DonorCausesModal({ open, donorKey, onClose }) {
                   </tr>
                 ) : (
                   rows.map((c, idx) => {
-                    const causeName = String(c?.cause?.name || "—");
+                    const causeName = String(c?.causeName || "—");
                     const total = Number(c?.totalDonated || 0);
                     const count = Number(c?.donationCount || 0);
-                    const avg = Number(c?.averageDonation || 0);
                     return (
                       <tr key={`${causeName}-${idx}`} className="border-t border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors duration-200">
                         <td className="px-5 py-4">{causeName}</td>
                         <td className="py-4 pr-4 font-semibold">{formatCurrency(total)}</td>
                         <td className="py-4 pr-4 text-[#6B7280]">{count}</td>
-                        <td className="py-4 pr-5 text-right text-[#6B7280]">{formatCurrency(avg)}</td>
                       </tr>
                     );
                   })
