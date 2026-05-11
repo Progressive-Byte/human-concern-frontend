@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Country, State, City } from "country-state-city";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
@@ -46,6 +46,15 @@ const Step1Info = ({ campaignSlug }) => {
   const { user, isAuthenticated, updateUser } = useAuth();
   const { handleNext } = useStepNavigation();
   const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (data.submitted) {
+      const base = data.campaign ? `/${data.campaign}` : "/donate";
+      router.replace(`${base}/4`);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [error, setError]           = useState("");
   const [editMode, setEditMode]     = useState(false);

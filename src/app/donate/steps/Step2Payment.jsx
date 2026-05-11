@@ -4,6 +4,7 @@ import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Select from "@/components/ui/Select";
 import MiniCalendar from "./StepComponents/MiniCalendar";
 import countOccurrences from "./StepComponents/countOccurrences";
@@ -35,6 +36,15 @@ const CURRENCY_OPTIONS = [
 const Step2Payment = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (data.submitted) {
+      const base = data.campaign ? `/${data.campaign}` : "/donate";
+      router.replace(`${base}/4`);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { suggestedAmounts, allowRecurring, minDonation, maxDonation } = useMemo(() => {
     try {

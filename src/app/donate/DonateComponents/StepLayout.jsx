@@ -61,7 +61,7 @@ const StepLayout = ({
             </div>
             <div className="flex items-center justify-between mt-5 gap-3">
               <div>
-                {step > 1 ? (
+                {step > 1 && !data.submitted ? (
                   <button
                     onClick={() => onPrev ? onPrev() : router.push(`${base}/${step - 1}`)}
                     className="flex items-center gap-1.5 px-5 py-2.5 text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer"
