@@ -1,37 +1,18 @@
 "use client";
 
-import { useDonation } from "@/context/DonationContext";
-import { useStepNavigation } from "@/hooks/useStepNavigation";
-import StepLayout from "../DonateComponents/StepLayout";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Select from "@/components/ui/Select";
-import MiniCalendar from "./StepComponents/Step2components/MiniCalendar";
-import countOccurrences from "./StepComponents/Step2components/countOccurrences";
+import { useDonation } from "@/context/DonationContext";
+import { useStepNavigation } from "@/hooks/useStepNavigation";
+import StepLayout        from "../DonateComponents/StepLayout";
+import countOccurrences  from "./StepComponents/Step2components/countOccurrences";
+import RecurringSchedule from "./StepComponents/Step2components/RecurringSchedule";
+import AmountSelector    from "./StepComponents/Step2components/AmountSelector";
 
 const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time Payment", desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
-  { value: "recurring", label: "Split Payments",    desc: () => "Split your donation into scheduled payments" },
+  { value: "recurring", label: "Split Payments",   desc: () => "Split your donation into scheduled payments" },
 ];
-
-const SCHEDULE_TYPES = [
-  { value: "specific_dates", label: "Specific Dates" },
-  { value: "date_range",     label: "Date Range" },
-];
-
-const FREQ_OPTIONS = [
-  { value: "daily",   label: "Daily" },
-  { value: "weekly",  label: "Weekly" },
-  { value: "monthly", label: "Monthly" },
-];
-
-const CURRENCY_OPTIONS = [
-  { label: "USD ($)",   value: "USD", symbol: "$"   },
-  { label: "GBP (£)",   value: "GBP", symbol: "£"   },
-  { label: "EUR (€)",   value: "EUR", symbol: "€"   },
-  { label: "CAD (CA$)", value: "CAD", symbol: "CA$" },
-];
-
 
 const Step2Payment = () => {
   const { data, update } = useDonation();
@@ -61,63 +42,40 @@ const Step2Payment = () => {
     }
   }, []);
 
-  // If recurring is not allowed but was previously selected, reset to one-time
   useEffect(() => {
-    if (!allowRecurring && data.paymentType === "recurring") {
-      update({ paymentType: "one-time" });
-    }
+    if (!allowRecurring && data.paymentType === "recurring") update({ paymentType: "one-time" });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowRecurring]);
 
   const paymentType = data.paymentType ?? "one-time";
-  const currency    = data.currency    ?? "USD";
+  const isRecurring = paymentType === "recurring";
+  const initAmount  = data.amountTier ?? Number(data.amount) ?? suggestedAmounts[0] ?? 25;
+  const sym         = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" }[data.currency ?? "USD"] ?? "$";
 
-  const initAmount   = data.amountTier ?? Number(data.amount) ?? suggestedAmounts[0] ?? 25;
-  const isCustomInit = initAmount && !suggestedAmounts.includes(initAmount);
+  const initOccurrences = useMemo(() => {
+    const sc = data.scheduleConfig;
+    if (!sc || !isRecurring) return 1;
+    if (data.scheduleType === "specific_dates") return sc.dates?.length ?? 1;
+    return countOccurrences(sc.startDate?.split("T")[0], sc.endDate?.split("T")[0], sc.frequency ?? "daily");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const [selectedTier,      setSelectedTier]      = useState(isCustomInit ? null : (initAmount || suggestedAmounts[0]));
-  const [customAmount,      setCustomAmount]      = useState(isCustomInit ? String(initAmount) : "");
-  const [customAmountError, setCustomAmountError] = useState("");
-
-  const [scheduleType, setScheduleType] = useState(data.scheduleType ?? "specific_dates");
-  const [selectedDates, setSelectedDates] = useState(() => {
-    const stored = data.scheduleConfig?.dates ?? [];
-    return stored.map((d) => d.split("T")[0]);
+  const [effectiveAmount, setEffectiveAmount] = useState(initAmount);
+  const [amountError,     setAmountError]     = useState(false);
+  const [occurrences,     setOccurrences]     = useState(isRecurring ? initOccurrences : 1);
+  const [scheduleState,   setScheduleState]   = useState({
+    scheduleType:   data.scheduleType   ?? "specific_dates",
+    scheduleConfig: data.scheduleConfig ?? {},
   });
-  const [rangeStart, setRangeStart] = useState(data.scheduleConfig?.startDate?.split("T")[0] ?? "");
-  const [rangeEnd,   setRangeEnd]   = useState(data.scheduleConfig?.endDate?.split("T")[0]   ?? "");
-  const [rangeFreq,  setRangeFreq]  = useState(data.scheduleConfig?.frequency ?? "daily");
 
-  const effectiveAmount = customAmount ? Number(customAmount) : (selectedTier ?? 0);
-  const isRecurring     = paymentType === "recurring";
-  const currencyData    = CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0];
-  const sym             = currencyData.symbol;
+  const handleAmountChange = (amount, hasError) => {
+    setEffectiveAmount(amount);
+    setAmountError(hasError);
+  };
 
-  const todayStr = new Date().toISOString().split("T")[0];
-
-  const toggleDate = (dateStr) =>
-    setSelectedDates((prev) =>
-      prev.includes(dateStr) ? prev.filter((d) => d !== dateStr) : [...prev, dateStr]
-    );
-
-  const occurrences = isRecurring
-    ? (scheduleType === "specific_dates"
-      ? selectedDates.length
-      : countOccurrences(rangeStart, rangeEnd, rangeFreq))
-    : 1;
-
-  const totalAmount = effectiveAmount * occurrences;
-
-  const buildScheduleConfig = () => {
-    if (scheduleType === "specific_dates") {
-      const sorted = [...selectedDates].sort();
-      return { dates: sorted.map((d) => new Date(`${d}T00:00:00.000Z`).toISOString()) };
-    }
-    return {
-      startDate: rangeStart ? new Date(`${rangeStart}T00:00:00.000Z`).toISOString() : "",
-      endDate:   rangeEnd   ? new Date(`${rangeEnd}T00:00:00.000Z`).toISOString()   : "",
-      frequency: rangeFreq,
-    };
+  const handleScheduleChange = ({ scheduleType, scheduleConfig, occurrences: occ }) => {
+    setOccurrences(occ);
+    setScheduleState({ scheduleType, scheduleConfig });
   };
 
   return (
@@ -126,16 +84,18 @@ const Step2Payment = () => {
       title="Payment"
       subtitle="Choose between a one-time or split donation, select an amount or enter a custom value"
       onNext={() => {
-        if (customAmountError) return;
+        if (amountError) return;
         update({
           paymentType,
-          currency,
+          currency:         data.currency ?? "USD",
           amountTier:       effectiveAmount,
-          scheduleType:     isRecurring ? scheduleType  : undefined,
-          scheduleConfig:   isRecurring ? buildScheduleConfig() : undefined,
-          installmentCount: occurrences,
+          scheduleType:     isRecurring ? scheduleState.scheduleType   : undefined,
+          scheduleConfig:   isRecurring ? scheduleState.scheduleConfig : undefined,
+          installmentCount: isRecurring ? occurrences : 1,
           numberOfDays:     isRecurring ? occurrences : 1,
-          frequency:        isRecurring && scheduleType === "date_range" ? rangeFreq : undefined,
+          frequency:        isRecurring && scheduleState.scheduleType === "date_range"
+            ? scheduleState.scheduleConfig?.frequency
+            : undefined,
         });
         handleNext(3);
       }}
@@ -144,7 +104,7 @@ const Step2Payment = () => {
       nextLabel="Add-ons"
     >
       <div className="flex flex-col gap-4">
-        {/* Payment type */}
+
         <div className="flex flex-col gap-2.5">
           {PAYMENT_TYPES.filter((t) => t.value === "one-time" || allowRecurring).map((type) => {
             const active = paymentType === type.value;
@@ -170,191 +130,28 @@ const Step2Payment = () => {
           })}
         </div>
 
-        {/* Recurring schedule */}
         {isRecurring && (
-          <div className="flex flex-col gap-4">
-            <div>
-              <label className="block text-[13px] font-medium text-[#383838] mb-2">Schedule Type</label>
-              <div className="flex gap-2">
-                {SCHEDULE_TYPES.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setScheduleType(opt.value)}
-                    className={`flex-1 px-4 py-2.5 rounded-xl border text-[13px] font-medium transition-all cursor-pointer ${
-                      scheduleType === opt.value
-                        ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
-                        : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {scheduleType === "specific_dates" ? (
-              <div>
-                <label className="block text-[13px] font-medium text-[#383838] mb-2">
-                  Select Donation Dates
-                  {selectedDates.length > 0 && (
-                    <span className="ml-1.5 text-[#EA3335]">({selectedDates.length} selected)</span>
-                  )}
-                </label>
-                <MiniCalendar selectedDates={selectedDates} onToggleDate={toggleDate} />
-                {selectedDates.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {[...selectedDates].sort().map((d) => (
-                      <span
-                        key={d}
-                        className="flex items-center gap-1 text-[11px] bg-[#FFF5F5] border border-[#FFCCCC] text-[#EA3335] rounded-lg px-2 py-1 font-medium"
-                      >
-                        {d}
-                        <button
-                          type="button"
-                          onClick={() => toggleDate(d)}
-                          className="ml-0.5 hover:text-[#c0272a] cursor-pointer leading-none"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[13px] font-medium text-[#383838] mb-2">Start Date</label>
-                    <input
-                      type="date"
-                      value={rangeStart}
-                      min={todayStr}
-                      onChange={(e) => setRangeStart(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[13px] font-medium text-[#383838] mb-2">End Date</label>
-                    <input
-                      type="date"
-                      value={rangeEnd}
-                      min={rangeStart || todayStr}
-                      onChange={(e) => setRangeEnd(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-[#383838] mb-2">Frequency</label>
-                  <Select value={rangeFreq} onChange={setRangeFreq} options={FREQ_OPTIONS} />
-                </div>
-                {rangeStart && rangeEnd && occurrences > 0 && (
-                  <p className="text-[12px] text-[#737373] bg-[#F9F9F9] rounded-xl px-4 py-2.5 border border-[#EBEBEB]">
-                    {occurrences} payment{occurrences !== 1 ? "s" : ""} of {sym}{effectiveAmount} each
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+          <RecurringSchedule
+            sym={sym}
+            effectiveAmount={effectiveAmount}
+            initialScheduleType={data.scheduleType}
+            initialConfig={data.scheduleConfig}
+            onChange={handleScheduleChange}
+          />
         )}
 
-        {/* Currency */}
-        <div>
-          <label className="block text-[13px] font-medium text-[#383838] mb-2">Currency</label>
-          <Select value={currency} onChange={(val) => update({ currency: val })} options={CURRENCY_OPTIONS} />
-        </div>
+        <AmountSelector
+          suggestedAmounts={suggestedAmounts}
+          minDonation={minDonation}
+          maxDonation={maxDonation}
+          currency={data.currency ?? "USD"}
+          isRecurring={isRecurring}
+          occurrences={isRecurring ? occurrences : 1}
+          initialAmount={initAmount}
+          onAmountChange={handleAmountChange}
+          onCurrencyChange={(val) => update({ currency: val })}
+        />
 
-        {/* Amount tiles */}
-        <div>
-          <label className="block text-[13px] font-medium text-[#383838] mb-3">
-            {isRecurring ? "Donation Amount (per payment)" : "Donation Amount"}
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            {suggestedAmounts.map((amt) => {
-              const active = selectedTier === amt && !customAmount;
-              return (
-                <button
-                  key={amt}
-                  onClick={() => { setSelectedTier(amt); setCustomAmount(""); }}
-                  className={`flex flex-col items-center justify-center rounded-2xl px-4 py-4 border transition-all duration-200 cursor-pointer ${
-                    active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
-                  }`}
-                >
-                  <span className={`text-[22px] font-bold leading-none ${active ? "text-[#EA3335]" : "text-[#383838]"}`}>
-                    {sym}{amt}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Custom amount */}
-        <div>
-          <label className="block text-[13px] font-medium text-[#383838] mb-2">Custom Amount</label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#737373] font-medium text-[15px]">{sym}</span>
-            <input
-              type="number"
-              value={customAmount}
-              onChange={(e) => {
-                const val = e.target.value;
-                setCustomAmount(val);
-                setSelectedTier(null);
-                if (val === "") { setCustomAmountError(""); return; }
-                const num = Number(val);
-                if (num < minDonation) {
-                  setCustomAmountError(`Minimum donation amount is ${sym}${minDonation}`);
-                } else if (maxDonation && num > maxDonation) {
-                  setCustomAmountError(`Maximum donation amount is ${sym}${maxDonation}`);
-                } else {
-                  setCustomAmountError("");
-                }
-              }}
-              onBlur={() => {
-                if (!customAmount) return;
-                const num = Number(customAmount);
-                if (num < minDonation) {
-                  setCustomAmount(String(minDonation));
-                  setCustomAmountError("");
-                } else if (maxDonation && num > maxDonation) {
-                  setCustomAmount(String(maxDonation));
-                  setCustomAmountError("");
-                }
-              }}
-              placeholder={`Enter amount (${sym}${minDonation}${maxDonation ? ` – ${sym}${maxDonation}` : "+"})`}
-              min={minDonation}
-              max={maxDonation}
-              className={`w-full pl-9 pr-4 py-3 rounded-xl border text-[15px] outline-none transition-colors ${
-                customAmountError
-                  ? "border-[#EA3335] bg-[#FFF5F5] text-[#383838]"
-                  : customAmount
-                  ? "border-[#EA3335] bg-[#FFF5F5] text-[#383838]"
-                  : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335]"
-              }`}
-            />
-          </div>
-          {customAmountError && (
-            <p className="text-[12px] text-[#EA3335] mt-1.5 px-1">{customAmountError}</p>
-          )}
-        </div>
-
-        {/* Total */}
-        <div>
-          <label className="block text-[13px] font-medium text-[#383838] mb-2">
-            {isRecurring
-              ? `Total Amount (${occurrences} payment${occurrences !== 1 ? "s" : ""})`
-              : "Total Amount"}
-          </label>
-          <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3 flex items-center gap-2">
-            <span className="text-[16px] text-[#737373] font-medium">{sym}</span>
-            <span className="text-[28px] font-bold text-[#383838] leading-none">
-              {totalAmount.toLocaleString()}
-            </span>
-          </div>
-        </div>
       </div>
     </StepLayout>
   );
