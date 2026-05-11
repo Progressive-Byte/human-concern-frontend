@@ -68,6 +68,20 @@ const Step2Payment = () => {
     scheduleConfig: data.scheduleConfig ?? {},
   });
 
+  // Compute per-date total reactively: sum of (override ?? effectiveAmount) for each selected date.
+  // Only applies to specific_dates with at least one date selected.
+  const perDateTotal = useMemo(() => {
+    if (!isRecurring || scheduleState.scheduleType !== "specific_dates") return null;
+    const dates = scheduleState.scheduleConfig?.dates;
+    if (!dates?.length) return null;
+    const overrides = scheduleState.scheduleConfig?.dateAmounts ?? {};
+    return dates.reduce((sum, isoDate) => {
+      const d   = isoDate.split("T")[0];
+      const amt = overrides[d] !== undefined ? Number(overrides[d]) : effectiveAmount;
+      return sum + (isNaN(amt) ? effectiveAmount : amt);
+    }, 0);
+  }, [isRecurring, scheduleState, effectiveAmount]);
+
   const handleAmountChange = (amount, hasError) => {
     setEffectiveAmount(amount);
     setAmountError(hasError);
@@ -95,6 +109,10 @@ const Step2Payment = () => {
           numberOfDays:     isRecurring ? occurrences : 1,
           frequency:        isRecurring && scheduleState.scheduleType === "date_range"
             ? scheduleState.scheduleConfig?.frequency
+            : undefined,
+          // Store per-date sum so Step3 and downstream can use the correct base total
+          perDateTotal: isRecurring && scheduleState.scheduleType === "specific_dates" && perDateTotal !== null
+            ? perDateTotal
             : undefined,
         });
         handleNext(3);
@@ -150,6 +168,7 @@ const Step2Payment = () => {
           initialAmount={initAmount}
           onAmountChange={handleAmountChange}
           onCurrencyChange={(val) => update({ currency: val })}
+          overrideTotal={perDateTotal}
         />
 
       </div>
