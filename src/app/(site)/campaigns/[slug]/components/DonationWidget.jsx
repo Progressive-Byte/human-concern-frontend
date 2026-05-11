@@ -160,8 +160,8 @@ const DonationWidget = ({ campaign }) => {
           )}
         </div>
         {/* Custom amount input */}
-        <div className="relative mt-3">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
+        <div className="relative mt-3 px-4">
+          <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
           <input
             type="number"
             value={customAmount}
