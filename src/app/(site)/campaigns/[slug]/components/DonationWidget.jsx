@@ -223,7 +223,7 @@ const DonationWidget = ({ campaign }) => {
       </div>
 
       {limits.allowRecurringDonations && (
-        <p className="text-[12px] text-[#737373] mt-3 text-center">
+        <p className="text-[12px] text-[#737373] text-center">
           Recurring donations available at checkout
         </p>
       )}
