@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, donationId, guestSessionId }) {
+const StripeCheckoutForm = ({ grandTotal, currency, isRecurring, donationId, guestSessionId }) => {
   const stripe   = useStripe();
   const elements = useElements();
   const router   = useRouter();
