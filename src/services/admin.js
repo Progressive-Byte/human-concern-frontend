@@ -240,6 +240,79 @@ export function restoreAdminObjective(objectiveId) {
   return adminApiRequest(`/admin/objectives/${objectiveId}/restore`, { method: "POST" });
 }
 
+export function getAdminDonors({ page, limit, sort, order, q, status, type } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (typeof type === "string" && type.trim()) params.set("type", type.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/donors?${query}` : "/admin/donors";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminDonorsSummary() {
+  return adminApiRequest("/admin/donors/summary", { method: "GET" });
+}
+
+export function getAdminDonorByKey(donorKey) {
+  return adminApiRequest(`/admin/donors/${donorKey}`, { method: "GET" });
+}
+
+export function getAdminDonorDonations(donorKey, { page, limit, sort, order, from, to, status } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof from === "string" && from.trim()) params.set("from", from.trim());
+  if (typeof to === "string" && to.trim()) params.set("to", to.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/donors/${donorKey}/donations?${query}` : `/admin/donors/${donorKey}/donations`;
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminDonorCauses(donorKey) {
+  return adminApiRequest(`/admin/donors/${donorKey}/causes`, { method: "GET" });
+}
+
+export function getAdminDonorSchedules(donorKey) {
+  return adminApiRequest(`/admin/donors/${donorKey}/schedules`, { method: "GET" });
+}
+
+export function getAdminDonorActivity(donorKey, { page, limit } = {}) {
+  const params = new URLSearchParams();
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/donors/${donorKey}/activity?${query}` : `/admin/donors/${donorKey}/activity`;
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function updateAdminDonorStatus(donorKey, payload) {
+  return adminApiRequest(`/admin/donors/${donorKey}/status`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function updateAdminDonor(donorKey, payload) {
+  return adminApiRequest(`/admin/donors/${donorKey}`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function sendAdminDonorEmail(donorKey, payload) {
+  return adminApiRequest(`/admin/donors/${donorKey}/email`, { method: "POST", body: JSON.stringify(payload) });
+}
+
 export function getAdminAddOns({ page, limit, sort, order, q, status, enabled } = {}) {
   const params = new URLSearchParams();
 
