@@ -7,10 +7,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import Field from "@/components/ui/Field";
-import AddressSection    from "./StepComponents/AddressSection";
-import CauseSelector     from "./StepComponents/CauseSelector";
-import ObjectiveSelector from "./StepComponents/ObjectiveSelector";
-import DonorPreferences  from "./StepComponents/DonorPreferences";
+import AddressSection    from "./StepComponents/Step1components/AddressSection";
+import CauseSelector     from "./StepComponents/Step1components/CauseSelector";
+import ObjectiveSelector from "./StepComponents/Step1components/ObjectiveSelector";
+import DonorPreferences  from "./StepComponents/Step1components/DonorPreferences";
 
 const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
