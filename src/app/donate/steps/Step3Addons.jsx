@@ -106,7 +106,6 @@ const Step3Addons = () => {
     ["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null
   );
   const [publishableKey, setPublishableKey] = useState(null);
-  const [anonymous, setAnonymous]           = useState(data.anonymous ?? false);
   const [submitting, setSubmitting]         = useState(false);
   const [submitError, setSubmitError]       = useState(null);
 
