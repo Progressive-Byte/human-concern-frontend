@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useDonation } from "@/context/DonationContext";
-import StripeCheckoutForm from "../DonateComponents/StripeCheckoutForm";
+import StripeCheckoutForm from "./StepComponents/Step4components/StripeCheckoutForm";
 import StepProgress from "./StepComponents/StepProgress";
 import DonationPreview from "./StepComponents/DonationPreview";
 import { NoticeIcon } from "@/components/common/SvgIcon";
