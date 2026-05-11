@@ -58,7 +58,17 @@ export default function DonorDonationsTable({ donations, loading, onViewAll }) {
         <div className="px-5 py-4">
           <div className="space-y-3">
             {rows.slice(0, 6).map((d, idx) => {
-              const causeName = String(d?.cause?.name || d?.causeName || "—");
+              const causes = Array.isArray(d?.causes) ? d.causes : [];
+              const causeName =
+                typeof d?.cause?.name === "string" && d.cause.name.trim()
+                  ? d.cause.name.trim()
+                  : typeof d?.causeName === "string" && d.causeName.trim()
+                    ? d.causeName.trim()
+                    : causes.length === 1 && typeof causes[0]?.name === "string"
+                      ? causes[0].name
+                      : causes.length > 1 && typeof causes[0]?.name === "string"
+                        ? `${causes[0].name} +${causes.length - 1}`
+                        : "—";
               const amount = Number(d?.amount || 0);
               const createdAt = d?.createdAt;
               return (

@@ -22,8 +22,30 @@ function unwrapArray(res) {
   return [];
 }
 
+function normalizePagination(p) {
+  if (!p || typeof p !== "object") return null;
+  const page = Number(p?.page ?? p?.currentPage ?? 1);
+  const limit = Number(p?.limit ?? p?.pageSize ?? 20);
+  const total = Number(p?.total ?? p?.totalItems ?? 0);
+  const totalPages = Number(p?.totalPages ?? p?.pages ?? (Number.isFinite(limit) && limit > 0 ? Math.ceil(total / limit) : 1));
+  return {
+    ...p,
+    page: Number.isFinite(page) && page > 0 ? page : 1,
+    limit: Number.isFinite(limit) && limit > 0 ? limit : 20,
+    total: Number.isFinite(total) && total >= 0 ? total : 0,
+    totalPages: Number.isFinite(totalPages) && totalPages > 0 ? totalPages : 1,
+  };
+}
+
 function unwrapPagination(res) {
-  return res?.pagination || res?.data?.pagination || res?.data?.data?.pagination || null;
+  const raw =
+    res?.pagination ||
+    res?.data?.pagination ||
+    res?.data?.data?.pagination ||
+    res?.meta?.pagination ||
+    res?.data?.meta?.pagination ||
+    null;
+  return normalizePagination(raw);
 }
 
 function unwrapSummary(res) {
@@ -180,7 +202,6 @@ export default function DonorTransactionsModal({ open, donorKey, onClose }) {
                   <th className="px-5 py-3">Cause</th>
                   <th className="py-3 pr-4">Amount</th>
                   <th className="py-3 pr-4">Status</th>
-                  <th className="py-3 pr-4">Payment</th>
                   <th className="py-3 pr-5 text-right">Created</th>
                 </tr>
               </thead>
@@ -200,17 +221,23 @@ export default function DonorTransactionsModal({ open, donorKey, onClose }) {
                 ) : (
                   rows.map((d) => {
                     const id = String(d?.id || "");
-                    const causeName = String(d?.cause?.name || "—");
+                    const causes = Array.isArray(d?.causes) ? d.causes : [];
+                    const causeName =
+                      typeof d?.cause?.name === "string" && d.cause.name.trim()
+                        ? d.cause.name.trim()
+                        : causes.length === 1 && typeof causes[0]?.name === "string"
+                          ? causes[0].name
+                          : causes.length > 1 && typeof causes[0]?.name === "string"
+                            ? `${causes[0].name} +${causes.length - 1}`
+                            : "—";
                     const amount = Number(d?.amount || 0);
                     const st = String(d?.status || "—");
-                    const pm = String(d?.paymentMethod || "—");
                     const createdAt = d?.createdAt || null;
                     return (
                       <tr key={id || `${causeName}-${createdAt}`} className="border-t border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors duration-200">
                         <td className="px-5 py-4">{causeName}</td>
                         <td className="py-4 pr-4 font-semibold">{formatCurrency(amount)}</td>
                         <td className="py-4 pr-4">{st}</td>
-                        <td className="py-4 pr-4 text-[#6B7280]">{pm}</td>
                         <td className="py-4 pr-5 text-right text-[#6B7280]">{formatDateTime(createdAt)}</td>
                       </tr>
                     );
@@ -253,4 +280,3 @@ export default function DonorTransactionsModal({ open, donorKey, onClose }) {
     </div>
   );
 }
-

@@ -20,8 +20,30 @@ function unwrapArray(res) {
   return [];
 }
 
+function normalizePagination(p) {
+  if (!p || typeof p !== "object") return null;
+  const page = Number(p?.page ?? p?.currentPage ?? 1);
+  const limit = Number(p?.limit ?? p?.pageSize ?? 20);
+  const total = Number(p?.total ?? p?.totalItems ?? 0);
+  const totalPages = Number(p?.totalPages ?? p?.pages ?? (Number.isFinite(limit) && limit > 0 ? Math.ceil(total / limit) : 1));
+  return {
+    ...p,
+    page: Number.isFinite(page) && page > 0 ? page : 1,
+    limit: Number.isFinite(limit) && limit > 0 ? limit : 20,
+    total: Number.isFinite(total) && total >= 0 ? total : 0,
+    totalPages: Number.isFinite(totalPages) && totalPages > 0 ? totalPages : 1,
+  };
+}
+
 function unwrapPagination(res) {
-  return res?.pagination || res?.data?.pagination || res?.data?.data?.pagination || null;
+  const raw =
+    res?.pagination ||
+    res?.data?.pagination ||
+    res?.data?.data?.pagination ||
+    res?.meta?.pagination ||
+    res?.data?.meta?.pagination ||
+    null;
+  return normalizePagination(raw);
 }
 
 export default function DonorActivityModal({ open, donorKey, onClose }) {
@@ -188,4 +210,3 @@ export default function DonorActivityModal({ open, donorKey, onClose }) {
     </div>
   );
 }
-
