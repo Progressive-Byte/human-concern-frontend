@@ -113,3 +113,4 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring, donationId, gue
     </form>
   );
 }
+export default StripeCheckoutForm;
