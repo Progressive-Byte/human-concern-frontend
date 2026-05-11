@@ -52,9 +52,27 @@ const DonationPreview = ({ currentStep }) => {
       });
   }, [isSpecificDates, data.scheduleConfig, data.amountTier]);
 
+  // Build per-date rows for date_range — only when custom amounts exist
+  const dateRangeRows = useMemo(() => {
+    if (!isDateRange) return [];
+    const overrides = data.scheduleConfig?.dateAmounts ?? {};
+    if (Object.keys(overrides).length === 0) return [];
+    const start = data.scheduleConfig?.startDate?.split("T")[0];
+    const end   = data.scheduleConfig?.endDate?.split("T")[0];
+    const freq  = data.scheduleConfig?.frequency ?? "daily";
+    if (!start || !end) return [];
+    return generateDatesInRange(start, end, freq).map((d) => {
+      const isCustom = overrides[d] !== undefined;
+      const amt      = isCustom ? Number(overrides[d]) : (data.amountTier ?? 0);
+      return { d, amt, isCustom };
+    });
+  }, [isDateRange, data.scheduleConfig, data.amountTier]);
+
   const MAX_VISIBLE = 5;
-  const visibleRows  = dateRows.slice(0, MAX_VISIBLE);
-  const hiddenCount  = dateRows.length - MAX_VISIBLE;
+  const visibleRows      = dateRows.slice(0, MAX_VISIBLE);
+  const hiddenCount      = dateRows.length - MAX_VISIBLE;
+  const visibleRangeRows = dateRangeRows.slice(0, MAX_VISIBLE);
+  const hiddenRangeCount = dateRangeRows.length - MAX_VISIBLE;
 
   return (
     <div className="lg:sticky lg:top-[172px] self-start w-full lg:w-[272px] shrink-0">
