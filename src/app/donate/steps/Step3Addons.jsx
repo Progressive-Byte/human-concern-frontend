@@ -97,7 +97,8 @@ const Step3Addons = () => {
     );
   });
 
-  const [tipPct, setTipPct] = useState(data.tipPct ?? 10);
+  const [tipPct, setTipPct]                 = useState(data.tipPct ?? 10);
+  const [customTipAmount, setCustomTipAmount] = useState("");
 
   // ── Payment / gateway state ───────────────────────────────────────────────
   const [gateways, setGateways]               = useState([]);
