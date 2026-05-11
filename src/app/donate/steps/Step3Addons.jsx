@@ -438,4 +438,4 @@ const Step3Addons = () => {
   );
 };
 
-export default Step5Addons;
+export default Step3Addons;
