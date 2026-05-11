@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
-import StepLayout from "../DonateComponents/StepLayout";
+import StepLayout from "./StepComponents/StepLayout";
 import Field from "@/components/ui/Field";
 import AddressSection    from "./StepComponents/Step1components/AddressSection";
 import CauseSelector     from "./StepComponents/Step1components/CauseSelector";

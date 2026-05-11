@@ -4,8 +4,8 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
-import StepLayout        from "../DonateComponents/StepLayout";
-import countOccurrences  from "./StepComponents/Step2components/countOccurrences";
+import StepLayout        from "./StepComponents/StepLayout";
+import countOccurrences  from "./StepComponents/countOccurrences";
 import RecurringSchedule from "./StepComponents/Step2components/RecurringSchedule";
 import AmountSelector    from "./StepComponents/Step2components/AmountSelector";
 

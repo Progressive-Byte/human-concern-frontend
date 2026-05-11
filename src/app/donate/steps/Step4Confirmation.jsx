@@ -6,8 +6,8 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useDonation } from "@/context/DonationContext";
 import StripeCheckoutForm from "../DonateComponents/StripeCheckoutForm";
-import StepProgress from "../DonateComponents/StepProgress";
-import DonationPreview from "../DonateComponents/DonationPreview";
+import StepProgress from "./StepComponents/StepProgress";
+import DonationPreview from "./StepComponents/DonationPreview";
 import { NoticeIcon } from "@/components/common/SvgIcon";
 
 const Step4Confirmation = () => {
