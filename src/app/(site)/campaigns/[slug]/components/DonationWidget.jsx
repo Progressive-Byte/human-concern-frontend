@@ -42,6 +42,7 @@ const DonationWidget = ({ campaign }) => {
       id:                 campaign.id,
       name:               campaign.name               ?? "",
       description:        campaign.description        ?? "",
+      zakatEligible:      campaign.zakatEligible      ?? false,
       suggestedAmounts:   campaign.suggestedAmounts   ?? [],
       addOns:             campaign.addOns             ?? [],
       goalsDates:         campaign.goalsDates          ?? {},

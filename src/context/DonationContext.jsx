@@ -10,6 +10,7 @@ const initialState = {
   campaignId: null,
   campaignTitle: "",
   isRamadan: false,
+  zakatEligible: false,
   maxStep: 1,
   amount: "",
   currency: "USD",
