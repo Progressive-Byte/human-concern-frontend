@@ -133,9 +133,7 @@ const Step2Payment = () => {
             ? scheduleState.scheduleConfig?.frequency
             : undefined,
           // Store per-date sum so Step3 and downstream can use the correct base total
-          perDateTotal: isRecurring && scheduleState.scheduleType === "specific_dates" && perDateTotal !== null
-            ? perDateTotal
-            : undefined,
+          perDateTotal: isRecurring && perDateTotal !== null ? perDateTotal : undefined,
         });
         handleNext(3);
       }}

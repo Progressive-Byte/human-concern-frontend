@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import Section from "@/components/ui/Section";
 import { useDonation } from "@/context/DonationContext";
+import { generateDatesInRange } from "../countOccurrences";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
