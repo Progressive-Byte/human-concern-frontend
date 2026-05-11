@@ -420,22 +420,6 @@ const Step3Addons = () => {
           </div>
         )}
 
-        {/* ── Anonymous ───────────────────────────────────────────────────── */}
-        <button
-          type="button"
-          onClick={() => setAnonymous((v) => !v)}
-          className="flex items-center gap-3 w-full text-left group"
-        >
-          <span
-            className={`w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
-              anonymous ? "border-[#EA3335]" : "border-[#CCCCCC]"
-            }`}
-          >
-            {anonymous && <span className="w-2.5 h-2.5 rounded-full bg-[#EA3335]" />}
-          </span>
-          <span className="text-[14px] text-[#383838]">Make my donation anonymous</span>
-        </button>
-
         {submitError && (
           <p className="text-[13px] text-[#EA3335] bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-3">
             {submitError}
