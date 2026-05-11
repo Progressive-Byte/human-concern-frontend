@@ -103,9 +103,11 @@ const Step1Info = ({ campaignSlug }) => {
     const isRamadan = sessionStorage.getItem("donationIsRamadan") === "1";
 
     let campaignId = null;
+    let zakatEligible = false;
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
       campaignId = meta.id ?? null;
+      zakatEligible = meta.zakatEligible ?? false;
     } catch {}
 
     if (campaign) {
@@ -113,6 +115,7 @@ const Step1Info = ({ campaignSlug }) => {
         campaignId,
         campaign,
         isRamadan,
+        zakatEligible,
         ...(amount   && { amount }),
         ...(currency && { currency }),
       });
