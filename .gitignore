@@ -45,4 +45,6 @@ next-env.d.ts
 docs/*
 entx.js
 AGENTS.md
+CLAUSE.md
+.cloude
 tasks/*
