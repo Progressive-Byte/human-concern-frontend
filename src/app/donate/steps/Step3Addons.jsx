@@ -341,7 +341,7 @@ const Step3Addons = () => {
                 max={sliderMax}
                 step={1}
                 value={tipPct}
-                onChange={(e) => setTipPct(Number(e.target.value))}
+                onChange={(e) => { setTipPct(Number(e.target.value)); setCustomTipAmount(""); update({ customTipAmount: "" }); }}
                 className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#EA3335]"
                 style={{
                   background: `linear-gradient(to right, #EA3335 ${(tipPct / sliderMax) * 100}%, #E5E5E5 ${(tipPct / sliderMax) * 100}%)`,
