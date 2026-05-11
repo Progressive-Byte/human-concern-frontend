@@ -170,7 +170,7 @@ const Step3Addons = () => {
       causeIds: data.causeIds ?? [],
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: selectedGateway,
-      ...(anonymous && { isAnonymous: true }),
+      ...(data.anonymous && { isAnonymous: true }),
       addons: {
         items: computedBreakdown.map((addon) => ({
           addOnId: addon.id,
