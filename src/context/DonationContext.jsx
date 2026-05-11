@@ -12,6 +12,7 @@ const initialState = {
   isRamadan: false,
   zakatEligible: false,
   submitted: false,
+  donorMessage: "",
   maxStep: 1,
   amount: "",
   currency: "USD",
