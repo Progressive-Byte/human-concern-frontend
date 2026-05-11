@@ -205,7 +205,7 @@ const DonationWidget = ({ campaign }) => {
       </div>
       
       {/* Custom amount input */}
-      {/* <div className="relative mt-3">
+      <div className="relative mt-3">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
         <input
           type="number"
@@ -226,7 +226,7 @@ const DonationWidget = ({ campaign }) => {
         <p className="text-[12px] text-[#737373] mt-3 text-center">
           Recurring donations available at checkout
         </p>
-      )} */}
+      )}
     </div>
   );
 }
