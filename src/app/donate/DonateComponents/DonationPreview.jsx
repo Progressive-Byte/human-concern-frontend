@@ -10,10 +10,16 @@ const DonationPreview = ({ currentStep }) => {
   const sym = CURRENCY_SYMBOLS[data.currency] ?? "$";
 
   const showPayment = Boolean(data.amountTier);
-  const showAddons  = data.addOnBreakdown?.length > 0 || data.tipPct > 0 || data.grandTotal > 0;
 
-  const baseTotal = (data.amountTier ?? 0) * (data.installmentCount ?? 1);
-  const tipAmount = data.tipPct ? (baseTotal * data.tipPct) / 100 : 0;
+  const baseTotal        = (data.amountTier ?? 0) * (data.installmentCount ?? 1);
+  const customTipParsed  = data.customTipAmount !== "" && data.customTipAmount != null
+    ? Math.max(0, Number(data.customTipAmount) || 0)
+    : null;
+  const tipAmount        = customTipParsed !== null
+    ? customTipParsed
+    : data.tipPct ? (baseTotal * data.tipPct) / 100 : 0;
+  const hasTip      = tipAmount > 0;
+  const showAddons  = data.addOnBreakdown?.length > 0 || hasTip || data.grandTotal > 0;
 
   return (
     <div className="lg:sticky lg:top-[172px] self-start w-full lg:w-[272px] shrink-0">
