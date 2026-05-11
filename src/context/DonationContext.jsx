@@ -13,6 +13,7 @@ const initialState = {
   zakatEligible: false,
   submitted: false,
   donorMessage: "",
+  customTipAmount: "",
   maxStep: 1,
   amount: "",
   currency: "USD",
