@@ -111,4 +111,4 @@ const Step4Confirmation = () => {
   );
 };
 
-export default Step8Confirmation;
+export default Step4Confirmation;
