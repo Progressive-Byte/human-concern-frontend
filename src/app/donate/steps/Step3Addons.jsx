@@ -4,11 +4,11 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
-import StepLayout from "../DonateComponents/StepLayout";
-import Stepper from "@/components/ui/Stepper";
-import Toggle from "@/components/ui/Toggle";
-import Image from "next/image";
-import { apiRequest } from "@/services/api";
+import StepLayout             from "../DonateComponents/StepLayout";
+import { apiRequest }         from "@/services/api";
+import AddOnsList             from "./StepComponents/Step3components/AddOnsList";
+import TippingSection         from "./StepComponents/Step3components/TippingSection";
+import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
 
 const CURRENCY_OPTIONS = [
   { label: "USD ($)",   value: "USD", symbol: "$"   },
@@ -16,8 +16,6 @@ const CURRENCY_OPTIONS = [
   { label: "EUR (€)",   value: "EUR", symbol: "€"   },
   { label: "CAD (CA$)", value: "CAD", symbol: "CA$" },
 ];
-
-const TIP_PERCENTAGES = [0, 5, 10, 15];
 
 function calcAddOnTotal(addOn, inputValues) {
   const { pricing, amount } = addOn;
@@ -30,17 +28,6 @@ function calcAddOnTotal(addOn, inputValues) {
     );
   }
   return amount ?? 0;
-}
-
-function buildFormulaLabel(addOn, inputValues, sym) {
-  const { pricing } = addOn;
-  if (!pricing?.formula || !pricing?.inputs) return null;
-  const parts = (pricing.inputs ?? []).map((inp) => {
-    const val = inputValues[inp.key] ?? inp.defaultValue ?? 1;
-    return `${val} ${inp.label.toLowerCase()}`;
-  });
-  const base = pricing.baseUnitAmount ?? addOn.amount ?? 0;
-  return `${parts.join(" × ")} × ${sym}${base}`;
 }
 
 const Step3Addons = () => {
@@ -70,11 +57,9 @@ const Step3Addons = () => {
   const numberOfDays = data.numberOfDays ?? 30;
   const isRecurring  = paymentType === "recurring";
 
-  const currencyData = CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0];
-  const sym          = currencyData.symbol;
+  const sym          = (CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0]).symbol;
   const baseDonation = isRecurring ? amountTier * numberOfDays : amountTier;
 
-  // ── Add-ons state ─────────────────────────────────────────────────────────
   const [addOnEnabled, setAddOnEnabled] = useState(() => {
     const breakdown = data.addOnBreakdown;
     if (!breakdown) return Object.fromEntries(campaignAddOns.map((a) => [a.id, true]));
@@ -97,41 +82,20 @@ const Step3Addons = () => {
     );
   });
 
-  const [tipPct, setTipPct]                 = useState(data.tipPct ?? 10);
+  const [tipPct,          setTipPct]          = useState(data.tipPct ?? 10);
   const [customTipAmount, setCustomTipAmount] = useState(data.customTipAmount ?? "");
+  const [gatewayState,    setGatewayState]    = useState({
+    gateway:        ["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null,
+    publishableKey: null,
+  });
+  const [submitting,  setSubmitting]  = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
-  // ── Payment / gateway state ───────────────────────────────────────────────
-  const [gateways, setGateways]               = useState([]);
-  const [gatewaysLoading, setGatewaysLoading] = useState(true);
-  const [selectedGateway, setSelectedGateway] = useState(
-    ["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null
-  );
-  const [publishableKey, setPublishableKey] = useState(null);
-  const [submitting, setSubmitting]         = useState(false);
-  const [submitError, setSubmitError]       = useState(null);
-
-  useEffect(() => {
-    apiRequest("payment/settings")
-      .then((res) => {
-        const raw       = res?.data?.gateways ?? {};
-        const available = Object.values(raw).filter((g) => g.enabled && g.configured);
-        setGateways(available);
-        if (!selectedGateway && available.length > 0) setSelectedGateway(available[0].provider);
-        const stripe = available.find((g) => g.provider === "stripe");
-        if (stripe?.publishableKey) setPublishableKey(stripe.publishableKey);
-      })
-      .catch(() => {})
-      .finally(() => setGatewaysLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // ── Derived totals ────────────────────────────────────────────────────────
   const addOnsTotal = campaignAddOns.reduce((sum, addOn) => {
     if (!addOnEnabled[addOn.id]) return sum;
     return sum + calcAddOnTotal(addOn, addOnInputs[addOn.id] ?? {});
   }, 0);
 
-  const sliderMax       = 15;
   const customTipParsed = customTipAmount !== "" ? Math.max(0, Number(customTipAmount) || 0) : null;
   const tipAmount       = enableTipping
     ? (customTipParsed !== null ? customTipParsed : Math.round((baseDonation * tipPct) / 100 * 100) / 100)
@@ -151,11 +115,9 @@ const Step3Addons = () => {
       values:    addOnInputs[a.id] ?? {},
     }));
 
-  // ── Submission ─────────────────────────────────────────────────────────────
   const buildSubmitBody = () => {
     const scheduleType   = data.scheduleType   ?? "date_range";
     const scheduleConfig = data.scheduleConfig ?? {};
-
     const body = {
       ...(data.campaignId ? { formId: data.campaignId } : { formSlug: data.campaign }),
       info: {
@@ -173,7 +135,7 @@ const Step3Addons = () => {
       },
       causeIds: data.causeIds ?? [],
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
-      paymentMethod: selectedGateway,
+      paymentMethod: gatewayState.gateway,
       ...(data.anonymous && { isAnonymous: true }),
       addons: {
         items: computedBreakdown.map((addon) => ({
@@ -204,40 +166,26 @@ const Step3Addons = () => {
         ...(tipAmount > 0 && { platformTipAmount: tipAmount }),
       };
     }
-
     return body;
   };
 
   const handleSubmit = async () => {
     if (submitting) return;
-
     if (!data.causeIds?.length) {
       setSubmitError("Please go back to 'Info' and select at least one cause.");
       return;
     }
-
-    update({
-      tipPct,
-      grandTotal,
-      addOnsTotal,
-      addOnBreakdown: computedBreakdown,
-      paymentMethod: selectedGateway,
-    });
-
+    update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod: gatewayState.gateway });
     setSubmitting(true);
     setSubmitError(null);
-
     try {
-      const res     = await apiRequest("donations/submit", {
-        method: "POST",
-        body:   JSON.stringify(buildSubmitBody()),
-      });
+      const res     = await apiRequest("donations/submit", { method: "POST", body: JSON.stringify(buildSubmitBody()) });
       const payment = res?.data?.payment ?? {};
       update({
         donationId:           res?.data?.donationId     ?? null,
         guestSessionId:       res?.data?.guestSessionId ?? null,
         stripeClientSecret:   payment.clientSecret       ?? null,
-        stripePublishableKey: publishableKey,
+        stripePublishableKey: gatewayState.publishableKey,
         submitted:            true,
       });
       handleNext(4);
@@ -263,7 +211,6 @@ const Step3Addons = () => {
     >
       <div className="flex flex-col gap-4">
 
-        {/* ── Donation amount display ─────────────────────────────────────── */}
         <div className="border border-[#E5E5E5] rounded-xl px-4 py-3 bg-white">
           <p className="text-[13px] text-[#737373] mb-1.5">Donation Amount</p>
           <p className="text-[28px] font-bold text-[#383838]">
@@ -271,134 +218,26 @@ const Step3Addons = () => {
           </p>
         </div>
 
-        {/* ── Add-ons ─────────────────────────────────────────────────────── */}
-        {campaignAddOns.map((addOn) => {
-          const enabled      = addOnEnabled[addOn.id] ?? true;
-          const inputs       = addOn.pricing?.inputs ?? [];
-          const inputValues  = addOnInputs[addOn.id] ?? {};
-          const addOnTotal   = calcAddOnTotal(addOn, inputValues);
-          const formulaLabel = buildFormulaLabel(addOn, inputValues, sym);
+        <AddOnsList
+          campaignAddOns={campaignAddOns}
+          sym={sym}
+          addOnEnabled={addOnEnabled}
+          setAddOnEnabled={setAddOnEnabled}
+          addOnInputs={addOnInputs}
+          updateAddOnInput={updateAddOnInput}
+        />
 
-          return (
-            <div key={addOn.id} className="border border-[#E5E5E5] rounded-xl bg-white overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3.5">
-                <div>
-                  <p className="text-[14px] font-semibold text-[#383838]">{addOn.name}</p>
-                  <p className="text-[12px] text-[#737373] mt-0.5">
-                    {addOn.labelUnderAmount ?? addOn.shortDescription}
-                  </p>
-                </div>
-                <Toggle
-                  enabled={enabled}
-                  onChange={(val) => setAddOnEnabled((prev) => ({ ...prev, [addOn.id]: val }))}
-                />
-              </div>
-
-              {enabled && inputs.length > 0 && (
-                <div className="px-4 pb-4 border-t border-[#F0F0F0] pt-3">
-                  <div className="flex gap-3">
-                    {inputs.map((inp) => (
-                      <Stepper
-                        key={inp.key}
-                        label={inp.label}
-                        hint="Add yourself & dependants"
-                        value={inputValues[inp.key] ?? inp.defaultValue ?? 1}
-                        onChange={(val) => updateAddOnInput(addOn.id, inp.key, val)}
-                        min={inp.min ?? 1}
-                        max={inp.max ?? 99}
-                      />
-                    ))}
-                    <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl p-3 flex flex-col items-center justify-center flex-1 min-w-0">
-                      <p className="text-[11px] font-medium text-[#065F46] text-center mb-1">Total</p>
-                      <p className="text-[26px] font-bold text-[#065F46] leading-none">{sym}{addOnTotal}</p>
-                      {formulaLabel && (
-                        <p className="text-[10px] text-[#6B7280] mt-1.5 text-center leading-snug">{formulaLabel}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {/* ── Tipping ─────────────────────────────────────────────────────── */}
         {enableTipping && (
-          <div className="border border-[#E5E5E5] rounded-xl bg-[#F9F9F9] px-4 py-4">
-            <p className="text-[14px] font-semibold text-[#383838]">Platform Support Fees</p>
-            <p className="text-[12px] text-[#737373] mt-0.5 mb-4">
-              Voluntary support for organization fees for platform maintenance and well being
-            </p>
-
-            <div className="inline-flex items-center bg-white border border-[#E5E5E5] rounded-lg px-4 py-2 mb-4">
-              <span className="text-[16px] font-bold text-[#383838]">{sym}{tipAmount.toFixed(2)}</span>
-            </div>
-
-            <div className={`transition-opacity ${customTipParsed !== null ? "opacity-40 pointer-events-none select-none" : ""}`}>
-              <input
-                type="range"
-                min={0}
-                max={sliderMax}
-                step={1}
-                value={tipPct}
-                onChange={(e) => { setTipPct(Number(e.target.value)); setCustomTipAmount(""); update({ customTipAmount: "" }); }}
-                className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#EA3335]"
-                style={{
-                  background: `linear-gradient(to right, #EA3335 ${(tipPct / sliderMax) * 100}%, #E5E5E5 ${(tipPct / sliderMax) * 100}%)`,
-                }}
-              />
-              <div className="flex justify-between mt-2">
-                {TIP_PERCENTAGES.map((pct) => (
-                  <span
-                    key={pct}
-                    className={`text-[11px] font-medium transition-colors ${tipPct === pct ? "text-[#EA3335]" : "text-[#AEAEAE]"}`}
-                  >
-                    {pct}%
-                  </span>
-                ))}
-              </div>
-              <p className="text-[11px] text-[#AEAEAE] mt-2">
-                {tipPct}% of base donation ({sym}{baseDonation})
-              </p>
-            </div>
-
-            <div className="mt-3 flex items-center gap-2">
-              <div className="flex-1 h-px bg-[#E5E5E5]" />
-              <span className="text-[11px] text-[#AEAEAE] shrink-0">or custom amount</span>
-              <div className="flex-1 h-px bg-[#E5E5E5]" />
-            </div>
-
-            <div className="mt-3 relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#737373] font-medium text-[14px]">{sym}</span>
-              <input
-                type="number"
-                value={customTipAmount}
-                min={0}
-                placeholder="Enter custom amount"
-                onChange={(e) => { setCustomTipAmount(e.target.value); update({ customTipAmount: e.target.value }); }}
-                onBlur={() => {
-                  if (customTipAmount !== "" && Number(customTipAmount) < 0) setCustomTipAmount("0");
-                }}
-                className={`w-full pl-8 pr-10 py-2.5 rounded-xl border text-[14px] outline-none transition-colors ${
-                  customTipParsed !== null
-                    ? "border-[#EA3335] bg-[#FFF5F5] text-[#383838]"
-                    : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335]"
-                }`}
-              />
-              {customTipAmount !== "" && (
-                <button
-                  type="button"
-                  onClick={() => { setCustomTipAmount(""); update({ customTipAmount: "" }); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#AEAEAE] hover:text-[#383838] text-[20px] leading-none cursor-pointer"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          </div>
+          <TippingSection
+            sym={sym}
+            baseDonation={baseDonation}
+            tipPct={tipPct}
+            setTipPct={setTipPct}
+            customTipAmount={customTipAmount}
+            setCustomTipAmount={setCustomTipAmount}
+          />
         )}
 
-        {/* ── Subtotal ────────────────────────────────────────────────────── */}
         <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3">
           <p className="text-[13px] text-[#383838]">
             <span className="font-bold">Subtotal: </span>
@@ -416,53 +255,11 @@ const Step3Addons = () => {
           </p>
         </div>
 
-        {/* ── Payment method ───────────────────────────────────────────────── */}
-        <div className="pt-1">
-          <p className="text-[14px] font-semibold text-[#383838] mb-3">Payment Method</p>
-          <div className="grid grid-cols-3 gap-3">
-            {gateways
-              .filter((g) => g.provider === "stripe" || g.provider === "paypal")
-              .map((gateway) => {
-                const isSelected = selectedGateway === gateway.provider;
-                return (
-                  <button
-                    key={gateway.provider}
-                    type="button"
-                    onClick={() => setSelectedGateway(gateway.provider)}
-                    className={`flex items-center justify-between px-5 py-5 rounded-2xl border transition-all duration-200 text-left cursor-pointer ${
-                      isSelected
-                        ? "border-[#383838] bg-white shadow-sm"
-                        : "border-[#E5E5E5] bg-white hover:border-[#AEAEAE]"
-                    }`}
-                  >
-                    <span className="text-[14px] font-medium text-[#383838]">
-                      {gateway.provider === "stripe" ? "Stripe" : "PayPal"}
-                    </span>
-                    <div className="relative w-[60px] h-[24px] shrink-0">
-                      <Image
-                        src={gateway.provider === "stripe" ? "/images/stripe.jpg" : "/images/paypal.png"}
-                        alt={gateway.provider}
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                  </button>
-                );
-              })}
-          </div>
-        </div>
-
-        {isRecurring && (
-          <div className="flex items-start gap-2.5 px-1">
-            <span className="text-[15px] shrink-0 mt-px">🚨</span>
-            <p className="text-[13px] text-[#383838] leading-relaxed">
-              For subscriptions or recurring donations, a temporary{" "}
-              <span className="font-semibold">$1 authorization charge</span> will be placed on your
-              card to verify it. This charge will be reversed within{" "}
-              <span className="font-semibold">3-5 business days</span>.
-            </p>
-          </div>
-        )}
+        <PaymentGatewaySelector
+          isRecurring={isRecurring}
+          initialGateway={["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null}
+          onChange={setGatewayState}
+        />
 
         {submitError && (
           <p className="text-[13px] text-[#EA3335] bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-3">
