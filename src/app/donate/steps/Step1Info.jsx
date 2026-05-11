@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Country, State, City } from "country-state-city";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "../DonateComponents/StepLayout";
 import Field from "@/components/ui/Field";
-import CustomDropdown from "@/components/common/CustomDropdown";
-import { ChevronIcon, showMessageIcon } from "@/components/common/SvgIcon";
-import { resolveCountryIso, resolveStateIso } from "@/utils/isoHelpers";
+import AddressSection    from "./StepComponents/AddressSection";
+import CauseSelector     from "./StepComponents/CauseSelector";
+import ObjectiveSelector from "./StepComponents/ObjectiveSelector";
+import DonorPreferences  from "./StepComponents/DonorPreferences";
 
 const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
@@ -27,16 +27,12 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [anonymous, setAnonymous]       = useState(data.anonymous ?? false);
-  const [showMessage, setShowMessage]   = useState(!!data.donorMessage);
-  const [error, setError]               = useState("");
-  const [editMode, setEditMode]     = useState(false);
-  const [addressExpanded, setAddressExpanded] = useState(true);
-  const didAutoCollapse = useRef(false);
-  const prevAuthRef     = useRef(isAuthenticated);
-
-  const [countryCode, setCountryCode] = useState("");
-  const [stateCode,   setStateCode]   = useState("");
+  const [anonymous,        setAnonymous]        = useState(data.anonymous ?? false);
+  const [showMessage,      setShowMessage]      = useState(!!data.donorMessage);
+  const [error,            setError]            = useState("");
+  const [editMode,         setEditMode]         = useState(false);
+  const [addressExpanded,  setAddressExpanded]  = useState(true);
+  const prevAuthRef = useRef(isAuthenticated);
 
   const causes = useMemo(() => {
     try {
@@ -79,16 +75,16 @@ const Step1Info = ({ campaignSlug }) => {
   };
 
   useEffect(() => {
-    const campaign = campaignSlug ?? searchParams.get("campaign");
-    const amount    = searchParams.get("amount");
-    const currency  = searchParams.get("currency");
-    const isRamadan = sessionStorage.getItem("donationIsRamadan") === "1";
+    const campaign    = campaignSlug ?? searchParams.get("campaign");
+    const amount      = searchParams.get("amount");
+    const currency    = searchParams.get("currency");
+    const isRamadan   = sessionStorage.getItem("donationIsRamadan") === "1";
 
-    let campaignId = null;
+    let campaignId    = null;
     let zakatEligible = false;
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
-      campaignId = meta.id ?? null;
+      campaignId    = meta.id ?? null;
       zakatEligible = meta.zakatEligible ?? false;
     } catch {}
 
@@ -104,29 +100,6 @@ const Step1Info = ({ campaignSlug }) => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (!didAutoCollapse.current && (data.addressLine1?.trim() || data.city?.trim())) {
-      setAddressExpanded(false);
-      didAutoCollapse.current = true;
-    }
-  }, [data.addressLine1, data.city]);
-
-  useEffect(() => {
-    if (data.country && !countryCode) {
-      const iso = resolveCountryIso(data.country);
-      if (iso) setCountryCode(iso);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.country]);
-
-  useEffect(() => {
-    if (data.province && countryCode && !stateCode) {
-      const iso = resolveStateIso(data.province, countryCode);
-      if (iso) setStateCode(iso);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.province, countryCode]);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -155,29 +128,11 @@ const Step1Info = ({ campaignSlug }) => {
         addressLine1: "", city: "", province: "", zip: "", country: "",
         causeIds: [], causes: [], objective: null, objectiveLabel: "",
       });
-      setCountryCode("");
-      setStateCode("");
       setEditMode(false);
-      didAutoCollapse.current = false;
       setAddressExpanded(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
-
-  const countryOptions = useMemo(
-    () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
-    []
-  );
-  const stateOptions = useMemo(
-    () => countryCode ? State.getStatesOfCountry(countryCode).map((s) => ({ value: s.isoCode, label: s.name })) : [],
-    [countryCode]
-  );
-  const cityOptions = useMemo(
-    () => countryCode && stateCode
-      ? City.getCitiesOfState(countryCode, stateCode).map((c) => ({ value: c.name, label: c.name }))
-      : [],
-    [countryCode, stateCode]
-  );
 
   const isLocked = (key) => isAuthenticated && !editMode && Boolean(data[key]?.trim());
 
@@ -186,31 +141,6 @@ const Step1Info = ({ campaignSlug }) => {
     onChange: isLocked(key) ? undefined : (e) => { update({ [key]: e.target.value }); setError(""); },
     readOnly: isLocked(key),
   });
-
-  const addressField = (key) => ({
-    value:    data[key] ?? "",
-    onChange: (e) => { update({ [key]: e.target.value }); setError(""); },
-  });
-
-  const handleCountryChange = (isoCode) => {
-    const country = Country.getCountryByCode(isoCode);
-    setCountryCode(isoCode);
-    setStateCode("");
-    update({ country: country?.name ?? "", province: "", city: "" });
-    setError("");
-  };
-
-  const handleStateChange = (isoCode) => {
-    const state = State.getStateByCodeAndCountry(isoCode, countryCode);
-    setStateCode(isoCode);
-    update({ province: state?.name ?? "", city: "" });
-    setError("");
-  };
-
-  const handleCityChange = (cityName) => {
-    update({ city: cityName });
-    setError("");
-  };
 
   const validateAndNext = () => {
     if (
@@ -308,255 +238,32 @@ const Step1Info = ({ campaignSlug }) => {
           </div>
         </div>
 
-        <div className="border border-dashed border-[#E5E7EB] rounded-2xl">
-          <button
-            type="button"
-            onClick={() => setAddressExpanded((v) => !v)}
-            className="w-full flex items-center justify-between px-4 py-3 bg-[#F9F9F9] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
-              <p className="text-[13px] font-semibold text-[#383838]">Address Information</p>
-              {!addressExpanded && data.addressLine1?.trim() && (
-                <span className="text-[11px] text-[#737373] bg-white border border-[#E5E5E5] rounded-full px-2 py-0.5">
-                  {data.city ? `${data.city}, ${data.country}` : data.country}
-                </span>
-              )}
-            </div>
-            <ChevronIcon open={addressExpanded} />
-          </button>
+        <AddressSection
+          setError={setError}
+          addressExpanded={addressExpanded}
+          setAddressExpanded={setAddressExpanded}
+        />
 
-          {addressExpanded && (
-            <div className="flex flex-col gap-4 px-4 py-4">
-              <Field
-                label="Address Line 1"
-                required
-                placeholder="Street number, house number and street name"
-                {...addressField("addressLine1")}
-              />
+        <CauseSelector
+          causes={causes}
+          selectedCauseIds={selectedCauseIds}
+          toggleCause={toggleCause}
+        />
 
-              <div className="flex flex-col gap-1">
-                <label className="text-[13px] font-medium text-[#111827]">
-                  Country<span className="text-[#EA3335] ml-0.5">*</span>
-                </label>
-                <CustomDropdown
-                  variant="form"
-                  options={countryOptions}
-                  value={countryCode}
-                  onChange={handleCountryChange}
-                  placeholder="Select country"
-                  label="Countries"
-                  maxHeight="220px"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-[13px] font-medium text-[#111827]">
-                    Province or State<span className="text-[#EA3335] ml-0.5">*</span>
-                  </label>
-                  {!stateCode && data.province?.trim() ? (
-                    <div className="relative">
-                      <input
-                        readOnly
-                        value={data.province}
-                        className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => { update({ province: "", city: "" }); setStateCode(""); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
-                      >
-                        Change
-                      </button>
-                    </div>
-                  ) : (
-                    <CustomDropdown
-                      variant="form"
-                      options={stateOptions}
-                      value={stateCode}
-                      onChange={handleStateChange}
-                      placeholder={countryCode ? "Select state" : "Select country first"}
-                      label="States"
-                      maxHeight="220px"
-                      disabled={!countryCode}
-                    />
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[13px] font-medium text-[#111827]">
-                    City<span className="text-[#EA3335] ml-0.5">*</span>
-                  </label>
-                  {!stateCode && data.city?.trim() ? (
-                    <div className="relative">
-                      <input
-                        readOnly
-                        value={data.city}
-                        className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => { update({ city: "" }); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
-                      >
-                        Change
-                      </button>
-                    </div>
-                  ) : (
-                    <CustomDropdown
-                      variant="form"
-                      options={cityOptions}
-                      value={data.city ?? ""}
-                      onChange={handleCityChange}
-                      placeholder={stateCode ? "Select city" : "Select state first"}
-                      label="Cities"
-                      maxHeight="220px"
-                      disabled={!stateCode}
-                    />
-                  )}
-                </div>
-              </div>
-
-              <Field
-                label="Zip or Postal Code"
-                required
-                placeholder="e.g. 10001"
-                {...addressField("zip")}
-              />
-            </div>
-          )}
-        </div>
-
-        {causes.length > 0 && (
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <p className="text-[13px] font-semibold text-[#383838]">Select Cause</p>
-              <span className="text-[13px] text-[#8C8C8C]">
-                <span className="text-[#000000] font-normal">{selectedCauseIds.length} selected</span>
-                {" "}of {causes.length}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {causes.map((cause) => {
-                const active = selectedCauseIds.includes(cause.id);
-                return (
-                  <button
-                    key={cause.id}
-                    type="button"
-                    onClick={() => toggleCause(cause)}
-                    className={`flex flex-col items-start gap-2 rounded-xl p-4 border text-left transition-all cursor-pointer ${
-                      active
-                        ? "border-[#EA3335] bg-[#FFF5F5]"
-                        : "border-[#E5E5E5] hover:border-[#CCCCCC] hover:bg-[#FAFAFA]"
-                    }`}
-                  >
-                    {cause.emoji && (
-                      <span className="text-[28px] leading-none">{cause.emoji}</span>
-                    )}
-                    <div>
-                      <p className="text-[14px] font-semibold text-[#383838]">{cause.label}</p>
-                      {cause.desc && (
-                        <p className="text-[12px] text-[#8C8C8C] mt-0.5">{cause.desc}</p>
-                      )}
-                      {cause.zakatEligible && (
-                        <span className="inline-block mt-2 text-[11px] font-medium text-[#8C8C8C] bg-white rounded-full px-1.5 py-0.5">
-                          Zakat Eligible
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+        {data.isRamadan && (
+          <ObjectiveSelector
+            objectives={objectives}
+            objective={data.objective}
+            onSelect={(obj) => update({ objective: obj.id, objectiveLabel: obj.label })}
+          />
         )}
 
-        {data.isRamadan && objectives.length > 0 && (
-          <div className="flex flex-col gap-3">
-            <p className="text-[13px] font-semibold text-[#383838]">
-              Select Objective
-              <span className="ml-1.5 text-[#8C8C8C] font-normal">(optional)</span>
-            </p>
-            {objectives.map((obj) => {
-              const active = data.objective === obj.id;
-              return (
-                <button
-                  key={obj.id}
-                  type="button"
-                  onClick={() => update({ objective: obj.id, objectiveLabel: obj.label })}
-                  className={`w-full flex flex-col items-start rounded-2xl px-5 py-4 border text-left transition-all cursor-pointer ${
-                    active
-                      ? "border-[#EA3335] bg-white"
-                      : "border-[#E5E5E5] hover:border-[#CCCCCC] bg-white"
-                  }`}
-                >
-                  <p className="text-[14px] font-semibold text-[#383838]">{obj.label}</p>
-                  {obj.desc && (
-                    <p className="text-[12px] text-[#8C8C8C] mt-0.5">{obj.desc}</p>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={() => {
-            const next = !anonymous;
-            setAnonymous(next);
-            update({ anonymous: next });
-          }}
-          className="flex items-center gap-3 w-full text-left"
-        >
-          <span
-            className={`w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
-              anonymous ? "border-[#EA3335]" : "border-[#CCCCCC]"
-            }`}
-          >
-            {anonymous && <span className="w-2.5 h-2.5 rounded-full bg-[#EA3335]" />}
-          </span>
-          <span className="text-[14px] text-[#383838]">Make my donation anonymous</span>
-        </button>
-
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              const next = !showMessage;
-              setShowMessage(next);
-              if (!next) update({ donorMessage: "" });
-            }}
-            className="flex items-center gap-3 w-full text-left"
-          >
-            <span
-              className={`w-5 h-5 shrink-0 rounded-md border-2 flex items-center justify-center transition-colors ${
-                showMessage ? "border-[#EA3335] bg-[#EA3335]" : "border-[#CCCCCC]"
-              }`}
-            >
-              {showMessage && (
-                showMessageIcon
-              )}
-            </span>
-            <span className="text-[14px] text-[#383838]">Add a personal message</span>
-          </button>
-
-          {showMessage && (
-            <textarea
-              value={data.donorMessage ?? ""}
-              onChange={(e) => update({ donorMessage: e.target.value })}
-              placeholder="Share a message, dedication, or anything you'd like us to know…"
-              rows={3}
-              maxLength={500}
-              className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#EA3335] resize-none transition-colors"
-            />
-          )}
-          {showMessage && (
-            <p className="text-[11px] text-[#AEAEAE] text-right">
-              {(data.donorMessage ?? "").length} / 500
-            </p>
-          )}
-        </div>
+        <DonorPreferences
+          anonymous={anonymous}
+          setAnonymous={setAnonymous}
+          showMessage={showMessage}
+          setShowMessage={setShowMessage}
+        />
 
         {error && <p className="text-[#EA3335] text-[13px]">{error}</p>}
 
