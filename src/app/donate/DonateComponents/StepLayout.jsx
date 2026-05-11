@@ -36,8 +36,6 @@ const StepLayout = ({
 
   const showPreview = step >= 4;
 
-  console.log( "Data in StepLayout:", data );
-
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
       <div className={`mx-auto ${showPreview ? "max-w-[1024px]" : "max-w-[700px]"}`}>
