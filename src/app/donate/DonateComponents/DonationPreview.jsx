@@ -103,10 +103,12 @@ const DonationPreview = ({ currentStep }) => {
             </Section>
           )}
 
-          {showAddons && data.tipPct > 0 && (
+          {showAddons && hasTip && (
             <Section label="Tip">
               <div className="flex items-center justify-between">
-                <p className="text-[12px] text-[#8C8C8C]">{data.tipPct}% of donation</p>
+                <p className="text-[12px] text-[#8C8C8C]">
+                  {customTipParsed !== null ? "Custom amount" : `${data.tipPct}% of donation`}
+                </p>
                 <p className="text-[12px] font-medium text-[#383838]">
                   {sym}{tipAmount.toFixed(2)}
                 </p>
