@@ -38,11 +38,13 @@ const StepLayout = ({
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
-      <div className={`mx-auto ${showPreview ? "max-w-[1024px]" : "max-w-[700px]"}`}>
+      {/* Form column always centered at max-w-[700px] */}
+      <div className="mx-auto max-w-[700px]">
         <StepProgress current={step} />
 
-        <div className={showPreview ? "flex flex-col lg:flex-row items-start gap-5" : ""}>
-          <div className="relative bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8 flex-1 min-w-0 w-full">
+        {/* relative so the absolute preview is anchored here */}
+        <div className="relative">
+          <div className="relative bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8">
             {data.zakatEligible && (
               <div className="absolute top-5 right-5 sm:top-7 sm:right-7 flex items-center gap-1 bg-[#FFF8E6] border border-[#F5C842] rounded-full px-2.5 py-1">
                 <span className="text-[13px] leading-none">☪️</span>
@@ -83,8 +85,20 @@ const StepLayout = ({
             </div>
           </div>
 
-          {showPreview && <DonationPreview currentStep={step} />}
+          {/* Desktop: preview floats to the right without shifting the form */}
+          {showPreview && (
+            <div className="hidden lg:block absolute top-0 left-[calc(100%+20px)] w-[272px]">
+              <DonationPreview currentStep={step} />
+            </div>
+          )}
         </div>
+
+        {/* Mobile: preview below form in normal flow */}
+        {showPreview && (
+          <div className="lg:hidden mt-5">
+            <DonationPreview currentStep={step} />
+          </div>
+        )}
 
         <p className="text-center text-[12px] text-[#AEAEAE] mt-4">
           Step {displayStep} of {totalSteps} — Your information is secure and encrypted.
