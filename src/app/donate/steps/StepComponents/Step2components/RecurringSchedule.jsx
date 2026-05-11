@@ -228,7 +228,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
                 <p className="text-[13px] font-medium text-[#383838]">Amount Per Date</p>
                 <p className="text-[11px] text-[#737373]">Default: {sym}{effectiveAmount}</p>
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto pr-0.5">
                 {[...selectedDates].sort().map((d) => (
                   <DateAmountRow
                     key={d}
