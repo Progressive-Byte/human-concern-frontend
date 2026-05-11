@@ -19,7 +19,10 @@ const DonationPreview = ({ currentStep }) => {
 
   const showPayment = Boolean(data.amountTier);
 
-  const baseTotal       = (data.amountTier ?? 0) * (data.installmentCount ?? 1);
+  // For specific_dates recurring with per-date custom amounts, use the pre-computed sum.
+  const baseTotal = (data.scheduleType === "specific_dates" && data.perDateTotal != null)
+    ? data.perDateTotal
+    : (data.amountTier ?? 0) * (data.installmentCount ?? 1);
   const customTipParsed = data.customTipAmount !== "" && data.customTipAmount != null
     ? Math.max(0, Number(data.customTipAmount) || 0)
     : null;
