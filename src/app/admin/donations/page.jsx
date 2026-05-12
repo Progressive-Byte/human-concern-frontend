@@ -3,9 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
-import { apiBase } from "@/utils/constants";
 import { formatCurrency } from "@/utils/helpers";
-import { getAdminDonations, getAdminDonationsExportUrl, getAdminDonationsSummary } from "@/services/admin";
+import { getAdminTransactions } from "@/services/admin";
 import DonationsHeader from "./components/DonationsHeader";
 import DonationsSummaryCards from "./components/DonationsSummaryCards";
 import DonationsFilters from "./components/DonationsFilters";
@@ -94,48 +93,61 @@ function normalizePagination(res) {
   };
 }
 
+function normalizeSummary(res) {
+  const s = res?.meta?.summary || res?.data?.meta?.summary || res?.summary || res?.data?.summary || null;
+  if (!s || typeof s !== "object") return null;
+  return {
+    totalTransactions: Number(s?.totalTransactions || 0),
+    completedTransactions: Number(s?.completedTransactions || 0),
+    totalAmount: Number(s?.totalAmount || 0),
+    tipsCollected: Number(s?.tipsCollected || 0),
+  };
+}
+
 function normalizeDonation(raw) {
   const id = String(raw?.id || raw?._id || "");
-
-  const donorObj = raw?.donor && typeof raw.donor === "object" ? raw.donor : null;
-  const donorName = String(donorObj?.name || raw?.donorName || raw?.name || raw?.donorFullName || "—");
-  const donorEmail = String(donorObj?.email || raw?.donorEmail || raw?.email || "");
-
-  const campaignObj = raw?.campaign && typeof raw.campaign === "object" ? raw.campaign : null;
-  const campaignName = String(campaignObj?.name || raw?.campaignName || raw?.formName || raw?.campaignTitle || "—");
-
-  const causes = Array.isArray(raw?.causes) ? raw.causes : [];
-
+  const donationId = String(raw?.donationId || "");
+  const provider = String(raw?.provider || "");
+  const providerTransactionId = String(raw?.providerTransactionId || "");
   const amount = typeof raw?.amount === "number" ? raw.amount : Number(raw?.amount || 0);
-  const tipAmount =
-    typeof raw?.tipAmount === "number"
-      ? raw.tipAmount
-      : typeof raw?.tip === "number"
-        ? raw.tip
-        : typeof raw?.tipCollected === "number"
-          ? raw.tipCollected
-          : Number(raw?.tipAmount || raw?.tip || 0);
+  const tipAmount = typeof raw?.tipAmount === "number" ? raw.tipAmount : Number(raw?.tipAmount || 0);
   const currency = String(raw?.currency || "USD");
-  const status = String(raw?.status || raw?.paymentStatus || "").toLowerCase();
-  const createdAt = raw?.createdAt || raw?.at || raw?.timestamp || null;
+  const status = String(raw?.status || "").toLowerCase();
+  const statusLabel = String(raw?.statusLabel || "").toLowerCase();
+  const reconciled = Boolean(raw?.reconciled ?? false);
+  const createdAt = raw?.createdAt || null;
+
+  const donorDisplay = raw?.donorDisplay && typeof raw.donorDisplay === "object" ? raw.donorDisplay : null;
+  const donorLabel = String(donorDisplay?.label || "—");
+  const donorEmail = String(donorDisplay?.email || "");
+
+  const campaignName = String(raw?.campaignName || raw?.formName || "—");
+  const causeLabel = String(raw?.causeLabel || "—");
+  const causeType = String(raw?.causeType || "");
 
   return {
     id,
-    donor: { name: donorName, email: donorEmail },
+    donationId,
+    provider,
+    providerTransactionId,
+    donor: { name: donorLabel, email: donorEmail },
     campaignName,
-    causes,
+    causeLabel,
+    causeType,
     amount,
     tipAmount,
     currency,
     status,
+    statusLabel,
+    reconciled,
     createdAt,
   };
 }
 
-function unwrapObject(res) {
-  if (res?.data && typeof res.data === "object" && !Array.isArray(res.data)) return res.data;
-  if (res?.data?.data && typeof res.data.data === "object" && !Array.isArray(res.data.data)) return res.data.data;
-  return res && typeof res === "object" ? res : null;
+function escapeCsvCell(value) {
+  const s = String(value ?? "");
+  if (s.includes('"') || s.includes(",") || s.includes("\n")) return `"${s.replaceAll('"', '""')}"`;
+  return s;
 }
 
 export default function AdminDonationsPage() {
@@ -174,24 +186,15 @@ export default function AdminDonationsPage() {
     setRefreshKey((v) => v + 1);
   }
 
-  const queryScope = useMemo(() => {
-    const base = {
-      q: debouncedQ,
-      status: filters.status,
-      from: filters.from || undefined,
-      to: filters.to || undefined,
-    };
-    return base;
-  }, [debouncedQ, filters.status, filters.from, filters.to]);
-
   useEffect(() => {
     let alive = true;
 
     async function load() {
       setLoading(true);
       setError("");
+      setSummaryLoading(true);
       try {
-        const res = await getAdminDonations({
+        const res = await getAdminTransactions({
           page: filters.page,
           limit: filters.limit,
           sort: filters.sort,
@@ -207,15 +210,32 @@ export default function AdminDonationsPage() {
         const rawItems = normalizeItemsResponse(res);
         const normalized = (Array.isArray(rawItems) ? rawItems : []).map(normalizeDonation);
         setItems(normalized);
-        setPagination(normalizePagination(res));
+        const p = normalizePagination(res);
+        setPagination(p);
+
+        const s = normalizeSummary(res);
+        const currency = normalized[0]?.currency || summary.currency || "USD";
+        if (s) {
+          setSummary({ ...s, currency });
+        } else {
+          const completed = normalized.filter((d) =>
+            ["completed", "succeeded"].includes(String(d?.statusLabel || d?.status || "").toLowerCase())
+          ).length;
+          const totalAmount = normalized.reduce((acc, d) => acc + Number(d?.amount || 0), 0);
+          const tipsCollected = normalized.reduce((acc, d) => acc + Number(d?.tipAmount || 0), 0);
+          const totalTransactions = Number(p?.total ?? normalized.length ?? 0);
+          setSummary({ totalTransactions, completedTransactions: completed, totalAmount, tipsCollected, currency });
+        }
       } catch (e) {
         if (!alive) return;
         setError(e?.message || "Failed to load transactions.");
         setItems([]);
         setPagination(null);
+        setSummary({ totalTransactions: 0, completedTransactions: 0, totalAmount: 0, tipsCollected: 0, currency: "USD" });
       } finally {
         if (!alive) return;
         setLoading(false);
+        setSummaryLoading(false);
       }
     }
 
@@ -235,58 +255,74 @@ export default function AdminDonationsPage() {
     refreshKey,
   ]);
 
-  useEffect(() => {
-    let alive = true;
-
-    async function loadSummary() {
-      setSummaryLoading(true);
-      try {
-        const res = await getAdminDonationsSummary(queryScope);
-        if (!alive) return;
-        const s = unwrapObject(res) || {};
-
-        const currency = String(s?.currency || summary.currency || "USD");
-        setSummary({
-          totalTransactions: Number(s?.totalTransactions ?? s?.total ?? 0),
-          completedTransactions: Number(s?.completedTransactions ?? s?.completed ?? 0),
-          totalAmount: Number(s?.totalAmount ?? 0),
-          tipsCollected: Number(s?.tipsCollected ?? s?.totalTips ?? 0),
-          currency,
-        });
-      } catch {
-        if (!alive) return;
-        const currency = items[0]?.currency || summary.currency || "USD";
-        const completed = items.filter((d) => ["completed", "succeeded"].includes(String(d?.status || "").toLowerCase())).length;
-        const totalAmount = items.reduce((acc, d) => acc + Number(d?.amount || 0), 0);
-        const tipsCollected = items.reduce((acc, d) => acc + Number(d?.tipAmount || 0), 0);
-        const totalTransactions = Number(pagination?.total ?? items.length ?? 0);
-        setSummary({ totalTransactions, completedTransactions: completed, totalAmount, tipsCollected, currency });
-      } finally {
-        if (!alive) return;
-        setSummaryLoading(false);
-      }
-    }
-
-    loadSummary();
-    return () => {
-      alive = false;
-    };
-  }, [queryScope, refreshKey]);
-
   function handleExport() {
     try {
-      const endpoint = getAdminDonationsExportUrl({
-        sort: filters.sort,
-        order: filters.order,
-        q: debouncedQ,
-        status: filters.status,
-        from: filters.from || undefined,
-        to: filters.to || undefined,
-      });
+      const rows = Array.isArray(items) ? items : [];
+      if (rows.length === 0) {
+        toast.info("No rows to export.");
+        return;
+      }
 
-      const base = String(apiBase || "/api/v1/").replace(/\/$/, "");
-      const url = `${base}${endpoint}`;
-      window.open(url, "_blank", "noopener,noreferrer");
+      const header = [
+        "id",
+        "donationId",
+        "donorLabel",
+        "donorEmail",
+        "campaignName",
+        "formOrCampaign",
+        "causeLabel",
+        "causeType",
+        "amount",
+        "currency",
+        "tipAmount",
+        "fees",
+        "netAmount",
+        "status",
+        "statusLabel",
+        "provider",
+        "providerTransactionId",
+        "reconciled",
+        "createdAt",
+      ];
+
+      const lines = [header.join(",")];
+      for (const d of rows) {
+        lines.push(
+          [
+            d.id,
+            d.donationId,
+            d?.donor?.name,
+            d?.donor?.email,
+            d.campaignName,
+            d.campaignName,
+            d.causeLabel,
+            d.causeType,
+            d.amount,
+            d.currency,
+            d.tipAmount,
+            "",
+            "",
+            d.status,
+            d.statusLabel,
+            d.provider,
+            d.providerTransactionId,
+            d.reconciled,
+            d.createdAt,
+          ]
+            .map(escapeCsvCell)
+            .join(",")
+        );
+      }
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "transactions.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
     } catch (e) {
       toast.error(e?.message || "Export failed.");
     }

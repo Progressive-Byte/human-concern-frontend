@@ -3,6 +3,7 @@
 const styles = {
   completed: "bg-[#ECFDF5] text-[#047857]",
   succeeded: "bg-[#ECFDF5] text-[#047857]",
+  processing: "bg-[#EEF2FF] text-[#3730A3]",
   pending: "bg-[#FEF3C7] text-[#92400E]",
   failed: "bg-red-500/10 text-red-600",
   refunded: "bg-[#EEF2FF] text-[#3730A3]",
@@ -36,7 +37,7 @@ function ClockIcon() {
 function getIcon(key) {
   if (key === "completed" || key === "succeeded") return <CheckIcon />;
   if (key === "failed") return <XIcon />;
-  if (key === "pending") return <ClockIcon />;
+  if (key === "pending" || key === "processing") return <ClockIcon />;
   return null;
 }
 
@@ -53,4 +54,3 @@ export default function DonationStatusPill({ status }) {
     </span>
   );
 }
-

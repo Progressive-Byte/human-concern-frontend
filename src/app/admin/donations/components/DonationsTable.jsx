@@ -20,14 +20,6 @@ function shortTransactionId(id) {
   return `#${tail}`;
 }
 
-function causeLabel(causes) {
-  const rows = Array.isArray(causes) ? causes : [];
-  const first = rows[0];
-  const name = typeof first?.name === "string" && first.name.trim() ? first.name.trim() : "—";
-  if (rows.length <= 1) return name;
-  return `${name} +${rows.length - 1}`;
-}
-
 function Skeleton() {
   return (
     <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
@@ -97,10 +89,10 @@ export default function DonationsTable({
                 const donorName = String(d?.donor?.name || "—");
                 const donorEmail = String(d?.donor?.email || "");
                 const campaignName = String(d?.campaignName || "—");
-                const cause = causeLabel(d?.causes);
+                const cause = String(d?.causeLabel || "—");
                 const amount = Number(d?.amount || 0);
                 const tip = Number(d?.tipAmount || 0);
-                const status = String(d?.status || "—");
+                const status = String(d?.statusLabel || d?.status || "—");
                 const createdAt = d?.createdAt;
 
                 return (
@@ -148,4 +140,3 @@ export default function DonationsTable({
     </section>
   );
 }
-

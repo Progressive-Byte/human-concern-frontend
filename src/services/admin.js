@@ -393,6 +393,29 @@ export function getAdminDonationsExportUrl({ sort, order, q, status, from, to, c
   return query ? `/admin/donations/export?${query}` : "/admin/donations/export";
 }
 
+export function getAdminTransactions({ page, limit, sort, order, q, status, provider, reconciled, from, to } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (typeof provider === "string" && provider.trim()) params.set("provider", provider.trim());
+  if (typeof reconciled === "string" && reconciled.trim()) params.set("reconciled", reconciled.trim());
+
+  if (typeof reconciled === "boolean") params.set("reconciled", reconciled ? "true" : "false");
+
+  if (typeof from === "string" && from.trim()) params.set("from", from.trim());
+  if (typeof to === "string" && to.trim()) params.set("to", to.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/transactions?${query}` : "/admin/transactions";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
 // -----------------------------
 // Add-ons
 // -----------------------------
