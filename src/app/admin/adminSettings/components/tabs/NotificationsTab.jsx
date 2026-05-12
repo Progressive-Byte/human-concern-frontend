@@ -86,4 +86,3 @@ export default function NotificationsTab({ value, onChange, loading, saving, onS
     </SettingsSectionCard>
   );
 }
-

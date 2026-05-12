@@ -104,10 +104,15 @@ export default function SecurityTab({ value, onChange, loading, saving, password
             <div className="text-[13px] font-semibold text-[#111827]">Session Timeout</div>
             <div className="mt-1 text-[12px] text-[#6B7280]">Automatically log out after inactivity</div>
           </div>
-          <div className="w-full md:w-[180px]">
+          <div className="w-full md:w-45">
             <SelectInput
               value={sessionTimeoutMinutes === "" ? "" : String(sessionTimeoutMinutes)}
-              onChange={(e) => onChange?.((prev) => ({ ...(prev || {}), sessionTimeoutMinutes: Number(e.target.value) }))}
+              onChange={(e) =>
+                onChange?.((prev) => ({
+                  ...(prev || {}),
+                  sessionTimeoutMinutes: e.target.value === "" ? "" : Number(e.target.value),
+                }))
+              }
               disabled={loading}
             >
               <option value="">Select</option>
@@ -162,4 +167,3 @@ export default function SecurityTab({ value, onChange, loading, saving, password
     </SettingsSectionCard>
   );
 }
-

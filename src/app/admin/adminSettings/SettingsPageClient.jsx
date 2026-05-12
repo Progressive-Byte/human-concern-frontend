@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import {
-  changeAuthPassword,
+  changeAdminPassword,
   deleteAdminBrandingLogo,
   disconnectAdminPaymentGateway,
   getAdminSettingsBranding,
@@ -118,16 +118,18 @@ export default function SettingsPageClient() {
           const res = await getAdminSettingsNotifications();
           if (!alive) return;
           const data = normalizeObj(res);
-          setNotifications(data);
-          setNotificationsInitial(data);
+          const n = data?.notifications && typeof data.notifications === "object" ? data.notifications : data;
+          setNotifications(n);
+          setNotificationsInitial(n);
         }
         if (activeTab === "security") {
           setSecurityLoading(true);
           const res = await getAdminSettingsSecurity();
           if (!alive) return;
           const data = normalizeObj(res);
-          setSecurity(data);
-          setSecurityInitial(data);
+          const s = data?.security && typeof data.security === "object" ? data.security : data;
+          setSecurity(s);
+          setSecurityInitial(s);
         }
         if (activeTab === "branding") {
           setBrandingLoading(true);
@@ -207,8 +209,9 @@ export default function SettingsPageClient() {
       }
       const res = await updateAdminSettingsNotifications(payload);
       const data = normalizeObj(res);
-      setNotifications(data);
-      setNotificationsInitial(data);
+      const n = data?.notifications && typeof data.notifications === "object" ? data.notifications : data;
+      setNotifications(n);
+      setNotificationsInitial(n);
       toast.success("Saved");
     } catch (e) {
       setError(e?.message || "Save failed.");
@@ -239,8 +242,9 @@ export default function SettingsPageClient() {
       if (secHasChanges) {
         const res = await updateAdminSettingsSecurity(secPayload);
         const data = normalizeObj(res);
-        setSecurity(data);
-        setSecurityInitial(data);
+        const s = data?.security && typeof data.security === "object" ? data.security : data;
+        setSecurity(s);
+        setSecurityInitial(s);
       }
 
       if (wantsPasswordChange) {
@@ -257,7 +261,7 @@ export default function SettingsPageClient() {
           return;
         }
 
-        await changeAuthPassword({ currentPassword, newPassword });
+        await changeAdminPassword({ currentPassword, newPassword });
         setPasswordForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
       }
 

@@ -468,6 +468,10 @@ export function changeAuthPassword(payload) {
   return adminApiRequest("/auth/change-password", { method: "POST", body: JSON.stringify(payload) });
 }
 
+export function changeAdminPassword(payload) {
+  return adminApiRequest("/admin/auth/change-password", { method: "POST", body: JSON.stringify(payload) });
+}
+
 export function getAdminSettingsBranding() {
   return adminApiRequest("/admin/settings/branding", { method: "GET" });
 }
