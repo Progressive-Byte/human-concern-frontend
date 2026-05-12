@@ -1,26 +1,27 @@
-import { EditIcon, PauseIcon, PlayIcon, TrashIcon } from "@/components/common/SvgIcon";
+import Link from "next/link";
+import { EyeIcon, PauseIcon, PlayIcon, TrashIcon } from "@/components/common/SvgIcon";
 
-const ActionButtons = ({ isActive }) => {
+const ActionButtons = ({ isActive, slug }) => {
   return (
     <>
       <button
         type="button"
         title={isActive ? "Pause" : "Resume"}
-        className="w-8 h-8 rounded-lg border border-[#EBEBEB] flex items-center justify-center text-[#8C8C8C] hover:border-[#055A46]/40 hover:text-[#055A46] hover:bg-[#ECF9F3] transition-colors cursor-pointer"
+        className="w-8 h-8 rounded-lg border border-dashed border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:border-red-500/40 hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
       >
         {isActive ? PauseIcon : PlayIcon}
       </button>
-      <button
-        type="button"
-        title="Edit"
-        className="w-8 h-8 rounded-lg border border-[#EBEBEB] flex items-center justify-center text-[#8C8C8C] hover:border-[#055A46]/40 hover:text-[#055A46] hover:bg-[#ECF9F3] transition-colors cursor-pointer"
+      <Link
+        href={`/dashboard/schedules/${slug}`}
+        title="View"
+        className="w-8 h-8 rounded-lg border border-dashed border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:border-red-500/40 hover:text-red-600 hover:bg-red-500/10 transition-colors"
       >
-        {EditIcon}
-      </button>
+        {EyeIcon}
+      </Link>
       <button
         type="button"
         title="Cancel"
-        className="w-8 h-8 rounded-lg border border-[#EBEBEB] flex items-center justify-center text-[#8C8C8C] hover:border-[#EA3335]/40 hover:text-[#EA3335] hover:bg-[#FFF5F5] transition-colors cursor-pointer"
+        className="w-8 h-8 rounded-lg border border-dashed border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:border-[#EA3335]/40 hover:text-[#EA3335] hover:bg-[#FFF5F5] transition-colors cursor-pointer"
       >
         {TrashIcon}
       </button>

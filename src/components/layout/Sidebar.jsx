@@ -6,7 +6,7 @@ const links = [
   { href: "/dashboard/profile", label: "Profile" },
 ];
 
-export default function Sidebar() {
+const Sidebar = () => {
   return (
     <aside className="w-full border-r border-gray-200 bg-white p-4 md:w-64">
       <nav className="space-y-2">
@@ -23,3 +23,5 @@ export default function Sidebar() {
     </aside>
   );
 }
+
+export default Sidebar;

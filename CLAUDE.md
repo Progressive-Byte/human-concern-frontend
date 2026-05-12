@@ -5,82 +5,106 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # Start dev server (Next.js)
+npm run dev      # Start development server (Next.js)
 npm run build    # Production build
-npm run lint     # ESLint check
+npm run start    # Start production server
+npm run lint     # Run ESLint
 ```
 
-No test suite is configured. There is no `test` script.
+No test runner is configured.
 
 ## Architecture Overview
 
-Next.js 16 App Router project using React 19, Tailwind CSS v4, and JavaScript (no TypeScript).
+This is a **Next.js App Router** project using React 19 and Tailwind CSS 4. Recharts is used for admin charts.
 
-### Route groups
+### Routing
 
-| Group | Path prefix | Purpose |
-|---|---|---|
-| `(site)` | `/`, `/campaigns` | Public-facing marketing pages |
-| `(auth)` | `/user/*`, `/admin/*` (auth pages) | Login / register / password reset |
-| `dashboard` | `/dashboard/*` | Authenticated user portal |
-| `admin` | `/admin/*` | Admin panel |
-| `donate` | `/donate/[step]` | Legacy donation wizard (direct, no campaign) |
-| `[campaignSlug]` | `/[slug]/[step]` | Primary donation wizard entry via campaign page |
+Routes live in `src/app/` using the App Router convention with route groups:
+- `(site)/` — public-facing pages (home, campaign listing)
+- `(auth)/` — login, register, password reset (both user and admin sub-paths)
+- `[campaignSlug]/` — dynamic campaign detail
+- `dashboard/` — authenticated user area
+- `admin/` — admin-only panel (campaigns, forms, donations, settings)
+- `donate/` — donation flow
 
-### Donate wizard (`src/app/donate/steps/`)
+Route protection is handled in `src/middleware.js`: unauthenticated users accessing `/dashboard` are redirected to `/user/login`; admin routes require a separate `adminToken` cookie.
 
-Step components live in `src/app/donate/steps/` and are shared between two dynamic routes:
-- `src/app/[campaignSlug]/[step]/page.jsx` — primary entry, receives `campaignSlug` prop
-- `src/app/donate/[step]/page.jsx` — legacy fallback (no slug prop)
+### API Layer
 
-Both routes map step numbers 1–8 to the same `STEPS` array. Navigation is managed by `useStepNavigation`, which reads `data.campaign` from context to build the base URL: `/${data.campaign}` if set, else `/donate`.
+All HTTP calls go through `src/services/api.js`:
+- `apiRequest()` — client-side only, attaches the user `token` cookie as a Bearer header
+- `adminApiRequest()` — attaches `adminToken`
+- `apiBase` (`/api/v1/`) is rewritten by `next.config.mjs` to `https://donation.api.sagsio.com/api/v1/`
+- `serverApiBase` (`https://donation.api.sagsio.com/api/v1/`) is used directly in server components
 
-**Step order:** Info → Cause → Objective (Ramadan only) → Payment → Add-ons → Summary → Payment Details → Confirmation
+On any `401` response, `api.js` dispatches `window.dispatchEvent(new CustomEvent("auth:unauthorized"))` — never throw/handle 401s manually in components.
 
-When `data.isRamadan` is false, Step 3 (Objective) is skipped — Step 2 navigates directly to Step 4, and `StepLayout` adjusts the displayed step number (`displayStep = step > 3 ? step - 1 : step`).
+Domain services (`authService.js`, `campaignService.js`, `donationService.js`, `admin.js`, `adminAuthService.js`) wrap `apiRequest`/`adminApiRequest` and are the only place that should call the API directly.
 
-**Wizard entry point** is `DonationWidget` (`src/app/(site)/campaigns/[slug]/components/DonationWidget.jsx`), which:
-1. Detects `isRamadan` by checking if any campaign category name equals `"ramadan"` (case-insensitive)
-2. Writes `sessionStorage["donationIsRamadan"]` (`"1"` or `"0"`) and `sessionStorage["campaignData"]` (JSON with fields: `id`, `name`, `description`, `suggestedAmounts`, `addOns`, `goalsDates`, `causes`, `donationObjectives`)
-3. Pushes to `/${campaign.slug}/1?amount=…&currency=…`
+Campaign detail pages (`(site)/campaigns/[slug]/page.jsx`) fetch server-side with ISR (`revalidate: 60`) using `serverApiBase`. All other data fetching is client-side via `apiRequest`.
 
-Step 1 (`Step1Info`) reads `campaignSlug` prop or `?campaign` query param and stores it as `data.campaign` in context. Campaign metadata is read from `sessionStorage["campaignData"]` via `useMemo` in steps that need it.
+### Authentication
 
-**Payment submission flow:**
-- Step 7 (`Step7PaymentDetails`) calls `POST donations/submit` which creates the donation record and returns `clientSecret`, `publishableKey`, `donationId`, and optionally `guestSessionId`
-- Step 8 (`Step8Confirmation`) initializes Stripe `Elements` with the `clientSecret` from context and renders `StripeCheckoutForm` for card entry
-- For recurring payments, Stripe `confirmSetup` is used and a `POST payment/setup-intent/confirm` finalises the subscription; for one-time, `confirmPayment` is used directly
+Two independent auth systems:
+- **User auth**: `AuthContext` (`src/context/AuthContext.jsx`) — stores `hc_user` in localStorage and a `token` cookie. Exposes `useAuth()` hook with `login()`, `register()`, `logout()`. On mount, decodes the JWT `exp` to immediately logout if expired; sets a `setTimeout` to auto-logout when the token expires. Listens for `auth:unauthorized` as a fallback for mid-session 401s.
+- **Admin auth**: `AdminAuthContext` (`src/context/AdminAuthContext.jsx`) — uses an `adminToken` cookie only; no auto-expiry logic.
 
-### DonationContext (`src/context/DonationContext.jsx`)
+`src/hooks/useAuth.js` is a legacy re-export shim — import `useAuth` from `@/context/AuthContext` directly.
 
-All wizard state lives in `DonationContext`. The base `useState` initialises a minimal shape; steps extend it freely via `update(fields)`. Key fields accumulated across steps: `campaign` (slug), `campaignId`, `campaignTitle`, `isRamadan`, `maxStep`, `amount`, `currency`, `firstName`, `lastName`, `email`, `phone`, `country`, `addressLine1`, `city`, `province`, `zip`, `causeIds`, `causes`, `objective`, `objectiveLabel`, `paymentType`, `scheduleType`, `scheduleConfig`, `installmentCount`, `numberOfDays`, `frequency`, `amountTier`, `tipPct`, `addOnBreakdown`, `grandTotal`, `anonymous`, `paymentMethod`, `donationId`, `guestSessionId`, `stripeClientSecret`, `stripePublishableKey`.
+### Donation Flow
 
-### API layer
+The same 4 step components are shared across two URL patterns:
+- `/donate/[step]` — generic flow, no campaign context
+- `/[campaignSlug]/[step]` — campaign-specific flow
 
-All API calls go through `src/services/api.js`. In development, Next.js rewrites `/api/v1/*` to `https://donation.api.sagsio.com/api/v1/*` (configured in `next.config.mjs`). `apiBase` is `/api/v1/` (with trailing slash), so endpoints are passed without a leading slash (e.g. `"donations/submit"`).
+`useStepNavigation` (`src/hooks/useStepNavigation.js`) reads `data.campaign` from `DonationContext` to determine the base route and pushes steps by number. `handleNext(n?)` advances to step `n` (or `maxStep+1`) and updates `maxStep`; `handlePrev(n)` navigates to step `n`.
 
-Two request helpers: `apiRequest` (reads `token` cookie) and `adminApiRequest` (reads `adminToken` cookie). Both attach a `Bearer` token and throw an `Error` with the server's message on non-OK responses.
+**Step breakdown** (visible in StepProgress as: Info → Payment → Add-ons & Pay → Confirmation):
+- **Step 1** (`Step1Info.jsx`) — Personal info (name, email, phone, address via `country-state-city` dropdowns), cause selection (from `campaignData.causes`), and Ramadan objective selection (only if `data.isRamadan`). Validates required fields + at least one cause selected.
+- **Step 2** (`Step2Payment.jsx`) — Donation amount (suggested tiles + custom input validated against `minDonation`/`maxDonation`), currency (USD/GBP/EUR/CAD), payment type (one-time or recurring). Recurring adds schedule: "specific_dates" (multi-select via `MiniCalendar`) or "date_range" (startDate + endDate + frequency: daily/weekly/monthly). Redirects back to step 4 if donation was already submitted.
+- **Step 3** (`Step3Addons.jsx`) — Optional add-ons (fixed or formula-based pricing with user inputs), tipping slider (0–15%, configurable per campaign), and payment gateway selection (Stripe/PayPal). Submits to `donations/submit`, stores `stripeClientSecret` + `stripePublishableKey` + `donationId` in `DonationContext`.
+- **Step 4** (`Step4Confirmation.jsx`) — Stripe card entry via `StripeCheckoutForm` (PayPal shows "coming soon"). After payment, redirects to `/donate/thank-you`.
 
-Service modules wrap the helpers:
-- `campaignService.js` — `getCampaigns()`, `getCampaignById(id)`
-- `donationService.js` — `createDonation(payload)`, `getUserDonations()`
-- `authService.js` — user login/register
-- `adminAuthService.js` — admin login
+Step 1 uses `country-state-city` (npm package) for ISO-code-aware Country/State/City dropdowns. `src/utils/isoHelpers.js` provides `resolveCountryIso` and `resolveStateIso` to handle legacy API codes (ISO3 → ISO2 mapping).
 
-### Auth
+**Campaign sessionStorage schema** — the campaign detail page writes `campaignData` before the user enters the donate flow:
+```js
+{
+  id, name, suggestedAmounts,
+  causes: [{ id, name, description, iconEmoji, zakatEligible }],
+  donationObjectives: [{ id, name, description }],          // Ramadan only
+  addOns: [{ id, name, iconEmoji, amount,
+    pricing: { type: "fixed"|"formula", baseUnitAmount,
+      inputs: [{ key, label, defaultValue }], formula } }],
+  goalsDates: { allowRecurringDonations, minimumDonation, maximumDonation, enableTipping }
+}
+```
+`donationIsRamadan` is a separate sessionStorage key (`"1"` / absent).
 
-- **User auth:** `AuthContext` — exposes `{ user, loading, isAuthenticated, login, register, logout }`. Stores user object in `localStorage["hc_user"]` and JWT in `token` cookie. Consumed via `useAuth()` from `@/context/AuthContext`.
-- **Admin auth:** `AdminAuthContext` — separate context, uses `adminToken` cookie.
-- **Middleware** (`src/middleware.js`) guards `/dashboard/*` (requires `token`) and `/admin/*` (requires `adminToken`), and redirects authenticated users away from auth pages.
+### State Management
 
-### Path aliases
+React Context only — no Redux or Zustand. The two auth contexts above plus `DonationContext` (`src/context/DonationContext.jsx`), which holds all multi-step donation form state and exposes `useDonation()` returning `{ data, update, reset }`. `DonationProvider` wraps both `/donate` and `/[campaignSlug]` layouts. State is persisted to sessionStorage under the key `hc_donation`; `reset()` clears both the context and sessionStorage (including `hc_donation_done`).
 
-`@/` maps to `src/` (configured in `jsconfig.json`).
+Key `DonationContext` fields: `campaign`, `campaignId`, `campaignTitle`, `isRamadan`, `zakatEligible`, `submitted`, `maxStep`, `amount`, `amountTier`, `currency`, `frequency`, `paymentType`, `scheduleType`, `scheduleConfig`, `installmentCount`, `numberOfDays`, `tipPct`, `customTipAmount`, `addOnsTotal`, `grandTotal`, `addOnBreakdown`, `donorMessage`, `anonymous`, `paymentMethod`, `stripeClientSecret`, `stripePublishableKey`, `donationId`, `guestSessionId`, `causeIds`, `causes`, `objective`, `objectiveLabel`, and donor fields (`firstName`, `lastName`, `email`, `phone`, `addressLine1`, `city`, `province`, `zip`, `country`).
 
-### Styling
+### Component Conventions
 
-Tailwind CSS v4 with inline utility classes. Color palette uses hex literals directly (e.g. `#EA3335` for red, `#055A46` for green, `#383838` for primary text, `#737373` / `#8C8C8C` / `#AEAEAE` for muted text). No CSS variables or theme tokens are defined.
+- Mark interactive components with `"use client"` at the top.
+- Shared primitives go in `src/components/ui/` (`Field`, `Select`, `Toggle`, `Button`, `OutlineButton`, `Card`, `Row`, `Input`, `NumberInput`, `Stepper`, `Section`, `DetailRow`, `UserSectionHeader`, `UserToggle`).
+- Common non-primitive components go in `src/components/common/` (`SvgIcon`, `CustomDropdown`, `FormInput`, `VideoModal`, `Pagination`).
+- Layout chrome (Navbar, Footer, Sidebar, AdminSidebar, RouteProgressBar, Topnoticebar) lives in `src/components/layout/`.
+- Page-specific components live alongside the page: `src/app/dashboard/components/`, `src/app/admin/components/`, etc.
 
-### Shared UI components (`src/components/ui/`)
+### Path Alias
 
-`Field`, `Input`, `Select`, `Toggle`, `Stepper`, `NumberInput`, `Row`, `Button`, `Card` — used across wizard steps. `CustomDropdown` in `src/components/common/` is used for searchable country/state/city selects (`country-state-city` package).
+`@/*` maps to `./src/*` (configured in `jsconfig.json`). Use `@/` imports throughout.
+
+### Utilities
+
+- `src/utils/cookies.js` — `getCookie`, `setCookie`, `deleteCookie`
+- `src/utils/helpers.js` — `formatCurrency(value, currency, locale)`, `formatDate(value, locale)`
+- `src/utils/constants.js` — `apiBase`, `serverApiBase`, `siteUrl`
+- `src/utils/isoHelpers.js` — `resolveCountryIso(value)`, `resolveStateIso(stateName, countryIso)` for normalizing legacy ISO3 country codes from the API
+- `src/utils/validateRegister.js` — registration form validation
+
+Remote images are served from `donation.api.sagsio.com` (whitelisted in `next.config.mjs`). Local static assets go in `public/images/`.

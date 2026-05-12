@@ -1,0 +1,199 @@
+"use client";
+
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useDonation } from "@/context/DonationContext";
+import { useStepNavigation } from "@/hooks/useStepNavigation";
+import StepLayout        from "./StepComponents/StepLayout";
+import countOccurrences, { generateDatesInRange } from "./StepComponents/countOccurrences";
+import RecurringSchedule from "./StepComponents/Step2components/RecurringSchedule";
+import AmountSelector    from "./StepComponents/Step2components/AmountSelector";
+
+const PAYMENT_TYPES = [
+  { value: "one-time",  label: "One-time Payment", desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
+  { value: "recurring", label: "Split Payments",   desc: () => "Split your donation into scheduled payments" },
+];
+
+const Step2Payment = () => {
+  const { data, update } = useDonation();
+  const { handleNext, handlePrev } = useStepNavigation();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (data.submitted) {
+      const base = data.campaign ? `/${data.campaign}` : "/donate";
+      router.replace(`${base}/4`);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { suggestedAmounts, allowRecurring, minDonation, maxDonation } = useMemo(() => {
+    try {
+      const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
+      const goalsDates = meta.goalsDates ?? {};
+      return {
+        suggestedAmounts: meta.suggestedAmounts?.length ? meta.suggestedAmounts : [25, 50, 100],
+        allowRecurring:   goalsDates.allowRecurringDonations ?? true,
+        minDonation:      goalsDates.minimumDonation         ?? 1,
+        maxDonation:      goalsDates.maximumDonation         ?? undefined,
+      };
+    } catch {
+      return { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!allowRecurring && data.paymentType === "recurring") update({ paymentType: "one-time" });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowRecurring]);
+
+  const paymentType = data.paymentType ?? "one-time";
+  const isRecurring = paymentType === "recurring";
+  const initAmount  = data.amountTier ?? Number(data.amount) ?? suggestedAmounts[0] ?? 25;
+  const sym         = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" }[data.currency ?? "USD"] ?? "$";
+
+  const initOccurrences = useMemo(() => {
+    const sc = data.scheduleConfig;
+    if (!sc || !isRecurring) return 1;
+    if (data.scheduleType === "specific_dates") return sc.dates?.length ?? 1;
+    return countOccurrences(sc.startDate?.split("T")[0], sc.endDate?.split("T")[0], sc.frequency ?? "daily");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [effectiveAmount, setEffectiveAmount] = useState(initAmount);
+  const [amountError,     setAmountError]     = useState(false);
+  const [occurrences,     setOccurrences]     = useState(isRecurring ? initOccurrences : 1);
+  const [scheduleState,   setScheduleState]   = useState({
+    scheduleType:   data.scheduleType   ?? "specific_dates",
+    scheduleConfig: data.scheduleConfig ?? {},
+  });
+
+  // Compute per-date total reactively: sum of (override ?? effectiveAmount) for every payment date.
+  // Works for both specific_dates (from selected dates) and date_range (from generated dates).
+  const perDateTotal = useMemo(() => {
+    if (!isRecurring) return null;
+    const config    = scheduleState.scheduleConfig ?? {};
+    const overrides = config.dateAmounts ?? {};
+
+    if (scheduleState.scheduleType === "specific_dates") {
+      const dates = config.dates ?? [];
+      if (!dates.length) return null;
+      return dates.reduce((sum, isoDate) => {
+        const d   = isoDate.split("T")[0];
+        const amt = overrides[d] !== undefined ? Number(overrides[d]) : effectiveAmount;
+        return sum + (isNaN(amt) ? effectiveAmount : amt);
+      }, 0);
+    }
+
+    if (scheduleState.scheduleType === "date_range") {
+      const start = config.startDate?.split("T")[0];
+      const end   = config.endDate?.split("T")[0];
+      const freq  = config.frequency ?? "daily";
+      if (!start || !end) return null;
+      const dates = generateDatesInRange(start, end, freq);
+      if (!dates.length) return null;
+      // Only override the total when at least one date has a custom amount
+      const hasOverrides = Object.keys(overrides).length > 0;
+      if (!hasOverrides) return null;
+      return dates.reduce((sum, d) => {
+        const amt = overrides[d] !== undefined ? Number(overrides[d]) : effectiveAmount;
+        return sum + (isNaN(amt) ? effectiveAmount : amt);
+      }, 0);
+    }
+
+    return null;
+  }, [isRecurring, scheduleState, effectiveAmount]);
+
+  const handleAmountChange = (amount, hasError) => {
+    setEffectiveAmount(amount);
+    setAmountError(hasError);
+  };
+
+  const handleScheduleChange = ({ scheduleType, scheduleConfig, occurrences: occ }) => {
+    setOccurrences(occ);
+    setScheduleState({ scheduleType, scheduleConfig });
+  };
+
+  return (
+    <StepLayout
+      step={2}
+      title="Payment"
+      subtitle="Choose between a one-time or split donation, select an amount or enter a custom value"
+      onNext={() => {
+        if (amountError) return;
+        update({
+          paymentType,
+          currency:         data.currency ?? "USD",
+          amountTier:       effectiveAmount,
+          scheduleType:     isRecurring ? scheduleState.scheduleType   : undefined,
+          scheduleConfig:   isRecurring ? scheduleState.scheduleConfig : undefined,
+          installmentCount: isRecurring ? occurrences : 1,
+          numberOfDays:     isRecurring ? occurrences : 1,
+          frequency:        isRecurring && scheduleState.scheduleType === "date_range"
+            ? scheduleState.scheduleConfig?.frequency
+            : undefined,
+          // Store per-date sum so Step3 and downstream can use the correct base total
+          perDateTotal: isRecurring && perDateTotal !== null ? perDateTotal : undefined,
+        });
+        handleNext(3);
+      }}
+      onPrev={() => handlePrev(1)}
+      prevLabel="Back"
+      nextLabel="Add-ons"
+    >
+      <div className="flex flex-col gap-4">
+
+        <div className="flex flex-col gap-2.5">
+          {PAYMENT_TYPES.filter((t) => t.value === "one-time" || allowRecurring).map((type) => {
+            const active = paymentType === type.value;
+            return (
+              <button
+                key={type.value}
+                onClick={() => update({ paymentType: type.value })}
+                className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 cursor-pointer ${
+                  active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
+                }`}
+              >
+                <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                  active ? "border-[#EA3335]" : "border-[#CCCCCC]"
+                }`}>
+                  {active && <span className="w-2.5 h-2.5 rounded-full bg-[#EA3335]" />}
+                </span>
+                <div>
+                  <p className="text-[15px] font-semibold text-[#383838] leading-snug">{type.label}</p>
+                  <p className="text-[12px] text-[#737373] mt-0.5">{type.desc(effectiveAmount, sym)}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {isRecurring && (
+          <RecurringSchedule
+            sym={sym}
+            effectiveAmount={effectiveAmount}
+            initialScheduleType={data.scheduleType}
+            initialConfig={data.scheduleConfig}
+            onChange={handleScheduleChange}
+          />
+        )}
+
+        <AmountSelector
+          suggestedAmounts={suggestedAmounts}
+          minDonation={minDonation}
+          maxDonation={maxDonation}
+          currency={data.currency ?? "USD"}
+          isRecurring={isRecurring}
+          occurrences={isRecurring ? occurrences : 1}
+          initialAmount={initAmount}
+          onAmountChange={handleAmountChange}
+          onCurrencyChange={(val) => update({ currency: val })}
+          overrideTotal={perDateTotal}
+        />
+
+      </div>
+    </StepLayout>
+  );
+};
+
+export default Step2Payment;

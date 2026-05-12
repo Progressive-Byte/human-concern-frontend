@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { EmailIcon, FacebookIcon, InstagramIcon, LinkedInIcon, LocationIcon, PhoneIcon, TaxIcon, WhatsAppIcon, XIcon, YoutubeIcon } from "../common/SvgIcon";
 

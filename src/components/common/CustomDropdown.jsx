@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { ArrowDownIcon, FilterIcon, IsActiveIcon } from "@/components/common/SvgIcon";
-
 
 export default function CustomDropdown({
   options = [],
@@ -21,13 +20,17 @@ export default function CustomDropdown({
   disabled = false,
 }) {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [dropUp, setDropUp] = useState(false);
   const containerRef = useRef(null);
+  const searchRef = useRef(null);
 
   // Close on outside click
   useEffect(() => {
     const onOutsideClick = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setOpen(false);
+        setSearch("");
       }
     };
     document.addEventListener("mousedown", onOutsideClick);
@@ -36,14 +39,43 @@ export default function CustomDropdown({
 
   // Close on Escape key
   useEffect(() => {
-    const onEsc = (e) => { if (e.key === "Escape") setOpen(false); };
+    const onEsc = (e) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setSearch("");
+      }
+    };
     document.addEventListener("keydown", onEsc);
     return () => document.removeEventListener("keydown", onEsc);
   }, []);
 
-  const selectedOption = options.find((o) => o.value === value);
-  const triggerLabel   = selectedOption?.label ?? placeholder;
+  // Auto-focus search when opened
+  useEffect(() => {
+    if (open && searchRef.current) {
+      setTimeout(() => searchRef.current?.focus(), 50);
+    }
+  }, [open]);
 
+  const handleToggle = () => {
+    if (disabled) return;
+    if (!open && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setDropUp(spaceBelow < 280);
+    }
+    if (open) setSearch("");
+    setOpen((prev) => !prev);
+  };
+
+  const filteredOptions = useMemo(() => {
+    if (!search.trim()) return options;
+    return options.filter((o) =>
+      o.label.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [options, search]);
+
+  const selectedOption = options.find((o) => o.value === value);
+  const triggerLabel = selectedOption?.label ?? placeholder;
   const isForm = variant === "form";
 
   const triggerCls = isForm
@@ -58,7 +90,7 @@ export default function CustomDropdown({
     <div ref={containerRef} className={`relative${isForm ? " w-full" : ""}`}>
       <button
         type="button"
-        onClick={() => !disabled && setOpen((prev) => !prev)}
+        onClick={handleToggle}
         className={triggerCls}
       >
         {icon && <span className="shrink-0 text-[#1A1A1A]">{icon}</span>}
@@ -77,12 +109,28 @@ export default function CustomDropdown({
           {ArrowDownIcon}
         </span>
       </button>
+
       {open && !disabled && (
         <div
-          className={`absolute left-0 mt-1 ${isForm ? "w-full" : `right-0 mt-2 ${width}`} bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden`}
+          className={`absolute left-0 z-50 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden ${
+            isForm ? "w-full" : `right-0 ${width}`
+          } ${dropUp ? "bottom-full mb-1" : "mt-1"}`}
         >
+          {/* Search input */}
+          <div className="sticky top-0 z-10 bg-white px-3 pt-2.5 pb-2 border-b border-gray-100">
+            <input
+              ref={searchRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={`Search ${label ?? ""}...`}
+              className="w-full text-sm px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#383838] transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
           {label && (
-            <div className="sticky top-0 z-10 bg-white px-4 py-2 text-[11px] font-semibold tracking-wider text-gray-400 uppercase border-b border-gray-100">
+            <div className="px-4 py-2 text-[11px] font-semibold tracking-wider text-gray-400 uppercase border-b border-gray-100">
               {label}
             </div>
           )}
@@ -93,30 +141,35 @@ export default function CustomDropdown({
             style={{ maxHeight }}
             className="overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
           >
-            {options.map((opt) => {
-              const isActive = opt.value === value;
-              return (
-                <li key={opt.value} role="option" aria-selected={isActive}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onChange(opt.value);
-                      setOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors hover:bg-gray-50 cursor-pointer ${
-                      isActive
-                        ? "bg-red-50 text-[#EA3335] font-semibold"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    <span>{opt.label}</span>
-                    {isActive && (
-                      IsActiveIcon
-                    )}
-                  </button>
-                </li>
-              );
-            })}
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((opt) => {
+                const isActive = opt.value === value;
+                return (
+                  <li key={opt.value} role="option" aria-selected={isActive}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange(opt.value);
+                        setOpen(false);
+                        setSearch("");
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors hover:bg-gray-50 cursor-pointer ${
+                        isActive
+                          ? "bg-red-50 text-[#EA3335] font-semibold"
+                          : "text-gray-700"
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                      {isActive && IsActiveIcon}
+                    </button>
+                  </li>
+                );
+              })
+            ) : (
+              <li className="px-4 py-4 text-sm text-gray-400 text-center">
+                No results for &ldquo;{search}&rdquo;
+              </li>
+            )}
           </ul>
         </div>
       )}

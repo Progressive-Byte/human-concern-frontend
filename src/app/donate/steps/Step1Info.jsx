@@ -1,37 +1,91 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { Country, State, City } from "country-state-city";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
-import StepLayout from "../DonateComponents/StepLayout";
+import StepLayout from "./StepComponents/StepLayout";
 import Field from "@/components/ui/Field";
-import CustomDropdown from "@/components/common/CustomDropdown";
+import AddressSection    from "./StepComponents/Step1components/AddressSection";
+import CauseSelector     from "./StepComponents/Step1components/CauseSelector";
+import ObjectiveSelector from "./StepComponents/Step1components/ObjectiveSelector";
+import DonorPreferences  from "./StepComponents/Step1components/DonorPreferences";
 
 const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, updateUser } = useAuth();
   const { handleNext } = useStepNavigation();
   const searchParams = useSearchParams();
-  const [error, setError] = useState("");
-
-  const [countryCode, setCountryCode] = useState("");
-  const [stateCode, setStateCode] = useState("");
-
-  const prevAuthRef = useRef(isAuthenticated);
+  const router = useRouter();
 
   useEffect(() => {
-    const campaign = campaignSlug ?? searchParams.get("campaign");
-    const amount       = searchParams.get("amount");
-    const currency     = searchParams.get("currency");
-    const isRamadan    = sessionStorage.getItem("donationIsRamadan") === "1";
+    if (data.submitted) {
+      const base = data.campaign ? `/${data.campaign}` : "/donate";
+      router.replace(`${base}/4`);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    let campaignId = null;
+  const [anonymous,        setAnonymous]        = useState(data.anonymous ?? false);
+  const [showMessage,      setShowMessage]      = useState(!!data.donorMessage);
+  const [error,            setError]            = useState("");
+  const [editMode,         setEditMode]         = useState(false);
+  const [addressExpanded,  setAddressExpanded]  = useState(true);
+  const prevAuthRef = useRef(isAuthenticated);
+
+  const causes = useMemo(() => {
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
-      campaignId = meta.id ?? null;
+      return (meta.causes ?? []).map((c) => ({
+        id:            c.id,
+        label:         c.name,
+        desc:          c.description  ?? "",
+        emoji:         c.iconEmoji    ?? "",
+        zakatEligible: c.zakatEligible ?? false,
+      }));
+    } catch { return []; }
+  }, []);
+
+  const objectives = useMemo(() => {
+    if (!data.isRamadan) return [];
+    try {
+      const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
+      return (meta.donationObjectives ?? []).map((obj) => ({
+        id:    obj.id,
+        label: obj.name  ?? obj.label ?? "",
+        desc:  obj.description ?? obj.desc ?? "",
+      }));
+    } catch { return []; }
+  }, [data.isRamadan]);
+
+  const selectedCauseIds = data.causeIds ?? [];
+
+  const toggleCause = (cause) => {
+    const isSelected = selectedCauseIds.includes(cause.id);
+    update({
+      causeIds: isSelected
+        ? selectedCauseIds.filter((id) => id !== cause.id)
+        : [...selectedCauseIds, cause.id],
+      causes: isSelected
+        ? (data.causes ?? []).filter((l) => l !== cause.label)
+        : [...(data.causes ?? []), cause.label],
+    });
+    setError("");
+  };
+
+  useEffect(() => {
+    const campaign    = campaignSlug ?? searchParams.get("campaign");
+    const amount      = searchParams.get("amount");
+    const currency    = searchParams.get("currency");
+    const isRamadan   = sessionStorage.getItem("donationIsRamadan") === "1";
+
+    let campaignId    = null;
+    let zakatEligible = false;
+    try {
+      const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
+      campaignId    = meta.id ?? null;
+      zakatEligible = meta.zakatEligible ?? false;
     } catch {}
 
     if (campaign) {
@@ -39,6 +93,7 @@ const Step1Info = ({ campaignSlug }) => {
         campaignId,
         campaign,
         isRamadan,
+        zakatEligible,
         ...(amount   && { amount }),
         ...(currency && { currency }),
       });
@@ -47,41 +102,23 @@ const Step1Info = ({ campaignSlug }) => {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated && data.country && !countryCode) {
-      const found = Country.getAllCountries().find((c) => c.name === data.country);
-      if (found) {
-        setCountryCode(found.isoCode);
-        if (data.province) {
-          const foundState = State.getStatesOfCountry(found.isoCode).find(
-            (s) => s.name === data.province
-          );
-          if (foundState) setStateCode(foundState.isoCode);
-        }
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Effect 3: Update personal fields when user logs in or when user data changes
-  useEffect(() => {
     if (isAuthenticated && user) {
       update({
-        organization: user.organization             ?? "",
-        firstName:    user.firstName                ?? "",
-        lastName:     user.lastName                 ?? "",
-        email:        user.email                    ?? "",
-        phone:        user.phone                    ?? "",
-        addressLine1: user.address?.line1           ?? user.addressLine1   ?? "",
-        city:         user.address?.city            ?? user.city           ?? "",
-        province:     user.address?.state           ?? user.state          ?? "",
-        zip:          user.address?.postalCode      ?? user.postalCode     ?? "",
-        country:      user.country                  ?? user.address?.country ?? "",
+        organization: user.organization           ?? "",
+        firstName:    user.firstName              ?? "",
+        lastName:     user.lastName               ?? "",
+        email:        user.email                  ?? "",
+        phone:        user.phone                  ?? "",
+        addressLine1: user.address?.line1         ?? user.addressLine1 ?? "",
+        city:         user.address?.city          ?? user.city         ?? "",
+        province:     user.address?.state         ?? user.state        ?? "",
+        zip:          user.address?.postalCode    ?? user.postalCode   ?? "",
+        country:      user.country                ?? user.address?.country ?? "",
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
-  // Effect 4: Clear personal fields only when user actually logs out (not on mount)
   useEffect(() => {
     const wasAuth = prevAuthRef.current;
     prevAuthRef.current = isAuthenticated;
@@ -89,54 +126,21 @@ const Step1Info = ({ campaignSlug }) => {
       update({
         organization: "", firstName: "", lastName: "", email: "", phone: "",
         addressLine1: "", city: "", province: "", zip: "", country: "",
+        causeIds: [], causes: [], objective: null, objectiveLabel: "",
       });
-      setCountryCode("");
-      setStateCode("");
+      setEditMode(false);
+      setAddressExpanded(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  // ── Dropdown option lists (memoised)
-  const countryOptions = useMemo(
-    () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
-    []
-  );
+  const isLocked = (key) => isAuthenticated && !editMode && Boolean(data[key]?.trim());
 
-  const stateOptions = useMemo(
-    () =>
-      countryCode
-        ? State.getStatesOfCountry(countryCode).map((s) => ({ value: s.isoCode, label: s.name }))
-        : [],
-    [countryCode]
-  );
-
-  const cityOptions = useMemo(
-    () =>
-      countryCode && stateCode
-        ? City.getCitiesOfState(countryCode, stateCode).map((c) => ({ value: c.name, label: c.name }))
-        : [],
-    [countryCode, stateCode]
-  );
-
-  const handleCountryChange = (isoCode) => {
-    const country = Country.getCountryByCode(isoCode);
-    setCountryCode(isoCode);
-    setStateCode("");
-    update({ country: country?.name ?? "", province: "", city: "" });
-    setError("");
-  };
-
-  const handleStateChange = (isoCode) => {
-    const state = State.getStateByCodeAndCountry(isoCode, countryCode);
-    setStateCode(isoCode);
-    update({ province: state?.name ?? "", city: "" });
-    setError("");
-  };
-
-  const handleCityChange = (cityName) => {
-    update({ city: cityName });
-    setError("");
-  };
+  const personalField = (key) => ({
+    value:    data[key] ?? "",
+    onChange: isLocked(key) ? undefined : (e) => { update({ [key]: e.target.value }); setError(""); },
+    readOnly: isLocked(key),
+  });
 
   const validateAndNext = () => {
     if (
@@ -150,121 +154,115 @@ const Step1Info = ({ campaignSlug }) => {
       !data.country?.trim()
     ) {
       setError("Please fill in all required fields.");
+      if (!addressExpanded) setAddressExpanded(true);
       return;
     }
     if (!/\S+@\S+\.\S+/.test(data.email)) {
       setError("Enter a valid email address.");
       return;
     }
+    if (causes.length > 0 && selectedCauseIds.length === 0) {
+      setError("Please select at least one cause.");
+      return;
+    }
+    if (isAuthenticated) {
+      updateUser({
+        organization: data.organization,
+        firstName:    data.firstName,
+        lastName:     data.lastName,
+        email:        data.email,
+        phone:        data.phone,
+        country:      data.country,
+        address: {
+          ...(user?.address ?? {}),
+          line1:      data.addressLine1,
+          city:       data.city,
+          state:      data.province,
+          postalCode: data.zip,
+          country:    data.country,
+        },
+      });
+      if (editMode) setEditMode(false);
+    }
     handleNext(2);
   };
-
-  const field = (key) => ({
-    value:    data[key] ?? "",
-    onChange: isAuthenticated ? undefined : (e) => { update({ [key]: e.target.value }); setError(""); },
-    readOnly: isAuthenticated,
-  });
-
-  const readOnlyInput = (key) => (
-    <input
-      readOnly
-      value={data[key] ?? ""}
-      className="w-full border border-[#E0E0E0] rounded-xl px-4 py-3 text-[14px] text-[#888888] bg-[#F5F5F5] cursor-default focus:outline-none"
-    />
-  );
 
   return (
     <StepLayout
       step={1}
       title="Personal Info"
-      subtitle="Share some necessary personal information for security"
+      subtitle="Fill in your details, select your cause, and configure your donation"
       onNext={validateAndNext}
-      nextLabel="Cause"
+      nextLabel="Payment"
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-5">
 
-        {isAuthenticated && (
-          <p className="text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
-            Your account information has been pre-filled. These fields are read-only.
-          </p>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <p className="text-[13px] font-semibold text-[#383838]">Personal Information</p>
+            {isAuthenticated && !editMode && (
+              <button
+                type="button"
+                onClick={() => setEditMode(true)}
+                className="text-[12px] font-medium text-[#EA3335] hover:underline transition-colors cursor-pointer"
+              >
+                Edit Information
+              </button>
+            )}
+            {isAuthenticated && editMode && (
+              <button
+                type="button"
+                onClick={() => setEditMode(false)}
+                className="text-[12px] font-medium text-[#737373] hover:text-[#383838] transition-colors cursor-pointer"
+              >
+                Lock Fields
+              </button>
+            )}
+          </div>
+
+          {isAuthenticated && !editMode && (
+            <p className="text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
+              Your account information has been pre-filled. Click <strong>Edit Information</strong> to make changes.
+            </p>
+          )}
+
+          <Field label="Organization" placeholder="xyz ltd" {...personalField("organization")} />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="First Name" required placeholder="John" {...personalField("firstName")} />
+            <Field label="Last Name"  required placeholder="Doe"  {...personalField("lastName")}  />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Email"            required type="email" placeholder="you@example.com" {...personalField("email")} />
+            <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...personalField("phone")} />
+          </div>
+        </div>
+
+        <AddressSection
+          setError={setError}
+          addressExpanded={addressExpanded}
+          setAddressExpanded={setAddressExpanded}
+        />
+
+        <CauseSelector
+          causes={causes}
+          selectedCauseIds={selectedCauseIds}
+          toggleCause={toggleCause}
+        />
+
+        {data.isRamadan && (
+          <ObjectiveSelector
+            objectives={objectives}
+            objective={data.objective}
+            onSelect={(obj) => update({ objective: obj.id, objectiveLabel: obj.label })}
+          />
         )}
 
-        <Field label="Organization" placeholder="xyz ltd" {...field("organization")} />
-
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="First Name" required placeholder="John" {...field("firstName")} />
-          <Field label="Last Name"  required placeholder="Doe"  {...field("lastName")}  />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Email"            required type="email" placeholder="you@example.com" {...field("email")} />
-          <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...field("phone")} />
-        </div>
-
-        <div className="h-px bg-[#F0F0F0] my-1" />
-        <Field
-          label="Address Line 1"
-          required
-          placeholder="Street number, house number and street name"
-          {...field("addressLine1")}
-        />
-        <div className="flex flex-col gap-1">
-          <label className="text-[13px] font-medium text-[#383838]">
-            Country<span className="text-[#EA3335] ml-0.5">*</span>
-          </label>
-          {isAuthenticated ? readOnlyInput("country") : (
-            <CustomDropdown
-              variant="form"
-              options={countryOptions}
-              value={countryCode}
-              onChange={handleCountryChange}
-              placeholder="Select country"
-              label="Countries"
-              maxHeight="220px"
-            />
-          )}
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-[13px] font-medium text-[#383838]">
-              Province or State<span className="text-[#EA3335] ml-0.5">*</span>
-            </label>
-            {isAuthenticated ? readOnlyInput("province") : (
-              <CustomDropdown
-                variant="form"
-                options={stateOptions}
-                value={stateCode}
-                onChange={handleStateChange}
-                placeholder={countryCode ? "Select state" : "Select country first"}
-                label="States"
-                maxHeight="220px"
-                disabled={!countryCode}
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-[13px] font-medium text-[#383838]">
-              City<span className="text-[#EA3335] ml-0.5">*</span>
-            </label>
-            {isAuthenticated ? readOnlyInput("city") : (
-              <CustomDropdown
-                variant="form"
-                options={cityOptions}
-                value={data.city ?? ""}
-                onChange={handleCityChange}
-                placeholder={stateCode ? "Select city" : "Select state first"}
-                label="Cities"
-                maxHeight="220px"
-                disabled={!stateCode}
-              />
-            )}
-          </div>
-        </div>
-        <Field
-          label="Zip or Postal Code"
-          required
-          placeholder="e.g. 10001"
-          {...field("zip")}
+        <DonorPreferences
+          anonymous={anonymous}
+          setAnonymous={setAnonymous}
+          showMessage={showMessage}
+          setShowMessage={setShowMessage}
         />
 
         {error && <p className="text-[#EA3335] text-[13px]">{error}</p>}
@@ -272,5 +270,6 @@ const Step1Info = ({ campaignSlug }) => {
       </div>
     </StepLayout>
   );
-}
+};
+
 export default Step1Info;

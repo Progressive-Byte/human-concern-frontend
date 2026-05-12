@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, donationId, guestSessionId }) {
+const StripeCheckoutForm = ({ grandTotal, currency, isRecurring, donationId, guestSessionId }) => {
   const stripe   = useStripe();
   const elements = useElements();
   const router   = useRouter();
@@ -67,6 +67,7 @@ export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, 
           return;
         }
 
+        sessionStorage.setItem("hc_donation_done", "1");
         router.push("/donate/thank-you");
       }
     } else {
@@ -82,6 +83,7 @@ export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, 
         setError(confirmError.message);
         setLoading(false);
       } else if (paymentIntent?.status === "succeeded") {
+        sessionStorage.setItem("hc_donation_done", "1");
         router.push("/donate/thank-you");
       }
     }
@@ -111,3 +113,4 @@ export default function StripeCheckoutForm({ grandTotal, currency, isRecurring, 
     </form>
   );
 }
+export default StripeCheckoutForm;

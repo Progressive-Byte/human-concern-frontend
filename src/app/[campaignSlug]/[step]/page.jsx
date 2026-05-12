@@ -1,23 +1,15 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Step1Info from "@/app/donate/steps/Step1Info";
-import Step2Cause from "@/app/donate/steps/Step2Cause";
-import Step3Objective from "@/app/donate/steps/Step3Objective";
-import Step4Payment from "@/app/donate/steps/Step4Payment";
-import Step5Addons from "@/app/donate/steps/Step5Addons";
-import Step6Summary from "@/app/donate/steps/Step6Summary";
-import Step7PaymentDetails from "@/app/donate/steps/Step7PaymentDetails";
-import Step8Confirmation from "@/app/donate/steps/Step8Confirmation";
+import Step2Payment from "@/app/donate/steps/Step2Payment";
+import Step3Addons from "@/app/donate/steps/Step3Addons";
+import Step4Confirmation from "@/app/donate/steps/Step4Confirmation";
 
 const STEPS = [
   Step1Info,
-  Step2Cause,
-  Step3Objective,
-  Step4Payment,
-  Step5Addons,
-  Step6Summary,
-  Step7PaymentDetails,
-  Step8Confirmation,
+  Step2Payment,
+  Step3Addons,
+  Step4Confirmation,
 ];
 
 export default async function CampaignStepPage({ params }) {

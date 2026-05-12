@@ -4,14 +4,14 @@ import { useState, useMemo } from "react";
 import DashboardHeader from "../components/DashboardHeader";
 
 const RAW_FUNDS = [
-  { label: "Zakat",            amount: 2500, color: "#055A46", bg: "#ECF9F3" },
+  { label: "Zakat",            amount: 2500, color: "#047857", bg: "#ECFDF5" },
   { label: "Sadaqah",          amount: 1200, color: "#B45309", bg: "#FFF8EC" },
   { label: "Emergency Relief", amount: 350,  color: "#EA3335", bg: "#FFF5F5" },
   { label: "Fitrana",          amount: 200,  color: "#1D4ED8", bg: "#EFF6FF" },
 ];
 
 const impactStats = [
-  { value: 156, label: "Families Fed",       color: "#055A46", bg: "#ECF9F3" },
+  { value: 156, label: "Families Fed",       color: "#047857", bg: "#ECFDF5" },
   { value: 24,  label: "Children Educated",  color: "#B45309", bg: "#FFF8EC" },
   { value: 12,  label: "Medical Treatments", color: "#EA3335", bg: "#FFF5F5" },
   { value: 3,   label: "Water Wells Built",  color: "#1D4ED8", bg: "#EFF6FF" },
@@ -22,7 +22,7 @@ const STROKE = 30;
 const C     = 2 * Math.PI * R;
 const GAP   = 4;
 
-export default function FundBreakdownPage() {
+const FundBreakdownPage = () => {
   const [hovered, setHovered] = useState(null);
 
   const { segments, total } = useMemo(() => {
@@ -57,8 +57,8 @@ export default function FundBreakdownPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
           {/* Distribution Overview */}
-          <div className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
-            <h2 className="text-lg font-semibold text-[#383838] mb-6">Distribution Overview</h2>
+          <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+            <h2 className="text-lg font-semibold text-[#111827] mb-6">Distribution Overview</h2>
 
             <div className="flex flex-col items-center">
               <svg
@@ -70,14 +70,14 @@ export default function FundBreakdownPage() {
                 <circle
                   cx="100" cy="100" r={R}
                   fill="none"
-                  stroke="#F0F0F0"
+                  stroke="#F3F4F6"
                   strokeWidth={STROKE}
                 />
 
                 <g transform="rotate(-90 100 100)">
                   {segments.map((s) => {
-                    const isHovered   = hovered === s.label;
-                    const isDimmed    = hovered && !isHovered;
+                    const isHovered = hovered === s.label;
+                    const isDimmed  = hovered && !isHovered;
                     return (
                       <circle
                         key={s.label}
@@ -96,7 +96,6 @@ export default function FundBreakdownPage() {
                   })}
                 </g>
 
-                {/* Centre label — updates on hover */}
                 {active ? (
                   <>
                     <text x="100" y="93" textAnchor="middle" style={{ fontSize: 16, fill: active.color, fontWeight: 700 }}>
@@ -105,16 +104,16 @@ export default function FundBreakdownPage() {
                     <text x="100" y="108" textAnchor="middle" style={{ fontSize: 10, fill: active.color, fontWeight: 600 }}>
                       {active.pct}%
                     </text>
-                    <text x="100" y="121" textAnchor="middle" style={{ fontSize: 9, fill: "#8C8C8C" }}>
+                    <text x="100" y="121" textAnchor="middle" style={{ fontSize: 9, fill: "#6B7280" }}>
                       {active.label}
                     </text>
                   </>
                 ) : (
                   <>
-                    <text x="100" y="96" textAnchor="middle" style={{ fontSize: 18, fill: "#383838", fontWeight: 700 }}>
+                    <text x="100" y="96" textAnchor="middle" style={{ fontSize: 18, fill: "#111827", fontWeight: 700 }}>
                       ${(total / 1000).toFixed(1)}k
                     </text>
-                    <text x="100" y="113" textAnchor="middle" style={{ fontSize: 10, fill: "#8C8C8C" }}>
+                    <text x="100" y="113" textAnchor="middle" style={{ fontSize: 10, fill: "#6B7280" }}>
                       Total
                     </text>
                   </>
@@ -132,7 +131,7 @@ export default function FundBreakdownPage() {
                     onMouseLeave={() => setHovered(null)}
                   >
                     <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: f.color }} />
-                    <span style={{ color: hovered === f.label ? f.color : "#383838", fontWeight: hovered === f.label ? 600 : 400 }}>
+                    <span style={{ color: hovered === f.label ? f.color : "#111827", fontWeight: hovered === f.label ? 600 : 400 }}>
                       {f.label}
                     </span>
                   </span>
@@ -142,8 +141,8 @@ export default function FundBreakdownPage() {
           </div>
 
           {/* Fund Details */}
-          <div className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
-            <h2 className="text-lg font-semibold text-[#383838] mb-5">Fund Details</h2>
+          <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+            <h2 className="text-lg font-semibold text-[#111827] mb-5">Fund Details</h2>
 
             <div className="space-y-2">
               {segments.map((f) => {
@@ -152,10 +151,10 @@ export default function FundBreakdownPage() {
                 return (
                   <div
                     key={f.label}
-                    className="flex items-center justify-between px-4 py-3.5 rounded-xl border transition-all cursor-pointer"
+                    className="flex items-center justify-between px-4 py-3.5 rounded-xl border border-dashed transition-all cursor-pointer"
                     style={{
-                      backgroundColor: isHovered ? f.bg : "#FAFAFA",
-                      borderColor: isHovered ? f.color + "40" : "#F0F0F0",
+                      backgroundColor: isHovered ? f.bg : "#F9FAFB",
+                      borderColor: isHovered ? f.color + "40" : "#E5E7EB",
                       opacity: isDimmed ? 0.45 : 1,
                     }}
                     onMouseEnter={() => setHovered(f.label)}
@@ -164,13 +163,13 @@ export default function FundBreakdownPage() {
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-[#383838]">{f.label}</p>
-                        <p className="text-xs text-[#8C8C8C] mt-0.5">{f.pct}% of total</p>
+                        <p className="text-sm font-medium text-[#111827]">{f.label}</p>
+                        <p className="text-xs text-[#6B7280] mt-0.5">{f.pct}% of total</p>
                       </div>
                     </div>
                     <p
                       className="font-semibold shrink-0 ml-3 transition-colors"
-                      style={{ color: isHovered ? f.color : "#383838" }}
+                      style={{ color: isHovered ? f.color : "#111827" }}
                     >
                       ${f.amount.toLocaleString()}
                     </p>
@@ -180,27 +179,27 @@ export default function FundBreakdownPage() {
             </div>
 
             {/* Total row */}
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#EBEBEB]">
-              <p className="font-semibold text-[#383838]">Total Donated</p>
-              <p className="text-lg font-bold text-[#055A46]">${total.toLocaleString()}</p>
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-dashed border-[#E5E7EB]">
+              <p className="font-semibold text-[#111827]">Total Donated</p>
+              <p className="text-lg font-bold text-[#EA3335]">${total.toLocaleString()}</p>
             </div>
           </div>
         </div>
 
         {/* Impact Summary */}
-        <div className="bg-white rounded-2xl border border-[#EBEBEB] p-5 md:p-6">
-          <h2 className="text-lg font-semibold text-[#383838] mb-5">Your Impact Summary</h2>
+        <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+          <h2 className="text-lg font-semibold text-[#111827] mb-5">Your Impact Summary</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
             {impactStats.map((s) => (
               <div
                 key={s.label}
-                className="rounded-2xl border border-[#F0F0F0] p-4 md:p-5 text-center transition-all hover:shadow-sm"
+                className="rounded-2xl border border-dashed border-[#E5E7EB] p-4 md:p-5 text-center transition-all hover:shadow-sm"
                 style={{ backgroundColor: s.bg }}
               >
                 <p className="text-3xl md:text-4xl font-bold leading-none" style={{ color: s.color }}>
                   {s.value}
                 </p>
-                <p className="text-xs text-[#8C8C8C] mt-2 leading-snug">{s.label}</p>
+                <p className="text-xs text-[#6B7280] mt-2 leading-snug">{s.label}</p>
               </div>
             ))}
           </div>
@@ -210,3 +209,4 @@ export default function FundBreakdownPage() {
     </>
   );
 }
+export default FundBreakdownPage;

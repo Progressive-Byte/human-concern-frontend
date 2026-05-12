@@ -34,6 +34,14 @@ const ThankYouPage = () => {
   const numberOfDays   = data.numberOfDays ?? 0;
   const campaignTitle  = data.campaignTitle ?? "";
 
+  // Clear the payment-complete flag so a future donation starts fresh
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem("hc_donation_done");
+      sessionStorage.removeItem("hc_donation");
+    } catch {}
+  }, []);
+
   // If logged in, save data to sessionStorage and redirect to donation-history with popup flag
   useEffect(() => {
     if (isAuthenticated) {

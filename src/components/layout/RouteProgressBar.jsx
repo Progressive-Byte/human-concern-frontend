@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-export default function RouteProgressBar() {
+const RouteProgressBar = () => {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -65,7 +65,7 @@ export default function RouteProgressBar() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed top-0 left-0 z-[9999] h-[2px] bg-emerald-500"
+      className="pointer-events-none fixed top-0 left-0 z-[9999] h-[2px] bg-red-600"
       style={{
         width: `${progress}%`,
         opacity: visible ? 1 : 0,
@@ -77,3 +77,5 @@ export default function RouteProgressBar() {
     />
   );
 }
+
+export default RouteProgressBar;

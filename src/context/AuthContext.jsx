@@ -12,6 +12,15 @@ const AuthContext = createContext(null);
 
 const USER_KEY = "hc_user";
 
+function getTokenExpiry(token) {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
 function saveUser(user) {
   try {
     if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -33,13 +42,46 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  function doLogout() {
+    deleteCookie("token");
+    saveUser(null);
+    setUser(null);
+    router.push("/user/login");
+  }
+
   useEffect(() => {
-    if (getCookie("token")) {
-      setUser(loadUser());
+    const token = getCookie("token");
+    if (token) {
+      const expiry = getTokenExpiry(token);
+      if (expiry && Date.now() >= expiry) {
+        doLogout();
+      } else {
+        setUser(loadUser());
+      }
     } else {
       saveUser(null);
     }
     setLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const token = getCookie("token");
+    if (!token) return;
+    const expiry = getTokenExpiry(token);
+    if (!expiry) return;
+    const delay = expiry - Date.now();
+    if (delay <= 0) return;
+    const timer = setTimeout(() => doLogout(), delay);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  useEffect(() => {
+    const handleUnauthorized = () => doLogout();
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function login(credentials) {
@@ -62,11 +104,14 @@ export function AuthProvider({ children }) {
     return res;
   }
 
+  function updateUser(fields) {
+    const updated = { ...user, ...fields };
+    saveUser(updated);
+    setUser(updated);
+  }
+
   function logout() {
-    deleteCookie("token");
-    saveUser(null);
-    setUser(null);
-    router.push("/user/login");
+    doLogout();
   }
 
   return (
@@ -78,6 +123,7 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}
