@@ -41,6 +41,40 @@ function TextInput(props) {
   );
 }
 
+function normalizeHex(value) {
+  const v = String(value || "").trim();
+  if (!v) return "";
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) return v;
+  if (/^#[0-9a-fA-F]{3}$/.test(v)) return v;
+  if (/^[0-9a-fA-F]{6}$/.test(v)) return `#${v}`;
+  if (/^[0-9a-fA-F]{3}$/.test(v)) return `#${v}`;
+  return v;
+}
+
+function ColorPickerField({ label, value, onChange, disabled }) {
+  const hex = normalizeHex(value);
+  const safeColor = /^#[0-9a-fA-F]{6}$/.test(hex) || /^#[0-9a-fA-F]{3}$/.test(hex) ? hex : "#ffffff";
+
+  return (
+    <div>
+      <div className="mb-2 text-[13px] font-semibold text-[#111827]">{label}</div>
+      <div className="flex items-center gap-3">
+        <div className="relative h-10 w-10 shrink-0 rounded-xl border border-[#E5E7EB]" style={{ backgroundColor: safeColor }}>
+          <input
+            type="color"
+            value={safeColor}
+            onChange={(e) => onChange?.(e.target.value)}
+            disabled={disabled}
+            aria-label={`${label} picker`}
+            className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
+          />
+        </div>
+        <TextInput value={hex} onChange={(e) => onChange?.(e.target.value)} placeholder="#0ea5e9" disabled={disabled} />
+      </div>
+    </div>
+  );
+}
+
 function TextArea(props) {
   return (
     <textarea
@@ -146,47 +180,35 @@ export default function BrandingTab({ value, onChange, loading, saving, logoBusy
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">Primary Color</div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl border border-[#E5E7EB]" style={{ backgroundColor: primaryColor || "#ffffff" }} />
-              <TextInput
-                value={primaryColor}
-                onChange={(e) =>
-                  onChange?.((prev) => {
-                    const p = prev || {};
-                    if (p?.branding && typeof p.branding === "object") {
-                      return { ...p, branding: { ...p.branding, primaryColor: e.target.value } };
-                    }
-                    return { ...p, primaryColor: e.target.value };
-                  })
+          <ColorPickerField
+            label="Primary Color"
+            value={primaryColor}
+            disabled={loading}
+            onChange={(next) =>
+              onChange?.((prev) => {
+                const p = prev || {};
+                if (p?.branding && typeof p.branding === "object") {
+                  return { ...p, branding: { ...p.branding, primaryColor: next } };
                 }
-                placeholder="#0ea5e9"
-                disabled={loading}
-              />
-            </div>
-          </div>
+                return { ...p, primaryColor: next };
+              })
+            }
+          />
 
-          <div>
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">Accent Color</div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl border border-[#E5E7EB]" style={{ backgroundColor: accentColor || "#ffffff" }} />
-              <TextInput
-                value={accentColor}
-                onChange={(e) =>
-                  onChange?.((prev) => {
-                    const p = prev || {};
-                    if (p?.branding && typeof p.branding === "object") {
-                      return { ...p, branding: { ...p.branding, accentColor: e.target.value } };
-                    }
-                    return { ...p, accentColor: e.target.value };
-                  })
+          <ColorPickerField
+            label="Accent Color"
+            value={accentColor}
+            disabled={loading}
+            onChange={(next) =>
+              onChange?.((prev) => {
+                const p = prev || {};
+                if (p?.branding && typeof p.branding === "object") {
+                  return { ...p, branding: { ...p.branding, accentColor: next } };
                 }
-                placeholder="#22c55e"
-                disabled={loading}
-              />
-            </div>
-          </div>
+                return { ...p, accentColor: next };
+              })
+            }
+          />
         </div>
 
         <Field label="Custom CSS">

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
+import { useAdminAuth } from "@/context/AdminAuthContext";
 import {
   changeAdminPassword,
   deleteAdminBrandingLogo,
@@ -50,6 +52,7 @@ export default function SettingsPageClient() {
   const toast = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { admin } = useAdminAuth();
 
   const initialTab = useMemo(() => {
     const t = String(searchParams?.get("tab") || "general").toLowerCase();
@@ -387,9 +390,25 @@ export default function SettingsPageClient() {
 
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
-      <div className="hc-animate-fade-up">
-        <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">Settings</h1>
-        <p className="mt-1 text-[14px] text-[#6B7280]">Manage your platform settings and preferences</p>
+      <div className="hc-animate-fade-up flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">Settings</h1>
+          <p className="mt-1 text-[14px] text-[#6B7280]">Manage your platform settings and preferences</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            aria-label="Go to main site"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#111827] transition hover:bg-[#F9FAFB]"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+              <path d="M3 11l9-8 9 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M5 10v10h14V10" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <AdminAvatarMenu admin={admin} />
+        </div>
       </div>
 
       <SettingsTabs value={activeTab} onChange={setTab} />
