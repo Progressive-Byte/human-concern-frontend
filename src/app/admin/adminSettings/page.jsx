@@ -1,11 +1,10 @@
-import React from 'react'
+import { Suspense } from "react";
+import SettingsPageClient from "./SettingsPageClient";
 
-const page = () => {
+export default function AdminSettingsPage() {
   return (
-    <div>
-      <h2 className="text-3xl text-white font-arial">Welcome to the Admin Settings Page</h2>
-    </div>
-  )
+    <Suspense>
+      <SettingsPageClient />
+    </Suspense>
+  );
 }
-
-export default page

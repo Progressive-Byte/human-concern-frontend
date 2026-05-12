@@ -440,6 +440,68 @@ export function cancelAdminSchedule(donationId) {
   return adminApiRequest(`/admin/schedules/${donationId}/cancel`, { method: "POST" });
 }
 
+export function getAdminSettingsGeneral() {
+  return adminApiRequest("/admin/settings/general", { method: "GET" });
+}
+
+export function updateAdminSettingsGeneral(payload) {
+  return adminApiRequest("/admin/settings/general", { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function getAdminSettingsNotifications() {
+  return adminApiRequest("/admin/settings/notifications", { method: "GET" });
+}
+
+export function updateAdminSettingsNotifications(payload) {
+  return adminApiRequest("/admin/settings/notifications", { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function getAdminSettingsSecurity() {
+  return adminApiRequest("/admin/settings/security", { method: "GET" });
+}
+
+export function updateAdminSettingsSecurity(payload) {
+  return adminApiRequest("/admin/settings/security", { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function changeAuthPassword(payload) {
+  return adminApiRequest("/auth/change-password", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function getAdminSettingsBranding() {
+  return adminApiRequest("/admin/settings/branding", { method: "GET" });
+}
+
+export function updateAdminSettingsBranding(payload) {
+  return adminApiRequest("/admin/settings/branding", { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function uploadAdminBrandingLogo(file) {
+  const body = new FormData();
+  body.append("file", file);
+  return adminApiRequest("/admin/settings/branding/logo", { method: "POST", body });
+}
+
+export function deleteAdminBrandingLogo() {
+  return adminApiRequest("/admin/settings/branding/logo", { method: "DELETE" });
+}
+
+export function getAdminSettingsPayment() {
+  return adminApiRequest("/admin/settings/payment", { method: "GET" });
+}
+
+export function updateAdminPaymentGatewayConfiguration(provider, payload) {
+  return adminApiRequest(`/admin/settings/payment/gateways/${provider}/configuration`, { method: "PUT", body: JSON.stringify(payload) });
+}
+
+export function setAdminPaymentGatewayEnabled(provider, enabled) {
+  return adminApiRequest(`/admin/settings/payment/gateways/${provider}/enabled`, { method: "PATCH", body: JSON.stringify({ enabled: Boolean(enabled) }) });
+}
+
+export function disconnectAdminPaymentGateway(provider) {
+  return adminApiRequest(`/admin/settings/payment/gateways/${provider}/disconnect`, { method: "POST" });
+}
+
 // -----------------------------
 // Add-ons
 // -----------------------------
