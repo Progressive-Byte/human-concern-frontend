@@ -416,6 +416,30 @@ export function getAdminTransactions({ page, limit, sort, order, q, status, prov
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
+export function getAdminSchedules({ page, limit, sort, order, q, status } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/schedules?${query}` : "/admin/schedules";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminScheduleByDonationId(donationId) {
+  return adminApiRequest(`/admin/schedules/${donationId}`, { method: "GET" });
+}
+
+export function cancelAdminSchedule(donationId) {
+  return adminApiRequest(`/admin/schedules/${donationId}/cancel`, { method: "POST" });
+}
+
 // -----------------------------
 // Add-ons
 // -----------------------------
