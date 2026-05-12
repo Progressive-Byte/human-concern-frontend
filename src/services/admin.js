@@ -319,7 +319,8 @@ export function getAdminDonorActivity(donorKey, { page, limit } = {}) {
   if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
   if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
 
-  const endpoint = `/admin/donors/${donorKey}/activity`;
+  const query = params.toString();
+  const endpoint = query ? `/admin/donors/${donorKey}/activity?${query}` : `/admin/donors/${donorKey}/activity`;
 
   return adminApiRequest(endpoint, { method: "GET" });
 }
@@ -334,6 +335,62 @@ export function updateAdminDonor(donorKey, payload) {
 
 export function sendAdminDonorEmail(donorKey, payload) {
   return adminApiRequest(`/admin/donors/${donorKey}/email`, { method: "POST", body: JSON.stringify(payload) });
+}
+
+// -----------------------------
+// Donations / Transactions
+// -----------------------------
+export function getAdminDonations({ page, limit, sort, order, q, status, from, to, currency, campaignId, causeId } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (typeof from === "string" && from.trim()) params.set("from", from.trim());
+  if (typeof to === "string" && to.trim()) params.set("to", to.trim());
+  if (typeof currency === "string" && currency.trim()) params.set("currency", currency.trim());
+  if (typeof campaignId === "string" && campaignId.trim()) params.set("campaignId", campaignId.trim());
+  if (typeof causeId === "string" && causeId.trim()) params.set("causeId", causeId.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/donations?${query}` : "/admin/donations";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminDonationsSummary({ q, status, from, to, currency, campaignId, causeId } = {}) {
+  const params = new URLSearchParams();
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (typeof from === "string" && from.trim()) params.set("from", from.trim());
+  if (typeof to === "string" && to.trim()) params.set("to", to.trim());
+  if (typeof currency === "string" && currency.trim()) params.set("currency", currency.trim());
+  if (typeof campaignId === "string" && campaignId.trim()) params.set("campaignId", campaignId.trim());
+  if (typeof causeId === "string" && causeId.trim()) params.set("causeId", causeId.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/donations/summary?${query}` : "/admin/donations/summary";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminDonationsExportUrl({ sort, order, q, status, from, to, currency, campaignId, causeId } = {}) {
+  const params = new URLSearchParams();
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (typeof from === "string" && from.trim()) params.set("from", from.trim());
+  if (typeof to === "string" && to.trim()) params.set("to", to.trim());
+  if (typeof currency === "string" && currency.trim()) params.set("currency", currency.trim());
+  if (typeof campaignId === "string" && campaignId.trim()) params.set("campaignId", campaignId.trim());
+  if (typeof causeId === "string" && causeId.trim()) params.set("causeId", causeId.trim());
+
+  const query = params.toString();
+  return query ? `/admin/donations/export?${query}` : "/admin/donations/export";
 }
 
 // -----------------------------
