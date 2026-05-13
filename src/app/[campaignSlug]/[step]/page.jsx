@@ -16,12 +16,12 @@ export default async function CampaignStepPage({ params }) {
   const { campaignSlug, step } = await params;
   const index = parseInt(step, 10) - 1;
 
-  if (isNaN(index) || index < 0 || index >= STEPS.length) notFound();
+  if (isNaN(index) || index < 0 || index >= STEPS.length) return notFound();
 
   const StepComponent = STEPS[index];
   return (
-    <Suspense>
-      <StepComponent campaignSlug={campaignSlug} />
+    <Suspense fallback={null}>
+      <StepComponent />
     </Suspense>
   );
 }
