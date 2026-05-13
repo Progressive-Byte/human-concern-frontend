@@ -11,6 +11,10 @@ const DonationPreview = ({ currentStep }) => {
   const { data } = useDonation();
   const sym = CURRENCY_SYMBOLS[data.currency] ?? "$";
 
+  const effectiveAmountTier = data.amountTier && Number.isFinite(data.amountTier)
+    ? data.amountTier
+    : (data.amount && Number.isFinite(Number(data.amount)) ? Number(data.amount) : 0);
+
   const enableTipping = useMemo(() => {
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
