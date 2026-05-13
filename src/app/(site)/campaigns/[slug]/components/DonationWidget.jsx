@@ -29,7 +29,10 @@ const DonationWidget = ({ campaign }) => {
   const [currency,       setCurrency]       = useState(campaign.currency ?? "USD");
   const [copied,         setCopied]         = useState(false);
 
-  const finalAmount = customAmount ? Number(customAmount) : selectedAmount;
+  const finalAmount        = customAmount ? Number(customAmount) : selectedAmount;
+  const selectedAmtDesc    = !customAmount
+    ? (suggestedAmountsData.find((a) => a.value === selectedAmount)?.description ?? "")
+    : "";
 
   const handleDonate = () => {
     const isRamadan = Array.isArray(campaign.categories) &&
