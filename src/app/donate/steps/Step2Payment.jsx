@@ -11,7 +11,7 @@ import AmountSelector    from "./StepComponents/Step2components/AmountSelector";
 
 const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time Payment", desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
-  { value: "recurring", label: "Split Payments",   desc: () => "Split your donation into scheduled payments" },
+  { value: "recurring", label: "Recurring Payment", desc: () => "Split your donation into scheduled payments" },
 ];
 
 const Step2Payment = () => {
