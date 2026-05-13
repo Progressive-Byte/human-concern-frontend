@@ -40,22 +40,44 @@ function parseNumberOrEmpty(value) {
   return String(n);
 }
 
+function enforceSingleDefaultSuggested(items) {
+  const list = Array.isArray(items) ? items.map((x) => ({ ...(x || {}) })) : [];
+  let found = false;
+  for (let i = 0; i < list.length; i++) {
+    const isDefault = Boolean(list[i]?.isDefault);
+    if (!isDefault) continue;
+    if (!found) {
+      found = true;
+      list[i].isDefault = true;
+    } else {
+      list[i].isDefault = false;
+    }
+  }
+  if (list.length && !found) {
+    list[0].isDefault = true;
+  }
+  return list;
+}
+
 function normalizeSuggestedAmountsState(value) {
   if (Array.isArray(value)) {
-    return value
+    const list = value
       .map((it) => ({
         id: it?.id,
         value: it?.value === null || it?.value === undefined ? "" : String(it.value),
         description: String(it?.description ?? ""),
+        isDefault: Boolean(it?.isDefault),
       }))
       .filter((it) => String(it.value).trim() || String(it.description).trim());
+    return enforceSingleDefaultSuggested(list);
   }
   if (typeof value === "string" && value.trim()) {
-    return value
+    const list = value
       .split(",")
       .map((s) => String(s).trim())
       .filter(Boolean)
-      .map((v) => ({ value: v, description: "" }));
+      .map((v) => ({ value: v, description: "", isDefault: false }));
+    return enforceSingleDefaultSuggested(list);
   }
   return [];
 }
@@ -232,6 +254,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
     const suggestedItems = Array.isArray(suggestedAmounts) ? suggestedAmounts : [];
     const normalizedSuggested = [];
     const seenValues = new Set();
+    let defaultAssigned = false;
     suggestedItems.forEach((it, idx) => {
       const row = it || {};
       const rawValue = String(row.value ?? "").trim();
@@ -256,12 +279,20 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
 
       suggErrors[idx] = rowErr;
       if (Object.keys(rowErr).length) return;
+      const wantsDefault = Boolean(row.isDefault) && !defaultAssigned;
+      if (wantsDefault) defaultAssigned = true;
       normalizedSuggested.push({
         ...(row.id ? { id: row.id } : {}),
         value: n,
         description: desc,
+        ...(wantsDefault ? { isDefault: true } : {}),
       });
     });
+
+    if (normalizedSuggested.length && !defaultAssigned) {
+      normalizedSuggested[0] = { ...(normalizedSuggested[0] || {}), isDefault: true };
+      defaultAssigned = true;
+    }
 
     if (suggErrors.some((e) => e && Object.keys(e).length)) {
       errors.suggestedAmounts = "Fix suggested amounts";
@@ -427,7 +458,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
       return { ok: true };
     } catch (e) {
       const msg = e?.message || "Failed to save goals & dates.";
-      setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
+      setTopError(msg);
       toast.error(msg);
       return { ok: false };
     } finally {
@@ -454,6 +485,8 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
     );
   }
 
+  const disabled = saving;
+
   return (
     <div className="space-y-6">
       {topError ? (
@@ -477,7 +510,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                disabled={saving}
+                disabled={disabled}
                 className="w-full bg-transparent text-[13px] text-[#111827] outline-none"
               >
                 {currencyOptions.map((c) => (
@@ -498,7 +531,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
               placeholder="5000"
               inputMode="decimal"
               className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
+              disabled={disabled}
             />
             <FieldError message={fieldErrors.goalAmount} />
           </div>
@@ -512,7 +545,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
               value={startAt}
               onChange={(e) => setStartAt(e.target.value)}
               className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
+              disabled={disabled}
             />
             <FieldError message={fieldErrors.startAt} />
           </div>
@@ -524,7 +557,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
               value={endAt}
               onChange={(e) => setEndAt(e.target.value)}
               className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
+              disabled={disabled}
             />
             <FieldError message={fieldErrors.endAt} />
           </div>
@@ -543,7 +576,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
               placeholder="5"
               inputMode="decimal"
               className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
+              disabled={disabled}
             />
             <FieldError message={fieldErrors.minimumDonation} />
           </div>
@@ -556,7 +589,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
               placeholder="100"
               inputMode="decimal"
               className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
+              disabled={disabled}
             />
             <FieldError message={fieldErrors.maximumDonation} />
           </div>
@@ -569,7 +602,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
                 <div className="text-[13px] font-semibold text-[#111827]">Enable Tipping</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Allow donors to add a platform tip</div>
               </div>
-              <Toggle enabled={enableTipping} onChange={setEnableTipping} />
+              <Toggle enabled={enableTipping} onChange={disabled ? () => {} : setEnableTipping} />
             </div>
           </div>
 
@@ -579,7 +612,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
                 <div className="text-[13px] font-semibold text-[#111827]">Allow Anonymous Donations</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Let donors hide their name on the public donation feed</div>
               </div>
-              <Toggle enabled={allowAnonymousDonations} onChange={setAllowAnonymousDonations} />
+              <Toggle enabled={allowAnonymousDonations} onChange={disabled ? () => {} : setAllowAnonymousDonations} />
             </div>
           </div>
         </div>
@@ -589,7 +622,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
         currencyLabel={String(currency || "").trim()}
         value={suggestedAmounts}
         onChange={setSuggestedAmounts}
-        disabled={saving}
+        disabled={disabled}
         errors={suggestedAmountsErrors}
       />
 
@@ -598,7 +631,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
         onChangeAllowRecurringDonations={setAllowRecurringDonations}
         value={recurringPresets}
         onChange={setRecurringPresets}
-        disabled={saving}
+        disabled={disabled}
         errors={recurringPresetsErrors}
       />
 

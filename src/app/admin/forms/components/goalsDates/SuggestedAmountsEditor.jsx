@@ -23,12 +23,20 @@ export default function SuggestedAmountsEditor({ currencyLabel = "", value = [],
     );
   }
 
+  function setDefault(idx) {
+    onChange?.(items.map((it, i) => ({ ...(it || {}), isDefault: i === idx })));
+  }
+
   function addRow() {
     onChange?.([...(items || []), { value: "", description: "" }]);
   }
 
   function removeRow(idx) {
-    onChange?.(items.filter((_, i) => i !== idx));
+    const next = items.filter((_, i) => i !== idx);
+    if (next.length && !next.some((x) => Boolean(x?.isDefault))) {
+      next[0] = { ...(next[0] || {}), isDefault: true };
+    }
+    onChange?.(next);
   }
 
   return (
@@ -47,7 +55,7 @@ export default function SuggestedAmountsEditor({ currencyLabel = "", value = [],
               return (
                 <div key={row.id || idx} className="rounded-2xl border border-[#F3F4F6] bg-white p-4 transition hover:bg-[#F9FAFB]">
                   <div className="flex items-start justify-between gap-3">
-                    <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-3">
+                    <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-4">
                       <div className="md:col-span-1">
                         <div className="mb-2 text-[13px] font-semibold text-[#111827]">
                           Amount{currencyLabel ? ` (${currencyLabel})` : ""}
@@ -73,6 +81,21 @@ export default function SuggestedAmountsEditor({ currencyLabel = "", value = [],
                           className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                         />
                         <FieldError message={rowErrors.description} />
+                      </div>
+
+                      <div className="md:col-span-1">
+                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Default</div>
+                        <label className="flex h-[42px] items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+                          <input
+                            type="radio"
+                            name="suggestedAmountDefault"
+                            checked={Boolean(row.isDefault)}
+                            onChange={() => setDefault(idx)}
+                            disabled={disabled}
+                            className="h-4 w-4"
+                          />
+                          <span className={Boolean(row.isDefault) ? "font-semibold" : "text-[#6B7280]"}>Use as default</span>
+                        </label>
                       </div>
                     </div>
 
@@ -110,4 +133,3 @@ export default function SuggestedAmountsEditor({ currencyLabel = "", value = [],
     </section>
   );
 }
-
