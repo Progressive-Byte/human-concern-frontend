@@ -132,7 +132,7 @@ const DonationPreview = ({ currentStep }) => {
                     ? "bg-[#FFF5F5] text-[#EA3335]"
                     : "bg-[#F3F4F6] text-[#737373]"
                 }`}>
-                  {isRecurring ? "Split Payments" : "One-time"}
+                  {isRecurring ? "Recurring Payment" : "One-time"}
                 </span>
                 {isRecurring && data.installmentCount > 1 && (
                   <span className="text-[11px] text-[#8C8C8C]">
