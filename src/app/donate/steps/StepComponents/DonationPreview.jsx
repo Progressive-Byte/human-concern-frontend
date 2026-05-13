@@ -120,12 +120,6 @@ const DonationPreview = ({ currentStep }) => {
             </Section>
           )}
 
-          {data.objectiveLabel && (
-            <Section label="Objective">
-              <p className="text-[12px] text-[#383838]">{data.objectiveLabel}</p>
-            </Section>
-          )}
-
           {showPayment && (
             <Section label="Payment">
 
