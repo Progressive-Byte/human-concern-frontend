@@ -85,7 +85,11 @@ const AmountSelector = ({
 
       <div>
         <label className="block text-[13px] font-medium text-[#383838] mb-3">
-          {isRecurring ? "Donation Amount (per payment)" : "Donation Amount"}
+          {isRecurring
+            ? splitMode === "divide"
+              ? "Total Donation Amount"
+              : "Donation Amount (per payment)"
+            : "Donation Amount"}
         </label>
         <div className="grid grid-cols-3 gap-3">
           {suggestedAmounts.map((amt) => {
