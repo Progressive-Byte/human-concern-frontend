@@ -149,7 +149,7 @@ const DonationPreview = ({ currentStep }) => {
               {!isRecurring && (
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-[22px] font-bold text-[#383838] leading-none">
-                    {sym}{data.amountTier?.toLocaleString()}
+                    {sym}{effectiveAmountTier.toLocaleString()}
                   </span>
                   <span className="text-[12px] text-[#8C8C8C]">{data.currency}</span>
                 </div>
@@ -160,7 +160,7 @@ const DonationPreview = ({ currentStep }) => {
                 <div className="flex items-center justify-between text-[12px] mt-1">
                   <span className="text-[#8C8C8C]">Per payment</span>
                   <span className="font-semibold text-[#383838] tabular-nums">
-                    {sym}{data.amountTier?.toLocaleString()} {data.currency}
+                    {sym}{effectiveAmountTier.toLocaleString()} {data.currency}
                   </span>
                 </div>
               )}

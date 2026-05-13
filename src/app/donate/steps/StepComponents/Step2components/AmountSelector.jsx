@@ -34,7 +34,6 @@ const AmountSelector = ({
   const sym             = currencyData.symbol;
   const effectiveAmount = customAmount ? Number(customAmount) : (selectedTier ?? 0);
   const uniformTotal    = effectiveAmount * occurrences;
-   console.log("AmountSelector props:", selectedTier);
 
   // When per-date custom amounts exist, use their sum; otherwise fall back to uniform total
   const displayTotal = (overrideTotal !== null && overrideTotal !== undefined) ? overrideTotal : uniformTotal;
