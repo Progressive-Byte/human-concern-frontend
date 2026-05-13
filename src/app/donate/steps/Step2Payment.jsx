@@ -245,7 +245,7 @@ const Step2Payment = () => {
             {/* ── Step 3: How to split ── */}
             <div className="flex flex-col gap-3">
               <SectionStep num={3} title="How to split?" />
-              <div className="flex flex-col gap-2.5">
+              <div className="flex gap-2.5">
                 {splitModes.map((mode) => {
                   const active = splitMode === mode.value;
                   return (
