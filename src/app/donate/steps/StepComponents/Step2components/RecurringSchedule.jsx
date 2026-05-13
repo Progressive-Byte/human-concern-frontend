@@ -5,6 +5,7 @@ import Select from "@/components/ui/Select";
 import MiniCalendar from "./MiniCalendar";
 import countOccurrences, { generateDatesInRange } from "../countOccurrences";
 import { PRESETS, getPresetDates } from "./presetDates";
+import DateAmountRow from "./DateAmountRow";
 
 const SCHEDULE_TYPES = [
   { value: "specific_dates", label: "Specific Dates" },
