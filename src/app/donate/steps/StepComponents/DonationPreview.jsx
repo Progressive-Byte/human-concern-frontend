@@ -27,7 +27,7 @@ const DonationPreview = ({ currentStep }) => {
   // baseTotal is the full schedule total (used for per-date subtotal rows)
   const baseTotal = (data.scheduleType === "specific_dates" && data.perDateTotal != null)
     ? data.perDateTotal
-    : (data.amountTier ?? 0) * (data.installmentCount ?? 1);
+    : effectiveAmountTier * (data.installmentCount ?? 1);
 
   const isRecurring      = data.paymentType === "recurring";
 
