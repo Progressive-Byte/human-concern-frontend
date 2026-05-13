@@ -22,7 +22,7 @@ const DonationPreview = ({ currentStep }) => {
     } catch { return true; }
   }, []);
 
-  const showPayment = Boolean(data.amountTier);
+  const showPayment = effectiveAmountTier > 0;
 
   // baseTotal is the full schedule total (used for per-date subtotal rows)
   const baseTotal = (data.scheduleType === "specific_dates" && data.perDateTotal != null)
