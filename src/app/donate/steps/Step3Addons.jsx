@@ -94,10 +94,23 @@ const Step3Addons = () => {
   const [submitting,  setSubmitting]  = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
-  const addOnsTotal = campaignAddOns.reduce((sum, addOn) => {
-    if (!addOnEnabled[addOn.id]) return sum;
-    return sum + calcAddOnTotal(addOn, addOnInputs[addOn.id] ?? {});
-  }, 0);
+  const computedBreakdown = useMemo(() =>
+    campaignAddOns
+      .filter((a) => addOnEnabled[a.id])
+      .map((a) => ({
+        id:        a.id,
+        name:      a.name,
+        iconEmoji: a.iconEmoji ?? "",
+        total:     calcAddOnTotal(a, addOnInputs[a.id] ?? {}),
+        values:    addOnInputs[a.id] ?? {},
+      })),
+    [campaignAddOns, addOnEnabled, addOnInputs]
+  );
+
+  const addOnsTotal = useMemo(() =>
+    computedBreakdown.reduce((sum, a) => sum + a.total, 0),
+    [computedBreakdown]
+  );
 
   const customTipParsed = customTipAmount !== "" ? Math.max(0, Number(customTipAmount) || 0) : null;
   const tipAmount       = enableTipping
@@ -108,15 +121,17 @@ const Step3Addons = () => {
   const updateAddOnInput = (addOnId, key, val) =>
     setAddOnInputs((prev) => ({ ...prev, [addOnId]: { ...prev[addOnId], [key]: val } }));
 
-  const computedBreakdown = campaignAddOns
-    .filter((a) => addOnEnabled[a.id])
-    .map((a) => ({
-      id:        a.id,
-      name:      a.name,
-      iconEmoji: a.iconEmoji ?? "",
-      total:     calcAddOnTotal(a, addOnInputs[a.id] ?? {}),
-      values:    addOnInputs[a.id] ?? {},
-    }));
+  // Sync local add-on/tip state to context in real-time so DonationPreview updates live
+  useEffect(() => {
+    update({
+      tipPct,
+      customTipAmount,
+      addOnsTotal,
+      grandTotal,
+      addOnBreakdown: computedBreakdown,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipPct, customTipAmount, computedBreakdown, grandTotal]);
 
   const buildSubmitBody = () => {
     const scheduleType   = data.scheduleType   ?? "date_range";
