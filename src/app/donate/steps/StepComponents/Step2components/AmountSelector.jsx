@@ -137,7 +137,7 @@ const AmountSelector = ({
         )}
       </div>
 
-      <div>
+      {/* <div>
         <div className="flex items-center justify-between mb-2">
           <label className="text-[13px] font-medium text-[#383838]">
             {isRecurring && splitMode === "divide"
@@ -165,7 +165,7 @@ const AmountSelector = ({
             {sym}{effectiveAmount} ÷ {occurrences} dates = {sym}{(effectiveAmount / occurrences).toFixed(2)}/date
           </p>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
