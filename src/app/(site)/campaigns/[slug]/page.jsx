@@ -51,6 +51,7 @@ export default async function CampaignPage({ params }) {
     campaign.suggestedAmountsData = raw.map((a) => ({
       value:       a.value,
       description: a.description ?? "",
+      isDefault:   a.isDefault   ?? false,
     }));
     campaign.suggestedAmounts = raw.map((a) => a.value);
   } else {
