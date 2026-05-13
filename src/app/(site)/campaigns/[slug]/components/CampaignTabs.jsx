@@ -5,7 +5,7 @@ import { CircleCheckIcon } from "@/components/common/SvgIcon";
 
 const TABS = ["About", "Updates", "Donors"];
 
-export default function CampaignTabs({ campaign }) {
+const CampaignTabs = ({ campaign }) => {
   const [activeTab, setActiveTab] = useState("About");
 
   return (
