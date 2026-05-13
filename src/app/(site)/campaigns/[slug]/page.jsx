@@ -43,11 +43,18 @@ export default async function CampaignPage({ params }) {
   // Strip undefined values — required for the server→client RSC serialization boundary
   campaign = JSON.parse(JSON.stringify(campaign));
 
-  // Normalize: suggestedAmounts [{id,value,description}] → [number]
+  // Normalize: suggestedAmounts [{id,value,description}] → keep full objects + flat number array
   if (Array.isArray(campaign.suggestedAmounts)) {
-    campaign.suggestedAmounts = campaign.suggestedAmounts
-      .map((a) => (a !== null && typeof a === "object" ? a.value : a))
-      .filter((v) => typeof v === "number");
+    const raw = campaign.suggestedAmounts.filter(
+      (a) => a !== null && typeof a === "object" && typeof a.value === "number"
+    );
+    campaign.suggestedAmountsData = raw.map((a) => ({
+      value:       a.value,
+      description: a.description ?? "",
+    }));
+    campaign.suggestedAmounts = raw.map((a) => a.value);
+  } else {
+    campaign.suggestedAmountsData = [];
   }
 
   // Normalize: donors {items, meta} → flat total (number | null) + donorItems array
