@@ -38,7 +38,10 @@ export default async function CampaignPage({ params }) {
     console.error("[CampaignPage] fetch error:", error);
   }
 
-  if (!campaign) notFound();
+  if (!campaign) return notFound();
+
+  // Strip undefined values so the server→client RSC boundary serializes cleanly
+  campaign = JSON.parse(JSON.stringify(campaign));
 
   const thumbnailUrl = resolveImageUrl(
     campaign.media?.thumbnailPath ?? campaign.thumbnailPath
