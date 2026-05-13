@@ -112,3 +112,4 @@ const CampaignTabs = ({ campaign }) => {
     </div>
   );
 }
+export default CampaignTabs;
