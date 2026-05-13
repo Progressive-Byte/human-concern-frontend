@@ -37,18 +37,11 @@ const AddOnsList = ({ campaignAddOns, sym, addOnEnabled, setAddOnEnabled, addOnI
   const handleToggle = (addOn, val) => {
     setAddOnEnabled((prev) => ({ ...prev, [addOn.id]: val }));
     if (val) {
-      const el = toggleRefs.current[addOn.id];
-      const rect = el ? el.getBoundingClientRect() : null;
-      confetti({
-        particleCount: 80,
-        spread: 65,
-        startVelocity: 28,
-        origin: rect
-          ? { x: (rect.left + rect.width / 2) / window.innerWidth, y: (rect.top + rect.height / 2) / window.innerHeight }
-          : { x: 0.7, y: 0.5 },
-        colors: ["#EA3335", "#FF6B35", "#FFD700", "#00C853", "#2196F3", "#9C27B0"],
-        scalar: 0.85,
-      });
+      const colors = ["#EA3335", "#FF6B35", "#FFD700", "#00C853", "#2196F3", "#9C27B0"];
+      // Left cannon
+      confetti({ particleCount: 90, angle: 60, spread: 70, startVelocity: 50, origin: { x: 0, y: 0.65 }, colors });
+      // Right cannon
+      confetti({ particleCount: 90, angle: 120, spread: 70, startVelocity: 50, origin: { x: 1, y: 0.65 }, colors });
     }
   };
 
