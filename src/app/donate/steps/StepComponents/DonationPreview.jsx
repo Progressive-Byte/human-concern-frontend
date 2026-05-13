@@ -55,10 +55,10 @@ const DonationPreview = ({ currentStep }) => {
       .map((isoDate) => {
         const d        = isoDate.split("T")[0];
         const isCustom = overrides[d] !== undefined;
-        const amt      = isCustom ? Number(overrides[d]) : (data.amountTier ?? 0);
+        const amt      = isCustom ? Number(overrides[d]) : effectiveAmountTier;
         return { d, amt, isCustom };
       });
-  }, [isSpecificDates, data.scheduleConfig, data.amountTier]);
+  }, [isSpecificDates, data.scheduleConfig, effectiveAmountTier]);
 
   // Build per-date rows for date_range — only when custom amounts exist
   const dateRangeRows = useMemo(() => {
