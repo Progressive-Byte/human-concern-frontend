@@ -29,3 +29,5 @@ const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange }) => {
     </div>
   );
 };
+
+export default DateAmountRow;
