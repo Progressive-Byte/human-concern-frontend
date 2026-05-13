@@ -50,7 +50,9 @@ const Step2Payment = () => {
 
   const paymentType = data.paymentType ?? "one-time";
   const isRecurring = paymentType === "recurring";
-  const initAmount  = data.amountTier ?? Number(data.amount) ?? suggestedAmounts[0] ?? 25;
+  const _tierAmt    = data.amountTier && Number.isFinite(data.amountTier) ? data.amountTier : null;
+  const _urlAmt     = data.amount && Number.isFinite(Number(data.amount)) ? Number(data.amount) : null;
+  const initAmount  = _tierAmt ?? _urlAmt ?? suggestedAmounts[0] ?? 25;
   const sym         = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" }[data.currency ?? "USD"] ?? "$";
 
   const initOccurrences = useMemo(() => {
