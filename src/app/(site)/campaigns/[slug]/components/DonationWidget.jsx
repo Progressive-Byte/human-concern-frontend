@@ -190,6 +190,12 @@ const DonationWidget = ({ campaign }) => {
 
         {/* Buttons */}
         <div className="px-5 pt-5 pb-5 flex flex-col gap-2.5">
+          {selectedAmtDesc && (
+            <div className="flex items-start gap-2.5 bg-[#F0FDF4] border border-[#A7F3D0] rounded-xl px-3.5 py-3">
+              <span className="text-[18px] leading-none mt-0.5">💡</span>
+              <p className="text-[13px] text-[#065F46] font-medium leading-snug">{selectedAmtDesc}</p>
+            </div>
+          )}
           <button
             onClick={handleDonate}
             className="w-full cursor-pointer bg-[#EA3335] hover:bg-red-700 text-white font-semibold py-3 rounded-xl text-[15px] transition-colors active:scale-95"
