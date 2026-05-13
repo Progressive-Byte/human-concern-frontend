@@ -104,6 +104,22 @@ const Step2Payment = () => {
     return null;
   }, [isRecurring, scheduleState, effectiveAmount]);
 
+  // Sync local payment state to context in real-time so DonationPreview updates live
+  useEffect(() => {
+    update({
+      amountTier:       effectiveAmount,
+      scheduleType:     isRecurring ? scheduleState.scheduleType   : undefined,
+      scheduleConfig:   isRecurring ? scheduleState.scheduleConfig : undefined,
+      installmentCount: isRecurring ? occurrences : 1,
+      numberOfDays:     isRecurring ? occurrences : 1,
+      frequency:        isRecurring && scheduleState.scheduleType === "date_range"
+        ? scheduleState.scheduleConfig?.frequency
+        : undefined,
+      perDateTotal: isRecurring && perDateTotal !== null ? perDateTotal : undefined,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveAmount, isRecurring, scheduleState, occurrences, perDateTotal]);
+
   const handleAmountChange = (amount, hasError) => {
     setEffectiveAmount(amount);
     setAmountError(hasError);
