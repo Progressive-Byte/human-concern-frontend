@@ -34,21 +34,14 @@ const DonationWidget = ({ campaign }) => {
     : "";
 
   const handleDonate = () => {
-    const isRamadan = Array.isArray(campaign.categories) &&
-      campaign.categories.some((c) => {
-        const name = typeof c === "string" ? c : (c?.name ?? "");
-        return name.toLowerCase() === "ramadan";
-      });
-    // const isRamadan = true; // For testing purposes.
-    sessionStorage.setItem("donationIsRamadan", isRamadan ? "1" : "0");
     sessionStorage.setItem("campaignData", JSON.stringify({
-      id:                 campaign.id,
-      name:               campaign.name               ?? "",
-      description:        campaign.description        ?? "",
-      zakatEligible:      campaign.zakatEligible      ?? false,
-      suggestedAmounts:   campaign.suggestedAmounts   ?? [],
-      addOns:             campaign.addOns             ?? [],
-      goalsDates:         campaign.goalsDates          ?? {},
+      id:               campaign.id,
+      name:             campaign.name             ?? "",
+      description:      campaign.description      ?? "",
+      zakatEligible:    campaign.zakatEligible    ?? false,
+      suggestedAmounts: campaign.suggestedAmounts ?? [],
+      addOns:           campaign.addOns           ?? [],
+      goalsDates:       campaign.goalsDates        ?? {},
       causes: (campaign.causes ?? []).map((c) => ({
         id:            c.id,
         name:          c.name          ?? "",
@@ -56,7 +49,6 @@ const DonationWidget = ({ campaign }) => {
         iconEmoji:     c.iconEmoji     ?? "",
         zakatEligible: c.zakatEligible ?? false,
       })),
-      donationObjectives: campaign.objectives ?? [],
     }));
 
     const params = new URLSearchParams({ amount: String(finalAmount), currency });
