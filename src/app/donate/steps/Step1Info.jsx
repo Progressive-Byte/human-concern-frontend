@@ -47,18 +47,6 @@ const Step1Info = ({ campaignSlug }) => {
     } catch { return []; }
   }, []);
 
-  const objectives = useMemo(() => {
-    if (!data.isRamadan) return [];
-    try {
-      const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
-      return (meta.donationObjectives ?? []).map((obj) => ({
-        id:    obj.id,
-        label: obj.name  ?? obj.label ?? "",
-        desc:  obj.description ?? obj.desc ?? "",
-      }));
-    } catch { return []; }
-  }, [data.isRamadan]);
-
   const selectedCauseIds = data.causeIds ?? [];
 
   const toggleCause = (cause) => {
@@ -75,10 +63,9 @@ const Step1Info = ({ campaignSlug }) => {
   };
 
   useEffect(() => {
-    const campaign    = campaignSlug ?? searchParams.get("campaign");
-    const amount      = searchParams.get("amount");
-    const currency    = searchParams.get("currency");
-    const isRamadan   = sessionStorage.getItem("donationIsRamadan") === "1";
+    const campaign  = campaignSlug ?? searchParams.get("campaign");
+    const amount    = searchParams.get("amount");
+    const currency  = searchParams.get("currency");
 
     let campaignId    = null;
     let zakatEligible = false;
@@ -92,7 +79,6 @@ const Step1Info = ({ campaignSlug }) => {
       update({
         campaignId,
         campaign,
-        isRamadan,
         zakatEligible,
         ...(amount   && { amount }),
         ...(currency && { currency }),
