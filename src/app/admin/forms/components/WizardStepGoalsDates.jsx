@@ -6,6 +6,8 @@ import { getAdminFormGoalsDates, updateAdminFormGoalsDates } from "@/services/ad
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import FieldError from "./FieldError";
 import WizardFooterNav from "./WizardFooterNav";
+import SuggestedAmountsEditor from "./goalsDates/SuggestedAmountsEditor";
+import RecurringPresetsEditor from "./goalsDates/RecurringPresetsEditor";
 
 const CURRENCY_OPTIONS = [
   { code: "USD", label: "USD ($)" },
@@ -38,12 +40,45 @@ function parseNumberOrEmpty(value) {
   return String(n);
 }
 
-function normalizeSuggestedAmounts(value) {
+function normalizeSuggestedAmountsState(value) {
   if (Array.isArray(value)) {
-    return value.map((v) => String(v).trim()).filter(Boolean).join(",");
+    return value
+      .map((it) => ({
+        id: it?.id,
+        value: it?.value === null || it?.value === undefined ? "" : String(it.value),
+        description: String(it?.description ?? ""),
+      }))
+      .filter((it) => String(it.value).trim() || String(it.description).trim());
   }
-  if (value === null || value === undefined) return "";
-  return String(value).trim();
+  if (typeof value === "string" && value.trim()) {
+    return value
+      .split(",")
+      .map((s) => String(s).trim())
+      .filter(Boolean)
+      .map((v) => ({ value: v, description: "" }));
+  }
+  return [];
+}
+
+function normalizeRecurringPresetsState(value) {
+  if (!Array.isArray(value)) return [];
+  return value.map((p) => ({
+    id: p?.id,
+    name: String(p?.name ?? ""),
+    enabled: p?.enabled === undefined ? true : Boolean(p.enabled),
+    sortOrder: p?.sortOrder === null || p?.sortOrder === undefined ? "" : String(p.sortOrder),
+    scheduleType: String(p?.scheduleType || "date_range"),
+    scheduleConfig: p?.scheduleConfig && typeof p.scheduleConfig === "object" ? p.scheduleConfig : {},
+  }));
+}
+
+function toIsoDateString(value) {
+  const s = String(value || "").trim();
+  if (!s) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(`${s}T00:00:00.000Z`).toISOString();
+  const t = Date.parse(s);
+  if (Number.isNaN(t)) return "";
+  return new Date(t).toISOString();
 }
 
 function Skeleton() {
@@ -82,6 +117,8 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
   const [saving, setSaving] = useState(false);
   const [topError, setTopError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+  const [suggestedAmountsErrors, setSuggestedAmountsErrors] = useState([]);
+  const [recurringPresetsErrors, setRecurringPresetsErrors] = useState([]);
 
   const [currency, setCurrency] = useState("USD");
   const [goalAmount, setGoalAmount] = useState("");
@@ -90,9 +127,10 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
 
   const [minimumDonation, setMinimumDonation] = useState("");
   const [maximumDonation, setMaximumDonation] = useState("");
-  const [suggestedAmounts, setSuggestedAmounts] = useState("");
+  const [suggestedAmounts, setSuggestedAmounts] = useState([]);
 
   const [allowRecurringDonations, setAllowRecurringDonations] = useState(false);
+  const [recurringPresets, setRecurringPresets] = useState([]);
   const [enableTipping, setEnableTipping] = useState(false);
   const [allowAnonymousDonations, setAllowAnonymousDonations] = useState(false);
 
@@ -120,9 +158,10 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
 
         setMinimumDonation(parseNumberOrEmpty(d?.minimumDonation));
         setMaximumDonation(parseNumberOrEmpty(d?.maximumDonation));
-        setSuggestedAmounts(normalizeSuggestedAmounts(d?.suggestedAmounts));
+        setSuggestedAmounts(normalizeSuggestedAmountsState(d?.suggestedAmounts));
 
         setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
+        setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
         setEnableTipping(Boolean(d?.enableTipping));
         setAllowAnonymousDonations(Boolean(d?.allowAnonymousDonations));
       } catch (e) {
@@ -141,6 +180,8 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
 
   function validate() {
     const errors = {};
+    const suggErrors = [];
+    const presetsErrors = [];
 
     const nextCurrency = String(currency || "").trim();
     const nextStartAt = String(startAt || "").trim();
@@ -149,7 +190,6 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
     const goal = String(goalAmount ?? "").trim();
     const min = String(minimumDonation ?? "").trim();
     const max = String(maximumDonation ?? "").trim();
-    const sugg = String(suggestedAmounts ?? "").trim();
 
     if (!nextCurrency) errors.currency = "Required";
     else if (nextCurrency.length < 3) errors.currency = "Min 3 characters";
@@ -189,6 +229,144 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
       errors.maximumDonation = "Maximum must be greater than or equal to minimum";
     }
 
+    const suggestedItems = Array.isArray(suggestedAmounts) ? suggestedAmounts : [];
+    const normalizedSuggested = [];
+    const seenValues = new Set();
+    suggestedItems.forEach((it, idx) => {
+      const row = it || {};
+      const rawValue = String(row.value ?? "").trim();
+      const desc = String(row.description ?? "").trim();
+      const rowErr = {};
+      const hasAny = Boolean(rawValue) || Boolean(desc);
+      if (!hasAny) {
+        suggErrors[idx] = {};
+        return;
+      }
+      const n = Number(rawValue);
+      if (!rawValue) rowErr.value = "Required";
+      else if (!Number.isFinite(n)) rowErr.value = "Must be a number";
+      else if (!(n > 0)) rowErr.value = "Must be greater than 0";
+      if (!desc) rowErr.description = "Required";
+
+      const key = Number.isFinite(n) ? String(n) : rawValue;
+      if (!rowErr.value) {
+        if (seenValues.has(key)) rowErr.value = "Must be unique";
+        else seenValues.add(key);
+      }
+
+      suggErrors[idx] = rowErr;
+      if (Object.keys(rowErr).length) return;
+      normalizedSuggested.push({
+        ...(row.id ? { id: row.id } : {}),
+        value: n,
+        description: desc,
+      });
+    });
+
+    if (suggErrors.some((e) => e && Object.keys(e).length)) {
+      errors.suggestedAmounts = "Fix suggested amounts";
+    }
+
+    const presets = Array.isArray(recurringPresets) ? recurringPresets : [];
+    const normalizedPresets = [];
+    if (allowRecurringDonations) {
+      presets.forEach((p, idx) => {
+        const preset = p || {};
+        const perr = {};
+        const name = String(preset.name ?? "").trim();
+        const enabled = preset.enabled === undefined ? true : Boolean(preset.enabled);
+        const scheduleType = String(preset.scheduleType || "").trim();
+        const sortOrderRaw = String(preset.sortOrder ?? "").trim();
+        const sortOrderNum = sortOrderRaw ? Number(sortOrderRaw) : (idx + 1) * 10;
+        if (!name) perr.name = "Required";
+        if (sortOrderRaw && !Number.isFinite(sortOrderNum)) perr.sortOrder = "Must be a number";
+        if (scheduleType !== "date_range" && scheduleType !== "specific_dates") perr.scheduleType = "Invalid";
+
+        const cfg = preset.scheduleConfig && typeof preset.scheduleConfig === "object" ? preset.scheduleConfig : {};
+        const cfgErrors = {};
+        let cfgOut = {};
+
+        if (scheduleType === "date_range") {
+          const startDate = String(cfg.startDate || "").trim();
+          const endDate = String(cfg.endDate || "").trim();
+          const frequency = String(cfg.frequency || "").trim();
+          const intervalRaw = cfg.intervalValue === null || cfg.intervalValue === undefined ? "" : String(cfg.intervalValue).trim();
+
+          if (enabled && !startDate) cfgErrors.startDate = "Required";
+          if (enabled && !endDate) cfgErrors.endDate = "Required";
+          if (enabled && startDate && endDate) {
+            const sT = Date.parse(startDate);
+            const eT = Date.parse(endDate);
+            if (Number.isNaN(sT)) cfgErrors.startDate = "Invalid date";
+            if (Number.isNaN(eT)) cfgErrors.endDate = "Invalid date";
+            if (!cfgErrors.startDate && !cfgErrors.endDate && !(sT < eT)) cfgErrors.endDate = "End must be after start";
+          }
+          if (enabled && !frequency) cfgErrors.frequency = "Required";
+          const freqOk = frequency === "daily" || frequency === "weekly" || frequency === "monthly" || frequency === "yearly" || frequency === "custom";
+          if (frequency && !freqOk) cfgErrors.frequency = "Invalid";
+
+          let intervalValue = undefined;
+          if (frequency === "custom") {
+            const n = Number(intervalRaw);
+            if (!intervalRaw) cfgErrors.intervalValue = "Required";
+            else if (!Number.isFinite(n) || !Number.isInteger(n)) cfgErrors.intervalValue = "Must be an integer";
+            else if (n < 2) cfgErrors.intervalValue = "Min 2";
+            else intervalValue = n;
+          } else if (intervalRaw) {
+            const n = Number(intervalRaw);
+            if (!Number.isFinite(n) || !Number.isInteger(n)) cfgErrors.intervalValue = "Must be an integer";
+            else if (n < 2) cfgErrors.intervalValue = "Min 2";
+            else intervalValue = n;
+          }
+
+          const startIso = toIsoDateString(startDate);
+          const endIso = toIsoDateString(endDate);
+          if (enabled && startDate && !startIso) cfgErrors.startDate = "Invalid date";
+          if (enabled && endDate && !endIso) cfgErrors.endDate = "Invalid date";
+
+          cfgOut = {
+            startDate: startIso || startDate,
+            endDate: endIso || endDate,
+            frequency: frequency === "custom" ? "daily" : frequency,
+            ...(intervalValue !== undefined ? { intervalValue } : {}),
+          };
+        }
+
+        if (scheduleType === "specific_dates") {
+          const dates = Array.isArray(cfg.dates) ? cfg.dates : [];
+          const normalizedDates = dates
+            .map((d) => String(d || "").trim())
+            .filter(Boolean)
+            .map((d) => {
+              if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return new Date(`${d}T00:00:00.000Z`).toISOString();
+              const t = Date.parse(d);
+              return Number.isNaN(t) ? "" : new Date(t).toISOString();
+            })
+            .filter(Boolean);
+          const unique = Array.from(new Set(normalizedDates));
+          if (enabled && unique.length === 0) cfgErrors.dates = "Add at least one date";
+          cfgOut = { dates: unique };
+        }
+
+        if (Object.keys(cfgErrors).length) perr.scheduleConfig = cfgErrors;
+        presetsErrors[idx] = perr;
+
+        if (Object.keys(perr).length) return;
+        normalizedPresets.push({
+          ...(preset.id ? { id: preset.id } : {}),
+          name,
+          enabled,
+          sortOrder: Number.isFinite(sortOrderNum) ? sortOrderNum : (idx + 1) * 10,
+          scheduleType,
+          scheduleConfig: cfgOut,
+        });
+      });
+
+      if (presetsErrors.some((e) => e && Object.keys(e).length)) {
+        errors.recurringPresets = "Fix recurring presets";
+      }
+    }
+
     const payload = {
       currency: nextCurrency,
       startAt: nextStartAt,
@@ -196,18 +374,21 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
       goalAmount: goalN === null ? undefined : goalN,
       minimumDonation: minN === null ? undefined : minN,
       maximumDonation: maxN === null ? undefined : maxN,
-      suggestedAmounts: sugg ? sugg : undefined,
+      suggestedAmounts: normalizedSuggested.length ? normalizedSuggested : undefined,
       allowRecurringDonations: Boolean(allowRecurringDonations),
+      recurringPresets: allowRecurringDonations && normalizedPresets.length ? normalizedPresets : undefined,
       enableTipping: Boolean(enableTipping),
       allowAnonymousDonations: Boolean(allowAnonymousDonations),
     };
 
-    return { errors, payload };
+    return { errors, payload, suggErrors, presetsErrors };
   }
 
   async function save({ goNext } = { goNext: false }) {
     setTopError("");
     setFieldErrors({});
+    setSuggestedAmountsErrors([]);
+    setRecurringPresetsErrors([]);
 
     if (!campaignId) {
       toast.error("Missing campaignId");
@@ -218,9 +399,11 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
       return { ok: false };
     }
 
-    const { errors, payload } = validate();
+    const { errors, payload, suggErrors, presetsErrors } = validate();
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
+      setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
+      setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
       toast.error("Fix the highlighted fields");
       return { ok: false };
     }
@@ -228,6 +411,13 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
     setSaving(true);
     try {
       await updateAdminFormGoalsDates(formId, payload);
+      try {
+        const res = await getAdminFormGoalsDates(formId);
+        const d = normalizeGoalsDatesResponse(res);
+        setSuggestedAmounts(normalizeSuggestedAmountsState(d?.suggestedAmounts));
+        setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
+        setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
+      } catch {}
       toast.success("Goals & dates saved");
       onSaved?.();
 
@@ -370,31 +560,9 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
             />
             <FieldError message={fieldErrors.maximumDonation} />
           </div>
-
-          <div className="md:col-span-2">
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">Suggested Amounts (comma-separated)</div>
-            <input
-              value={suggestedAmounts}
-              onChange={(e) => setSuggestedAmounts(e.target.value)}
-              placeholder="25,50,100,250"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
-            />
-            <div className="mt-1 text-[12px] text-[#6B7280]">Example: 25,50,100,250</div>
-          </div>
         </div>
 
         <div className="mt-4 space-y-3">
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-[13px] font-semibold text-[#111827]">Allow Recurring Donations</div>
-                <div className="mt-1 text-[12px] text-[#6B7280]">Let donors set up weekly, monthly, or custom schedules</div>
-              </div>
-              <Toggle enabled={allowRecurringDonations} onChange={setAllowRecurringDonations} />
-            </div>
-          </div>
-
           <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -416,6 +584,23 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
           </div>
         </div>
       </section>
+
+      <SuggestedAmountsEditor
+        currencyLabel={String(currency || "").trim()}
+        value={suggestedAmounts}
+        onChange={setSuggestedAmounts}
+        disabled={saving}
+        errors={suggestedAmountsErrors}
+      />
+
+      <RecurringPresetsEditor
+        allowRecurringDonations={allowRecurringDonations}
+        onChangeAllowRecurringDonations={setAllowRecurringDonations}
+        value={recurringPresets}
+        onChange={setRecurringPresets}
+        disabled={saving}
+        errors={recurringPresetsErrors}
+      />
 
       <WizardFooterNav
         saving={saving}
