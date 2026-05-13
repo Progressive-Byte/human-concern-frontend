@@ -15,8 +15,9 @@ const CURRENCY_OPTIONS = [
 const DonationWidget = ({ campaign }) => {
   const router = useRouter();
 
-  const suggestedAmounts = campaign.suggestedAmounts ?? [];
-  const limits           = campaign.goalsDates        ?? {};
+  const suggestedAmounts     = campaign.suggestedAmounts     ?? [];
+  const suggestedAmountsData = campaign.suggestedAmountsData ?? [];
+  const limits               = campaign.goalsDates           ?? {};
 
   const raised      = campaign.raised ?? 0;
   const goal        = campaign.goal   ?? 0;
