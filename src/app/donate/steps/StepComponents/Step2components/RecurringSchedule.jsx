@@ -278,6 +278,22 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
         })}
       </div>
 
+      {/* ── Preset summary chip ── */}
+      {activePreset !== "custom" && selectedDates.length > 0 && (
+        <div className="flex items-center justify-between bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-2.5">
+          <span className="text-[12px] text-[#EA3335] font-medium">
+            {selectedDates.length} date{selectedDates.length !== 1 ? "s" : ""} selected from preset
+          </span>
+          <button
+            type="button"
+            onClick={() => handlePreset("custom")}
+            className="text-[11px] text-[#737373] underline cursor-pointer hover:text-[#383838]"
+          >
+            Clear &amp; customise
+          </button>
+        </div>
+      )}
+
       {/* ── Full controls — Custom only ── */}
       {activePreset === "custom" && (
         <div className="flex flex-col gap-4">
