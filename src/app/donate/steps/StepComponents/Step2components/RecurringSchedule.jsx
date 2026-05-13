@@ -280,12 +280,27 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
 
       {/* ── Per-date amount table (all modes) ── */}
       {activeDates.length > 0 && (
-        <div className="flex flex-col gap-2 border border-[#EBEBEB] rounded-xl p-3 bg-[#FAFAFA]">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-[13px] font-medium text-[#383838]">Amount Per Date</p>
+        <div className="flex flex-col gap-2 border border-[#EBEBEB] rounded-xl overflow-hidden bg-[#FAFAFA]">
+
+          {/* header */}
+          <div className="flex items-center justify-between px-3 pt-3">
+            <div className="flex items-center gap-2">
+              <p className="text-[13px] font-medium text-[#383838]">Amount Per Date</p>
+              <span className="text-[11px] text-[#737373] bg-[#F0F0F0] rounded-full px-2 py-0.5 tabular-nums">
+                {activeDates.length} date{activeDates.length !== 1 ? "s" : ""}
+              </span>
+            </div>
             <p className="text-[11px] text-[#737373]">Default: {sym}{effectiveAmount}</p>
           </div>
-          <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto pr-0.5">
+
+          {/* scrollable rows with styled scrollbar */}
+          <div
+            className="flex flex-col gap-1.5 max-h-[230px] overflow-y-scroll px-3 pb-1"
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "#D1D5DB #F3F4F6",
+            }}
+          >
             {activeDates.map((d) => (
               <DateAmountRow
                 key={d}
@@ -297,7 +312,9 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
               />
             ))}
           </div>
-          <div className="flex items-center justify-between pt-2 border-t border-[#E5E5E5] mt-1">
+
+          {/* sticky footer total */}
+          <div className="flex items-center justify-between px-3 py-2.5 border-t border-[#E5E5E5] bg-white">
             <span className="text-[12px] font-semibold text-[#383838]">
               Total ({activeDates.length} payment{activeDates.length !== 1 ? "s" : ""})
             </span>
@@ -305,6 +322,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
               {sym}{calcTotal(activeDates, dateAmounts).toLocaleString()}
             </span>
           </div>
+
         </div>
       )}
 
