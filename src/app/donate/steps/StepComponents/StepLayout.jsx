@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import StepProgress from "./StepProgress";
 import DonationPreview from "./DonationPreview";
-import { ArrowNextIcon, ArrowPrevIcon, NoticeIcon } from "@/components/common/SvgIcon";
+import { ArrowNextIcon, ArrowPrevIcon, CircleCheckIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
 const STEP_LABELS = [
   "Info",
@@ -47,7 +47,7 @@ const StepLayout = ({
           <div className="relative bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8">
             {data.zakatEligible && (
               <div className="absolute top-5 right-5 sm:top-7 sm:right-7 flex items-center gap-1 bg-[#FFF8E6] border border-[#F5C842] rounded-full px-2.5 py-1">
-                <span className="text-[13px] leading-none">☪️</span>
+                <span className="text-[13px] leading-none">{CircleCheckIcon}</span>
                 <span className="text-[11px] font-semibold text-[#A07800] whitespace-nowrap">Zakat Eligible</span>
               </div>
             )}
