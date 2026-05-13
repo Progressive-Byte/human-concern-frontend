@@ -20,20 +20,24 @@ const DonationPreview = ({ currentStep }) => {
 
   const showPayment = Boolean(data.amountTier);
 
+  // baseTotal is the full schedule total (used for per-date subtotal rows)
   const baseTotal = (data.scheduleType === "specific_dates" && data.perDateTotal != null)
     ? data.perDateTotal
     : (data.amountTier ?? 0) * (data.installmentCount ?? 1);
+
+  const isRecurring      = data.paymentType === "recurring";
+
+  // grandTotalBase: for recurring show per-payment amount, for one-time show full amount
+  const grandTotalBase = isRecurring ? (data.amountTier ?? 0) : baseTotal;
 
   const customTipParsed = data.customTipAmount !== "" && data.customTipAmount != null
     ? Math.max(0, Number(data.customTipAmount) || 0)
     : null;
   const tipAmount = enableTipping
-    ? (customTipParsed !== null ? customTipParsed : data.tipPct ? (baseTotal * data.tipPct) / 100 : 0)
+    ? (customTipParsed !== null ? customTipParsed : data.tipPct ? (grandTotalBase * data.tipPct) / 100 : 0)
     : 0;
   const hasTip     = tipAmount > 0;
   const showAddons = data.addOnBreakdown?.length > 0 || hasTip || data.grandTotal > 0;
-
-  const isRecurring      = data.paymentType === "recurring";
   const isSpecificDates  = isRecurring && data.scheduleType === "specific_dates";
   const isDateRange      = isRecurring && data.scheduleType === "date_range";
 
