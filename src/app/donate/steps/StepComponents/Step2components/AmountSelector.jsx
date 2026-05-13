@@ -16,6 +16,7 @@ const AmountSelector = ({
   maxDonation,
   currency,
   isRecurring,
+  splitMode,
   occurrences,
   initialAmount,
   onAmountChange,
