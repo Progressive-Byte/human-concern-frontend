@@ -8,6 +8,7 @@ import StepLayout        from "./StepComponents/StepLayout";
 import countOccurrences, { generateDatesInRange } from "./StepComponents/countOccurrences";
 import RecurringSchedule from "./StepComponents/Step2components/RecurringSchedule";
 import AmountSelector    from "./StepComponents/Step2components/AmountSelector";
+import SectionStep from "./StepComponents/Step2components/SectionStep";
 
 const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
