@@ -232,14 +232,6 @@ const Step1Info = ({ campaignSlug }) => {
           toggleCause={toggleCause}
         />
 
-        {data.isRamadan && (
-          <ObjectiveSelector
-            objectives={objectives}
-            objective={data.objective}
-            onSelect={(obj) => update({ objective: obj.id, objectiveLabel: obj.label })}
-          />
-        )}
-
         <DonorPreferences
           anonymous={anonymous}
           setAnonymous={setAnonymous}
