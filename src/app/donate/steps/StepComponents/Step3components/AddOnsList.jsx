@@ -60,12 +60,10 @@ const AddOnsList = ({ campaignAddOns, sym, addOnEnabled, setAddOnEnabled, addOnI
                   {addOn.labelUnderAmount ?? addOn.shortDescription}
                 </p>
               </div>
-              <div ref={(el) => { if (el) toggleRefs.current[addOn.id] = el; }}>
-                <Toggle
-                  enabled={enabled}
-                  onChange={(val) => handleToggle(addOn, val)}
-                />
-              </div>
+              <Toggle
+                enabled={enabled}
+                onChange={(val) => handleToggle(addOn, val)}
+              />
             </div>
 
             {enabled && inputs.length > 0 && (
