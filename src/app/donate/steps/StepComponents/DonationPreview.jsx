@@ -32,7 +32,7 @@ const DonationPreview = ({ currentStep }) => {
   const isRecurring      = data.paymentType === "recurring";
 
   // grandTotalBase: for recurring show per-payment amount, for one-time show full amount
-  const grandTotalBase = isRecurring ? (data.amountTier ?? 0) : baseTotal;
+  const grandTotalBase = isRecurring ? effectiveAmountTier : baseTotal;
 
   const customTipParsed = data.customTipAmount !== "" && data.customTipAmount != null
     ? Math.max(0, Number(data.customTipAmount) || 0)
