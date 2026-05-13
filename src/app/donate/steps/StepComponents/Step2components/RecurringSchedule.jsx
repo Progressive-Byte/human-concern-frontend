@@ -25,6 +25,48 @@ const PRESETS = [
   { id: "custom",         label: "Custom",             icon: "✏️" },
 ];
 
+function getPresetDates(presetId) {
+  const today    = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+  const toISO    = (d) => d.toISOString().split("T")[0];
+
+  if (presetId === "every_monday" || presetId === "every_friday") {
+    const targetDay = presetId === "every_monday" ? 1 : 5;
+    const dates = [];
+    const d = new Date(today);
+    const diff = (targetDay - d.getDay() + 7) % 7 || 7;
+    d.setDate(d.getDate() + diff);
+    for (let i = 0; i < 4; i++) {
+      dates.push(toISO(d));
+      d.setDate(d.getDate() + 7);
+    }
+    return { type: "specific_dates", dates };
+  }
+
+  if (presetId === "odd_nights") {
+    const dates = [];
+    const m = today.getMonth();
+    const y = today.getFullYear();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
+      if (day % 2 !== 0) {
+        const s = `${y}-${String(m + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        if (s >= todayStr) dates.push(s);
+      }
+    }
+    if (dates.length < 3) {
+      const nm = (m + 1) % 12;
+      const ny = nm === 0 ? y + 1 : y;
+      const daysNext = new Date(ny, nm + 1, 0).getDate();
+      for (let day = 1; day <= daysNext; day++) {
+        if (day % 2 !== 0) {
+          dates.push(`${ny}-${String(nm + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`);
+        }
+      }
+    }
+    return { type: "specific_dates", dates: dates.slice(0, 15) };
+  }
+
   if (presetId === "ramadan_last10") {
     // Ramadan 2027: ~Feb 17 – Mar 18; last 10 nights: Mar 9–18
     const start = new Date("2027-03-09");
