@@ -177,7 +177,14 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
 
   const handlePreset = (presetId) => {
     setActivePreset(presetId);
-    if (presetId === "custom") return;
+    if (presetId === "custom") {
+      // Clear preset dates so the user starts with a blank calendar
+      setScheduleType("specific_dates");
+      setSelectedDates([]);
+      setDateAmounts({});
+      notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {});
+      return;
+    }
     const result = getPresetDates(presetId);
     if (!result) return;
     setScheduleType("specific_dates");
