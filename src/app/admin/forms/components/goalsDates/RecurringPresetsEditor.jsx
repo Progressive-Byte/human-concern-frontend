@@ -410,7 +410,7 @@ function PresetCard({ value, onChange, onRemove, disabled, errors }) {
                 <div className="text-[13px] font-semibold text-[#111827]">Enabled</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Show this preset to donors</div>
               </div>
-              <Toggle enabled={Boolean(v.enabled)} onChange={(next) => setField({ enabled: Boolean(next) })} />
+              <Toggle enabled={Boolean(v.enabled)} onChange={disabled ? () => {} : (next) => setField({ enabled: Boolean(next) })} />
             </div>
             <div className="md:flex-1">
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">Schedule Type</div>
@@ -486,7 +486,7 @@ export default function RecurringPresetsEditor({
             <div className="text-[13px] font-semibold text-[#111827]">Allow Recurring Donations</div>
             <div className="mt-1 text-[12px] text-[#6B7280]">Let donors set up weekly, monthly, or custom schedules</div>
           </div>
-          <Toggle enabled={Boolean(allowRecurringDonations)} onChange={onChangeAllowRecurringDonations} />
+          <Toggle enabled={Boolean(allowRecurringDonations)} onChange={disabled ? () => {} : onChangeAllowRecurringDonations} />
         </div>
       </div>
 
