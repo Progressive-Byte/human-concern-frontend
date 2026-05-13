@@ -71,10 +71,10 @@ const DonationPreview = ({ currentStep }) => {
     if (!start || !end) return [];
     return generateDatesInRange(start, end, freq).map((d) => {
       const isCustom = overrides[d] !== undefined;
-      const amt      = isCustom ? Number(overrides[d]) : (data.amountTier ?? 0);
+      const amt      = isCustom ? Number(overrides[d]) : effectiveAmountTier;
       return { d, amt, isCustom };
     });
-  }, [isDateRange, data.scheduleConfig, data.amountTier]);
+  }, [isDateRange, data.scheduleConfig, effectiveAmountTier]);
 
   const MAX_VISIBLE = 5;
   const visibleRows      = dateRows.slice(0, MAX_VISIBLE);
