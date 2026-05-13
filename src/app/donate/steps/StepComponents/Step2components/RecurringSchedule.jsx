@@ -169,7 +169,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
   };
 
   const handleCustomInterval = (val) => {
-    const n = Math.max(1, parseInt(val, 10) || 1);
+    const n = Math.min(15, Math.max(1, parseInt(val, 10) || 1));
     setCustomInterval(n);
     setDateAmounts({});
     notify(scheduleType, selectedDates, rangeStart, rangeEnd, rangeFreq, {}, n);
