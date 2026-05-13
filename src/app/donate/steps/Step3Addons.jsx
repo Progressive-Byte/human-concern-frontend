@@ -65,7 +65,7 @@ const Step3Addons = () => {
 
   const [addOnEnabled, setAddOnEnabled] = useState(() => {
     const breakdown = data.addOnBreakdown;
-    if (!breakdown) return Object.fromEntries(campaignAddOns.map((a) => [a.id, true]));
+    if (!breakdown) return Object.fromEntries(campaignAddOns.map((a) => [a.id, false]));
     const enabledIds = new Set(breakdown.map((a) => a.id));
     return Object.fromEntries(campaignAddOns.map((a) => [a.id, enabledIds.has(a.id)]));
   });
