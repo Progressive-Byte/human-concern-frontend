@@ -140,7 +140,9 @@ const AmountSelector = ({
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="text-[13px] font-medium text-[#383838]">
-            {isRecurring
+            {isRecurring && splitMode === "divide"
+              ? `Per-payment Amount (÷ ${occurrences})`
+              : isRecurring
               ? `Total Amount (${occurrences} payment${occurrences !== 1 ? "s" : ""})`
               : "Total Amount"}
           </label>
@@ -153,9 +155,16 @@ const AmountSelector = ({
         <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3 flex items-center gap-2">
           <span className="text-[16px] text-[#737373] font-medium">{sym}</span>
           <span className="text-[28px] font-bold text-[#383838] leading-none">
-            {displayTotal.toLocaleString()}
+            {isRecurring && splitMode === "divide" && occurrences > 0
+              ? (effectiveAmount / occurrences).toFixed(2)
+              : displayTotal.toLocaleString()}
           </span>
         </div>
+        {isRecurring && splitMode === "divide" && occurrences > 0 && (
+          <p className="text-[11px] text-[#737373] mt-1.5 px-1">
+            {sym}{effectiveAmount} ÷ {occurrences} dates = {sym}{(effectiveAmount / occurrences).toFixed(2)}/date
+          </p>
+        )}
       </div>
     </div>
   );
