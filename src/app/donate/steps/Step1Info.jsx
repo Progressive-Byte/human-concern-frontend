@@ -18,6 +18,7 @@ const Step1Info = ({ campaignSlug }) => {
   const { handleNext } = useStepNavigation();
   const searchParams = useSearchParams();
   const router = useRouter();
+  console.log("Step1Info render", { data, user, isAuthenticated });
 
   useEffect(() => {
     if (data.submitted) {
