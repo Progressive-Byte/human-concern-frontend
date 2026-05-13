@@ -27,7 +27,9 @@ Routes live in `src/app/` using the App Router convention with route groups:
 - `admin/` — admin-only panel (campaigns, forms, donations, settings)
 - `donate/` — donation flow
 
-Route protection is handled in `src/middleware.js`: unauthenticated users accessing `/dashboard` are redirected to `/user/login`; admin routes require a separate `adminToken` cookie.
+Route protection is handled in `src/middleware.js`: unauthenticated users accessing `/dashboard` are redirected to `/user/login`; admin routes require a separate `adminToken` cookie. Authenticated users hitting auth pages are redirected back to their respective home (`/dashboard` or `/admin`).
+
+Dashboard sub-routes: `donation-history`, `fund-breakdown`, `payment-methods`, `profile`, `schedules`, `schedules/[slug]`.
 
 ### API Layer
 
@@ -61,11 +63,15 @@ The same 4 step components are shared across two URL patterns:
 
 **Step breakdown** (visible in StepProgress as: Info → Payment → Add-ons & Pay → Confirmation):
 - **Step 1** (`Step1Info.jsx`) — Personal info (name, email, phone, address via `country-state-city` dropdowns), cause selection (from `campaignData.causes`), and Ramadan objective selection (only if `data.isRamadan`). Validates required fields + at least one cause selected.
-- **Step 2** (`Step2Payment.jsx`) — Donation amount (suggested tiles + custom input validated against `minDonation`/`maxDonation`), currency (USD/GBP/EUR/CAD), payment type (one-time or recurring). Recurring adds schedule: "specific_dates" (multi-select via `MiniCalendar`) or "date_range" (startDate + endDate + frequency: daily/weekly/monthly). Redirects back to step 4 if donation was already submitted.
-- **Step 3** (`Step3Addons.jsx`) — Optional add-ons (fixed or formula-based pricing with user inputs), tipping slider (0–15%, configurable per campaign), and payment gateway selection (Stripe/PayPal). Submits to `donations/submit`, stores `stripeClientSecret` + `stripePublishableKey` + `donationId` in `DonationContext`.
+- **Step 2** (`Step2Payment.jsx`) — Donation amount (suggested tiles + custom input validated against `minDonation`/`maxDonation`), currency (USD/GBP/EUR/CAD), payment type (one-time or recurring). Recurring adds schedule: "specific_dates" (multi-select via `MiniCalendar`) or "date_range" (startDate + endDate + frequency: daily/weekly/monthly). Both schedule types support per-date custom amounts stored in `scheduleConfig.dateAmounts` (`{ [isoDate]: number }`), which override the default `amountTier` for that date. Redirects back to step 4 if donation was already submitted.
+- **Step 3** (`Step3Addons.jsx`) — Optional add-ons (fixed or formula-based pricing with user inputs), tipping slider (0–15%, configurable per campaign), and payment gateway selection (Stripe/PayPal). Submits via `donationService.createDonation`, stores `stripeClientSecret` + `stripePublishableKey` + `donationId` in `DonationContext`.
 - **Step 4** (`Step4Confirmation.jsx`) — Stripe card entry via `StripeCheckoutForm` (PayPal shows "coming soon"). After payment, redirects to `/donate/thank-you`.
 
 Step 1 uses `country-state-city` (npm package) for ISO-code-aware Country/State/City dropdowns. `src/utils/isoHelpers.js` provides `resolveCountryIso` and `resolveStateIso` to handle legacy API codes (ISO3 → ISO2 mapping).
+
+`src/app/donate/steps/StepComponents/countOccurrences.jsx` exports `countOccurrences(startDate, endDate, frequency)` and `generateDatesInRange(startDate, endDate, frequency)` — used by Step 2 and `DonationPreview` to compute installment counts and expand date-range schedules.
+
+`DonationPreview` (`StepComponents/DonationPreview.jsx`) is a sticky sidebar rendered in the step layout showing a live summary of all donation fields accumulated so far.
 
 **Campaign sessionStorage schema** — the campaign detail page writes `campaignData` before the user enters the donate flow:
 ```js
@@ -94,6 +100,7 @@ Key `DonationContext` fields: `campaign`, `campaignId`, `campaignTitle`, `isRama
 - Common non-primitive components go in `src/components/common/` (`SvgIcon`, `CustomDropdown`, `FormInput`, `VideoModal`, `Pagination`).
 - Layout chrome (Navbar, Footer, Sidebar, AdminSidebar, RouteProgressBar, Topnoticebar) lives in `src/components/layout/`.
 - Page-specific components live alongside the page: `src/app/dashboard/components/`, `src/app/admin/components/`, etc.
+- Admin form creation (`admin/forms/new/`) uses a wizard shell (`FormWizardShell`) with a `WizardFooterNav` and per-step components (e.g., `WizardStepBasics`). Add new wizard steps as separate components following the same pattern.
 
 ### Path Alias
 
