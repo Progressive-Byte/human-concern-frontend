@@ -16,11 +16,11 @@ export default async function DonateStepPage({ params }) {
   const { step } = await params;
   const index = parseInt(step, 10) - 1;
 
-  if (isNaN(index) || index < 0 || index >= STEPS.length) notFound();
+  if (isNaN(index) || index < 0 || index >= STEPS.length) return notFound();
 
   const StepComponent = STEPS[index];
   return (
-    <Suspense>
+    <Suspense fallback={null}>
       <StepComponent />
     </Suspense>
   );

@@ -40,8 +40,21 @@ export default async function CampaignPage({ params }) {
 
   if (!campaign) return notFound();
 
-  // Strip undefined values so the server→client RSC boundary serializes cleanly
+  // Strip undefined values — required for the server→client RSC serialization boundary
   campaign = JSON.parse(JSON.stringify(campaign));
+
+  // Normalize: suggestedAmounts [{id,value,description}] → [number]
+  if (Array.isArray(campaign.suggestedAmounts)) {
+    campaign.suggestedAmounts = campaign.suggestedAmounts
+      .map((a) => (a !== null && typeof a === "object" ? a.value : a))
+      .filter((v) => typeof v === "number");
+  }
+
+  // Normalize: donors {items, meta} → flat total (number | null) + donorItems array
+  const donorsRaw          = campaign.donors;
+  campaign.donors          = donorsRaw?.meta?.pagination?.total
+    ?? (Array.isArray(donorsRaw?.items) ? donorsRaw.items.length : null);
+  campaign.donorItems      = donorsRaw?.items ?? [];
 
   const thumbnailUrl = resolveImageUrl(
     campaign.media?.thumbnailPath ?? campaign.thumbnailPath
