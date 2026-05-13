@@ -29,8 +29,6 @@ function buildFormulaLabel(addOn, inputValues, sym) {
 }
 
 const AddOnsList = ({ campaignAddOns, sym, addOnEnabled, setAddOnEnabled, addOnInputs, updateAddOnInput }) => {
-  const toggleRefs = useRef({});
-
   if (!campaignAddOns.length) return null;
 
   const handleToggle = (addOn, val) => {
