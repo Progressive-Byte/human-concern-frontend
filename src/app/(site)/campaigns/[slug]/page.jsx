@@ -132,7 +132,7 @@ export default async function CampaignPage({ params }) {
               </div> */}
               <div className="flex gap-2 text-sm font-normal text-[#383838] mt-4">
                   <Image src="/images/donars.png" alt="donor" width={15} height={15} className="object-contain" />
-                  <span>{campaign.donors ? campaign.donors.toLocaleString() : "0"} donors</span>
+                  <span>{campaign.donors != null ? campaign.donors.toLocaleString() : "0"} donors</span>
                   <Image src="/images/calander.png" alt="calander" width={15} height={15} className="object-contain" />
                   <span>{campaign.endAt ? daysLeft(campaign.endAt) : "0"} days left</span>
                   <Image src="/images/map.png" alt="map" width={15} height={15} className="object-contain" />
