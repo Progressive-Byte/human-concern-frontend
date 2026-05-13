@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+import confetti from "canvas-confetti";
 import Stepper from "@/components/ui/Stepper";
 import Toggle  from "@/components/ui/Toggle";
 
