@@ -365,6 +365,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
                   <input
                     type="number"
                     min={1}
+                    max={15}
                     value={customInterval}
                     onChange={(e) => handleCustomInterval(e.target.value)}
                     className="w-20 px-3 py-2 rounded-lg border border-[#E5E5E5] text-[14px] text-[#383838] text-center outline-none focus:border-[#EA3335] bg-white"
@@ -372,6 +373,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
                   <span className="text-[13px] font-medium text-[#383838]">
                     day{customInterval !== 1 ? "s" : ""}
                   </span>
+                  <span className="text-[11px] text-[#AEAEAE]">(max 15)</span>
                 </div>
               )}
 
