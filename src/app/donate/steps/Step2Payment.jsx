@@ -59,7 +59,7 @@ const Step2Payment = () => {
     const sc = data.scheduleConfig;
     if (!sc || !isRecurring) return 1;
     if (data.scheduleType === "specific_dates") return sc.dates?.length ?? 1;
-    return countOccurrences(sc.startDate?.split("T")[0], sc.endDate?.split("T")[0], sc.frequency ?? "daily");
+    return countOccurrences(sc.startDate?.split("T")[0], sc.endDate?.split("T")[0], sc.frequency ?? "daily", sc.customInterval ?? 1);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
