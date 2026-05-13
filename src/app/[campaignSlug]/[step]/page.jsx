@@ -21,7 +21,7 @@ export default async function CampaignStepPage({ params }) {
   const StepComponent = STEPS[index];
   return (
     <Suspense fallback={null}>
-      <StepComponent />
+      <StepComponent campaignSlug={campaignSlug} />
     </Suspense>
   );
 }

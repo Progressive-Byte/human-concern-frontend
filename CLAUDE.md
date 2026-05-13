@@ -24,7 +24,7 @@ Routes live in `src/app/` using the App Router convention with route groups:
 - `(auth)/` — login, register, password reset (both user and admin sub-paths)
 - `[campaignSlug]/` — dynamic campaign detail
 - `dashboard/` — authenticated user area
-- `admin/` — admin-only panel (campaigns, forms, donations, settings)
+- `admin/` — admin-only panel (campaigns, forms, donations, add-ons, categories, causes, donors, settings)
 - `donate/` — donation flow
 
 Route protection is handled in `src/middleware.js`: unauthenticated users accessing `/dashboard` are redirected to `/user/login`; admin routes require a separate `adminToken` cookie. Authenticated users hitting auth pages are redirected back to their respective home (`/dashboard` or `/admin`).
@@ -36,10 +36,10 @@ Dashboard sub-routes: `donation-history`, `fund-breakdown`, `payment-methods`, `
 All HTTP calls go through `src/services/api.js`:
 - `apiRequest()` — client-side only, attaches the user `token` cookie as a Bearer header
 - `adminApiRequest()` — attaches `adminToken`
-- `apiBase` (`/api/v1/`) is rewritten by `next.config.mjs` to `https://donation.api.sagsio.com/api/v1/`
+- `apiBase` (`/api/v1/`) is rewritten by `next.config.mjs` to `https://donation.api.sagsio.com/api/v1/`; `/uploads/:path*` is similarly proxied to the same host
 - `serverApiBase` (`https://donation.api.sagsio.com/api/v1/`) is used directly in server components
 
-On any `401` response, `api.js` dispatches `window.dispatchEvent(new CustomEvent("auth:unauthorized"))` — never throw/handle 401s manually in components.
+On any `401` response, `api.js` dispatches `window.dispatchEvent(new CustomEvent("auth:unauthorized"))` — never throw/handle 401s manually in components. When the request body is a `FormData` instance, `api.js` omits `Content-Type` so `fetch` sets the multipart boundary automatically.
 
 Domain services (`authService.js`, `campaignService.js`, `donationService.js`, `admin.js`, `adminAuthService.js`) wrap `apiRequest`/`adminApiRequest` and are the only place that should call the API directly.
 
@@ -100,7 +100,7 @@ Key `DonationContext` fields: `campaign`, `campaignId`, `campaignTitle`, `isRama
 - Common non-primitive components go in `src/components/common/` (`SvgIcon`, `CustomDropdown`, `FormInput`, `VideoModal`, `Pagination`).
 - Layout chrome (Navbar, Footer, Sidebar, AdminSidebar, RouteProgressBar, Topnoticebar) lives in `src/components/layout/`.
 - Page-specific components live alongside the page: `src/app/dashboard/components/`, `src/app/admin/components/`, etc.
-- Admin form creation (`admin/forms/new/`) uses a wizard shell (`FormWizardShell`) with a `WizardFooterNav` and per-step components (e.g., `WizardStepBasics`). Add new wizard steps as separate components following the same pattern.
+- Admin form creation (`admin/forms/new/`) uses a wizard shell (`FormWizardShell`) with a `WizardFooterNav` and per-step components in order: Basics → GoalsDates → Causes → Objectives → Addons → Media → Review. Add new wizard steps as separate components following the same pattern. The `ToastProvider` (from `admin/campaigns/components/`) is shared across all wizard steps.
 
 ### Path Alias
 
