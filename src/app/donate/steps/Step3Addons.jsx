@@ -6,7 +6,7 @@ import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "./StepComponents/StepLayout";
 import { apiRequest } from "@/services/api";
-import AddOnsList             from "./StepComponents/Step3components/AddOnsList";
+import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection         from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
 
