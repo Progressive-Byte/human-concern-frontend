@@ -118,8 +118,6 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
     notify(scheduleType, selectedDates, rangeStart, rangeEnd, rangeFreq, {}, n);
   };
 
-  // ── render ────────────────────────────────────────────────────────────────
-
   return (
     <div className="flex flex-col gap-4">
 
