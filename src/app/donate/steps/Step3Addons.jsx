@@ -48,8 +48,9 @@ const Step3Addons = () => {
     catch { return {}; }
   }, []);
 
-  const campaignAddOns = campaignMeta.addOns ?? [];
-  const enableTipping  = campaignMeta.goalsDates?.enableTipping ?? true;
+  const campaignAddOns  = campaignMeta.addOns      ?? [];
+  const campaignNotes   = campaignMeta.customNotes ?? [];
+  const enableTipping   = campaignMeta.goalsDates?.enableTipping ?? true;
 
   const currency     = data.currency     ?? "USD";
   const amountTier   = data.amountTier   ?? 0;
@@ -84,6 +85,13 @@ const Step3Addons = () => {
       ])
     );
   });
+
+  const [noteValues, setNoteValues] = useState(() =>
+    Object.fromEntries(
+      campaignNotes.map((n) => [n.key, data.customNoteValues?.[n.key] ?? n.defaultValue ?? ""])
+    )
+  );
+  const [noteErrors, setNoteErrors] = useState({});
 
   const [tipPct,          setTipPct]          = useState(data.tipPct ?? 10);
   const [customTipAmount, setCustomTipAmount] = useState(data.customTipAmount ?? "");
