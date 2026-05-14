@@ -1,6 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import RouteProgressBar from "@/components/layout/RouteProgressBar";
+import DonationSessionCleaner from "@/components/common/DonationSessionCleaner";
 
 export const metadata = {
   title: "Human Concern",
@@ -12,7 +13,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="antialiased">
         <RouteProgressBar />
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <DonationSessionCleaner />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
