@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminLogin as apiAdminLogin } from "@/services/adminAuthService";
 import { setCookie, deleteCookie } from "@/utils/cookies";
