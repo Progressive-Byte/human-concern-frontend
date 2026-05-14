@@ -154,16 +154,19 @@ const DonationWidget = ({ campaign }) => {
                   );
                 })}
 
-                {/* Custom toggle button — spans both columns */}
+                {/* Custom toggle button — same size as suggested amount tiles */}
                 <button
                   onClick={() => { setShowCustom(true); setCustomAmount(""); }}
-                  className={`col-span-2 w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 border transition-all duration-200 cursor-pointer text-[14px] font-semibold ${
+                  className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
                     showCustom
-                      ? "bg-[#F0FDF4] border-[#055A46] text-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-                      : "bg-white border-[#38383833] text-[#383838] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                      ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
+                      : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
                   }`}
                 >
-                  ✏️ Custom Amount
+                  <span className={`text-[18px] leading-tight`}>✏️</span>
+                  <span className={`text-[15px] font-bold leading-tight mt-1 ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
+                    Custom
+                  </span>
                 </button>
               </div>
             </div>
