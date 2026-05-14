@@ -18,6 +18,7 @@ export default function AdminAvatarMenu({ admin }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
   const btnRef = useRef(null);
+  const menuRef = useRef(null);
   const [portalNode, setPortalNode] = useState(null);
   const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
 
@@ -48,8 +49,13 @@ export default function AdminAvatarMenu({ admin }) {
 
   useEffect(() => {
     function onPointerDown(e) {
-      if (!rootRef.current) return;
-      if (!rootRef.current.contains(e.target)) setOpen(false);
+      const root = rootRef.current;
+      const btn = btnRef.current;
+      const menu = menuRef.current;
+      if (btn && btn.contains(e.target)) return;
+      if (root && root.contains(e.target)) return;
+      if (menu && menu.contains(e.target)) return;
+      setOpen(false);
     }
 
     function onKeyDown(e) {
@@ -79,12 +85,16 @@ export default function AdminAvatarMenu({ admin }) {
       {open && portalNode
         ? createPortal(
             <div
+              ref={menuRef}
               className="hc-animate-dropdown fixed z-[200] w-[200px] overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-md"
               style={{ top: menuPos.top, right: menuPos.right }}
             >
               <button
                 type="button"
-                onClick={logout}
+                onClick={() => {
+                  setOpen(false);
+                  logout();
+                }}
                 className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-sm text-[#111827] transition-colors duration-200 hover:bg-[#F3F4F6]"
               >
                 Log out
