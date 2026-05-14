@@ -253,11 +253,7 @@ const Step2Payment = () => {
                         active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
                       }`}
                     >
-                      <span className={`w-9 h-9 rounded-xl flex items-center justify-center text-[18px] font-bold shrink-0 transition-colors ${
-                        active ? "bg-[#EA3335] text-white" : "bg-[#F3F4F6] text-[#737373]"
-                      }`}>
-                        {mode.symbol}
-                      </span>
+                     
                       <div>
                         <p className="text-[14px] font-semibold text-[#383838] leading-snug">{mode.title}</p>
                         <p className="text-[12px] text-[#737373] mt-0.5 font-medium tabular-nums">{mode.example}</p>
