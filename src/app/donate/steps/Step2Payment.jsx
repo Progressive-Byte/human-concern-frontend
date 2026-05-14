@@ -145,7 +145,6 @@ const Step2Payment = () => {
   const splitModes = [
     {
       value:   "repeat",
-      symbol:  "×",
       title:   "Pay this amount each date",
       example: occurrences > 1
         ? `${sym}${effectiveAmount} × ${occurrences} = ${sym}${(effectiveAmount * occurrences).toLocaleString()} total`
@@ -153,7 +152,6 @@ const Step2Payment = () => {
     },
     {
       value:   "divide",
-      symbol:  "÷",
       title:   "Divide total across dates",
       example: occurrences > 1
         ? `${sym}${effectiveAmount} ÷ ${occurrences} = ${sym}${(effectiveAmount / safeOcc).toFixed(2)}/date`
