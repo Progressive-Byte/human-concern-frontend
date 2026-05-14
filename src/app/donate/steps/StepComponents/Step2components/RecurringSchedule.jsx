@@ -1,51 +1,29 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import MiniCalendar from "./MiniCalendar";
 import countOccurrences, { generateDatesInRange } from "../countOccurrences";
 import { PRESETS, getPresetDates } from "./presetDates";
-import DateAmountRow from "./DateAmountRow";
+import { buildConfig, resolveFreq } from "./scheduleUtils";
+import SpecificDatesSection from "./SpecificDatesSection";
+import DateRangeSection from "./DateRangeSection";
+import PerDateAmountTable from "./PerDateAmountTable";
 
 const SCHEDULE_TYPES = [
   { value: "specific_dates", label: "Specific Dates" },
   { value: "date_range",     label: "Date Range" },
 ];
 
-// minDays: minimum range span required for this frequency to be valid
-const FREQ_OPTIONS = [
-  { value: "daily",   label: "Daily",   minDays: 1 },
-  { value: "weekly",  label: "Weekly",  minDays: 7 },
-  { value: "monthly", label: "Monthly", minDays: 30 },
-  { value: "yearly",  label: "Yearly",  minDays: 365 },
-  { value: "custom",  label: "Custom",  minDays: 1 },
-];
-
 const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialConfig, onChange }) => {
-  const [activePreset,    setActivePreset]    = useState("custom");
-  const [scheduleType,    setScheduleType]    = useState(initialScheduleType ?? "specific_dates");
-  const [selectedDates,   setSelectedDates]   = useState(() =>
+  const [activePreset,   setActivePreset]   = useState("custom");
+  const [scheduleType,   setScheduleType]   = useState(initialScheduleType ?? "specific_dates");
+  const [selectedDates,  setSelectedDates]  = useState(() =>
     (initialConfig?.dates ?? []).map((d) => d.split("T")[0])
   );
-  const [dateAmounts,     setDateAmounts]     = useState(() => initialConfig?.dateAmounts ?? {});
-  const [rangeStart,      setRangeStart]      = useState(initialConfig?.startDate?.split("T")[0] ?? "");
-  const [rangeEnd,        setRangeEnd]        = useState(initialConfig?.endDate?.split("T")[0]   ?? "");
-  const [rangeFreq,       setRangeFreq]       = useState(initialConfig?.frequency ?? "daily");
-  const [customInterval,  setCustomInterval]  = useState(initialConfig?.customInterval ?? 1);
-
-  const todayStr = new Date().toISOString().split("T")[0];
-
-  // Number of days between start and end (inclusive)
-  const rangeDays = useMemo(() => {
-    if (!rangeStart || !rangeEnd) return 0;
-    const diff = Math.floor((new Date(rangeEnd) - new Date(rangeStart)) / 86400000) + 1;
-    return diff > 0 ? diff : 0;
-  }, [rangeStart, rangeEnd]);
-
-  // Which frequency options are disabled for the current range
-  const freqDisabled = useMemo(
-    () => Object.fromEntries(FREQ_OPTIONS.map(({ value, minDays }) => [value, rangeDays > 0 && rangeDays < minDays])),
-    [rangeDays]
-  );
+  const [dateAmounts,    setDateAmounts]    = useState(() => initialConfig?.dateAmounts ?? {});
+  const [rangeStart,     setRangeStart]     = useState(initialConfig?.startDate?.split("T")[0] ?? "");
+  const [rangeEnd,       setRangeEnd]       = useState(initialConfig?.endDate?.split("T")[0]   ?? "");
+  const [rangeFreq,      setRangeFreq]      = useState(initialConfig?.frequency ?? "daily");
+  const [customInterval, setCustomInterval] = useState(initialConfig?.customInterval ?? 1);
 
   const generatedDates = useMemo(
     () => scheduleType === "date_range"
@@ -54,34 +32,11 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
     [scheduleType, rangeStart, rangeEnd, rangeFreq, customInterval]
   );
 
-  // ── helpers ──────────────────────────────────────────────────────────────
+  const activeDates = (scheduleType === "date_range" && activePreset === "custom")
+    ? generatedDates
+    : [...selectedDates].sort();
 
-  const buildConfig = (type, dates, start, end, freq, amounts, interval) => {
-    if (type === "specific_dates") {
-      const sorted    = [...dates].sort();
-      const overrides = {};
-      sorted.forEach((d) => {
-        if (amounts[d] !== undefined && amounts[d] !== "") overrides[d] = Number(amounts[d]);
-      });
-      return {
-        dates: sorted.map((d) => new Date(`${d}T00:00:00.000Z`).toISOString()),
-        ...(Object.keys(overrides).length > 0 && { dateAmounts: overrides }),
-      };
-    }
-    const rangeDatesArr = generateDatesInRange(start, end, freq, interval);
-    const validSet      = new Set(rangeDatesArr);
-    const overrides     = {};
-    Object.entries(amounts).forEach(([d, v]) => {
-      if (validSet.has(d) && v !== undefined && v !== "") overrides[d] = Number(v);
-    });
-    return {
-      startDate: start ? new Date(`${start}T00:00:00.000Z`).toISOString() : "",
-      endDate:   end   ? new Date(`${end}T00:00:00.000Z`).toISOString()   : "",
-      frequency: freq,
-      ...(freq === "custom" && { customInterval: Math.max(1, Number(interval) || 1) }),
-      ...(Object.keys(overrides).length > 0 && { dateAmounts: overrides }),
-    };
-  };
+  // ── notify parent ────────────────────────────────────────────────────────
 
   const notify = (type, dates, start, end, freq, amounts, interval) => {
     const occ    = type === "specific_dates"
@@ -89,16 +44,6 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
       : countOccurrences(start, end, freq, interval);
     const config = buildConfig(type, dates, start, end, freq, amounts, interval);
     onChange({ scheduleType: type, scheduleConfig: config, occurrences: occ });
-  };
-
-  // If the current frequency is no longer valid for a new range, fall back to daily
-  const resolveFreq = (newStart, newEnd, currentFreq) => {
-    if (!newStart || !newEnd) return currentFreq;
-    const days = Math.floor((new Date(newEnd) - new Date(newStart)) / 86400000) + 1;
-    if (days <= 0) return currentFreq;
-    const opt = FREQ_OPTIONS.find((o) => o.value === currentFreq);
-    if (opt && days < opt.minDays) return "daily";
-    return currentFreq;
   };
 
   // ── event handlers ────────────────────────────────────────────────────────
@@ -175,23 +120,6 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
     notify(scheduleType, selectedDates, rangeStart, rangeEnd, rangeFreq, {}, n);
   };
 
-  // ── derived ───────────────────────────────────────────────────────────────
-
-  const activeDates = (scheduleType === "date_range" && activePreset === "custom")
-    ? generatedDates
-    : [...selectedDates].sort();
-
-  const occurrences = scheduleType === "specific_dates"
-    ? selectedDates.length
-    : countOccurrences(rangeStart, rangeEnd, rangeFreq, customInterval);
-
-  const calcTotal = (dates, amounts) =>
-    dates.reduce((sum, d) => {
-      const ov  = amounts[d] ?? "";
-      const amt = ov !== "" ? Number(ov) : effectiveAmount;
-      return sum + (isNaN(amt) ? effectiveAmount : amt);
-    }, 0);
-
   // ── render ────────────────────────────────────────────────────────────────
 
   return (
@@ -219,7 +147,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
         })}
       </div>
 
-      {/* Preset summary */}
+      {/* Preset summary banner */}
       {activePreset !== "custom" && selectedDates.length > 0 && (
         <div className="flex items-center justify-between bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-2.5">
           <span className="text-[12px] text-[#EA3335] font-medium">
@@ -261,176 +189,33 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
           </div>
 
           {scheduleType === "specific_dates" ? (
-
-            /* Specific dates: calendar picker */
-            <div className="flex flex-col gap-3">
-              <div>
-                <label className="block text-[13px] font-medium text-[#383838] mb-2">
-                  Select Donation Dates
-                  {selectedDates.length > 0 && (
-                    <span className="ml-1.5 text-[#EA3335]">({selectedDates.length} selected)</span>
-                  )}
-                </label>
-                <MiniCalendar selectedDates={selectedDates} onToggleDate={toggleDate} />
-                {selectedDates.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {[...selectedDates].sort().map((d) => (
-                      <span
-                        key={d}
-                        className="flex items-center gap-1 text-[11px] bg-[#FFF5F5] border border-[#FFCCCC] text-[#EA3335] rounded-lg px-2 py-1 font-medium"
-                      >
-                        {d}
-                        <button
-                          type="button"
-                          onClick={() => toggleDate(d)}
-                          className="ml-0.5 hover:text-[#c0272a] cursor-pointer leading-none"
-                        >×</button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
+            <SpecificDatesSection selectedDates={selectedDates} onToggleDate={toggleDate} />
           ) : (
-
-            /* Date range */
-            <div className="flex flex-col gap-3">
-
-              {/* Start / end date row */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[13px] font-medium text-[#383838] mb-2">Start Date</label>
-                  <input
-                    type="date"
-                    value={rangeStart}
-                    min={todayStr}
-                    onChange={(e) => handleRangeStart(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-[#383838] mb-2">
-                    {rangeFreq === "custom" ? "Until Date" : "End Date"}
-                  </label>
-                  <input
-                    type="date"
-                    value={rangeEnd}
-                    min={rangeStart || todayStr}
-                    onChange={(e) => handleRangeEnd(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              {/* Frequency buttons */}
-              <div>
-                <label className="block text-[13px] font-medium text-[#383838] mb-2">Frequency</label>
-                <div className="flex flex-wrap gap-2">
-                  {FREQ_OPTIONS.map(({ value, label, minDays }) => {
-                    const disabled = freqDisabled[value];
-                    const active   = rangeFreq === value;
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => handleRangeFreq(value)}
-                        title={disabled ? `Requires at least ${minDays} day${minDays !== 1 ? "s" : ""} range` : undefined}
-                        className={`px-4 py-2 rounded-xl border text-[12px] font-medium transition-all ${
-                          active
-                            ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
-                            : disabled
-                            ? "border-[#E5E5E5] bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed"
-                            : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40 cursor-pointer"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-                {/* Inline validation hint when active freq is too wide for range */}
-                {rangeDays > 0 && freqDisabled[rangeFreq] && (
-                  <p className="text-[11px] text-[#EA3335] mt-1.5 px-0.5">
-                    {`${FREQ_OPTIONS.find((o) => o.value === rangeFreq)?.label} requires at least ${FREQ_OPTIONS.find((o) => o.value === rangeFreq)?.minDays} days — switched to Daily.`}
-                  </p>
-                )}
-              </div>
-
-              {/* Custom interval input */}
-              {rangeFreq === "custom" && (
-                <div className="flex items-center gap-3 bg-[#F9F9F9] border border-[#EBEBEB] rounded-xl px-4 py-3">
-                  <span className="text-[13px] font-medium text-[#383838] whitespace-nowrap">Every</span>
-                  <input
-                    type="number"
-                    min={1}
-                    max={15}
-                    value={customInterval}
-                    onChange={(e) => handleCustomInterval(e.target.value)}
-                    className="w-20 px-3 py-2 rounded-lg border border-[#E5E5E5] text-[14px] text-[#383838] text-center outline-none focus:border-[#EA3335] bg-white"
-                  />
-                  <span className="text-[13px] font-medium text-[#383838]">
-                    day{customInterval !== 1 ? "s" : ""}
-                  </span>
-                  <span className="text-[11px] text-[#AEAEAE]">(max 15)</span>
-                </div>
-              )}
-
-              {/* Payment count summary */}
-              {rangeStart && rangeEnd && occurrences > 0 && (
-                <p className="text-[12px] text-[#737373] bg-[#F9F9F9] rounded-xl px-4 py-2.5 border border-[#EBEBEB]">
-                  {occurrences} payment{occurrences !== 1 ? "s" : ""} of {sym}{effectiveAmount} each
-                  {rangeFreq === "custom" && (
-                    <span className="ml-1 text-[#AEAEAE]">(every {customInterval} day{customInterval !== 1 ? "s" : ""})</span>
-                  )}
-                </p>
-              )}
-            </div>
+            <DateRangeSection
+              rangeStart={rangeStart}
+              rangeEnd={rangeEnd}
+              rangeFreq={rangeFreq}
+              customInterval={customInterval}
+              effectiveAmount={effectiveAmount}
+              sym={sym}
+              onRangeStart={handleRangeStart}
+              onRangeEnd={handleRangeEnd}
+              onRangeFreq={handleRangeFreq}
+              onCustomInterval={handleCustomInterval}
+            />
           )}
         </div>
       )}
 
       {/* Per-date amount table */}
       {activeDates.length > 0 && (
-        <div className="flex flex-col gap-2 border border-[#EBEBEB] rounded-xl overflow-hidden bg-[#FAFAFA]">
-
-          <div className="flex items-center justify-between px-3 pt-3">
-            <div className="flex items-center gap-2">
-              <p className="text-[13px] font-medium text-[#383838]">Amount Per Date</p>
-              <span className="text-[11px] text-[#737373] bg-[#F0F0F0] rounded-full px-2 py-0.5 tabular-nums">
-                {activeDates.length} date{activeDates.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-            <p className="text-[11px] text-[#737373]">Default: {sym}{effectiveAmount}</p>
-          </div>
-
-          <div
-            className="flex flex-col gap-1.5 max-h-[230px] overflow-y-scroll px-3 pb-1"
-            style={{ scrollbarWidth: "thin", scrollbarColor: "#D1D5DB #F3F4F6" }}
-          >
-            {activeDates.map((d) => (
-              <DateAmountRow
-                key={d}
-                d={d}
-                override={dateAmounts[d] ?? ""}
-                effectiveAmount={effectiveAmount}
-                sym={sym}
-                onChange={handleDateAmountChange}
-              />
-            ))}
-          </div>
-
-          <div className="flex items-center justify-between px-3 py-2.5 border-t border-[#E5E5E5] bg-white">
-            <span className="text-[12px] font-semibold text-[#383838]">
-              Total ({activeDates.length} payment{activeDates.length !== 1 ? "s" : ""})
-            </span>
-            <span className="text-[14px] font-bold text-[#EA3335] tabular-nums">
-              {sym}{calcTotal(activeDates, dateAmounts).toLocaleString()}
-            </span>
-          </div>
-
-        </div>
+        <PerDateAmountTable
+          activeDates={activeDates}
+          dateAmounts={dateAmounts}
+          effectiveAmount={effectiveAmount}
+          sym={sym}
+          onChange={handleDateAmountChange}
+        />
       )}
 
     </div>
