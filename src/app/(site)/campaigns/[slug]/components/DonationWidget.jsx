@@ -31,7 +31,7 @@ const DonationWidget = ({ campaign }) => {
   const [currency,       setCurrency]       = useState(campaign.currency ?? "USD");
   const [copied,         setCopied]         = useState(false);
   const finalAmount        = customAmount ? Number(customAmount) : selectedAmount;
-  const selectedAmtDesc    = !customAmount
+  const selectedAmtDesc    = !showCustom
     ? (suggestedAmountsData.find((a) => a.value === selectedAmount)?.description ?? "")
     : "";
 
