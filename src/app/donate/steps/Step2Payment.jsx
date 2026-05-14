@@ -276,6 +276,7 @@ const Step2Payment = () => {
                 effectiveAmount={defaultPerDate}
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}
+                initialActivePreset={data.schedulePreset}
                 onChange={handleScheduleChange}
               />
             </div>
