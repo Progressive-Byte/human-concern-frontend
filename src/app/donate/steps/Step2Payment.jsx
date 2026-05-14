@@ -67,6 +67,7 @@ const Step2Payment = () => {
   const [amountError,     setAmountError]     = useState(false);
   const [occurrences,     setOccurrences]     = useState(isRecurring ? initOccurrences : 1);
   const [splitMode,       setSplitMode]       = useState(data.splitMode ?? "repeat");
+  const [activePreset,    setActivePreset]    = useState(data.schedulePreset ?? "custom");
   const [scheduleState,   setScheduleState]   = useState({
     scheduleType:   data.scheduleType   ?? "specific_dates",
     scheduleConfig: data.scheduleConfig ?? {},
