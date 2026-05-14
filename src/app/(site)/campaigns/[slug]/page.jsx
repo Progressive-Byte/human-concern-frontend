@@ -38,7 +38,31 @@ export default async function CampaignPage({ params }) {
     console.error("[CampaignPage] fetch error:", error);
   }
 
-  if (!campaign) notFound();
+  if (!campaign) return notFound();
+
+  // Strip undefined values — required for the server→client RSC serialization boundary
+  campaign = JSON.parse(JSON.stringify(campaign));
+
+  // Normalize: suggestedAmounts [{id,value,description}] → keep full objects + flat number array
+  if (Array.isArray(campaign.suggestedAmounts)) {
+    const raw = campaign.suggestedAmounts.filter(
+      (a) => a !== null && typeof a === "object" && typeof a.value === "number"
+    );
+    campaign.suggestedAmountsData = raw.map((a) => ({
+      value:       a.value,
+      description: a.description ?? "",
+      isDefault:   a.isDefault   ?? false,
+    }));
+    campaign.suggestedAmounts = raw.map((a) => a.value);
+  } else {
+    campaign.suggestedAmountsData = [];
+  }
+
+  // Normalize: donors {items, meta} → flat total (number | null) + donorItems array
+  const donorsRaw          = campaign.donors;
+  campaign.donors          = donorsRaw?.meta?.pagination?.total
+    ?? (Array.isArray(donorsRaw?.items) ? donorsRaw.items.length : null);
+  campaign.donorItems      = donorsRaw?.items ?? [];
 
   const thumbnailUrl = resolveImageUrl(
     campaign.media?.thumbnailPath ?? campaign.thumbnailPath
@@ -116,7 +140,7 @@ export default async function CampaignPage({ params }) {
               </div> */}
               <div className="flex gap-2 text-sm font-normal text-[#383838] mt-4">
                   <Image src="/images/donars.png" alt="donor" width={15} height={15} className="object-contain" />
-                  <span>{campaign.donors ? campaign.donors.toLocaleString() : "0"} donors</span>
+                  <span>{campaign.donors != null ? campaign.donors.toLocaleString() : "0"} donors</span>
                   <Image src="/images/calander.png" alt="calander" width={15} height={15} className="object-contain" />
                   <span>{campaign.endAt ? daysLeft(campaign.endAt) : "0"} days left</span>
                   <Image src="/images/map.png" alt="map" width={15} height={15} className="object-contain" />

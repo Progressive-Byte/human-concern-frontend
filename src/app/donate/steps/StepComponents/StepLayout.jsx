@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import StepProgress from "./StepProgress";
 import DonationPreview from "./DonationPreview";
-import { ArrowNextIcon, ArrowPrevIcon, NoticeIcon } from "@/components/common/SvgIcon";
+import { ArrowNextIcon, ArrowPrevIcon, CircleCheckIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
 const STEP_LABELS = [
   "Info",
@@ -34,7 +34,7 @@ const StepLayout = ({
   const resolvedNextLabel = nextLabel ?? STEP_LABELS[step] ?? "Continue";
   const resolvedPrevLabel = prevLabel ?? STEP_LABELS[step - 2] ?? "Back";
 
-  const showPreview = step >= 2;
+  const showPreview = step >= 1;
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
@@ -46,9 +46,9 @@ const StepLayout = ({
         <div className="relative">
           <div className="relative bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8">
             {data.zakatEligible && (
-              <div className="absolute top-5 right-5 sm:top-7 sm:right-7 flex items-center gap-1 bg-[#FFF8E6] border border-[#F5C842] rounded-full px-2.5 py-1">
-                <span className="text-[13px] leading-none">☪️</span>
-                <span className="text-[11px] font-semibold text-[#A07800] whitespace-nowrap">Zakat Eligible</span>
+              <div className="absolute top-5 right-5 sm:top-7 sm:right-7 flex items-center gap-1 bg-[#F7FFED] border border-[#38383833] rounded-full px-2.5 py-1">
+                <span className="text-[13px] leading-none">{CircleCheckIcon}</span>
+                <span className="text-[11px] font-medium text-[#383838]">Zakat Eligible</span>
               </div>
             )}
             <h2 className="text-[24px] font-bold text-[#383838] mb-1">{title}</h2>

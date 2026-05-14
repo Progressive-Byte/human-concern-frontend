@@ -5,7 +5,7 @@ import { CircleCheckIcon } from "@/components/common/SvgIcon";
 
 const TABS = ["About", "Updates", "Donors"];
 
-export default function CampaignTabs({ campaign }) {
+const CampaignTabs = ({ campaign }) => {
   const [activeTab, setActiveTab] = useState("About");
 
   return (
@@ -82,12 +82,34 @@ export default function CampaignTabs({ campaign }) {
 
       {/* Donors */}
       {activeTab === "Donors" && (
-        <p className="text-[16px] text-[#383838]">
-          {campaign.donors != null
-            ? `${campaign.donors.toLocaleString()} donors have contributed so far.`
-            : "Donor information is not available."}
-        </p>
+        <div>
+          {campaign.donors != null && (
+            <p className="text-[14px] text-[#737373] mb-4">
+              {campaign.donors.toLocaleString()} donor{campaign.donors !== 1 ? "s" : ""} have contributed so far.
+            </p>
+          )}
+          {(campaign.donorItems ?? []).length > 0 ? (
+            <ul className="flex flex-col gap-2.5">
+              {campaign.donorItems.map((donor, i) => (
+                <li key={i} className="flex items-center justify-between bg-[#F9F9F9] rounded-xl px-4 py-3 border border-[#EBEBEB]">
+                  <div>
+                    <p className="text-[14px] font-semibold text-[#383838]">{donor.name ?? "Anonymous"}</p>
+                    <p className="text-[11px] text-[#737373] mt-0.5">
+                      {donor.lastDonatedAt ? new Date(donor.lastDonatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}
+                    </p>
+                  </div>
+                  <span className="text-[15px] font-bold text-[#383838] tabular-nums">
+                    {donor.currency ?? "$"}&nbsp;{donor.totalAmount?.toLocaleString() ?? "—"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-[16px] text-[#737373]">Donor information is not available.</p>
+          )}
+        </div>
       )}
     </div>
   );
 }
+export default CampaignTabs;

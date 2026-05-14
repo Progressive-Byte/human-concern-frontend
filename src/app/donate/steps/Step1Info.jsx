@@ -7,10 +7,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "./StepComponents/StepLayout";
 import Field from "@/components/ui/Field";
-import AddressSection    from "./StepComponents/Step1components/AddressSection";
-import CauseSelector     from "./StepComponents/Step1components/CauseSelector";
-import ObjectiveSelector from "./StepComponents/Step1components/ObjectiveSelector";
-import DonorPreferences  from "./StepComponents/Step1components/DonorPreferences";
+import AddressSection   from "./StepComponents/Step1components/AddressSection";
+import CauseSelector    from "./StepComponents/Step1components/CauseSelector";
+import DonorPreferences from "./StepComponents/Step1components/DonorPreferences";
 
 const Step1Info = ({ campaignSlug }) => {
   const { data, update } = useDonation();
@@ -31,6 +30,7 @@ const Step1Info = ({ campaignSlug }) => {
   const [showMessage,      setShowMessage]      = useState(!!data.donorMessage);
   const [error,            setError]            = useState("");
   const [editMode,         setEditMode]         = useState(false);
+  const [hasEdited,        setHasEdited]        = useState(false);
   const [addressExpanded,  setAddressExpanded]  = useState(true);
   const prevAuthRef = useRef(isAuthenticated);
 
@@ -46,18 +46,6 @@ const Step1Info = ({ campaignSlug }) => {
       }));
     } catch { return []; }
   }, []);
-
-  const objectives = useMemo(() => {
-    if (!data.isRamadan) return [];
-    try {
-      const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
-      return (meta.donationObjectives ?? []).map((obj) => ({
-        id:    obj.id,
-        label: obj.name  ?? obj.label ?? "",
-        desc:  obj.description ?? obj.desc ?? "",
-      }));
-    } catch { return []; }
-  }, [data.isRamadan]);
 
   const selectedCauseIds = data.causeIds ?? [];
 
@@ -75,10 +63,9 @@ const Step1Info = ({ campaignSlug }) => {
   };
 
   useEffect(() => {
-    const campaign    = campaignSlug ?? searchParams.get("campaign");
-    const amount      = searchParams.get("amount");
-    const currency    = searchParams.get("currency");
-    const isRamadan   = sessionStorage.getItem("donationIsRamadan") === "1";
+    const campaign  = campaignSlug ?? searchParams.get("campaign");
+    const amount    = searchParams.get("amount");
+    const currency  = searchParams.get("currency");
 
     let campaignId    = null;
     let zakatEligible = false;
@@ -92,7 +79,6 @@ const Step1Info = ({ campaignSlug }) => {
       update({
         campaignId,
         campaign,
-        isRamadan,
         zakatEligible,
         ...(amount   && { amount }),
         ...(currency && { currency }),
@@ -129,6 +115,7 @@ const Step1Info = ({ campaignSlug }) => {
         causeIds: [], causes: [], objective: null, objectiveLabel: "",
       });
       setEditMode(false);
+      setHasEdited(false);
       setAddressExpanded(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,7 +125,7 @@ const Step1Info = ({ campaignSlug }) => {
 
   const personalField = (key) => ({
     value:    data[key] ?? "",
-    onChange: isLocked(key) ? undefined : (e) => { update({ [key]: e.target.value }); setError(""); },
+    onChange: isLocked(key) ? undefined : (e) => { update({ [key]: e.target.value }); setError(""); setHasEdited(true); },
     readOnly: isLocked(key),
   });
 
@@ -200,29 +187,24 @@ const Step1Info = ({ campaignSlug }) => {
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <p className="text-[13px] font-semibold text-[#383838]">Personal Information</p>
-            {isAuthenticated && !editMode && (
+            {isAuthenticated && (
               <button
                 type="button"
-                onClick={() => setEditMode(true)}
-                className="text-[12px] font-medium text-[#EA3335] hover:underline transition-colors cursor-pointer"
+                onClick={() => setEditMode((prev) => !prev)}
+                className={`text-[12px] font-medium transition-colors cursor-pointer select-none ${
+                  hasEdited
+                    ? "text-[#EA3335] hover:underline"
+                    : "text-[#AEAEAE] opacity-60"
+                }`}
               >
-                Edit Information
-              </button>
-            )}
-            {isAuthenticated && editMode && (
-              <button
-                type="button"
-                onClick={() => setEditMode(false)}
-                className="text-[12px] font-medium text-[#737373] hover:text-[#383838] transition-colors cursor-pointer"
-              >
-                Lock Fields
+                Edit change
               </button>
             )}
           </div>
 
           {isAuthenticated && !editMode && (
             <p className="text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
-              Your account information has been pre-filled. Click <strong>Edit Information</strong> to make changes.
+              Your account information has been pre-filled. Click <strong>Edit change</strong> to make changes.
             </p>
           )}
 
@@ -249,14 +231,6 @@ const Step1Info = ({ campaignSlug }) => {
           selectedCauseIds={selectedCauseIds}
           toggleCause={toggleCause}
         />
-
-        {data.isRamadan && (
-          <ObjectiveSelector
-            objectives={objectives}
-            objective={data.objective}
-            onSelect={(obj) => update({ objective: obj.id, objectiveLabel: obj.label })}
-          />
-        )}
 
         <DonorPreferences
           anonymous={anonymous}

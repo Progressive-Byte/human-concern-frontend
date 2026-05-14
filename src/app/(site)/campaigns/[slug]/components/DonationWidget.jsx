@@ -15,37 +15,35 @@ const CURRENCY_OPTIONS = [
 const DonationWidget = ({ campaign }) => {
   const router = useRouter();
 
-  const suggestedAmounts = campaign.suggestedAmounts ?? [];
-  const limits           = campaign.goalsDates        ?? {};
+  const suggestedAmounts     = campaign.suggestedAmounts     ?? [];
+  const suggestedAmountsData = campaign.suggestedAmountsData ?? [];
+  const limits               = campaign.goalsDates           ?? {};
 
   const raised      = campaign.raised ?? 0;
   const goal        = campaign.goal   ?? 0;
   const pct         = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
   const hasProgress = campaign.raised != null && goal > 0;
 
-  const [selectedAmount, setSelectedAmount] = useState(suggestedAmounts[1] ?? suggestedAmounts[0] ?? 50);
+  const defaultAmount = suggestedAmountsData.find((a) => a.isDefault)?.value ?? suggestedAmounts[0] ?? 50;
+  const [selectedAmount, setSelectedAmount] = useState(defaultAmount);
   const [customAmount,   setCustomAmount]   = useState("");
+  const [showCustom,     setShowCustom]     = useState(false);
   const [currency,       setCurrency]       = useState(campaign.currency ?? "USD");
   const [copied,         setCopied]         = useState(false);
-
-  const finalAmount = customAmount ? Number(customAmount) : selectedAmount;
+  const finalAmount        = (showCustom && customAmount) ? Number(customAmount) : selectedAmount;
+  const selectedAmtDesc    = !showCustom
+    ? (suggestedAmountsData.find((a) => a.value === selectedAmount)?.description ?? "")
+    : "";
 
   const handleDonate = () => {
-    const isRamadan = Array.isArray(campaign.categories) &&
-      campaign.categories.some((c) => {
-        const name = typeof c === "string" ? c : (c?.name ?? "");
-        return name.toLowerCase() === "ramadan";
-      });
-    // const isRamadan = true; // For testing purposes.
-    sessionStorage.setItem("donationIsRamadan", isRamadan ? "1" : "0");
     sessionStorage.setItem("campaignData", JSON.stringify({
-      id:                 campaign.id,
-      name:               campaign.name               ?? "",
-      description:        campaign.description        ?? "",
-      zakatEligible:      campaign.zakatEligible      ?? false,
-      suggestedAmounts:   campaign.suggestedAmounts   ?? [],
-      addOns:             campaign.addOns             ?? [],
-      goalsDates:         campaign.goalsDates          ?? {},
+      id:               campaign.id,
+      name:             campaign.name             ?? "",
+      description:      campaign.description      ?? "",
+      zakatEligible:    campaign.zakatEligible    ?? false,
+      suggestedAmounts: campaign.suggestedAmounts ?? [],
+      addOns:           campaign.addOns           ?? [],
+      goalsDates:       campaign.goalsDates        ?? {},
       causes: (campaign.causes ?? []).map((c) => ({
         id:            c.id,
         name:          c.name          ?? "",
@@ -53,7 +51,6 @@ const DonationWidget = ({ campaign }) => {
         iconEmoji:     c.iconEmoji     ?? "",
         zakatEligible: c.zakatEligible ?? false,
       })),
-      donationObjectives: campaign.objectives ?? [],
     }));
 
     const params = new URLSearchParams({ amount: String(finalAmount), currency });
@@ -139,11 +136,11 @@ const DonationWidget = ({ campaign }) => {
               </div>
               <div className="grid grid-cols-2 gap-3 mt-3">
                 {suggestedAmounts.map((amt) => {
-                  const isSelected = selectedAmount === amt && !customAmount;
+                  const isSelected = selectedAmount === amt && !showCustom;
                   return (
                     <button
                       key={amt}
-                      onClick={() => { setSelectedAmount(amt); setCustomAmount(""); }}
+                      onClick={() => { setSelectedAmount(amt); setCustomAmount(""); setShowCustom(false); }}
                       className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
                         isSelected
                           ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
@@ -156,27 +153,45 @@ const DonationWidget = ({ campaign }) => {
                     </button>
                   );
                 })}
+
+                {/* Custom toggle button — same size as suggested amount tiles */}
+                <button
+                  onClick={() => { setShowCustom(true); setCustomAmount(""); }}
+                  className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
+                    showCustom
+                      ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
+                      : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                  }`}
+                >
+                  <span className={`text-[18px] leading-tight`}>✏️</span>
+                  <span className={`text-[15px] font-bold leading-tight mt-1 ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
+                    Custom
+                  </span>
+                </button>
               </div>
             </div>
           )}
         </div>
-        {/* Custom amount input */}
-        <div className="relative mt-3 px-4">
-          <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
-          <input
-            type="number"
-            value={customAmount}
-            onChange={(e) => setCustomAmount(e.target.value)}
-            placeholder={`Other amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
-            min={limits.minimumDonation ?? 1}
-            max={limits.maximumDonation ?? undefined}
-            className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
-              customAmount
-                ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
-                : "border-[#CCCCCC] bg-white text-[#383838]"
-            } focus:border-[#055A46]`}
-          />
-        </div>
+        {/* Custom amount input — visible only when Custom is active */}
+        {showCustom && (
+          <div className="relative mt-3 px-4">
+            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
+            <input
+              type="number"
+              value={customAmount}
+              onChange={(e) => setCustomAmount(e.target.value)}
+              placeholder={`Enter amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
+              min={limits.minimumDonation ?? 1}
+              max={limits.maximumDonation ?? undefined}
+              autoFocus
+              className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
+                customAmount
+                  ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
+                  : "border-[#CCCCCC] bg-white text-[#383838]"
+              } focus:border-[#055A46]`}
+            />
+          </div>
+        )}
 
         {limits.allowRecurringDonations && (
           <p className="text-[12px] text-[#737373] mt-3 text-center">
@@ -186,6 +201,12 @@ const DonationWidget = ({ campaign }) => {
 
         {/* Buttons */}
         <div className="px-5 pt-5 pb-5 flex flex-col gap-2.5">
+          {selectedAmtDesc && (
+            <div className="flex items-start gap-2.5 bg-[#F0FDF4] border border-[#A7F3D0] rounded-xl px-3.5 py-3">
+              <span className="text-[18px] leading-none mt-0.5">💡</span>
+              <p className="text-[13px] text-[#065F46] font-bold leading-snug">{selectedAmtDesc}</p>
+            </div>
+          )}
           <button
             onClick={handleDonate}
             className="w-full cursor-pointer bg-[#EA3335] hover:bg-red-700 text-white font-semibold py-3 rounded-xl text-[15px] transition-colors active:scale-95"

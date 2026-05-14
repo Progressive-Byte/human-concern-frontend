@@ -28,7 +28,8 @@ async function makeRequest(endpoint, options = {}, cookieName = "token") {
 
   if (!response.ok) {
     if (response.status === 401 && typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+      const eventName = cookieName === "adminToken" ? "admin:unauthorized" : "auth:unauthorized";
+      window.dispatchEvent(new CustomEvent(eventName));
     }
 
     let message;

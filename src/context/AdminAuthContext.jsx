@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminLogin as apiAdminLogin } from "@/services/adminAuthService";
 import { setCookie, deleteCookie } from "@/utils/cookies";
@@ -31,6 +31,13 @@ export function AdminAuthProvider({ children }) {
     setAdmin(null);
     router.push("/admin/login");
   }
+
+  useEffect(() => {
+    const handleUnauthorized = () => logout();
+    window.addEventListener("admin:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("admin:unauthorized", handleUnauthorized);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AdminAuthContext.Provider value={{ admin, loading, isAuthenticated: Boolean(admin), login, logout }}>

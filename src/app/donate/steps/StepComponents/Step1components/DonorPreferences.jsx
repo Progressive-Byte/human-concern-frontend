@@ -44,7 +44,7 @@ const DonorPreferences = ({ anonymous, setAnonymous, showMessage, setShowMessage
           >
             {showMessage && showMessageIcon}
           </span>
-          <span className="text-[14px] text-[#383838]">Add a personal message</span>
+          <span className="text-[14px] text-[#383838]">Donating on behalf of someone else</span>
         </button>
 
         {showMessage && (
@@ -52,8 +52,8 @@ const DonorPreferences = ({ anonymous, setAnonymous, showMessage, setShowMessage
             <textarea
               value={data.donorMessage ?? ""}
               onChange={(e) => update({ donorMessage: e.target.value })}
-              placeholder="Share a message, dedication, or anything you'd like us to know…"
-              rows={3}
+              placeholder="Enter a name for this dedication…"
+              rows={1}
               maxLength={500}
               className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#EA3335] resize-none transition-colors"
             />

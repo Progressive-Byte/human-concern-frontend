@@ -15,29 +15,32 @@ No test runner is configured.
 
 ## Architecture Overview
 
-This is a **Next.js App Router** project using React 19 and Tailwind CSS 4. Recharts is used for admin charts.
+This is a **Next.js App Router** project using React 19 and Tailwind CSS 4. Recharts is used for admin charts. `canvas-confetti` fires on the thank-you page. `emoji-picker-react` is used in the admin form wizard for cause/add-on icon selection.
 
 ### Routing
 
 Routes live in `src/app/` using the App Router convention with route groups:
 - `(site)/` — public-facing pages (home, campaign listing)
-- `(auth)/` — login, register, password reset (both user and admin sub-paths)
-- `[campaignSlug]/` — dynamic campaign detail
+- `(auth)/user/` — user auth pages at `/user/login`, `/user/register`, `/user/forgot-password`, `/user/reset-password`
+- `(auth)/admin/` — admin auth pages at `/admin/login`, `/admin/forgot-password`, `/admin/reset-password` (has its own `layout.jsx`)
+- `[campaignSlug]/` — campaign detail page (`page.jsx`) **and** the campaign-specific donation flow (`[step]/page.jsx`); its `layout.jsx` only wraps `DonationProvider`
 - `dashboard/` — authenticated user area
-- `admin/` — admin-only panel (campaigns, forms, donations, settings)
-- `donate/` — donation flow
+- `admin/` — admin-only panel (campaigns, forms, donations, add-ons, categories, causes, donors, settings)
+- `donate/` — generic donation flow (no campaign context)
 
-Route protection is handled in `src/middleware.js`: unauthenticated users accessing `/dashboard` are redirected to `/user/login`; admin routes require a separate `adminToken` cookie.
+Route protection is handled in `src/middleware.js`: unauthenticated users accessing `/dashboard` are redirected to `/user/login`; admin routes require a separate `adminToken` cookie. Authenticated users hitting auth pages are redirected back to their respective home (`/dashboard` or `/admin`).
+
+Dashboard sub-routes: `donation-history`, `fund-breakdown`, `payment-methods`, `profile`, `schedules`, `schedules/[slug]`.
 
 ### API Layer
 
 All HTTP calls go through `src/services/api.js`:
 - `apiRequest()` — client-side only, attaches the user `token` cookie as a Bearer header
 - `adminApiRequest()` — attaches `adminToken`
-- `apiBase` (`/api/v1/`) is rewritten by `next.config.mjs` to `https://donation.api.sagsio.com/api/v1/`
+- `apiBase` (`/api/v1/`) is rewritten by `next.config.mjs` to `https://donation.api.sagsio.com/api/v1/`; `/uploads/:path*` is similarly proxied to the same host
 - `serverApiBase` (`https://donation.api.sagsio.com/api/v1/`) is used directly in server components
 
-On any `401` response, `api.js` dispatches `window.dispatchEvent(new CustomEvent("auth:unauthorized"))` — never throw/handle 401s manually in components.
+On any `401` response, `api.js` dispatches `window.dispatchEvent(new CustomEvent("auth:unauthorized"))` — never throw/handle 401s manually in components. When the request body is a `FormData` instance, `api.js` omits `Content-Type` so `fetch` sets the multipart boundary automatically.
 
 Domain services (`authService.js`, `campaignService.js`, `donationService.js`, `admin.js`, `adminAuthService.js`) wrap `apiRequest`/`adminApiRequest` and are the only place that should call the API directly.
 
@@ -61,11 +64,15 @@ The same 4 step components are shared across two URL patterns:
 
 **Step breakdown** (visible in StepProgress as: Info → Payment → Add-ons & Pay → Confirmation):
 - **Step 1** (`Step1Info.jsx`) — Personal info (name, email, phone, address via `country-state-city` dropdowns), cause selection (from `campaignData.causes`), and Ramadan objective selection (only if `data.isRamadan`). Validates required fields + at least one cause selected.
-- **Step 2** (`Step2Payment.jsx`) — Donation amount (suggested tiles + custom input validated against `minDonation`/`maxDonation`), currency (USD/GBP/EUR/CAD), payment type (one-time or recurring). Recurring adds schedule: "specific_dates" (multi-select via `MiniCalendar`) or "date_range" (startDate + endDate + frequency: daily/weekly/monthly). Redirects back to step 4 if donation was already submitted.
-- **Step 3** (`Step3Addons.jsx`) — Optional add-ons (fixed or formula-based pricing with user inputs), tipping slider (0–15%, configurable per campaign), and payment gateway selection (Stripe/PayPal). Submits to `donations/submit`, stores `stripeClientSecret` + `stripePublishableKey` + `donationId` in `DonationContext`.
+- **Step 2** (`Step2Payment.jsx`) — Donation amount (suggested tiles + custom input validated against `minDonation`/`maxDonation`), currency (USD/GBP/EUR/CAD), payment type (one-time or recurring). Recurring adds schedule: "specific_dates" (multi-select via `MiniCalendar`) or "date_range" (startDate + endDate + frequency: daily/weekly/monthly). Both schedule types support per-date custom amounts stored in `scheduleConfig.dateAmounts` (`{ [isoDate]: number }`), which override the default `amountTier` for that date. Redirects back to step 4 if donation was already submitted.
+- **Step 3** (`Step3Addons.jsx`) — Optional add-ons (fixed or formula-based pricing with user inputs), tipping slider (0–15%, configurable per campaign), and payment gateway selection (Stripe/PayPal). Submits via `donationService.createDonation`, stores `stripeClientSecret` + `stripePublishableKey` + `donationId` in `DonationContext`.
 - **Step 4** (`Step4Confirmation.jsx`) — Stripe card entry via `StripeCheckoutForm` (PayPal shows "coming soon"). After payment, redirects to `/donate/thank-you`.
 
 Step 1 uses `country-state-city` (npm package) for ISO-code-aware Country/State/City dropdowns. `src/utils/isoHelpers.js` provides `resolveCountryIso` and `resolveStateIso` to handle legacy API codes (ISO3 → ISO2 mapping).
+
+`src/app/donate/steps/StepComponents/countOccurrences.jsx` exports `countOccurrences(startDate, endDate, frequency)` and `generateDatesInRange(startDate, endDate, frequency)` — used by Step 2 and `DonationPreview` to compute installment counts and expand date-range schedules.
+
+`DonationPreview` (`StepComponents/DonationPreview.jsx`) is a sticky sidebar rendered in the step layout showing a live summary of all donation fields accumulated so far.
 
 **Campaign sessionStorage schema** — the campaign detail page writes `campaignData` before the user enters the donate flow:
 ```js
@@ -94,6 +101,7 @@ Key `DonationContext` fields: `campaign`, `campaignId`, `campaignTitle`, `isRama
 - Common non-primitive components go in `src/components/common/` (`SvgIcon`, `CustomDropdown`, `FormInput`, `VideoModal`, `Pagination`).
 - Layout chrome (Navbar, Footer, Sidebar, AdminSidebar, RouteProgressBar, Topnoticebar) lives in `src/components/layout/`.
 - Page-specific components live alongside the page: `src/app/dashboard/components/`, `src/app/admin/components/`, etc.
+- Admin form creation (`admin/forms/new/`) uses a wizard shell (`FormWizardShell`) with a `WizardFooterNav` and per-step components in order: Basics → GoalsDates → Causes → Objectives → Addons → Media → Review. `WizardStepPlaceholder` is the template to follow when adding a new step. Each wizard step imports `useToast` from `@/app/admin/campaigns/components/ToastProvider` for feedback.
 
 ### Path Alias
 

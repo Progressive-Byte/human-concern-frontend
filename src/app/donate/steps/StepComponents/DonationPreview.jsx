@@ -11,6 +11,10 @@ const DonationPreview = ({ currentStep }) => {
   const { data } = useDonation();
   const sym = CURRENCY_SYMBOLS[data.currency] ?? "$";
 
+  const effectiveAmountTier = data.amountTier && Number.isFinite(data.amountTier)
+    ? data.amountTier
+    : (data.amount && Number.isFinite(Number(data.amount)) ? Number(data.amount) : 0);
+
   const enableTipping = useMemo(() => {
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
@@ -18,22 +22,32 @@ const DonationPreview = ({ currentStep }) => {
     } catch { return true; }
   }, []);
 
-  const showPayment = Boolean(data.amountTier);
+  const showPayment = effectiveAmountTier > 0;
 
+  // baseTotal is the full schedule total (used for per-date subtotal rows)
   const baseTotal = (data.scheduleType === "specific_dates" && data.perDateTotal != null)
     ? data.perDateTotal
-    : (data.amountTier ?? 0) * (data.installmentCount ?? 1);
+    : effectiveAmountTier * (data.installmentCount ?? 1);
+
+  const isRecurring      = data.paymentType === "recurring";
+
+  // grandTotalBase: for recurring show per-payment amount, for one-time show full amount
+  const grandTotalBase = isRecurring ? effectiveAmountTier : baseTotal;
 
   const customTipParsed = data.customTipAmount !== "" && data.customTipAmount != null
     ? Math.max(0, Number(data.customTipAmount) || 0)
     : null;
-  const tipAmount = enableTipping
-    ? (customTipParsed !== null ? customTipParsed : data.tipPct ? (baseTotal * data.tipPct) / 100 : 0)
+  // Tip is only shown from Step 3 onwards, calculated on the full schedule total (baseTotal),
+  // matching how Step3Addons calculates it (5% of $400, not 5% of $100 per-payment).
+  const tipAmount = (currentStep >= 3 && enableTipping)
+    ? (customTipParsed !== null
+        ? customTipParsed
+        : data.tipPct
+          ? Math.round(baseTotal * data.tipPct) / 100
+          : 0)
     : 0;
   const hasTip     = tipAmount > 0;
-  const showAddons = data.addOnBreakdown?.length > 0 || hasTip || data.grandTotal > 0;
-
-  const isRecurring      = data.paymentType === "recurring";
+  const showAddons = currentStep >= 3 && (data.addOnBreakdown?.length > 0 || hasTip);
   const isSpecificDates  = isRecurring && data.scheduleType === "specific_dates";
   const isDateRange      = isRecurring && data.scheduleType === "date_range";
 
@@ -47,10 +61,10 @@ const DonationPreview = ({ currentStep }) => {
       .map((isoDate) => {
         const d        = isoDate.split("T")[0];
         const isCustom = overrides[d] !== undefined;
-        const amt      = isCustom ? Number(overrides[d]) : (data.amountTier ?? 0);
+        const amt      = isCustom ? Number(overrides[d]) : effectiveAmountTier;
         return { d, amt, isCustom };
       });
-  }, [isSpecificDates, data.scheduleConfig, data.amountTier]);
+  }, [isSpecificDates, data.scheduleConfig, effectiveAmountTier]);
 
   // Build per-date rows for date_range — only when custom amounts exist
   const dateRangeRows = useMemo(() => {
@@ -61,12 +75,12 @@ const DonationPreview = ({ currentStep }) => {
     const end   = data.scheduleConfig?.endDate?.split("T")[0];
     const freq  = data.scheduleConfig?.frequency ?? "daily";
     if (!start || !end) return [];
-    return generateDatesInRange(start, end, freq).map((d) => {
+    return generateDatesInRange(start, end, freq, data.scheduleConfig?.customInterval ?? 1).map((d) => {
       const isCustom = overrides[d] !== undefined;
-      const amt      = isCustom ? Number(overrides[d]) : (data.amountTier ?? 0);
+      const amt      = isCustom ? Number(overrides[d]) : effectiveAmountTier;
       return { d, amt, isCustom };
     });
-  }, [isDateRange, data.scheduleConfig, data.amountTier]);
+  }, [isDateRange, data.scheduleConfig, effectiveAmountTier]);
 
   const MAX_VISIBLE = 5;
   const visibleRows      = dateRows.slice(0, MAX_VISIBLE);
@@ -97,6 +111,12 @@ const DonationPreview = ({ currentStep }) => {
             </Section>
           )}
 
+          {data.donorMessage && (
+            <Section label="On Behalf Of">
+              <p className="text-[13px] text-[#383838] leading-snug break-words">{data.donorMessage}</p>
+            </Section>
+          )}
+
           {data.causes?.length > 0 && (
             <Section label="Causes">
               <div className="flex flex-wrap gap-1.5">
@@ -112,12 +132,6 @@ const DonationPreview = ({ currentStep }) => {
             </Section>
           )}
 
-          {data.objectiveLabel && (
-            <Section label="Objective">
-              <p className="text-[12px] text-[#383838]">{data.objectiveLabel}</p>
-            </Section>
-          )}
-
           {showPayment && (
             <Section label="Payment">
 
@@ -128,7 +142,7 @@ const DonationPreview = ({ currentStep }) => {
                     ? "bg-[#FFF5F5] text-[#EA3335]"
                     : "bg-[#F3F4F6] text-[#737373]"
                 }`}>
-                  {isRecurring ? "Split Payments" : "One-time"}
+                  {isRecurring ? "Recurring Payment" : "One-time"}
                 </span>
                 {isRecurring && data.installmentCount > 1 && (
                   <span className="text-[11px] text-[#8C8C8C]">
@@ -141,7 +155,7 @@ const DonationPreview = ({ currentStep }) => {
               {!isRecurring && (
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-[22px] font-bold text-[#383838] leading-none">
-                    {sym}{data.amountTier?.toLocaleString()}
+                    {sym}{effectiveAmountTier.toLocaleString()}
                   </span>
                   <span className="text-[12px] text-[#8C8C8C]">{data.currency}</span>
                 </div>
@@ -152,7 +166,7 @@ const DonationPreview = ({ currentStep }) => {
                 <div className="flex items-center justify-between text-[12px] mt-1">
                   <span className="text-[#8C8C8C]">Per payment</span>
                   <span className="font-semibold text-[#383838] tabular-nums">
-                    {sym}{data.amountTier?.toLocaleString()} {data.currency}
+                    {sym}{effectiveAmountTier.toLocaleString()} {data.currency}
                   </span>
                 </div>
               )}
@@ -297,7 +311,7 @@ const DonationPreview = ({ currentStep }) => {
             </Section>
           )}
 
-          {showAddons && (
+          {showPayment && (
             <div className="flex items-center justify-between pt-3.5">
               <p className="text-[13px] font-semibold text-[#383838]">Total</p>
               <p className="text-[20px] font-bold text-[#EA3335] leading-none">

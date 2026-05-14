@@ -1,5 +1,6 @@
 "use client";
 
+import confetti from "canvas-confetti";
 import Stepper from "@/components/ui/Stepper";
 import Toggle  from "@/components/ui/Toggle";
 
@@ -30,10 +31,21 @@ function buildFormulaLabel(addOn, inputValues, sym) {
 const AddOnsList = ({ campaignAddOns, sym, addOnEnabled, setAddOnEnabled, addOnInputs, updateAddOnInput }) => {
   if (!campaignAddOns.length) return null;
 
+  const handleToggle = (addOn, val) => {
+    setAddOnEnabled((prev) => ({ ...prev, [addOn.id]: val }));
+    if (val) {
+      const colors = ["#EA3335", "#FF6B35", "#FFD700", "#00C853", "#2196F3", "#9C27B0"];
+      // Left cannon
+      confetti({ particleCount: 90, angle: 60, spread: 70, startVelocity: 50, origin: { x: 0, y: 0.65 }, colors });
+      // Right cannon
+      confetti({ particleCount: 90, angle: 120, spread: 70, startVelocity: 50, origin: { x: 1, y: 0.65 }, colors });
+    }
+  };
+
   return (
     <>
       {campaignAddOns.map((addOn) => {
-        const enabled      = addOnEnabled[addOn.id] ?? true;
+        const enabled      = addOnEnabled[addOn.id] ?? false;
         const inputs       = addOn.pricing?.inputs ?? [];
         const inputValues  = addOnInputs[addOn.id] ?? {};
         const addOnTotal   = calcAddOnTotal(addOn, inputValues);
@@ -50,7 +62,7 @@ const AddOnsList = ({ campaignAddOns, sym, addOnEnabled, setAddOnEnabled, addOnI
               </div>
               <Toggle
                 enabled={enabled}
-                onChange={(val) => setAddOnEnabled((prev) => ({ ...prev, [addOn.id]: val }))}
+                onChange={(val) => handleToggle(addOn, val)}
               />
             </div>
 
