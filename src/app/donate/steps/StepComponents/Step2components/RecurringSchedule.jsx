@@ -46,8 +46,6 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
     onChange({ scheduleType: type, scheduleConfig: config, occurrences: occ });
   };
 
-  // ── event handlers ────────────────────────────────────────────────────────
-
   const handlePreset = (presetId) => {
     setActivePreset(presetId);
     if (presetId === "custom") {
