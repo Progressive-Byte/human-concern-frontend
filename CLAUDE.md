@@ -15,17 +15,18 @@ No test runner is configured.
 
 ## Architecture Overview
 
-This is a **Next.js App Router** project using React 19 and Tailwind CSS 4. Recharts is used for admin charts.
+This is a **Next.js App Router** project using React 19 and Tailwind CSS 4. Recharts is used for admin charts. `canvas-confetti` fires on the thank-you page. `emoji-picker-react` is used in the admin form wizard for cause/add-on icon selection.
 
 ### Routing
 
 Routes live in `src/app/` using the App Router convention with route groups:
 - `(site)/` — public-facing pages (home, campaign listing)
-- `(auth)/` — login, register, password reset (both user and admin sub-paths)
-- `[campaignSlug]/` — dynamic campaign detail
+- `(auth)/user/` — user auth pages at `/user/login`, `/user/register`, `/user/forgot-password`, `/user/reset-password`
+- `(auth)/admin/` — admin auth pages at `/admin/login`, `/admin/forgot-password`, `/admin/reset-password` (has its own `layout.jsx`)
+- `[campaignSlug]/` — campaign detail page (`page.jsx`) **and** the campaign-specific donation flow (`[step]/page.jsx`); its `layout.jsx` only wraps `DonationProvider`
 - `dashboard/` — authenticated user area
 - `admin/` — admin-only panel (campaigns, forms, donations, add-ons, categories, causes, donors, settings)
-- `donate/` — donation flow
+- `donate/` — generic donation flow (no campaign context)
 
 Route protection is handled in `src/middleware.js`: unauthenticated users accessing `/dashboard` are redirected to `/user/login`; admin routes require a separate `adminToken` cookie. Authenticated users hitting auth pages are redirected back to their respective home (`/dashboard` or `/admin`).
 
@@ -100,7 +101,7 @@ Key `DonationContext` fields: `campaign`, `campaignId`, `campaignTitle`, `isRama
 - Common non-primitive components go in `src/components/common/` (`SvgIcon`, `CustomDropdown`, `FormInput`, `VideoModal`, `Pagination`).
 - Layout chrome (Navbar, Footer, Sidebar, AdminSidebar, RouteProgressBar, Topnoticebar) lives in `src/components/layout/`.
 - Page-specific components live alongside the page: `src/app/dashboard/components/`, `src/app/admin/components/`, etc.
-- Admin form creation (`admin/forms/new/`) uses a wizard shell (`FormWizardShell`) with a `WizardFooterNav` and per-step components in order: Basics → GoalsDates → Causes → Objectives → Addons → Media → Review. Add new wizard steps as separate components following the same pattern. The `ToastProvider` (from `admin/campaigns/components/`) is shared across all wizard steps.
+- Admin form creation (`admin/forms/new/`) uses a wizard shell (`FormWizardShell`) with a `WizardFooterNav` and per-step components in order: Basics → GoalsDates → Causes → Objectives → Addons → Media → Review. `WizardStepPlaceholder` is the template to follow when adding a new step. Each wizard step imports `useToast` from `@/app/admin/campaigns/components/ToastProvider` for feedback.
 
 ### Path Alias
 
