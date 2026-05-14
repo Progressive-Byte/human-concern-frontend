@@ -144,18 +144,18 @@ const Step2Payment = () => {
   const safeOcc = occurrences > 0 ? occurrences : 1;
   const splitModes = [
     {
-      value:   "repeat",
-      title:   "Pay this amount each date",
-      example: occurrences > 1
-        ? `${sym}${effectiveAmount} × ${occurrences} = ${sym}${(effectiveAmount * occurrences).toLocaleString()} total`
-        : `${sym}${effectiveAmount} per scheduled date`,
-    },
-    {
       value:   "divide",
       title:   "Divide total across dates",
       example: occurrences > 1
         ? `${sym}${effectiveAmount} ÷ ${occurrences} = ${sym}${(effectiveAmount / safeOcc).toFixed(2)}/date`
         : "Select dates to see per-date amount",
+    },
+    {
+      value:   "repeat",
+      title:   "Pay this amount each date",
+      example: occurrences > 1
+        ? `${sym}${effectiveAmount} × ${occurrences} = ${sym}${(effectiveAmount * occurrences).toLocaleString()} total`
+        : `${sym}${effectiveAmount} per scheduled date`,
     },
   ];
 
