@@ -117,6 +117,7 @@ const Step2Payment = () => {
   // Sync local state to context in real-time
   useEffect(() => {
     update({
+      donorAmount:      effectiveAmount,
       amountTier:       defaultPerDate,
       splitMode:        isRecurring ? splitMode : undefined,
       scheduleType:     isRecurring ? scheduleState.scheduleType   : undefined,
