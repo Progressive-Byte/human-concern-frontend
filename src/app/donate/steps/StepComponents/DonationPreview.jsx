@@ -105,6 +105,12 @@ const DonationPreview = ({ currentStep }) => {
             </Section>
           )}
 
+          {data.donorMessage && (
+            <Section label="On Behalf Of">
+              <p className="text-[13px] text-[#383838] leading-snug break-words">{data.donorMessage}</p>
+            </Section>
+          )}
+
           {data.causes?.length > 0 && (
             <Section label="Causes">
               <div className="flex flex-wrap gap-1.5">
