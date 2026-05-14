@@ -118,6 +118,7 @@ const Step2Payment = () => {
       splitMode:        isRecurring ? splitMode : undefined,
       scheduleType:     isRecurring ? scheduleState.scheduleType   : undefined,
       scheduleConfig:   isRecurring ? scheduleState.scheduleConfig : undefined,
+      schedulePreset:   isRecurring ? activePreset : undefined,
       installmentCount: isRecurring ? occurrences : 1,
       numberOfDays:     isRecurring ? occurrences : 1,
       frequency:        isRecurring && scheduleState.scheduleType === "date_range"
@@ -126,16 +127,17 @@ const Step2Payment = () => {
       perDateTotal: isRecurring && perDateTotal !== null ? perDateTotal : undefined,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal]);
+  }, [defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset]);
 
   const handleAmountChange = (amount, hasError) => {
     setEffectiveAmount(amount);
     setAmountError(hasError);
   };
 
-  const handleScheduleChange = ({ scheduleType, scheduleConfig, occurrences: occ }) => {
+  const handleScheduleChange = ({ scheduleType, scheduleConfig, occurrences: occ, activePreset: preset }) => {
     setOccurrences(occ);
     setScheduleState({ scheduleType, scheduleConfig });
+    if (preset !== undefined) setActivePreset(preset);
   };
 
   // Dynamic example text for split mode cards
