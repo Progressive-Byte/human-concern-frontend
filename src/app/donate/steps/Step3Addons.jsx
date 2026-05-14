@@ -136,10 +136,11 @@ const Step3Addons = () => {
       customTipAmount,
       addOnsTotal,
       grandTotal,
-      addOnBreakdown: computedBreakdown,
+      addOnBreakdown:   computedBreakdown,
+      customNoteValues: noteValues,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tipPct, customTipAmount, computedBreakdown, grandTotal]);
+  }, [tipPct, customTipAmount, computedBreakdown, grandTotal, noteValues]);
 
   const buildSubmitBody = () => {
     const scheduleType   = data.scheduleType   ?? "date_range";
@@ -169,6 +170,13 @@ const Step3Addons = () => {
           values:  addon.values ?? {},
         })),
       },
+      ...(campaignNotes.length > 0 && {
+        customNotes: campaignNotes.map((n) => ({
+          id:    n.id,
+          key:   n.key,
+          value: (noteValues[n.key] ?? "").toString(),
+        })),
+      }),
     };
 
     if (isRecurring) {
@@ -201,6 +209,17 @@ const Step3Addons = () => {
       setSubmitError("Please go back to 'Info' and select at least one cause.");
       return;
     }
+    const errors = {};
+    campaignNotes.forEach((n) => {
+      if (n.required && !(noteValues[n.key] ?? "").toString().trim()) {
+        errors[n.key] = `${n.label} is required.`;
+      }
+    });
+    if (Object.keys(errors).length) {
+      setNoteErrors(errors);
+      return;
+    }
+    setNoteErrors({});
     update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod: gatewayState.gateway });
     setSubmitting(true);
     setSubmitError(null);
@@ -252,6 +271,39 @@ const Step3Addons = () => {
           addOnInputs={addOnInputs}
           updateAddOnInput={updateAddOnInput}
         />
+
+        {campaignNotes.length > 0 && (
+          <div className="flex flex-col gap-3">
+            {campaignNotes.map((note) => (
+              <div key={note.id} className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3 flex flex-col gap-1.5">
+                <label className="text-[13px] font-semibold text-[#383838]">
+                  {note.label}
+                  {note.required && <span className="text-[#EA3335] ml-0.5">*</span>}
+                </label>
+                {note.helpText && (
+                  <p className="text-[12px] text-[#737373]">{note.helpText}</p>
+                )}
+                {note.type === "textarea" && (
+                  <textarea
+                    value={noteValues[note.key] ?? ""}
+                    onChange={(e) => {
+                      setNoteValues((prev) => ({ ...prev, [note.key]: e.target.value }));
+                      if (noteErrors[note.key]) setNoteErrors((prev) => ({ ...prev, [note.key]: undefined }));
+                    }}
+                    placeholder={note.placeholder ?? ""}
+                    rows={3}
+                    className={`w-full border rounded-lg px-3 py-2 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none resize-none transition-colors ${
+                      noteErrors[note.key] ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] focus:border-[#EA3335]"
+                    }`}
+                  />
+                )}
+                {noteErrors[note.key] && (
+                  <p className="text-[12px] text-[#EA3335]">{noteErrors[note.key]}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         {enableTipping && (
           <TippingSection
