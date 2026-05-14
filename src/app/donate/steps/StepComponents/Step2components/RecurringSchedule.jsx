@@ -38,12 +38,12 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
 
   // ── notify parent
 
-  const notify = (type, dates, start, end, freq, amounts, interval) => {
+  const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset) => {
     const occ    = type === "specific_dates"
       ? dates.length
       : countOccurrences(start, end, freq, interval);
     const config = buildConfig(type, dates, start, end, freq, amounts, interval);
-    onChange({ scheduleType: type, scheduleConfig: config, occurrences: occ });
+    onChange({ scheduleType: type, scheduleConfig: config, occurrences: occ, activePreset: preset });
   };
 
   const handlePreset = (presetId) => {
