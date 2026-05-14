@@ -68,6 +68,15 @@ function GlobeIcon() {
   );
 }
 
+function TipIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+      <path d="M12 2a7 7 0 0 0-4 12.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26A7 7 0 0 0 12 2z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M10 22h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function GeneralTab({ value, onChange, loading, saving, onSaveOrganization, onSaveLocalization }) {
   const organization = value?.organization || {};
   const localization = value?.localization || {};
@@ -134,6 +143,34 @@ export default function GeneralTab({ value, onChange, loading, saving, onSaveOrg
               </SelectInput>
             </Field>
           </div>
+        </div>
+
+        <div className="mt-6">
+          <SaveButton onClick={onSaveOrganization} disabled={saving || loading}>
+            Save Changes
+          </SaveButton>
+        </div>
+      </SettingsSectionCard>
+
+      <SettingsSectionCard icon={<TipIcon />} title="Tipping" subtitle="Customize the tip text shown to donors">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Field label="Tip Label">
+            <TextInput
+              value={organization.tipLabel || ""}
+              onChange={(e) => onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), tipLabel: e.target.value } }))}
+              placeholder="Platform Support Fees"
+              disabled={loading}
+            />
+          </Field>
+
+          <Field label="Tip Description">
+            <TextInput
+              value={organization.tipDescription || ""}
+              onChange={(e) => onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), tipDescription: e.target.value } }))}
+              placeholder="Voluntary support for platform maintenance"
+              disabled={loading}
+            />
+          </Field>
         </div>
 
         <div className="mt-6">
