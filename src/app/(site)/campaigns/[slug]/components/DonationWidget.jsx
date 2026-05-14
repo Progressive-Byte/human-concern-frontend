@@ -169,23 +169,26 @@ const DonationWidget = ({ campaign }) => {
             </div>
           )}
         </div>
-        {/* Custom amount input */}
-        <div className="relative mt-3 px-4">
-          <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
-          <input
-            type="number"
-            value={customAmount}
-            onChange={(e) => setCustomAmount(e.target.value)}
-            placeholder={`Other amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
-            min={limits.minimumDonation ?? 1}
-            max={limits.maximumDonation ?? undefined}
-            className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
-              customAmount
-                ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
-                : "border-[#CCCCCC] bg-white text-[#383838]"
-            } focus:border-[#055A46]`}
-          />
-        </div>
+        {/* Custom amount input — visible only when Custom is active */}
+        {showCustom && (
+          <div className="relative mt-3 px-4">
+            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
+            <input
+              type="number"
+              value={customAmount}
+              onChange={(e) => setCustomAmount(e.target.value)}
+              placeholder={`Enter amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
+              min={limits.minimumDonation ?? 1}
+              max={limits.maximumDonation ?? undefined}
+              autoFocus
+              className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
+                customAmount
+                  ? "border-[#055A46] bg-[#F0FDF4] text-[#055A46]"
+                  : "border-[#CCCCCC] bg-white text-[#383838]"
+              } focus:border-[#055A46]`}
+            />
+          </div>
+        )}
 
         {limits.allowRecurringDonations && (
           <p className="text-[12px] text-[#737373] mt-3 text-center">
