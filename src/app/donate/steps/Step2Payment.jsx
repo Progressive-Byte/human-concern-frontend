@@ -142,6 +142,12 @@ const Step2Payment = () => {
 
   // Dynamic example text for split mode cards
   const safeOcc = occurrences > 0 ? occurrences : 1;
+  // Use perDateTotal (actual sum including per-date overrides) when available,
+  // otherwise fall back to the simple formula total.
+  const repeatDisplayTotal = perDateTotal !== null
+    ? perDateTotal
+    : effectiveAmount * occurrences;
+
   const splitModes = [
     {
       value:   "divide",
@@ -154,7 +160,7 @@ const Step2Payment = () => {
       value:   "repeat",
       title:   "Pay this amount each date",
       example: occurrences > 1
-        ? `${sym}${effectiveAmount} × ${occurrences} = ${sym}${(effectiveAmount * occurrences).toLocaleString()} total`
+        ? `${sym}${effectiveAmount} × ${occurrences} = ${sym}${repeatDisplayTotal.toLocaleString()} total`
         : `${sym}${effectiveAmount} per scheduled date`,
     },
   ];

@@ -37,11 +37,17 @@ const DonationPreview = ({ currentStep }) => {
   const customTipParsed = data.customTipAmount !== "" && data.customTipAmount != null
     ? Math.max(0, Number(data.customTipAmount) || 0)
     : null;
-  const tipAmount = enableTipping
-    ? (customTipParsed !== null ? customTipParsed : data.tipPct ? (grandTotalBase * data.tipPct) / 100 : 0)
+  // Tip is only shown from Step 3 onwards, calculated on the full schedule total (baseTotal),
+  // matching how Step3Addons calculates it (5% of $400, not 5% of $100 per-payment).
+  const tipAmount = (currentStep >= 3 && enableTipping)
+    ? (customTipParsed !== null
+        ? customTipParsed
+        : data.tipPct
+          ? Math.round(baseTotal * data.tipPct) / 100
+          : 0)
     : 0;
   const hasTip     = tipAmount > 0;
-  const showAddons = data.addOnBreakdown?.length > 0 || hasTip || data.grandTotal > 0;
+  const showAddons = currentStep >= 3 && (data.addOnBreakdown?.length > 0 || hasTip);
   const isSpecificDates  = isRecurring && data.scheduleType === "specific_dates";
   const isDateRange      = isRecurring && data.scheduleType === "date_range";
 
@@ -307,11 +313,9 @@ const DonationPreview = ({ currentStep }) => {
 
           {showPayment && (
             <div className="flex items-center justify-between pt-3.5">
-              <p className="text-[13px] font-semibold text-[#383838]">
-                {isRecurring ? "Per payment total" : "Total"}
-              </p>
+              <p className="text-[13px] font-semibold text-[#383838]">Total</p>
               <p className="text-[20px] font-bold text-[#EA3335] leading-none">
-                {sym}{(grandTotalBase + (data.addOnsTotal ?? 0) + tipAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {sym}{(baseTotal + (data.addOnsTotal ?? 0) + tipAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
           )}
