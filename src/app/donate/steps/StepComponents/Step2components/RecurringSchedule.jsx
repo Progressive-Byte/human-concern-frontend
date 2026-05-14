@@ -52,7 +52,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
       setScheduleType("specific_dates");
       setSelectedDates([]);
       setDateAmounts({});
-      notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval);
+      notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
       return;
     }
     const result = getPresetDates(presetId);
@@ -60,7 +60,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
     setScheduleType("specific_dates");
     setSelectedDates(result.dates);
     setDateAmounts({});
-    notify("specific_dates", result.dates, rangeStart, rangeEnd, rangeFreq, {}, customInterval);
+    notify("specific_dates", result.dates, rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
   };
 
   const toggleDate = (dateStr) => {
