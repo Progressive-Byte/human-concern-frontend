@@ -256,7 +256,7 @@ const Step3Addons = () => {
           />
         )}
 
-        <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3">
+        {/* <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3">
           <p className="text-[13px] text-[#383838]">
             <span className="font-bold">Subtotal: </span>
             <span className="text-[#737373]">
@@ -271,7 +271,7 @@ const Step3Addons = () => {
               <span className="font-bold text-[#383838] text-[15px]">{sym}{grandTotal.toFixed(2)}</span>
             </span>
           </p>
-        </div>
+        </div> */}
 
         <PaymentGatewaySelector
           isRecurring={isRecurring}
