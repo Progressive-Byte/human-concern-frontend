@@ -244,7 +244,7 @@ const Step3Addons = () => {
   return (
     <StepLayout
       step={3}
-      title="Add-ons & Payment"
+      title="Overview"
       subtitle="Enhance your donation with optional add-ons and complete your payment setup"
       onNext={handleSubmit}
       onPrev={() => {

@@ -8,7 +8,7 @@ import { ProgressCheckIcon } from "@/components/common/SvgIcon";
 const STEPS = [
   "Info",
   "Payment",
-  "Add-ons & Pay",
+  "Overview",
   "Confirmation",
 ];
 
