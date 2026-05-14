@@ -36,7 +36,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
     ? generatedDates
     : [...selectedDates].sort();
 
-  // ── notify parent ────────────────────────────────────────────────────────
+  // ── notify parent
 
   const notify = (type, dates, start, end, freq, amounts, interval) => {
     const occ    = type === "specific_dates"
