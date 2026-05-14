@@ -165,7 +165,7 @@ const DonationWidget = ({ campaign }) => {
                 >
                   <span className={`text-[18px] leading-tight`}>✏️</span>
                   <span className={`text-[15px] font-bold leading-tight mt-1 ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
-                    Custom
+                    Other Amount
                   </span>
                 </button>
               </div>
