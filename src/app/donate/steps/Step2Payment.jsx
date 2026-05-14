@@ -131,7 +131,7 @@ const Step2Payment = () => {
       perDateTotal: isRecurring && perDateTotal !== null ? perDateTotal : undefined,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset]);
+  }, [effectiveAmount, defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset]);
 
   const handleAmountChange = (amount, hasError) => {
     setEffectiveAmount(amount);
