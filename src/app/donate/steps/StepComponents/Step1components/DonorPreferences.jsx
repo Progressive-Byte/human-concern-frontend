@@ -44,7 +44,7 @@ const DonorPreferences = ({ anonymous, setAnonymous, showMessage, setShowMessage
           >
             {showMessage && showMessageIcon}
           </span>
-          <span className="text-[14px] text-[#383838]">Add a personal message</span>
+          <span className="text-[14px] text-[#383838]">Donating on behalf of someone else</span>
         </button>
 
         {showMessage && (
