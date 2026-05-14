@@ -32,6 +32,13 @@ export function AdminAuthProvider({ children }) {
     router.push("/admin/login");
   }
 
+  useEffect(() => {
+    const handleUnauthorized = () => logout();
+    window.addEventListener("admin:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("admin:unauthorized", handleUnauthorized);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <AdminAuthContext.Provider value={{ admin, loading, isAuthenticated: Boolean(admin), login, logout }}>
       {children}
