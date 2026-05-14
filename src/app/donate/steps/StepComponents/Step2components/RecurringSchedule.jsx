@@ -13,8 +13,8 @@ const SCHEDULE_TYPES = [
   { value: "date_range",     label: "Date Range" },
 ];
 
-const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialConfig, onChange }) => {
-  const [activePreset,   setActivePreset]   = useState("custom");
+const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialConfig, initialActivePreset, onChange }) => {
+  const [activePreset,   setActivePreset]   = useState(initialActivePreset ?? "custom");
   const [scheduleType,   setScheduleType]   = useState(initialScheduleType ?? "specific_dates");
   const [selectedDates,  setSelectedDates]  = useState(() =>
     (initialConfig?.dates ?? []).map((d) => d.split("T")[0])
