@@ -136,11 +136,11 @@ const DonationWidget = ({ campaign }) => {
               </div>
               <div className="grid grid-cols-2 gap-3 mt-3">
                 {suggestedAmounts.map((amt) => {
-                  const isSelected = selectedAmount === amt && !customAmount;
+                  const isSelected = selectedAmount === amt && !showCustom;
                   return (
                     <button
                       key={amt}
-                      onClick={() => { setSelectedAmount(amt); setCustomAmount(""); }}
+                      onClick={() => { setSelectedAmount(amt); setCustomAmount(""); setShowCustom(false); }}
                       className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
                         isSelected
                           ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
@@ -153,6 +153,18 @@ const DonationWidget = ({ campaign }) => {
                     </button>
                   );
                 })}
+
+                {/* Custom toggle button — spans both columns */}
+                <button
+                  onClick={() => { setShowCustom(true); setCustomAmount(""); }}
+                  className={`col-span-2 w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 border transition-all duration-200 cursor-pointer text-[14px] font-semibold ${
+                    showCustom
+                      ? "bg-[#F0FDF4] border-[#055A46] text-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
+                      : "bg-white border-[#38383833] text-[#383838] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                  }`}
+                >
+                  ✏️ Custom Amount
+                </button>
               </div>
             </div>
           )}
