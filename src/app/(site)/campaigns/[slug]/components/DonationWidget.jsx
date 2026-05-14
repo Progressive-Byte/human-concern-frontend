@@ -204,7 +204,7 @@ const DonationWidget = ({ campaign }) => {
           {selectedAmtDesc && (
             <div className="flex items-start gap-2.5 bg-[#F0FDF4] border border-[#A7F3D0] rounded-xl px-3.5 py-3">
               <span className="text-[18px] leading-none mt-0.5">💡</span>
-              <p className="text-[13px] text-[#065F46] font-medium leading-snug">{selectedAmtDesc}</p>
+              <p className="text-[13px] text-[#065F46] font-bold leading-snug">{selectedAmtDesc}</p>
             </div>
           )}
           <button
