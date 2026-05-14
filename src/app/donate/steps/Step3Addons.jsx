@@ -229,12 +229,12 @@ const Step3Addons = () => {
     >
       <div className="flex flex-col gap-4">
 
-        <div className="border border-[#E5E5E5] rounded-xl px-4 py-3 bg-white">
+        {/* <div className="border border-[#E5E5E5] rounded-xl px-4 py-3 bg-white">
           <p className="text-[13px] text-[#737373] mb-1.5">Donation Amount</p>
           <p className="text-[28px] font-bold text-[#383838]">
             {sym}{baseDonation.toLocaleString()}
           </p>
-        </div>
+        </div> */}
 
         <AddOnsList
           campaignAddOns={campaignAddOns}
