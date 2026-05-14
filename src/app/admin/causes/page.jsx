@@ -28,13 +28,14 @@ function normalizeItemsResponse(res) {
 function normalizeCause(raw) {
   const id = String(raw?._id || raw?.id || "");
   const name = String(raw?.name || raw?.title || "");
+  const fundCode = String(raw?.fundCode ?? raw?.fund_code ?? "");
   const description = String(raw?.description || "");
   const icon = String(raw?.iconEmoji || raw?.icon || raw?.emoji || "");
   const zakatEligible = Boolean(raw?.zakatEligible ?? raw?.isZakatEligible ?? raw?.zakat_eligible ?? false);
   const enabled = Boolean(raw?.enabled ?? raw?.isEnabled ?? false);
   const status = String(raw?.status || "");
 
-  return { id, name, description, icon, zakatEligible, enabled, status };
+  return { id, name, fundCode, description, icon, zakatEligible, enabled, status };
 }
 
 export default function AdminCausesPage() {

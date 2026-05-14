@@ -455,6 +455,7 @@ export default function RecurringPresetsEditor({
   onChange,
   disabled,
   errors,
+  allowError,
 }) {
   const presets = Array.isArray(value) ? value : [];
 
@@ -488,6 +489,7 @@ export default function RecurringPresetsEditor({
           </div>
           <Toggle enabled={Boolean(allowRecurringDonations)} onChange={disabled ? () => {} : onChangeAllowRecurringDonations} />
         </div>
+        <FieldError message={allowError} />
       </div>
 
       {allowRecurringDonations ? (

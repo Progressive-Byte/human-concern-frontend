@@ -156,6 +156,7 @@ export default function CauseUpsertModal({ open, mode, cause, onClose, onSuccess
   const [error, setError] = useState("");
 
   const [name, setName] = useState("");
+  const [fundCode, setFundCode] = useState("");
   const [description, setDescription] = useState("");
   const [icon, setIcon] = useState("❤️");
   const [zakatEligible, setZakatEligible] = useState(false);
@@ -180,6 +181,7 @@ export default function CauseUpsertModal({ open, mode, cause, onClose, onSuccess
 
     if (!isEdit) {
       setName("");
+      setFundCode("");
       setDescription("");
       setIcon("❤️");
       setZakatEligible(false);
@@ -188,6 +190,7 @@ export default function CauseUpsertModal({ open, mode, cause, onClose, onSuccess
     }
 
     setName(String(cause?.name || ""));
+    setFundCode(String(cause?.fundCode || ""));
     setDescription(String(cause?.description || ""));
     setIcon(String(cause?.icon || "❤️"));
     setZakatEligible(Boolean(cause?.zakatEligible));
@@ -209,6 +212,7 @@ export default function CauseUpsertModal({ open, mode, cause, onClose, onSuccess
 
     const payload = {
       name: String(name || "").trim(),
+      fundCode: String(fundCode || "").trim(),
       description: String(description || "").trim(),
       iconEmoji: String(icon || "").trim() || "❤️",
       zakatEligible: Boolean(zakatEligible),
@@ -217,6 +221,10 @@ export default function CauseUpsertModal({ open, mode, cause, onClose, onSuccess
 
     if (!payload.name) {
       setError("Cause name is required.");
+      return;
+    }
+    if (!payload.fundCode) {
+      setError("Fund code is required.");
       return;
     }
     if (!payload.description) {
@@ -284,6 +292,16 @@ export default function CauseUpsertModal({ open, mode, cause, onClose, onSuccess
                 onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 placeholder="e.g. Education Fund"
+              />
+            </div>
+
+            <div>
+              <div className="mb-2 text-[13px] font-semibold text-[#111827]">Fund Code</div>
+              <input
+                value={fundCode}
+                onChange={(e) => setFundCode(e.target.value)}
+                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                placeholder="e.g. EDU-001"
               />
             </div>
 

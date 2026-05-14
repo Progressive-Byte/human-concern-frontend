@@ -7,6 +7,7 @@ import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import FieldError from "./FieldError";
 import WizardFooterNav from "./WizardFooterNav";
 import SuggestedAmountsEditor from "./goalsDates/SuggestedAmountsEditor";
+import CustomNotesEditor from "./goalsDates/CustomNotesEditor";
 import RecurringPresetsEditor from "./goalsDates/RecurringPresetsEditor";
 
 const CURRENCY_OPTIONS = [
@@ -94,6 +95,23 @@ function normalizeRecurringPresetsState(value) {
   }));
 }
 
+function normalizeCustomNotesState(value) {
+  if (!Array.isArray(value)) return [];
+  return value.map((n) => ({
+    id: n?.id,
+    type: String(n?.type || "input"),
+    key: String(n?.key ?? ""),
+    label: String(n?.label ?? ""),
+    required: Boolean(n?.required),
+    helpText: String(n?.helpText ?? ""),
+    placeholder: String(n?.placeholder ?? ""),
+    defaultValue: n?.defaultValue,
+    options: Array.isArray(n?.options)
+      ? n.options.map((o) => ({ id: o?.id, label: String(o?.label ?? ""), value: String(o?.value ?? "") }))
+      : [],
+  }));
+}
+
 function toIsoDateString(value) {
   const s = String(value || "").trim();
   if (!s) return "";
@@ -141,6 +159,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
   const [fieldErrors, setFieldErrors] = useState({});
   const [suggestedAmountsErrors, setSuggestedAmountsErrors] = useState([]);
   const [recurringPresetsErrors, setRecurringPresetsErrors] = useState([]);
+  const [customNotesErrors, setCustomNotesErrors] = useState([]);
 
   const [currency, setCurrency] = useState("USD");
   const [goalAmount, setGoalAmount] = useState("");
@@ -150,7 +169,9 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
   const [minimumDonation, setMinimumDonation] = useState("");
   const [maximumDonation, setMaximumDonation] = useState("");
   const [suggestedAmounts, setSuggestedAmounts] = useState([]);
+  const [customNotes, setCustomNotes] = useState([]);
 
+  const [allowOneTimeDonations, setAllowOneTimeDonations] = useState(true);
   const [allowRecurringDonations, setAllowRecurringDonations] = useState(false);
   const [recurringPresets, setRecurringPresets] = useState([]);
   const [enableTipping, setEnableTipping] = useState(false);
@@ -181,7 +202,9 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
         setMinimumDonation(parseNumberOrEmpty(d?.minimumDonation));
         setMaximumDonation(parseNumberOrEmpty(d?.maximumDonation));
         setSuggestedAmounts(normalizeSuggestedAmountsState(d?.suggestedAmounts));
+        setCustomNotes(normalizeCustomNotesState(d?.customNotes));
 
+        setAllowOneTimeDonations(d?.allowOneTimeDonations === undefined ? true : Boolean(d?.allowOneTimeDonations));
         setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
         setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
         setEnableTipping(Boolean(d?.enableTipping));
@@ -251,56 +274,66 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
       errors.maximumDonation = "Maximum must be greater than or equal to minimum";
     }
 
-    const suggestedItems = Array.isArray(suggestedAmounts) ? suggestedAmounts : [];
     const normalizedSuggested = [];
-    const seenValues = new Set();
-    let defaultAssigned = false;
-    suggestedItems.forEach((it, idx) => {
-      const row = it || {};
-      const rawValue = String(row.value ?? "").trim();
-      const desc = String(row.description ?? "").trim();
-      const rowErr = {};
-      const hasAny = Boolean(rawValue) || Boolean(desc);
-      if (!hasAny) {
-        suggErrors[idx] = {};
-        return;
-      }
-      const n = Number(rawValue);
-      if (!rawValue) rowErr.value = "Required";
-      else if (!Number.isFinite(n)) rowErr.value = "Must be a number";
-      else if (!(n > 0)) rowErr.value = "Must be greater than 0";
-      if (!desc) rowErr.description = "Required";
-
-      const key = Number.isFinite(n) ? String(n) : rawValue;
-      if (!rowErr.value) {
-        if (seenValues.has(key)) rowErr.value = "Must be unique";
-        else seenValues.add(key);
-      }
-
-      suggErrors[idx] = rowErr;
-      if (Object.keys(rowErr).length) return;
-      const wantsDefault = Boolean(row.isDefault) && !defaultAssigned;
-      if (wantsDefault) defaultAssigned = true;
-      normalizedSuggested.push({
-        ...(row.id ? { id: row.id } : {}),
-        value: n,
-        description: desc,
-        ...(wantsDefault ? { isDefault: true } : {}),
-      });
-    });
-
-    if (normalizedSuggested.length && !defaultAssigned) {
-      normalizedSuggested[0] = { ...(normalizedSuggested[0] || {}), isDefault: true };
-      defaultAssigned = true;
+    const oneTimeEnabled = Boolean(allowOneTimeDonations);
+    const recurringEnabled = Boolean(allowRecurringDonations);
+    if (!oneTimeEnabled && !recurringEnabled) {
+      const msg = "Enable one-time or recurring donations";
+      errors.allowOneTimeDonations = msg;
+      errors.allowRecurringDonations = msg;
     }
 
-    if (suggErrors.some((e) => e && Object.keys(e).length)) {
-      errors.suggestedAmounts = "Fix suggested amounts";
+    if (oneTimeEnabled) {
+      const suggestedItems = Array.isArray(suggestedAmounts) ? suggestedAmounts : [];
+      const seenValues = new Set();
+      let defaultAssigned = false;
+      suggestedItems.forEach((it, idx) => {
+        const row = it || {};
+        const rawValue = String(row.value ?? "").trim();
+        const desc = String(row.description ?? "").trim();
+        const rowErr = {};
+        const hasAny = Boolean(rawValue) || Boolean(desc);
+        if (!hasAny) {
+          suggErrors[idx] = {};
+          return;
+        }
+        const n = Number(rawValue);
+        if (!rawValue) rowErr.value = "Required";
+        else if (!Number.isFinite(n)) rowErr.value = "Must be a number";
+        else if (!(n > 0)) rowErr.value = "Must be greater than 0";
+        if (!desc) rowErr.description = "Required";
+
+        const key = Number.isFinite(n) ? String(n) : rawValue;
+        if (!rowErr.value) {
+          if (seenValues.has(key)) rowErr.value = "Must be unique";
+          else seenValues.add(key);
+        }
+
+        suggErrors[idx] = rowErr;
+        if (Object.keys(rowErr).length) return;
+        const wantsDefault = Boolean(row.isDefault) && !defaultAssigned;
+        if (wantsDefault) defaultAssigned = true;
+        normalizedSuggested.push({
+          ...(row.id ? { id: row.id } : {}),
+          value: n,
+          description: desc,
+          ...(wantsDefault ? { isDefault: true } : {}),
+        });
+      });
+
+      if (normalizedSuggested.length && !defaultAssigned) {
+        normalizedSuggested[0] = { ...(normalizedSuggested[0] || {}), isDefault: true };
+        defaultAssigned = true;
+      }
+
+      if (suggErrors.some((e) => e && Object.keys(e).length)) {
+        errors.suggestedAmounts = "Fix suggested amounts";
+      }
     }
 
     const presets = Array.isArray(recurringPresets) ? recurringPresets : [];
     const normalizedPresets = [];
-    if (allowRecurringDonations) {
+    if (recurringEnabled) {
       presets.forEach((p, idx) => {
         const preset = p || {};
         const perr = {};
@@ -398,6 +431,94 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
       }
     }
 
+    const notes = Array.isArray(customNotes) ? customNotes : [];
+    const normalizedNotes = [];
+    const notesErrors = [];
+    const keySet = new Set();
+    notes.forEach((raw, idx) => {
+      const n = raw || {};
+      const type = String(n.type || "").trim();
+      const key = String(n.key || "").trim();
+      const label = String(n.label || "").trim();
+      const required = Boolean(n.required);
+      const helpText = String(n.helpText || "").trim();
+      const placeholder = String(n.placeholder || "").trim();
+      const defaultValue = n.defaultValue;
+      const rowErr = {};
+
+      const hasAny = Boolean(type) || Boolean(key) || Boolean(label) || Boolean(helpText) || Boolean(placeholder) || defaultValue !== undefined;
+      const allowedTypes = new Set(["input", "textarea", "select", "radio", "checkbox"]);
+      if (!hasAny) {
+        notesErrors[idx] = {};
+        return;
+      }
+
+      if (!allowedTypes.has(type)) rowErr.type = "Invalid";
+      if (!key) rowErr.key = "Required";
+      if (!label) rowErr.label = "Required";
+      if (key) {
+        if (keySet.has(key)) rowErr.key = "Must be unique";
+        else keySet.add(key);
+      }
+
+      const out = {
+        ...(n.id ? { id: n.id } : {}),
+        type,
+        key,
+        label,
+        ...(required ? { required: true } : {}),
+        ...(helpText ? { helpText } : {}),
+      };
+
+      if (type === "input" || type === "textarea") {
+        if (placeholder) out.placeholder = placeholder;
+        if (typeof defaultValue === "string" && String(defaultValue).trim()) out.defaultValue = String(defaultValue);
+      }
+
+      if (type === "checkbox") {
+        if (typeof defaultValue === "boolean") out.defaultValue = defaultValue;
+      }
+
+      if (type === "select" || type === "radio") {
+        const options = Array.isArray(n.options) ? n.options : [];
+        const optErrs = [];
+        const normalizedOptions = [];
+        const valueSet = new Set();
+        options.forEach((oRaw, oIdx) => {
+          const o = oRaw || {};
+          const oLabel = String(o.label || "").trim();
+          const oValue = String(o.value || "").trim();
+          const oErr = {};
+          if (!oLabel) oErr.label = "Required";
+          if (!oValue) oErr.value = "Required";
+          if (oValue) {
+            if (valueSet.has(oValue)) oErr.value = "Must be unique";
+            else valueSet.add(oValue);
+          }
+          optErrs[oIdx] = oErr;
+          if (Object.keys(oErr).length) return;
+          normalizedOptions.push({ ...(o.id ? { id: o.id } : {}), label: oLabel, value: oValue });
+        });
+
+        if (normalizedOptions.length < 2) {
+          rowErr.optionsMessage = "Add at least 2 options";
+        }
+        if (optErrs.some((e) => e && Object.keys(e).length)) {
+          rowErr.options = optErrs;
+        }
+        if (typeof defaultValue === "string" && String(defaultValue).trim()) out.defaultValue = String(defaultValue);
+        out.options = normalizedOptions;
+      }
+
+      notesErrors[idx] = rowErr;
+      if (Object.keys(rowErr).length) return;
+      normalizedNotes.push(out);
+    });
+
+    if (notesErrors.some((e) => e && Object.keys(e).length)) {
+      errors.customNotes = "Fix custom notes";
+    }
+
     const payload = {
       currency: nextCurrency,
       startAt: nextStartAt,
@@ -405,14 +526,16 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
       goalAmount: goalN === null ? undefined : goalN,
       minimumDonation: minN === null ? undefined : minN,
       maximumDonation: maxN === null ? undefined : maxN,
-      suggestedAmounts: normalizedSuggested.length ? normalizedSuggested : undefined,
-      allowRecurringDonations: Boolean(allowRecurringDonations),
-      recurringPresets: allowRecurringDonations && normalizedPresets.length ? normalizedPresets : undefined,
+      allowOneTimeDonations: Boolean(oneTimeEnabled),
+      suggestedAmounts: oneTimeEnabled && normalizedSuggested.length ? normalizedSuggested : undefined,
+      customNotes: normalizedNotes.length ? normalizedNotes : undefined,
+      allowRecurringDonations: Boolean(recurringEnabled),
+      recurringPresets: recurringEnabled && normalizedPresets.length ? normalizedPresets : undefined,
       enableTipping: Boolean(enableTipping),
       allowAnonymousDonations: Boolean(allowAnonymousDonations),
     };
 
-    return { errors, payload, suggErrors, presetsErrors };
+    return { errors, payload, suggErrors, presetsErrors, notesErrors };
   }
 
   async function save({ goNext } = { goNext: false }) {
@@ -420,6 +543,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
     setFieldErrors({});
     setSuggestedAmountsErrors([]);
     setRecurringPresetsErrors([]);
+    setCustomNotesErrors([]);
 
     if (!campaignId) {
       toast.error("Missing campaignId");
@@ -430,11 +554,12 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
       return { ok: false };
     }
 
-    const { errors, payload, suggErrors, presetsErrors } = validate();
+    const { errors, payload, suggErrors, presetsErrors, notesErrors } = validate();
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
       setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
       setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
+      setCustomNotesErrors(Array.isArray(notesErrors) ? notesErrors : []);
       toast.error("Fix the highlighted fields");
       return { ok: false };
     }
@@ -446,6 +571,8 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
         const res = await getAdminFormGoalsDates(formId);
         const d = normalizeGoalsDatesResponse(res);
         setSuggestedAmounts(normalizeSuggestedAmountsState(d?.suggestedAmounts));
+        setCustomNotes(normalizeCustomNotesState(d?.customNotes));
+        setAllowOneTimeDonations(d?.allowOneTimeDonations === undefined ? true : Boolean(d?.allowOneTimeDonations));
         setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
         setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
       } catch {}
@@ -599,6 +726,17 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
           <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
+                <div className="text-[13px] font-semibold text-[#111827]">Allow One-Time Donations</div>
+                <div className="mt-1 text-[12px] text-[#6B7280]">Let donors make a single payment</div>
+              </div>
+              <Toggle enabled={allowOneTimeDonations} onChange={disabled ? () => {} : setAllowOneTimeDonations} />
+            </div>
+            <FieldError message={fieldErrors.allowOneTimeDonations} />
+          </div>
+
+          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Enable Tipping</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Allow donors to add a platform tip</div>
               </div>
@@ -622,9 +760,11 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
         currencyLabel={String(currency || "").trim()}
         value={suggestedAmounts}
         onChange={setSuggestedAmounts}
-        disabled={disabled}
+        disabled={disabled || !allowOneTimeDonations}
         errors={suggestedAmountsErrors}
       />
+
+      <CustomNotesEditor value={customNotes} onChange={setCustomNotes} disabled={disabled} errors={customNotesErrors} />
 
       <RecurringPresetsEditor
         allowRecurringDonations={allowRecurringDonations}
@@ -633,6 +773,7 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
         onChange={setRecurringPresets}
         disabled={disabled}
         errors={recurringPresetsErrors}
+        allowError={fieldErrors.allowRecurringDonations}
       />
 
       <WizardFooterNav
