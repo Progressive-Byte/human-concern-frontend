@@ -172,7 +172,6 @@ const DonationWidget = ({ campaign }) => {
                       : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
                   }`}
                 >
-                  <span className={`text-[18px] leading-tight`}>✏️</span>
                   <span className={`text-[15px] font-bold leading-tight mt-1 ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
                     Other Amount
                   </span>
