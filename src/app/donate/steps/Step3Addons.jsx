@@ -33,15 +33,6 @@ function calcAddOnTotal(addOn, inputValues) {
 const Step3Addons = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (data.submitted) {
-      const base = data.campaign ? `/${data.campaign}` : "/donate";
-      router.replace(`${base}/4`);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const campaignMeta = useMemo(() => {
     try { return JSON.parse(sessionStorage.getItem("campaignData") || "{}"); }
