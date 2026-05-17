@@ -205,6 +205,17 @@ const Step3Addons = () => {
       setSubmitError("Please go back to 'Info' and select at least one cause.");
       return;
     }
+    const errors = Object.fromEntries(
+      customNoteFields
+        .filter((f) => f.required && !(customNoteValues[f.key] ?? "").trim())
+        .map((f) => [f.key, true])
+    );
+    if (Object.keys(errors).length > 0) {
+      setNoteErrors(errors);
+      setSubmitError("Please fill in all required fields.");
+      return;
+    }
+    setNoteErrors({});
     update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod: gatewayState.gateway });
     setSubmitting(true);
     setSubmitError(null);
