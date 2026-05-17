@@ -295,16 +295,56 @@ const Step3Addons = () => {
             </span>
           </p>
         </div> */}
-        <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3 flex flex-col gap-1.5">
-          <p className="text-[13px] font-semibold text-[#383838]">Custom Note</p>
-          <textarea
-            value={customNote}
-            onChange={(e) => setCustomNote(e.target.value)}
-            placeholder="Add a note to your donation…"
-            rows={3}
-            className="w-full border border-[#E5E5E5] rounded-lg px-3 py-2 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#EA3335] resize-none transition-colors"
-          />
-        </div>
+        {customNoteFields.length > 0 && (
+          <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-4 flex flex-col gap-4">
+            {customNoteFields.map((field) => {
+              const value   = customNoteValues[field.key] ?? "";
+              const hasError = noteErrors[field.key];
+              const baseInputClass = `w-full border rounded-lg px-3 py-2 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none resize-none transition-colors ${
+                hasError
+                  ? "border-[#EA3335] focus:border-[#EA3335]"
+                  : "border-[#E5E5E5] focus:border-[#EA3335]"
+              }`;
+              return (
+                <div key={field.id} className="flex flex-col gap-1.5">
+                  <p className="text-[13px] font-semibold text-[#383838]">
+                    {field.label}
+                    {field.required && <span className="text-[#EA3335] ml-0.5">*</span>}
+                  </p>
+                  {field.type === "textarea" ? (
+                    <textarea
+                      value={value}
+                      onChange={(e) => {
+                        setCustomNoteValues((prev) => ({ ...prev, [field.key]: e.target.value }));
+                        if (noteErrors[field.key]) setNoteErrors((prev) => ({ ...prev, [field.key]: false }));
+                      }}
+                      placeholder={field.placeholder ?? ""}
+                      rows={3}
+                      className={baseInputClass}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={(e) => {
+                        setCustomNoteValues((prev) => ({ ...prev, [field.key]: e.target.value }));
+                        if (noteErrors[field.key]) setNoteErrors((prev) => ({ ...prev, [field.key]: false }));
+                      }}
+                      placeholder={field.placeholder ?? ""}
+                      className={baseInputClass}
+                    />
+                  )}
+                  {field.helpText && (
+                    <p className="text-[12px] text-[#737373]">{field.helpText}</p>
+                  )}
+                  {hasError && (
+                    <p className="text-[12px] text-[#EA3335]">{field.label} is required.</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <PaymentGatewaySelector
           isRecurring={isRecurring}
