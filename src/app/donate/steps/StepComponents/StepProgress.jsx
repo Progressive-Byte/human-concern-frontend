@@ -45,7 +45,7 @@ export default function StepProgress({ current }) {
         return (
           <div key={step} className="flex items-center">
             <div className="flex flex-col items-center gap-1">
-              {reachable && !submitted ? (
+              {reachable ? (
                 <Link href={`${base}/${step}`} className="flex flex-col items-center gap-1">
                   {dot}
                   <span
