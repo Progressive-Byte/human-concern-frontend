@@ -78,8 +78,6 @@ const Step4Confirmation = () => {
                   grandTotal={data.grandTotal}
                   currency={data.currency}
                   isRecurring={isRecurring}
-                  donationId={data.donationId}
-                  guestSessionId={data.guestSessionId}
                 />
               </Elements>
             ) : (
