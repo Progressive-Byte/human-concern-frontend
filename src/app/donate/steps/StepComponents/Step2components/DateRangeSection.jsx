@@ -28,31 +28,33 @@ export default function DateRangeSection({
   return (
     <div className="flex flex-col gap-3">
 
-      {/* Start / end date row */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-[13px] font-medium text-[#383838] mb-2">Start Date</label>
-          <input
-            type="date"
-            value={rangeStart}
-            min={todayStr}
-            onChange={(e) => onRangeStart(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
-          />
+      {/* Start / end date row — hidden when interval is locked by preset */}
+      {lockedInterval == null && (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-[13px] font-medium text-[#383838] mb-2">Start Date</label>
+            <input
+              type="date"
+              value={rangeStart}
+              min={todayStr}
+              onChange={(e) => onRangeStart(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-medium text-[#383838] mb-2">
+              {rangeFreq === "custom" ? "Until Date" : "End Date"}
+            </label>
+            <input
+              type="date"
+              value={rangeEnd}
+              min={rangeStart || todayStr}
+              onChange={(e) => onRangeEnd(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-[13px] font-medium text-[#383838] mb-2">
-            {rangeFreq === "custom" ? "Until Date" : "End Date"}
-          </label>
-          <input
-            type="date"
-            value={rangeEnd}
-            min={rangeStart || todayStr}
-            onChange={(e) => onRangeEnd(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
-          />
-        </div>
-      </div>
+      )}
 
       {/* Frequency section */}
       <div>
