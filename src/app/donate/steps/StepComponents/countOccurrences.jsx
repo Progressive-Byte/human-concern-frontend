@@ -29,10 +29,8 @@ export function generateDatesInRange(start, end, freq, customInterval = 1) {
     else if (freq === "weekly")  current.setUTCDate(current.getUTCDate() + 7);
     else if (freq === "monthly") current.setUTCMonth(current.getUTCMonth() + 1);
     else if (freq === "yearly")  current.setUTCFullYear(current.getUTCFullYear() + 1);
-    else if (freq === "custom") {
-      const interval = Math.max(1, Number(customInterval) || 1);
-      current.setUTCDate(current.getUTCDate() + interval);
-    } else break;
+    else if (freq === "custom") break; // custom handled below
+    else break;
     if (dates.length >= 500) break; // safety cap
   }
   return dates;
