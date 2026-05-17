@@ -232,25 +232,28 @@ const RecurringSchedule = ({
       {showFullControls && (
         <div className="flex flex-col gap-4">
 
-          <div>
-            <label className="block text-[13px] font-medium text-[#383838] mb-2">Schedule Type</label>
-            <div className="flex gap-2">
-              {SCHEDULE_TYPES.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => handleScheduleType(opt.value)}
-                  className={`flex-1 px-4 py-2.5 rounded-xl border text-[13px] font-medium transition-all cursor-pointer ${
-                    scheduleType === opt.value
-                      ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
-                      : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+          {/* Schedule Type toggle — hidden for interval presets (type is fixed) */}
+          {lockedInterval == null && (
+            <div>
+              <label className="block text-[13px] font-medium text-[#383838] mb-2">Schedule Type</label>
+              <div className="flex gap-2">
+                {SCHEDULE_TYPES.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => handleScheduleType(opt.value)}
+                    className={`flex-1 px-4 py-2.5 rounded-xl border text-[13px] font-medium transition-all cursor-pointer ${
+                      scheduleType === opt.value
+                        ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
+                        : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {scheduleType === "specific_dates" ? (
             <SpecificDatesSection selectedDates={selectedDates} onToggleDate={toggleDate} />
