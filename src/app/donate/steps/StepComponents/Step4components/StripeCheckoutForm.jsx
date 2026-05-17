@@ -3,16 +3,12 @@
 import { useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
-import { apiRequest } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
-
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-const StripeCheckoutForm = ({ grandTotal, currency, isRecurring, donationId, guestSessionId }) => {
+const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   const stripe   = useStripe();
   const elements = useElements();
   const router   = useRouter();
-  const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
