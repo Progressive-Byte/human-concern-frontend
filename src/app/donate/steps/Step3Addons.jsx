@@ -48,8 +48,9 @@ const Step3Addons = () => {
     catch { return {}; }
   }, []);
 
-  const campaignAddOns = campaignMeta.addOns ?? [];
-  const enableTipping  = campaignMeta.goalsDates?.enableTipping ?? true;
+  const campaignAddOns  = campaignMeta.addOns ?? [];
+  const enableTipping   = campaignMeta.goalsDates?.enableTipping ?? true;
+  const customNoteFields = campaignMeta.goalsDates?.customNotes ?? [];
 
   const currency     = data.currency     ?? "USD";
   const amountTier   = data.amountTier   ?? 0;
