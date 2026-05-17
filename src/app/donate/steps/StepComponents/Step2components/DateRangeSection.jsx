@@ -7,6 +7,7 @@ import { FREQ_OPTIONS } from "./scheduleUtils";
 export default function DateRangeSection({
   rangeStart, rangeEnd, rangeFreq, customInterval,
   effectiveAmount, sym,
+  lockedInterval = null,
   onRangeStart, onRangeEnd, onRangeFreq, onCustomInterval,
 }) {
   const todayStr = new Date().toISOString().split("T")[0];
