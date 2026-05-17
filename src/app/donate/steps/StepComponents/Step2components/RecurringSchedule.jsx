@@ -181,6 +181,10 @@ const RecurringSchedule = ({
   const presetDateCount  = !showFullControls
     ? (scheduleType === "date_range" ? generatedDates.length : selectedDates.length)
     : 0;
+  // When a template preset has intervalValue, lock frequency controls to read-only
+  const lockedInterval = (isTemplateActive && (activeApiPreset?.scheduleConfig?.intervalValue ?? 0) > 1)
+    ? activeApiPreset.scheduleConfig.intervalValue
+    : null;
 
   return (
     <div className="flex flex-col gap-4">
