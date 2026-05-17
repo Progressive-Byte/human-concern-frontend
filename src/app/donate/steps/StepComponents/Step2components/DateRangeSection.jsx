@@ -3,14 +3,15 @@
 import { useMemo } from "react";
 import countOccurrences from "../countOccurrences";
 import { FREQ_OPTIONS } from "./scheduleUtils";
+import MiniCalendar from "./MiniCalendar";
 
-export default function DateRangeSection({
+const DateRangeSection = ({
   rangeStart, rangeEnd, rangeFreq, customInterval,
   effectiveAmount, sym,
   lockedInterval = null,
   onRangeStart, onRangeEnd, onRangeFreq, onCustomInterval,
-}) {
-  const todayStr = new Date().toISOString().split("T")[0];
+}) => {
+  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
 
   const rangeDays = useMemo(() => {
     if (!rangeStart || !rangeEnd) return 0;
@@ -28,29 +29,34 @@ export default function DateRangeSection({
   return (
     <div className="flex flex-col gap-3">
 
-      {/* Start / end date row — hidden when interval is locked by preset */}
+      {/* Start / end date calendars — hidden when interval is locked by preset */}
       {lockedInterval == null && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-4">
           <div>
-            <label className="block text-[13px] font-medium text-[#383838] mb-2">Start Date</label>
-            <input
-              type="date"
-              value={rangeStart}
-              min={todayStr}
-              onChange={(e) => onRangeStart(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
+            <label className="block text-[13px] font-medium text-[#383838] mb-2">
+              Start Date
+              {rangeStart && (
+                <span className="ml-2 text-[12px] font-normal text-[#737373]">{rangeStart}</span>
+              )}
+            </label>
+            <MiniCalendar
+              mode="single"
+              selectedDates={rangeStart ? [rangeStart] : []}
+              onToggleDate={(d) => onRangeStart(d)}
             />
           </div>
           <div>
             <label className="block text-[13px] font-medium text-[#383838] mb-2">
               {rangeFreq === "custom" ? "Until Date" : "End Date"}
+              {rangeEnd && (
+                <span className="ml-2 text-[12px] font-normal text-[#737373]">{rangeEnd}</span>
+              )}
             </label>
-            <input
-              type="date"
-              value={rangeEnd}
-              min={rangeStart || todayStr}
-              onChange={(e) => onRangeEnd(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-[#E5E5E5] text-[14px] text-[#383838] outline-none focus:border-[#EA3335] bg-white transition-colors cursor-pointer"
+            <MiniCalendar
+              mode="single"
+              selectedDates={rangeEnd ? [rangeEnd] : []}
+              minDateStr={rangeStart || todayStr}
+              onToggleDate={(d) => onRangeEnd(d)}
             />
           </div>
         </div>
@@ -136,3 +142,4 @@ export default function DateRangeSection({
     </div>
   );
 }
+export default DateRangeSection;
