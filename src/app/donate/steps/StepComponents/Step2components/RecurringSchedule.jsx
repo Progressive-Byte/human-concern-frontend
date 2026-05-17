@@ -12,6 +12,10 @@ const SCHEDULE_TYPES = [
   { value: "date_range",     label: "Date Range" },
 ];
 
+// Presets with these names open the editable form instead of applying a fixed config
+const TEMPLATE_NAMES = new Set(["specific dates", "date range", "interval"]);
+const isTemplate = (preset) => TEMPLATE_NAMES.has((preset?.name ?? "").toLowerCase().trim());
+
 const RecurringSchedule = ({
   sym,
   effectiveAmount,
@@ -39,7 +43,6 @@ const RecurringSchedule = ({
     [scheduleType, rangeStart, rangeEnd, rangeFreq, customInterval]
   );
 
-  // date_range always uses generatedDates; specific_dates uses selectedDates
   const activeDates = scheduleType === "date_range"
     ? generatedDates
     : [...selectedDates].sort();
@@ -54,6 +57,7 @@ const RecurringSchedule = ({
 
   const handlePreset = (presetId) => {
     setActivePreset(presetId);
+
     if (presetId === "custom") {
       setScheduleType("specific_dates");
       setSelectedDates([]);
@@ -61,29 +65,55 @@ const RecurringSchedule = ({
       notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
       return;
     }
+
     const preset = apiPresets.find((p) => p.id === presetId);
     if (!preset) return;
     const cfg = preset.scheduleConfig ?? {};
-    if (preset.scheduleType === "date_range") {
-      const start    = cfg.startDate?.split("T")[0] ?? "";
-      const end      = cfg.endDate?.split("T")[0]   ?? "";
-      // intervalValue > 1 maps to our internal "custom" frequency concept
-      const interval = cfg.intervalValue ?? 1;
-      const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
-      setScheduleType("date_range");
-      setRangeStart(start);
-      setRangeEnd(end);
-      setRangeFreq(freq);
-      setCustomInterval(interval > 1 ? interval : 1);
-      setSelectedDates([]);
-      setDateAmounts({});
-      notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId);
+
+    if (isTemplate(preset)) {
+      // Template presets open the form pre-configured — no summary banner
+      if (preset.scheduleType === "date_range") {
+        const start    = cfg.startDate?.split("T")[0] ?? "";
+        const end      = cfg.endDate?.split("T")[0]   ?? "";
+        const interval = cfg.intervalValue ?? 1;
+        const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
+        setScheduleType("date_range");
+        setRangeStart(start);
+        setRangeEnd(end);
+        setRangeFreq(freq);
+        setCustomInterval(interval > 1 ? interval : 1);
+        setSelectedDates([]);
+        setDateAmounts({});
+        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId);
+      } else {
+        // "Specific Dates" template — open empty calendar
+        setScheduleType("specific_dates");
+        setSelectedDates([]);
+        setDateAmounts({});
+        notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
+      }
     } else {
-      const dates = (cfg.dates ?? []).map((d) => d.split("T")[0]);
-      setScheduleType("specific_dates");
-      setSelectedDates(dates);
-      setDateAmounts({});
-      notify("specific_dates", dates, rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
+      // Fixed presets — apply config directly, show summary banner
+      if (preset.scheduleType === "date_range") {
+        const start    = cfg.startDate?.split("T")[0] ?? "";
+        const end      = cfg.endDate?.split("T")[0]   ?? "";
+        const interval = cfg.intervalValue ?? 1;
+        const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
+        setScheduleType("date_range");
+        setRangeStart(start);
+        setRangeEnd(end);
+        setRangeFreq(freq);
+        setCustomInterval(interval > 1 ? interval : 1);
+        setSelectedDates([]);
+        setDateAmounts({});
+        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId);
+      } else {
+        const dates = (cfg.dates ?? []).map((d) => d.split("T")[0]);
+        setScheduleType("specific_dates");
+        setSelectedDates(dates);
+        setDateAmounts({});
+        notify("specific_dates", dates, rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
+      }
     }
   };
 
@@ -142,16 +172,20 @@ const RecurringSchedule = ({
     notify(scheduleType, selectedDates, rangeStart, rangeEnd, rangeFreq, {}, n);
   };
 
-  const hasPresets      = apiPresets.length > 0;
-  const isCustom        = activePreset === "custom";
-  const presetDateCount = !isCustom
+  const hasPresets       = apiPresets.length > 0;
+  const isCustom         = activePreset === "custom";
+  const activeApiPreset  = apiPresets.find((p) => p.id === activePreset);
+  const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
+  // Show full controls for: Custom pill, template presets, or no API presets at all
+  const showFullControls = isCustom || isTemplateActive || !hasPresets;
+  const presetDateCount  = !showFullControls
     ? (scheduleType === "date_range" ? generatedDates.length : selectedDates.length)
     : 0;
 
   return (
     <div className="flex flex-col gap-4">
 
-      {/* Preset pills — only shown when the campaign has API presets */}
+      {/* Preset pills */}
       {hasPresets && (
         <div className="flex flex-wrap gap-2">
           {[...apiPresets, { id: "custom", name: "Custom" }].map((p) => {
@@ -174,8 +208,8 @@ const RecurringSchedule = ({
         </div>
       )}
 
-      {/* Summary banner for active non-custom preset */}
-      {!isCustom && presetDateCount > 0 && (
+      {/* Summary banner — only for fixed presets (not template, not custom) */}
+      {!showFullControls && presetDateCount > 0 && (
         <div className="flex items-center justify-between bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-2.5">
           <span className="text-[12px] text-[#EA3335] font-medium">
             {presetDateCount} date{presetDateCount !== 1 ? "s" : ""} selected from preset
@@ -190,8 +224,8 @@ const RecurringSchedule = ({
         </div>
       )}
 
-      {/* Full controls — shown when Custom is active, or when there are no API presets */}
-      {(isCustom || !hasPresets) && (
+      {/* Full controls — Custom, template presets, or no API presets */}
+      {showFullControls && (
         <div className="flex flex-col gap-4">
 
           <div>
@@ -233,7 +267,7 @@ const RecurringSchedule = ({
         </div>
       )}
 
-      {/* Per-date amount table */}
+      {/* Per-date amount table — shown for all active states that have dates */}
       {activeDates.length > 0 && (
         <PerDateAmountTable
           activeDates={activeDates}
