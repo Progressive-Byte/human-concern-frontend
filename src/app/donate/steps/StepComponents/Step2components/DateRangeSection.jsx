@@ -5,12 +5,12 @@ import countOccurrences from "../countOccurrences";
 import { FREQ_OPTIONS } from "./scheduleUtils";
 import MiniCalendar from "./MiniCalendar";
 
-export default function DateRangeSection({
+const DateRangeSection = ({
   rangeStart, rangeEnd, rangeFreq, customInterval,
   effectiveAmount, sym,
   lockedInterval = null,
   onRangeStart, onRangeEnd, onRangeFreq, onCustomInterval,
-}) {
+}) => {
   const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
 
   const rangeDays = useMemo(() => {
@@ -142,3 +142,4 @@ export default function DateRangeSection({
     </div>
   );
 }
+export default DateRangeSection;
