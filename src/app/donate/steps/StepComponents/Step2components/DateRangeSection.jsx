@@ -123,8 +123,10 @@ export default function DateRangeSection({
       {rangeStart && rangeEnd && occurrences > 0 && (
         <p className="text-[12px] text-[#737373] bg-[#F9F9F9] rounded-xl px-4 py-2.5 border border-[#EBEBEB]">
           {occurrences} payment{occurrences !== 1 ? "s" : ""} of {sym}{effectiveAmount} each
-          {rangeFreq === "custom" && (
-            <span className="ml-1 text-[#AEAEAE]">(every {customInterval} day{customInterval !== 1 ? "s" : ""})</span>
+          {(lockedInterval != null || rangeFreq === "custom") && (
+            <span className="ml-1 text-[#AEAEAE]">
+              (every {lockedInterval ?? customInterval} day{(lockedInterval ?? customInterval) !== 1 ? "s" : ""})
+            </span>
           )}
         </p>
       )}
