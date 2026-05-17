@@ -6,6 +6,7 @@ import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "./StepComponents/StepLayout";
 import { apiRequest } from "@/services/api";
+import { generateDatesInRange } from "./StepComponents/countOccurrences";
 import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
@@ -138,9 +139,46 @@ const Step3Addons = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipPct, customTipAmount, computedBreakdown, grandTotal]);
 
+  const buildApiScheduleConfig = (scheduleType, scheduleConfig) => {
+    const dateAmounts = scheduleConfig.dateAmounts ?? {};
+
+    if (scheduleType === "specific_dates") {
+      const dates = scheduleConfig.dates ?? [];
+      return {
+        dates: dates.map((isoDate) => {
+          const key = isoDate.split("T")[0];
+          return {
+            date:   isoDate,
+            amount: dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier,
+          };
+        }),
+      };
+    }
+
+    // date_range
+    const rawFreq  = scheduleConfig.frequency ?? "daily";
+    const apiFreq  = rawFreq === "custom" ? "interval" : rawFreq;
+    const interval = scheduleConfig.customInterval ?? 1;
+    const startKey = scheduleConfig.startDate?.split("T")[0] ?? "";
+    const endKey   = scheduleConfig.endDate?.split("T")[0]   ?? "";
+    const allKeys  = generateDatesInRange(startKey, endKey, rawFreq, interval);
+
+    return {
+      startDate: scheduleConfig.startDate ?? "",
+      endDate:   scheduleConfig.endDate   ?? "",
+      frequency: apiFreq,
+      ...(apiFreq === "interval" && { intervalValue: interval }),
+      dates: allKeys.map((d) => ({
+        date:   new Date(`${d}T00:00:00.000Z`).toISOString(),
+        amount: dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier,
+      })),
+    };
+  };
+
   const buildSubmitBody = () => {
     const scheduleType   = data.scheduleType   ?? "date_range";
     const scheduleConfig = data.scheduleConfig ?? {};
+
     const body = {
       ...(data.campaignId ? { formId: data.campaignId } : { formSlug: data.campaign }),
       info: {
@@ -178,7 +216,8 @@ const Step3Addons = () => {
     if (isRecurring) {
       body.payment = {
         paymentMode: "split",
-        amount:      amountTier,
+        // total across all scheduled dates (API validates sum matches dates array)
+        amount:      baseDonation,
         currency,
         ...(tipAmount > 0
           ? customTipParsed !== null
@@ -186,7 +225,7 @@ const Step3Addons = () => {
             : { platformTipPercent: tipPct }
           : {}),
         scheduleType,
-        scheduleConfig,
+        scheduleConfig: buildApiScheduleConfig(scheduleType, scheduleConfig),
       };
     } else {
       body.payment = {
@@ -204,6 +243,21 @@ const Step3Addons = () => {
     if (!data.causeIds?.length) {
       setSubmitError("Please go back to 'Info' and select at least one cause.");
       return;
+    }
+    if (isRecurring) {
+      const schedCfg  = data.scheduleConfig ?? {};
+      const schedType = data.scheduleType   ?? "date_range";
+      if (schedType === "specific_dates") {
+        if (!schedCfg.dates?.length) {
+          setSubmitError("Please go back to 'Payment' and select at least one date for your schedule.");
+          return;
+        }
+      } else {
+        if (!schedCfg.startDate || !schedCfg.endDate) {
+          setSubmitError("Please go back to 'Payment' and set a start and end date for your schedule.");
+          return;
+        }
+      }
     }
     const errors = Object.fromEntries(
       customNoteFields

@@ -3,16 +3,12 @@
 import { useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
-import { apiRequest } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
-
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-const StripeCheckoutForm = ({ grandTotal, currency, isRecurring, donationId, guestSessionId }) => {
+const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   const stripe   = useStripe();
   const elements = useElements();
   const router   = useRouter();
-  const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
@@ -49,24 +45,6 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring, donationId, gue
       }
 
       if (setupIntent?.status === "succeeded") {
-        try {
-          await apiRequest("payment/setup-intent/confirm", {
-            method: "POST",
-            body: JSON.stringify({
-              donationId,
-              setupIntentId: setupIntent.id,
-              paymentMethodId: setupIntent.payment_method,
-            }),
-            headers: guestSessionId
-              ? { "x-guest-session-id": String(guestSessionId) }
-              : {},
-          });
-        } catch (err) {
-          setError(err.message ?? "Failed to confirm setup. Please contact support.");
-          setLoading(false);
-          return;
-        }
-
         sessionStorage.setItem("hc_donation_done", "1");
         router.push("/donate/thank-you");
       }
