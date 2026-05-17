@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import countOccurrences, { generateDatesInRange } from "../countOccurrences";
-import { PRESETS, getPresetDates } from "./presetDates";
 import { buildConfig, resolveFreq } from "./scheduleUtils";
 import SpecificDatesSection from "./SpecificDatesSection";
 import DateRangeSection from "./DateRangeSection";
@@ -13,7 +12,19 @@ const SCHEDULE_TYPES = [
   { value: "date_range",     label: "Date Range" },
 ];
 
-const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialConfig, initialActivePreset, onChange }) => {
+// Presets with these names open the editable form instead of applying a fixed config
+const TEMPLATE_NAMES = new Set(["specific dates", "date range", "interval"]);
+const isTemplate = (preset) => TEMPLATE_NAMES.has((preset?.name ?? "").toLowerCase().trim());
+
+const RecurringSchedule = ({
+  sym,
+  effectiveAmount,
+  initialScheduleType,
+  initialConfig,
+  initialActivePreset,
+  apiPresets = [],
+  onChange,
+}) => {
   const [activePreset,   setActivePreset]   = useState(initialActivePreset ?? "custom");
   const [scheduleType,   setScheduleType]   = useState(initialScheduleType ?? "specific_dates");
   const [selectedDates,  setSelectedDates]  = useState(() =>
@@ -32,11 +43,9 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
     [scheduleType, rangeStart, rangeEnd, rangeFreq, customInterval]
   );
 
-  const activeDates = (scheduleType === "date_range" && activePreset === "custom")
+  const activeDates = scheduleType === "date_range"
     ? generatedDates
     : [...selectedDates].sort();
-
-  // ── notify parent
 
   const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset) => {
     const occ    = type === "specific_dates"
@@ -48,6 +57,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
 
   const handlePreset = (presetId) => {
     setActivePreset(presetId);
+
     if (presetId === "custom") {
       setScheduleType("specific_dates");
       setSelectedDates([]);
@@ -55,12 +65,56 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
       notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
       return;
     }
-    const result = getPresetDates(presetId);
-    if (!result) return;
-    setScheduleType("specific_dates");
-    setSelectedDates(result.dates);
-    setDateAmounts({});
-    notify("specific_dates", result.dates, rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
+
+    const preset = apiPresets.find((p) => p.id === presetId);
+    if (!preset) return;
+    const cfg = preset.scheduleConfig ?? {};
+
+    if (isTemplate(preset)) {
+      // Template presets open the form pre-configured — no summary banner
+      if (preset.scheduleType === "date_range") {
+        const start    = cfg.startDate?.split("T")[0] ?? "";
+        const end      = cfg.endDate?.split("T")[0]   ?? "";
+        const interval = cfg.intervalValue ?? 1;
+        const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
+        setScheduleType("date_range");
+        setRangeStart(start);
+        setRangeEnd(end);
+        setRangeFreq(freq);
+        setCustomInterval(interval > 1 ? interval : 1);
+        setSelectedDates([]);
+        setDateAmounts({});
+        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId);
+      } else {
+        // "Specific Dates" template — open empty calendar
+        setScheduleType("specific_dates");
+        setSelectedDates([]);
+        setDateAmounts({});
+        notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
+      }
+    } else {
+      // Fixed presets — apply config directly, show summary banner
+      if (preset.scheduleType === "date_range") {
+        const start    = cfg.startDate?.split("T")[0] ?? "";
+        const end      = cfg.endDate?.split("T")[0]   ?? "";
+        const interval = cfg.intervalValue ?? 1;
+        const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
+        setScheduleType("date_range");
+        setRangeStart(start);
+        setRangeEnd(end);
+        setRangeFreq(freq);
+        setCustomInterval(interval > 1 ? interval : 1);
+        setSelectedDates([]);
+        setDateAmounts({});
+        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId);
+      } else {
+        const dates = (cfg.dates ?? []).map((d) => d.split("T")[0]);
+        setScheduleType("specific_dates");
+        setSelectedDates(dates);
+        setDateAmounts({});
+        notify("specific_dates", dates, rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
+      }
+    }
   };
 
   const toggleDate = (dateStr) => {
@@ -118,36 +172,51 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
     notify(scheduleType, selectedDates, rangeStart, rangeEnd, rangeFreq, {}, n);
   };
 
+  const hasPresets       = apiPresets.length > 0;
+  const isCustom         = activePreset === "custom";
+  const activeApiPreset  = apiPresets.find((p) => p.id === activePreset);
+  const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
+  // Show full controls for: Custom pill, template presets, or no API presets at all
+  const showFullControls = isCustom || isTemplateActive || !hasPresets;
+  const presetDateCount  = !showFullControls
+    ? (scheduleType === "date_range" ? generatedDates.length : selectedDates.length)
+    : 0;
+  // When a template preset has intervalValue, lock frequency controls to read-only
+  const lockedInterval = (isTemplateActive && (activeApiPreset?.scheduleConfig?.intervalValue ?? 0) > 1)
+    ? activeApiPreset.scheduleConfig.intervalValue
+    : null;
+
   return (
     <div className="flex flex-col gap-4">
 
       {/* Preset pills */}
-      <div className="flex flex-wrap gap-2">
-        {PRESETS.map((p) => {
-          const active = activePreset === p.id;
-          return (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => handlePreset(p.id)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[12px] font-medium transition-all cursor-pointer ${
-                active
-                  ? "border-[#EA3335] bg-[#EA3335] text-white"
-                  : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/50 hover:text-[#383838]"
-              }`}
-            >
-              <span>{p.icon}</span>
-              <span>{p.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {hasPresets && (
+        <div className="flex flex-wrap gap-2">
+          {[...apiPresets, { id: "custom", name: "Custom" }].map((p) => {
+            const active = activePreset === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => handlePreset(p.id)}
+                className={`px-3.5 py-2 rounded-full border text-[12px] font-medium transition-all cursor-pointer ${
+                  active
+                    ? "border-[#EA3335] bg-[#EA3335] text-white"
+                    : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/50 hover:text-[#383838]"
+                }`}
+              >
+                {p.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-      {/* Preset summary banner */}
-      {activePreset !== "custom" && selectedDates.length > 0 && (
+      {/* Summary banner — only for fixed presets (not template, not custom) */}
+      {!showFullControls && presetDateCount > 0 && (
         <div className="flex items-center justify-between bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-2.5">
           <span className="text-[12px] text-[#EA3335] font-medium">
-            {selectedDates.length} date{selectedDates.length !== 1 ? "s" : ""} selected from preset
+            {presetDateCount} date{presetDateCount !== 1 ? "s" : ""} selected from preset
           </span>
           <button
             type="button"
@@ -159,30 +228,32 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
         </div>
       )}
 
-      {/* Full controls — Custom preset only */}
-      {activePreset === "custom" && (
+      {/* Full controls — Custom, template presets, or no API presets */}
+      {showFullControls && (
         <div className="flex flex-col gap-4">
 
-          {/* Schedule type toggle */}
-          <div>
-            <label className="block text-[13px] font-medium text-[#383838] mb-2">Schedule Type</label>
-            <div className="flex gap-2">
-              {SCHEDULE_TYPES.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => handleScheduleType(opt.value)}
-                  className={`flex-1 px-4 py-2.5 rounded-xl border text-[13px] font-medium transition-all cursor-pointer ${
-                    scheduleType === opt.value
-                      ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
-                      : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+          {/* Schedule Type toggle — hidden for interval presets (type is fixed) */}
+          {lockedInterval == null && (
+            <div>
+              <label className="block text-[13px] font-medium text-[#383838] mb-2">Schedule Type</label>
+              <div className="flex gap-2">
+                {SCHEDULE_TYPES.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => handleScheduleType(opt.value)}
+                    className={`flex-1 px-4 py-2.5 rounded-xl border text-[13px] font-medium transition-all cursor-pointer ${
+                      scheduleType === opt.value
+                        ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
+                        : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {scheduleType === "specific_dates" ? (
             <SpecificDatesSection selectedDates={selectedDates} onToggleDate={toggleDate} />
@@ -194,6 +265,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
               customInterval={customInterval}
               effectiveAmount={effectiveAmount}
               sym={sym}
+              lockedInterval={lockedInterval}
               onRangeStart={handleRangeStart}
               onRangeEnd={handleRangeEnd}
               onRangeFreq={handleRangeFreq}
@@ -203,7 +275,7 @@ const RecurringSchedule = ({ sym, effectiveAmount, initialScheduleType, initialC
         </div>
       )}
 
-      {/* Per-date amount table */}
+      {/* Per-date amount table — shown for all active states that have dates */}
       {activeDates.length > 0 && (
         <PerDateAmountTable
           activeDates={activeDates}
