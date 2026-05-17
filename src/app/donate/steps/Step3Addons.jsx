@@ -92,9 +92,12 @@ const Step3Addons = () => {
     gateway:        ["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null,
     publishableKey: null,
   });
-  const [customNote,  setCustomNote]  = useState("");
-  const [submitting,  setSubmitting]  = useState(false);
-  const [submitError, setSubmitError] = useState(null);
+  const [customNoteValues, setCustomNoteValues] = useState(() =>
+    Object.fromEntries(customNoteFields.map((f) => [f.key, f.defaultValue ?? ""]))
+  );
+  const [noteErrors,   setNoteErrors]   = useState({});
+  const [submitting,   setSubmitting]   = useState(false);
+  const [submitError,  setSubmitError]  = useState(null);
 
   const computedBreakdown = useMemo(() =>
     campaignAddOns
