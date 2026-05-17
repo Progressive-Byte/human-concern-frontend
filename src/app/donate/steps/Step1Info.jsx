@@ -188,7 +188,7 @@ const Step1Info = ({ campaignSlug }) => {
                     : "text-[#AEAEAE] opacity-60"
                 }`}
               >
-                Edit change
+                {editMode ? "Save change" : "Edit change"}
               </button>
             )}
           </div>
