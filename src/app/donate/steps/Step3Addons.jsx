@@ -48,8 +48,9 @@ const Step3Addons = () => {
     catch { return {}; }
   }, []);
 
-  const campaignAddOns = campaignMeta.addOns ?? [];
-  const enableTipping  = campaignMeta.goalsDates?.enableTipping ?? true;
+  const campaignAddOns  = campaignMeta.addOns ?? [];
+  const enableTipping   = campaignMeta.goalsDates?.enableTipping ?? true;
+  const customNoteFields = campaignMeta.goalsDates?.customNotes ?? [];
 
   const currency     = data.currency     ?? "USD";
   const amountTier   = data.amountTier   ?? 0;
@@ -91,9 +92,12 @@ const Step3Addons = () => {
     gateway:        ["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null,
     publishableKey: null,
   });
-  const [customNote,  setCustomNote]  = useState("");
-  const [submitting,  setSubmitting]  = useState(false);
-  const [submitError, setSubmitError] = useState(null);
+  const [customNoteValues, setCustomNoteValues] = useState(() =>
+    Object.fromEntries(customNoteFields.map((f) => [f.key, f.defaultValue ?? ""]))
+  );
+  const [noteErrors,   setNoteErrors]   = useState({});
+  const [submitting,   setSubmitting]   = useState(false);
+  const [submitError,  setSubmitError]  = useState(null);
 
   const computedBreakdown = useMemo(() =>
     campaignAddOns
@@ -156,7 +160,13 @@ const Step3Addons = () => {
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: gatewayState.gateway,
       ...(data.anonymous && { isAnonymous: true }),
-      ...(customNote.trim() && { customNote: customNote.trim() }),
+      ...(customNoteFields.length > 0 && {
+        customNotes: Object.fromEntries(
+          customNoteFields
+            .map((f) => [f.key, (customNoteValues[f.key] ?? "").trim()])
+            .filter(([, v]) => v)
+        ),
+      }),
       addons: {
         items: computedBreakdown.map((addon) => ({
           addOnId: addon.id,
@@ -195,6 +205,17 @@ const Step3Addons = () => {
       setSubmitError("Please go back to 'Info' and select at least one cause.");
       return;
     }
+    const errors = Object.fromEntries(
+      customNoteFields
+        .filter((f) => f.required && !(customNoteValues[f.key] ?? "").trim())
+        .map((f) => [f.key, true])
+    );
+    if (Object.keys(errors).length > 0) {
+      setNoteErrors(errors);
+      setSubmitError("Please fill in all required fields.");
+      return;
+    }
+    setNoteErrors({});
     update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod: gatewayState.gateway });
     setSubmitting(true);
     setSubmitError(null);
@@ -274,16 +295,56 @@ const Step3Addons = () => {
             </span>
           </p>
         </div> */}
-        <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3 flex flex-col gap-1.5">
-          <p className="text-[13px] font-semibold text-[#383838]">Custom Note</p>
-          <textarea
-            value={customNote}
-            onChange={(e) => setCustomNote(e.target.value)}
-            placeholder="Add a note to your donation…"
-            rows={3}
-            className="w-full border border-[#E5E5E5] rounded-lg px-3 py-2 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#EA3335] resize-none transition-colors"
-          />
-        </div>
+        {customNoteFields.length > 0 && (
+          <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-4 flex flex-col gap-4">
+            {customNoteFields.map((field) => {
+              const value   = customNoteValues[field.key] ?? "";
+              const hasError = noteErrors[field.key];
+              const baseInputClass = `w-full border rounded-lg px-3 py-2 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none resize-none transition-colors ${
+                hasError
+                  ? "border-[#EA3335] focus:border-[#EA3335]"
+                  : "border-[#E5E5E5] focus:border-[#EA3335]"
+              }`;
+              return (
+                <div key={field.id} className="flex flex-col gap-1.5">
+                  <p className="text-[13px] font-semibold text-[#383838]">
+                    {field.label}
+                    {field.required && <span className="text-[#EA3335] ml-0.5">*</span>}
+                  </p>
+                  {field.type === "textarea" ? (
+                    <textarea
+                      value={value}
+                      onChange={(e) => {
+                        setCustomNoteValues((prev) => ({ ...prev, [field.key]: e.target.value }));
+                        if (noteErrors[field.key]) setNoteErrors((prev) => ({ ...prev, [field.key]: false }));
+                      }}
+                      placeholder={field.placeholder ?? ""}
+                      rows={3}
+                      className={baseInputClass}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={(e) => {
+                        setCustomNoteValues((prev) => ({ ...prev, [field.key]: e.target.value }));
+                        if (noteErrors[field.key]) setNoteErrors((prev) => ({ ...prev, [field.key]: false }));
+                      }}
+                      placeholder={field.placeholder ?? ""}
+                      className={baseInputClass}
+                    />
+                  )}
+                  {field.helpText && (
+                    <p className="text-[12px] text-[#737373]">{field.helpText}</p>
+                  )}
+                  {hasError && (
+                    <p className="text-[12px] text-[#EA3335]">{field.label} is required.</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <PaymentGatewaySelector
           isRecurring={isRecurring}
