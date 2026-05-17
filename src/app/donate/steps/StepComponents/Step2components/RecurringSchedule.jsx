@@ -70,6 +70,7 @@ const RecurringSchedule = ({
     if (!preset) return;
     const cfg = preset.scheduleConfig ?? {};
 
+    
     if (isTemplate(preset)) {
       // Template presets open the form pre-configured — no summary banner
       if (preset.scheduleType === "date_range") {
