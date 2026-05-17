@@ -49,24 +49,6 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring, donationId, gue
       }
 
       if (setupIntent?.status === "succeeded") {
-        try {
-          await apiRequest("payment/setup-intent/confirm", {
-            method: "POST",
-            body: JSON.stringify({
-              donationId,
-              setupIntentId: setupIntent.id,
-              paymentMethodId: setupIntent.payment_method,
-            }),
-            headers: guestSessionId
-              ? { "x-guest-session-id": String(guestSessionId) }
-              : {},
-          });
-        } catch (err) {
-          setError(err.message ?? "Failed to confirm setup. Please contact support.");
-          setLoading(false);
-          return;
-        }
-
         sessionStorage.setItem("hc_donation_done", "1");
         router.push("/donate/thank-you");
       }
