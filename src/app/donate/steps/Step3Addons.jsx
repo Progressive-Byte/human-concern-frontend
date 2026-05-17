@@ -244,6 +244,21 @@ const Step3Addons = () => {
       setSubmitError("Please go back to 'Info' and select at least one cause.");
       return;
     }
+    if (isRecurring) {
+      const schedCfg  = data.scheduleConfig ?? {};
+      const schedType = data.scheduleType   ?? "date_range";
+      if (schedType === "specific_dates") {
+        if (!schedCfg.dates?.length) {
+          setSubmitError("Please go back to 'Payment' and select at least one date for your schedule.");
+          return;
+        }
+      } else {
+        if (!schedCfg.startDate || !schedCfg.endDate) {
+          setSubmitError("Please go back to 'Payment' and set a start and end date for your schedule.");
+          return;
+        }
+      }
+    }
     const errors = Object.fromEntries(
       customNoteFields
         .filter((f) => f.required && !(customNoteValues[f.key] ?? "").trim())
