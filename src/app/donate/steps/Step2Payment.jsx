@@ -283,6 +283,7 @@ const Step2Payment = () => {
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}
+                apiPresets={recurringPresets}
                 onChange={handleScheduleChange}
               />
             </div>
