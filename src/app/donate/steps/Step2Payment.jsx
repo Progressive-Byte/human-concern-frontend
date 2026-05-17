@@ -28,7 +28,7 @@ const Step2Payment = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { suggestedAmounts, allowRecurring, minDonation, maxDonation } = useMemo(() => {
+  const { suggestedAmounts, allowRecurring, minDonation, maxDonation, recurringPresets } = useMemo(() => {
     try {
       const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
       const goalsDates = meta.goalsDates ?? {};
@@ -37,9 +37,12 @@ const Step2Payment = () => {
         allowRecurring:   goalsDates.allowRecurringDonations ?? true,
         minDonation:      goalsDates.minimumDonation         ?? 1,
         maxDonation:      goalsDates.maximumDonation         ?? undefined,
+        recurringPresets: (goalsDates.recurringPresets ?? [])
+          .filter((p) => p.enabled)
+          .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
       };
     } catch {
-      return { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined };
+      return { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [] };
     }
   }, []);
 
