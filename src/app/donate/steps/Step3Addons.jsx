@@ -160,7 +160,13 @@ const Step3Addons = () => {
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: gatewayState.gateway,
       ...(data.anonymous && { isAnonymous: true }),
-      ...(customNote.trim() && { customNote: customNote.trim() }),
+      ...(customNoteFields.length > 0 && {
+        customNotes: Object.fromEntries(
+          customNoteFields
+            .map((f) => [f.key, (customNoteValues[f.key] ?? "").trim()])
+            .filter(([, v]) => v)
+        ),
+      }),
       addons: {
         items: computedBreakdown.map((addon) => ({
           addOnId: addon.id,
