@@ -262,6 +262,7 @@ const RecurringSchedule = ({
               customInterval={customInterval}
               effectiveAmount={effectiveAmount}
               sym={sym}
+              lockedInterval={lockedInterval}
               onRangeStart={handleRangeStart}
               onRangeEnd={handleRangeEnd}
               onRangeFreq={handleRangeFreq}
