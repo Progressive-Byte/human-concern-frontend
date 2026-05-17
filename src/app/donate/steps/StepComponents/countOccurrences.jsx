@@ -10,8 +10,9 @@ const countOccurrences = (start, end, freq, customInterval = 1) => {
   if (freq === "yearly")
     return e.getFullYear() - s.getFullYear() + 1;
   if (freq === "custom") {
-    const interval = Math.max(1, Number(customInterval) || 1);
-    return Math.floor((e - s) / (86400000 * interval)) + 1;
+    const interval   = Math.max(1, Number(customInterval) || 1);
+    const totalDays  = Math.floor((e - s) / 86400000) + 1;
+    return Math.max(1, Math.floor(totalDays / interval));
   }
   return 1;
 };
