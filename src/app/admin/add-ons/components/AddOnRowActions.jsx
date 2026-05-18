@@ -56,7 +56,7 @@ export default function AddOnRowActions({ item, onEdit, onArchive, onRestore }) 
     <div ref={wrapRef} className="relative inline-flex">
       <button
         type="button"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-red-500/10"
+        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-colors duration-200 hover:bg-red-500/10"
         aria-label="Row actions"
         onClick={() => setOpen((v) => !v)}
       >
@@ -76,7 +76,7 @@ export default function AddOnRowActions({ item, onEdit, onArchive, onRestore }) 
                 if (m.key === "edit") onEdit?.(item);
                 else setConfirmAction(m.key);
               }}
-              className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
+              className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
             >
               <span>{m.label}</span>
             </button>

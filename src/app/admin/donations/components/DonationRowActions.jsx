@@ -75,7 +75,7 @@ export default function DonationRowActions({ donation }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-[#6B7280] transition hover:bg-[#F3F4F6] hover:text-[#111827]"
+        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-transparent text-[#6B7280] transition hover:bg-[#F3F4F6] hover:text-[#111827]"
         aria-label="Row actions"
       >
         <DotsIcon />
@@ -87,7 +87,7 @@ export default function DonationRowActions({ donation }) {
             type="button"
             onClick={handleCopyId}
             disabled={!id}
-            className="w-full px-4 py-3 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+            className="w-full cursor-pointer px-4 py-3 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Copy Transaction ID
           </button>
@@ -95,7 +95,7 @@ export default function DonationRowActions({ donation }) {
             type="button"
             onClick={handleCopyEmail}
             disabled={!donorEmail}
-            className="w-full px-4 py-3 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+            className="w-full cursor-pointer px-4 py-3 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Copy Donor Email
           </button>

@@ -29,7 +29,7 @@ function PaginationBar({ pagination, onPrev, onNext }) {
           type="button"
           onClick={onPrev}
           disabled={page <= 1}
-          className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
         >
           Previous
         </button>
@@ -37,7 +37,7 @@ function PaginationBar({ pagination, onPrev, onNext }) {
           type="button"
           onClick={onNext}
           disabled={page >= totalPages}
-          className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
         >
           Next
         </button>

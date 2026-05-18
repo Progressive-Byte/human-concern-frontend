@@ -11,7 +11,7 @@ export default function AdminLayout({ children }) {
   return (
     <AdminAuthProvider>
       <ToastProvider>
-        <div className="h-screen overflow-hidden bg-white">
+        <div className="h-screen overflow-hidden bg-white [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed">
           <div className="flex h-screen">
             <div className="hidden lg:block">
               <AdminSidebar />

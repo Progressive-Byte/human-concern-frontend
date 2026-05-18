@@ -10,7 +10,7 @@ export default function CampaignsPagination({ pagination, onPrev, onNext }) {
         type="button"
         onClick={onPrev}
         disabled={!hasPrev}
-        className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
       >
         Previous
       </button>
@@ -24,7 +24,7 @@ export default function CampaignsPagination({ pagination, onPrev, onNext }) {
         type="button"
         onClick={onNext}
         disabled={!hasNext}
-        className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
       >
         Next
       </button>

@@ -23,7 +23,7 @@ export default function DonorRowActions({ donor, onViewDetails, onEditProfile, o
     <div ref={wrapRef} className="relative inline-flex">
       <button
         type="button"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-red-500/10"
+        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-colors duration-200 hover:bg-red-500/10"
         aria-label="Row actions"
         onClick={() => setOpen((v) => !v)}
       >
@@ -40,7 +40,7 @@ export default function DonorRowActions({ donor, onViewDetails, onEditProfile, o
               setOpen(false);
               onViewDetails?.(donor);
             }}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             View details
           </button>
@@ -50,7 +50,7 @@ export default function DonorRowActions({ donor, onViewDetails, onEditProfile, o
               setOpen(false);
               onEditProfile?.(donor);
             }}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             Edit profile
           </button>
@@ -60,7 +60,7 @@ export default function DonorRowActions({ donor, onViewDetails, onEditProfile, o
               setOpen(false);
               onToggleStatus?.(donor);
             }}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             {String(donor?.status).toLowerCase() === "active" ? "Suspend account" : "Activate account"}
           </button>
@@ -70,7 +70,7 @@ export default function DonorRowActions({ donor, onViewDetails, onEditProfile, o
               setOpen(false);
               onSendEmail?.(donor);
             }}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             Send email
           </button>

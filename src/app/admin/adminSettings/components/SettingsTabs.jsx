@@ -21,7 +21,7 @@ export default function SettingsTabs({ value, onChange }) {
               key={t.key}
               type="button"
               onClick={() => onChange?.(t.key)}
-              className={`px-6 py-2.5 text-[13px] font-semibold transition ${
+              className={`cursor-pointer px-6 py-2.5 text-[13px] font-semibold transition ${
                 isActive ? "rounded-2xl bg-white text-[#111827] shadow-sm" : "rounded-2xl text-[#6B7280] hover:bg-white/60 hover:text-[#111827]"
               }`}
             >

@@ -88,7 +88,7 @@ export default function FormRowActions({ item, onRefresh, campaignIdFilter = "" 
     <div ref={wrapRef} className="relative inline-flex">
       <button
         type="button"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-white"
+        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-colors duration-200 hover:bg-white"
         aria-label="Row actions"
         onClick={() => setOpen((v) => !v)}
       >
@@ -118,7 +118,7 @@ export default function FormRowActions({ item, onRefresh, campaignIdFilter = "" 
                 }
                 setConfirmAction(m.key);
               }}
-              className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
+              className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
             >
               <span>{m.label}</span>
             </button>

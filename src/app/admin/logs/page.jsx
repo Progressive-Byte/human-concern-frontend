@@ -107,7 +107,7 @@ function PaginationBar({ pagination, onPrev, onNext }) {
           type="button"
           onClick={onPrev}
           disabled={!hasPrev}
-          className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+          className="cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Previous
         </button>
@@ -115,7 +115,7 @@ function PaginationBar({ pagination, onPrev, onNext }) {
           type="button"
           onClick={onNext}
           disabled={!hasNext}
-          className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+          className="cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Next
         </button>
@@ -277,7 +277,7 @@ export default function AdminLogsPage() {
                 setFilters({ page: "1", limit: "20", sort: "-createdAt", q: "", actionPrefix: "", actorEmail: "", fromDate: "", toDate: "" });
                 toast.success("Filters cleared");
               }}
-              className="w-full rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+              className="w-full cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
             >
               Clear Filters
             </button>

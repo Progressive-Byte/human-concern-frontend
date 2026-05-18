@@ -6,7 +6,7 @@ function ActionButton({ label, icon, onClick, disabled }) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center gap-2 rounded-xl bg-[#F3F4F6] px-4 py-3 text-left text-[13px] font-semibold text-[#111827] transition hover:bg-[#E5E7EB] disabled:opacity-60 disabled:hover:bg-[#F3F4F6]"
+      className="flex w-full cursor-pointer items-center gap-2 rounded-xl bg-[#F3F4F6] px-4 py-3 text-left text-[13px] font-semibold text-[#111827] transition hover:bg-[#E5E7EB] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#F3F4F6]"
     >
       <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-[#111827]">{icon}</span>
       <span className="min-w-0">{label}</span>
