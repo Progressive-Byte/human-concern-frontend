@@ -303,7 +303,7 @@ export default function AdminLogsPage() {
           <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No logs found</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[980px] border-collapse">
+            <table className="w-full min-w-245 border-collapse">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                   <th className="px-5 py-3">Time</th>
@@ -331,7 +331,7 @@ export default function AdminLogsPage() {
                       </td>
                       <td className="py-4 pr-4 align-top">{actorEmail}</td>
                       <td className="py-4 pr-4 align-top text-[#6B7280]">
-                        <div className="max-w-[280px] truncate">{target}</div>
+                        <div className="max-w-70 truncate">{target}</div>
                       </td>
 
                       <td className="py-4 pr-5 align-top text-[#6B7280]">{ip}</td>
