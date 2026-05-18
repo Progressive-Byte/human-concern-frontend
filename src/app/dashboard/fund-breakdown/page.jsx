@@ -1,21 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
-
-const RAW_FUNDS = [
-  { label: "Zakat",            amount: 2500, color: "#047857", bg: "#ECFDF5" },
-  { label: "Sadaqah",          amount: 1200, color: "#B45309", bg: "#FFF8EC" },
-  { label: "Emergency Relief", amount: 350,  color: "#EA3335", bg: "#FFF5F5" },
-  { label: "Fitrana",          amount: 200,  color: "#1D4ED8", bg: "#EFF6FF" },
-];
-
-const impactStats = [
-  { value: 156, label: "Families Fed",       color: "#047857", bg: "#ECFDF5" },
-  { value: 24,  label: "Children Educated",  color: "#B45309", bg: "#FFF8EC" },
-  { value: 12,  label: "Medical Treatments", color: "#EA3335", bg: "#FFF5F5" },
-  { value: 3,   label: "Water Wells Built",  color: "#1D4ED8", bg: "#EFF6FF" },
-];
+import { getUserFundBreakdown } from "@/services/donationService";
+import { formatCurrency } from "@/utils/helpers";
 
 const R     = 75;
 const STROKE = 30;
@@ -24,25 +12,91 @@ const GAP   = 4;
 
 const FundBreakdownPage = () => {
   const [hovered, setHovered] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [data, setData] = useState(null);
 
-  const { segments, total } = useMemo(() => {
-    const total = RAW_FUNDS.reduce((sum, f) => sum + f.amount, 0);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await getUserFundBreakdown();
+        if (!alive) return;
+        const d = res?.data?.data || res?.data || null;
+        setData(d);
+      } catch (e) {
+        if (!alive) return;
+        setData(null);
+        setError(e?.message || "Failed to load fund breakdown.");
+      } finally {
+        if (!alive) return;
+        setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const currency = String(data?.currency || "USD");
+
+  const colorFor = useMemo(() => {
+    const known = {
+      Zakat: { color: "#047857", bg: "#ECFDF5" },
+      Sadaqah: { color: "#B45309", bg: "#FFF8EC" },
+      "Emergency Relief": { color: "#EA3335", bg: "#FFF5F5" },
+      Fitrana: { color: "#1D4ED8", bg: "#EFF6FF" },
+      Other: { color: "#6B7280", bg: "#F3F4F6" },
+    };
+    const palette = [
+      { color: "#047857", bg: "#ECFDF5" },
+      { color: "#B45309", bg: "#FFF8EC" },
+      { color: "#EA3335", bg: "#FFF5F5" },
+      { color: "#1D4ED8", bg: "#EFF6FF" },
+      { color: "#6B7280", bg: "#F3F4F6" },
+    ];
+    return (label, index) => known[label] || palette[index % palette.length];
+  }, []);
+
+  const donutItems = useMemo(() => {
+    const items = data?.distributionOverview?.items;
+    return Array.isArray(items) ? items : [];
+  }, [data]);
+
+  const detailItems = useMemo(() => {
+    const items = data?.funds?.items;
+    return Array.isArray(items) ? items : [];
+  }, [data]);
+
+  const { segments, totalAllocated } = useMemo(() => {
+    const base = donutItems.map((it, idx) => {
+      const label = String(it?.label || "").trim() || "—";
+      const amount = Number(it?.amount ?? 0);
+      const pct = Number(it?.percentOfTotal ?? 0);
+      const style = colorFor(label, idx);
+      return { label, amount, pct, ...style };
+    });
+
+    const totalAllocated = Number(data?.totalAllocated ?? base.reduce((sum, f) => sum + (Number(f.amount) || 0), 0));
     let cum = 0;
-    const segments = RAW_FUNDS.map((f) => {
-      const arc = (f.amount / total) * C;
+    const segments = base.map((f) => {
+      const arc = totalAllocated > 0 ? (f.amount / totalAllocated) * C : 0;
       const seg = {
         ...f,
         arc: arc - GAP,
         offset: cum,
-        pct: ((f.amount / total) * 100).toFixed(1),
+        pctText: `${Number.isFinite(f.pct) ? f.pct.toFixed(1) : "0.0"}`,
       };
       cum += arc;
       return seg;
     });
-    return { segments, total };
-  }, []);
+    return { segments, totalAllocated };
+  }, [donutItems, data?.totalAllocated, colorFor]);
 
   const active = hovered ? segments.find((s) => s.label === hovered) : null;
+  const totalDonated = Number(data?.totalDonated ?? 0);
 
   return (
     <>
@@ -52,6 +106,9 @@ const FundBreakdownPage = () => {
       />
 
       <div className="flex-1 p-4 md:p-6 space-y-5">
+        {error ? (
+          <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
+        ) : null}
 
         {/* Top two-column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -75,7 +132,7 @@ const FundBreakdownPage = () => {
                 />
 
                 <g transform="rotate(-90 100 100)">
-                  {segments.map((s) => {
+                  {loading ? null : segments.map((s) => {
                     const isHovered = hovered === s.label;
                     const isDimmed  = hovered && !isHovered;
                     return (
@@ -99,10 +156,10 @@ const FundBreakdownPage = () => {
                 {active ? (
                   <>
                     <text x="100" y="93" textAnchor="middle" style={{ fontSize: 16, fill: active.color, fontWeight: 700 }}>
-                      ${active.amount.toLocaleString()}
+                      {formatCurrency(active.amount, currency)}
                     </text>
                     <text x="100" y="108" textAnchor="middle" style={{ fontSize: 10, fill: active.color, fontWeight: 600 }}>
-                      {active.pct}%
+                      {active.pctText}%
                     </text>
                     <text x="100" y="121" textAnchor="middle" style={{ fontSize: 9, fill: "#6B7280" }}>
                       {active.label}
@@ -111,10 +168,10 @@ const FundBreakdownPage = () => {
                 ) : (
                   <>
                     <text x="100" y="96" textAnchor="middle" style={{ fontSize: 18, fill: "#111827", fontWeight: 700 }}>
-                      ${(total / 1000).toFixed(1)}k
+                      {loading ? "—" : formatCurrency(totalAllocated, currency)}
                     </text>
                     <text x="100" y="113" textAnchor="middle" style={{ fontSize: 10, fill: "#6B7280" }}>
-                      Total
+                      {loading ? "Loading" : "Total Allocated"}
                     </text>
                   </>
                 )}
@@ -122,7 +179,10 @@ const FundBreakdownPage = () => {
 
               {/* Legend */}
               <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
-                {segments.map((f) => (
+                {loading ? (
+                  <div className="h-5 w-44 animate-pulse rounded bg-[#F3F4F6]" />
+                ) : (
+                  segments.map((f) => (
                   <span
                     key={f.label}
                     className="inline-flex items-center gap-1.5 text-xs cursor-pointer transition-opacity"
@@ -135,7 +195,8 @@ const FundBreakdownPage = () => {
                       {f.label}
                     </span>
                   </span>
-                ))}
+                ))
+                )}
               </div>
             </div>
           </div>
@@ -145,49 +206,60 @@ const FundBreakdownPage = () => {
             <h2 className="text-lg font-semibold text-[#111827] mb-5">Fund Details</h2>
 
             <div className="space-y-2">
-              {segments.map((f) => {
-                const isHovered = hovered === f.label;
-                const isDimmed  = hovered && !isHovered;
-                return (
-                  <div
-                    key={f.label}
-                    className="flex items-center justify-between px-4 py-3.5 rounded-xl border border-dashed transition-all cursor-pointer"
-                    style={{
-                      backgroundColor: isHovered ? f.bg : "#F9FAFB",
-                      borderColor: isHovered ? f.color + "40" : "#E5E7EB",
-                      opacity: isDimmed ? 0.45 : 1,
-                    }}
-                    onMouseEnter={() => setHovered(f.label)}
-                    onMouseLeave={() => setHovered(null)}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-[#111827]">{f.label}</p>
-                        <p className="text-xs text-[#6B7280] mt-0.5">{f.pct}% of total</p>
-                      </div>
-                    </div>
-                    <p
-                      className="font-semibold shrink-0 ml-3 transition-colors"
-                      style={{ color: isHovered ? f.color : "#111827" }}
+              {loading ? (
+                <div className="space-y-3">
+                  <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                  <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                  <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                </div>
+              ) : detailItems.length ? (
+                detailItems.map((it, idx) => {
+                  const label = String(it?.label || "").trim() || "—";
+                  const amount = Number(it?.amount ?? 0);
+                  const pct = Number(it?.percentOfTotal ?? 0);
+                  const style = colorFor(label, idx);
+                  const isHovered = hovered === label;
+                  const isDimmed = hovered && !isHovered;
+                  return (
+                    <div
+                      key={String(it?.causeId || idx)}
+                      className="flex items-center justify-between px-4 py-3.5 rounded-xl border border-dashed transition-all cursor-pointer"
+                      style={{
+                        backgroundColor: isHovered ? style.bg : "#F9FAFB",
+                        borderColor: isHovered ? style.color + "40" : "#E5E7EB",
+                        opacity: isDimmed ? 0.45 : 1,
+                      }}
+                      onMouseEnter={() => setHovered(label)}
+                      onMouseLeave={() => setHovered(null)}
                     >
-                      ${f.amount.toLocaleString()}
-                    </p>
-                  </div>
-                );
-              })}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: style.color }} />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-[#111827]">{label}</p>
+                          <p className="text-xs text-[#6B7280] mt-0.5">{pct.toFixed(1)}% of total</p>
+                        </div>
+                      </div>
+                      <p className="font-semibold shrink-0 ml-3 transition-colors" style={{ color: isHovered ? style.color : "#111827" }}>
+                        {formatCurrency(amount, currency)}
+                      </p>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="py-10 text-center text-sm text-[#6B7280]">No data available.</div>
+              )}
             </div>
 
             {/* Total row */}
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-dashed border-[#E5E7EB]">
               <p className="font-semibold text-[#111827]">Total Donated</p>
-              <p className="text-lg font-bold text-[#EA3335]">${total.toLocaleString()}</p>
+              <p className="text-lg font-bold text-[#EA3335]">{loading ? "—" : formatCurrency(totalDonated, currency)}</p>
             </div>
           </div>
         </div>
 
         {/* Impact Summary */}
-        <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+        {/* <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
           <h2 className="text-lg font-semibold text-[#111827] mb-5">Your Impact Summary</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
             {impactStats.map((s) => (
@@ -203,7 +275,7 @@ const FundBreakdownPage = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
       </div>
     </>

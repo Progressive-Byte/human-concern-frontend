@@ -46,3 +46,21 @@ export function exportUserDonationsCsv({ q, filter, status, sort, order } = {}) 
   const endpoint = query ? `/user/donations/export?${query}` : "/user/donations/export";
   return apiRequest(endpoint, { method: "GET" });
 }
+
+export function getUserSchedules({ page, limit, q } = {}) {
+  const params = new URLSearchParams();
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  const query = params.toString();
+  const endpoint = query ? `/user/schedules?${query}` : "/user/schedules";
+  return apiRequest(endpoint, { method: "GET" });
+}
+
+export function getUserScheduleById(scheduleId) {
+  return apiRequest(`/user/schedules/${encodeURIComponent(String(scheduleId || "").trim())}`, { method: "GET" });
+}
+
+export function getUserFundBreakdown() {
+  return apiRequest("/user/fund-breakdown", { method: "GET" });
+}
