@@ -546,8 +546,17 @@ export function restoreAdminAddOn(addOnId) {
   return adminApiRequest(`/admin/add-ons/${addOnId}/restore`, { method: "POST" });
 }
 
+export function enableAdminAddOn(addOnId) {
+  return adminApiRequest(`/admin/add-ons/${addOnId}/enable`, { method: "POST" });
+}
+
+export function disableAdminAddOn(addOnId) {
+  return adminApiRequest(`/admin/add-ons/${addOnId}/disable`, { method: "POST" });
+}
+
 export function toggleAdminAddOn(addOnId, enabled) {
-  return adminApiRequest(`/admin/add-ons/${addOnId}/toggle`, { method: "PATCH", body: JSON.stringify({ enabled: Boolean(enabled) }) });
+  if (Boolean(enabled)) return enableAdminAddOn(addOnId);
+  return disableAdminAddOn(addOnId);
 }
 
 // -----------------------------

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { archiveAdminAddOn, getAdminAddOns, restoreAdminAddOn, toggleAdminAddOn } from "@/services/admin";
+import { archiveAdminAddOn, disableAdminAddOn, enableAdminAddOn, getAdminAddOns, restoreAdminAddOn } from "@/services/admin";
 import AddOnsHeader from "./components/AddOnsHeader";
 import AddOnsSummaryCards from "./components/AddOnsSummaryCards";
 import AddOnsFilters from "./components/AddOnsFilters";
@@ -143,7 +143,8 @@ export default function AdminAddOnsPage() {
     setItems((prev) => prev.map((a) => (a.id === addOnId ? { ...a, enabled: nextEnabled } : a)));
 
     try {
-      await toggleAdminAddOn(addOnId, Boolean(nextEnabled));
+      if (Boolean(nextEnabled)) await enableAdminAddOn(addOnId);
+      else await disableAdminAddOn(addOnId);
       toast.success(nextEnabled ? "Enabled" : "Disabled");
     } catch (e) {
       setItems(prevItems);
