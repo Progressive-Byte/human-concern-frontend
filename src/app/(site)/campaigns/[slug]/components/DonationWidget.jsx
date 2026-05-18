@@ -36,14 +36,23 @@ const DonationWidget = ({ campaign }) => {
     : "";
 
   const handleDonate = () => {
+    const gd = campaign.goalsDates ?? {};
     sessionStorage.setItem("campaignData", JSON.stringify({
       id:               campaign.id,
-      name:             campaign.name             ?? "",
-      description:      campaign.description      ?? "",
-      zakatEligible:    campaign.zakatEligible    ?? false,
+      name:             campaign.name          ?? "",
+      description:      campaign.description   ?? "",
+      zakatEligible:    campaign.zakatEligible ?? false,
       suggestedAmounts: campaign.suggestedAmounts ?? [],
       addOns:           campaign.addOns           ?? [],
-      goalsDates:       campaign.goalsDates        ?? {},
+      goalsDates: {
+        allowOneTimeDonations:   gd.allowOneTimeDonations   ?? true,
+        allowRecurringDonations: gd.allowRecurringDonations ?? true,
+        enableTipping:           gd.enableTipping           ?? false,
+        minimumDonation:         gd.minimumDonation         ?? 0,
+        maximumDonation:         gd.maximumDonation         ?? null,
+        customNotes:             gd.customNotes             ?? [],
+        recurringPresets:        gd.recurringPresets        ?? [],
+      },
       causes: (campaign.causes ?? []).map((c) => ({
         id:            c.id,
         name:          c.name          ?? "",
@@ -163,9 +172,8 @@ const DonationWidget = ({ campaign }) => {
                       : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
                   }`}
                 >
-                  <span className={`text-[18px] leading-tight`}>✏️</span>
                   <span className={`text-[15px] font-bold leading-tight mt-1 ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
-                    Custom
+                    Other Amount
                   </span>
                 </button>
               </div>

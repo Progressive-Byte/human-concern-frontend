@@ -5,7 +5,7 @@ export const FREQ_OPTIONS = [
   { value: "weekly",  label: "Weekly",  minDays: 7 },
   { value: "monthly", label: "Monthly", minDays: 30 },
   { value: "yearly",  label: "Yearly",  minDays: 365 },
-  { value: "custom",  label: "Custom",  minDays: 1 },
+  { value: "custom",  label: "Interval", minDays: 1 },
 ];
 
 export function resolveFreq(newStart, newEnd, currentFreq) {

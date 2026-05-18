@@ -2,7 +2,7 @@
 
 import DateAmountRow from "./DateAmountRow";
 
-export default function PerDateAmountTable({ activeDates, dateAmounts, effectiveAmount, sym, onChange }) {
+const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange }) => {
   const total = activeDates.reduce((sum, d) => {
     const ov  = dateAmounts[d] ?? "";
     const amt = ov !== "" ? Number(ov) : effectiveAmount;
@@ -50,3 +50,4 @@ export default function PerDateAmountTable({ activeDates, dateAmounts, effective
     </div>
   );
 }
+export default PerDateAmountTable;

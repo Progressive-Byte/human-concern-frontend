@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout        from "./StepComponents/StepLayout";
@@ -18,17 +17,8 @@ const PAYMENT_TYPES = [
 const Step2Payment = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
-  const router = useRouter();
 
-  useEffect(() => {
-    if (data.submitted) {
-      const base = data.campaign ? `/${data.campaign}` : "/donate";
-      router.replace(`${base}/4`);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const { suggestedAmounts, allowRecurring, minDonation, maxDonation } = useMemo(() => {
+  const { suggestedAmounts, allowRecurring, minDonation, maxDonation, recurringPresets } = useMemo(() => {
     try {
       const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
       const goalsDates = meta.goalsDates ?? {};
@@ -37,9 +27,12 @@ const Step2Payment = () => {
         allowRecurring:   goalsDates.allowRecurringDonations ?? true,
         minDonation:      goalsDates.minimumDonation         ?? 1,
         maxDonation:      goalsDates.maximumDonation         ?? undefined,
+        recurringPresets: (goalsDates.recurringPresets ?? [])
+          .filter((p) => p.enabled)
+          .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
       };
     } catch {
-      return { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined };
+      return { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [] };
     }
   }, []);
 
@@ -50,9 +43,12 @@ const Step2Payment = () => {
 
   const paymentType = data.paymentType ?? "one-time";
   const isRecurring = paymentType === "recurring";
-  const _tierAmt    = data.amountTier && Number.isFinite(data.amountTier) ? data.amountTier : null;
+  // donorAmount = the UI-facing total the user chose (restored on back-navigation).
+  // amountTier  = the derived per-date amount (e.g. $50÷4 = $12.5) — NOT suitable
+  //               for restoring the amount field because it would show the divided value.
+  const _donorAmt   = data.donorAmount && Number.isFinite(data.donorAmount) ? data.donorAmount : null;
   const _urlAmt     = data.amount && Number.isFinite(Number(data.amount)) ? Number(data.amount) : null;
-  const initAmount  = _tierAmt ?? _urlAmt ?? suggestedAmounts[0] ?? 25;
+  const initAmount  = _donorAmt ?? _urlAmt ?? suggestedAmounts[0] ?? 25;
   const sym         = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" }[data.currency ?? "USD"] ?? "$";
 
   const initOccurrences = useMemo(() => {
@@ -114,6 +110,7 @@ const Step2Payment = () => {
   // Sync local state to context in real-time
   useEffect(() => {
     update({
+      donorAmount:      effectiveAmount,
       amountTier:       defaultPerDate,
       splitMode:        isRecurring ? splitMode : undefined,
       scheduleType:     isRecurring ? scheduleState.scheduleType   : undefined,
@@ -127,7 +124,7 @@ const Step2Payment = () => {
       perDateTotal: isRecurring && perDateTotal !== null ? perDateTotal : undefined,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset]);
+  }, [effectiveAmount, defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset]);
 
   const handleAmountChange = (amount, hasError) => {
     setEffectiveAmount(amount);
@@ -276,6 +273,7 @@ const Step2Payment = () => {
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}
+                apiPresets={recurringPresets}
                 onChange={handleScheduleChange}
               />
             </div>

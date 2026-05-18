@@ -3,13 +3,20 @@ import { useState } from "react";
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAY_LABELS  = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 
-const MiniCalendar = ({ selectedDates, onToggleDate }) => {
+// mode="multi"  — default multi-select toggle behaviour
+// mode="single" — single-date picker; clicking the same date deselects it
+// minDateStr    — ISO date string (YYYY-MM-DD); dates before this are disabled
+const MiniCalendar = ({ selectedDates, onToggleDate, mode = "multi", minDateStr = null }) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [viewDate, setViewDate] = useState(
-    () => new Date(today.getFullYear(), today.getMonth(), 1)
-  );
+  const [viewDate, setViewDate] = useState(() => {
+    if (mode === "single" && selectedDates[0]) {
+      const d = new Date(selectedDates[0] + "T00:00:00");
+      return new Date(d.getFullYear(), d.getMonth(), 1);
+    }
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
 
   const year  = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -57,26 +64,35 @@ const MiniCalendar = ({ selectedDates, onToggleDate }) => {
       <div className="grid grid-cols-7">
         {cells.map((day, i) => {
           if (!day) return <span key={i} />;
-          const dateStr = toDateStr(day);
-          const dateObj = new Date(year, month, day);
-          const isPast  = dateObj < today;
-          const isSel   = selectedDates.includes(dateStr);
-          const isToday = dateObj.getTime() === today.getTime();
+          const dateStr    = toDateStr(day);
+          const dateObj    = new Date(year, month, day);
+          const isPast     = dateObj < today;
+          const isDisabled = isPast || (minDateStr != null && dateStr < minDateStr);
+          const isSel      = selectedDates.includes(dateStr);
+          const isToday    = dateObj.getTime() === today.getTime();
+
+          const handleClick = () => {
+            if (mode === "single") {
+              onToggleDate(isSel ? "" : dateStr);
+            } else {
+              onToggleDate(dateStr);
+            }
+          };
 
           return (
             <div key={i} className="flex items-center justify-center py-[3px]">
               <button
                 type="button"
-                disabled={isPast}
-                onClick={() => onToggleDate(dateStr)}
+                disabled={isDisabled}
+                onClick={handleClick}
                 className={[
                   "w-7 h-7 flex items-center justify-center rounded-full text-[12px] font-medium transition-all",
-                  isPast   ? "text-[#D5D5D5] cursor-not-allowed" : "cursor-pointer",
-                  isSel    ? "bg-[#EA3335] text-white"
-                  : isToday && !isPast
-                           ? "ring-1 ring-[#EA3335] text-[#EA3335] hover:bg-[#FFF5F5]"
-                  : !isPast ? "text-[#383838] hover:bg-[#FFF5F5]"
-                           : "",
+                  isDisabled ? "text-[#D5D5D5] cursor-not-allowed" : "cursor-pointer",
+                  isSel      ? "bg-[#EA3335] text-white"
+                  : isToday && !isDisabled
+                             ? "ring-1 ring-[#EA3335] text-[#EA3335] hover:bg-[#FFF5F5]"
+                  : !isDisabled ? "text-[#383838] hover:bg-[#FFF5F5]"
+                             : "",
                 ].join(" ")}
               >
                 {day}

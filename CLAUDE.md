@@ -26,11 +26,13 @@ Routes live in `src/app/` using the App Router convention with route groups:
 - `[campaignSlug]/` — campaign detail page (`page.jsx`) **and** the campaign-specific donation flow (`[step]/page.jsx`); its `layout.jsx` only wraps `DonationProvider`
 - `dashboard/` — authenticated user area
 - `admin/` — admin-only panel (campaigns, forms, donations, add-ons, categories, causes, donors, settings)
-- `donate/` — generic donation flow (no campaign context)
+- `donate/` — generic donation flow (no campaign context); includes `thank-you/` page rendered after successful payment
 
 Route protection is handled in `src/middleware.js`: unauthenticated users accessing `/dashboard` are redirected to `/user/login`; admin routes require a separate `adminToken` cookie. Authenticated users hitting auth pages are redirected back to their respective home (`/dashboard` or `/admin`).
 
 Dashboard sub-routes: `donation-history`, `fund-breakdown`, `payment-methods`, `profile`, `schedules`, `schedules/[slug]`.
+
+Admin sub-routes with dynamic params: `campaigns/[campaignId]`, `donors/[donorKey]`, `schedules/[donationId]`.
 
 ### API Layer
 
@@ -40,7 +42,7 @@ All HTTP calls go through `src/services/api.js`:
 - `apiBase` (`/api/v1/`) is rewritten by `next.config.mjs` to `https://donation.api.sagsio.com/api/v1/`; `/uploads/:path*` is similarly proxied to the same host
 - `serverApiBase` (`https://donation.api.sagsio.com/api/v1/`) is used directly in server components
 
-On any `401` response, `api.js` dispatches `window.dispatchEvent(new CustomEvent("auth:unauthorized"))` — never throw/handle 401s manually in components. When the request body is a `FormData` instance, `api.js` omits `Content-Type` so `fetch` sets the multipart boundary automatically.
+On any `401` response, `api.js` dispatches `auth:unauthorized` (user token) or `admin:unauthorized` (adminToken) as a `CustomEvent` on `window` — never throw/handle 401s manually in components. When the request body is a `FormData` instance, `api.js` omits `Content-Type` so `fetch` sets the multipart boundary automatically.
 
 Domain services (`authService.js`, `campaignService.js`, `donationService.js`, `admin.js`, `adminAuthService.js`) wrap `apiRequest`/`adminApiRequest` and are the only place that should call the API directly.
 
@@ -64,8 +66,8 @@ The same 4 step components are shared across two URL patterns:
 
 **Step breakdown** (visible in StepProgress as: Info → Payment → Add-ons & Pay → Confirmation):
 - **Step 1** (`Step1Info.jsx`) — Personal info (name, email, phone, address via `country-state-city` dropdowns), cause selection (from `campaignData.causes`), and Ramadan objective selection (only if `data.isRamadan`). Validates required fields + at least one cause selected.
-- **Step 2** (`Step2Payment.jsx`) — Donation amount (suggested tiles + custom input validated against `minDonation`/`maxDonation`), currency (USD/GBP/EUR/CAD), payment type (one-time or recurring). Recurring adds schedule: "specific_dates" (multi-select via `MiniCalendar`) or "date_range" (startDate + endDate + frequency: daily/weekly/monthly). Both schedule types support per-date custom amounts stored in `scheduleConfig.dateAmounts` (`{ [isoDate]: number }`), which override the default `amountTier` for that date. Redirects back to step 4 if donation was already submitted.
-- **Step 3** (`Step3Addons.jsx`) — Optional add-ons (fixed or formula-based pricing with user inputs), tipping slider (0–15%, configurable per campaign), and payment gateway selection (Stripe/PayPal). Submits via `donationService.createDonation`, stores `stripeClientSecret` + `stripePublishableKey` + `donationId` in `DonationContext`.
+- **Step 2** (`Step2Payment.jsx`) — Donation amount (suggested tiles + custom input validated against `minDonation`/`maxDonation`), currency (USD/GBP/EUR/CAD), payment type (one-time or recurring). Recurring adds schedule: "specific_dates" (multi-select via `MiniCalendar`) or "date_range" (startDate + endDate + frequency: daily/weekly/monthly). Both schedule types support per-date custom amounts stored in `scheduleConfig.dateAmounts` (`{ [isoDate]: number }`), which override the default `amountTier` for that date. Recurring also has a `splitMode`: `"repeat"` (same amount each date) or `"divide"` (total ÷ occurrences). `donorAmount` stores the UI-visible total for back-navigation; `amountTier` is the per-payment amount. Redirects back to step 4 if donation was already submitted.
+- **Step 3** (`Step3Addons.jsx`) — Optional add-ons (fixed or formula-based pricing with user inputs), tipping slider (0–15%, configurable per campaign), custom note input, and payment gateway selection (Stripe/PayPal). Submits via `apiRequest("donations/submit", ...)` directly, then stores `stripeClientSecret` + `stripePublishableKey` + `donationId` in `DonationContext`.
 - **Step 4** (`Step4Confirmation.jsx`) — Stripe card entry via `StripeCheckoutForm` (PayPal shows "coming soon"). After payment, redirects to `/donate/thank-you`.
 
 Step 1 uses `country-state-city` (npm package) for ISO-code-aware Country/State/City dropdowns. `src/utils/isoHelpers.js` provides `resolveCountryIso` and `resolveStateIso` to handle legacy API codes (ISO3 → ISO2 mapping).
@@ -74,10 +76,10 @@ Step 1 uses `country-state-city` (npm package) for ISO-code-aware Country/State/
 
 `DonationPreview` (`StepComponents/DonationPreview.jsx`) is a sticky sidebar rendered in the step layout showing a live summary of all donation fields accumulated so far.
 
-**Campaign sessionStorage schema** — the campaign detail page writes `campaignData` before the user enters the donate flow:
+**Campaign sessionStorage schema** — the campaign detail page (`(site)/campaigns/[slug]/page.jsx`) normalizes `suggestedAmounts` from API objects `{value, description, isDefault}[]` into a flat number array, writing `campaignData` to sessionStorage before the user enters the donate flow:
 ```js
 {
-  id, name, suggestedAmounts,
+  id, name, suggestedAmounts,  // flat number[]
   causes: [{ id, name, description, iconEmoji, zakatEligible }],
   donationObjectives: [{ id, name, description }],          // Ramadan only
   addOns: [{ id, name, iconEmoji, amount,
@@ -92,7 +94,9 @@ Step 1 uses `country-state-city` (npm package) for ISO-code-aware Country/State/
 
 React Context only — no Redux or Zustand. The two auth contexts above plus `DonationContext` (`src/context/DonationContext.jsx`), which holds all multi-step donation form state and exposes `useDonation()` returning `{ data, update, reset }`. `DonationProvider` wraps both `/donate` and `/[campaignSlug]` layouts. State is persisted to sessionStorage under the key `hc_donation`; `reset()` clears both the context and sessionStorage (including `hc_donation_done`).
 
-Key `DonationContext` fields: `campaign`, `campaignId`, `campaignTitle`, `isRamadan`, `zakatEligible`, `submitted`, `maxStep`, `amount`, `amountTier`, `currency`, `frequency`, `paymentType`, `scheduleType`, `scheduleConfig`, `installmentCount`, `numberOfDays`, `tipPct`, `customTipAmount`, `addOnsTotal`, `grandTotal`, `addOnBreakdown`, `donorMessage`, `anonymous`, `paymentMethod`, `stripeClientSecret`, `stripePublishableKey`, `donationId`, `guestSessionId`, `causeIds`, `causes`, `objective`, `objectiveLabel`, and donor fields (`firstName`, `lastName`, `email`, `phone`, `addressLine1`, `city`, `province`, `zip`, `country`).
+Key `DonationContext` fields: `campaign` (slug, used for routing), `campaignId`, `campaignTitle`, `isRamadan`, `zakatEligible`, `submitted`, `maxStep`, `amount`, `amountTier` (per-payment amount), `donorAmount` (UI-visible total, preserved on back-navigation), `currency`, `frequency`, `paymentType`, `splitMode` (`"repeat"`/`"divide"`), `scheduleType`, `scheduleConfig`, `schedulePreset`, `installmentCount`, `numberOfDays`, `perDateTotal` (pre-computed sum for specific_dates with overrides), `tipPct`, `customTipAmount`, `addOnsTotal`, `grandTotal`, `addOnBreakdown`, `donorMessage`, `anonymous`, `paymentMethod`, `stripeClientSecret`, `stripePublishableKey`, `donationId`, `guestSessionId`, `causeIds`, `causes`, `objective`, `objectiveLabel`, and donor fields (`firstName`, `lastName`, `email`, `phone`, `addressLine1`, `city`, `province`, `zip`, `country`).
+
+`DonationSessionCleaner` (`src/components/common/DonationSessionCleaner.jsx`) auto-removes `hc_donation` from sessionStorage when the user navigates away from the donation flow (any path outside `/donate/*` or `/:slug/[1-4]`) without completing payment.
 
 ### Component Conventions
 

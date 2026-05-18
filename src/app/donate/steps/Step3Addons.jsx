@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "./StepComponents/StepLayout";
 import { apiRequest } from "@/services/api";
+import { generateDatesInRange } from "./StepComponents/countOccurrences";
 import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
@@ -33,23 +33,15 @@ function calcAddOnTotal(addOn, inputValues) {
 const Step3Addons = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (data.submitted) {
-      const base = data.campaign ? `/${data.campaign}` : "/donate";
-      router.replace(`${base}/4`);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const campaignMeta = useMemo(() => {
     try { return JSON.parse(sessionStorage.getItem("campaignData") || "{}"); }
     catch { return {}; }
   }, []);
 
-  const campaignAddOns = campaignMeta.addOns ?? [];
-  const enableTipping  = campaignMeta.goalsDates?.enableTipping ?? true;
+  const campaignAddOns  = campaignMeta.addOns ?? [];
+  const enableTipping   = campaignMeta.goalsDates?.enableTipping ?? true;
+  const customNoteFields = campaignMeta.goalsDates?.customNotes ?? [];
 
   const currency     = data.currency     ?? "USD";
   const amountTier   = data.amountTier   ?? 0;
@@ -91,8 +83,12 @@ const Step3Addons = () => {
     gateway:        ["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null,
     publishableKey: null,
   });
-  const [submitting,  setSubmitting]  = useState(false);
-  const [submitError, setSubmitError] = useState(null);
+  const [customNoteValues, setCustomNoteValues] = useState(() =>
+    Object.fromEntries(customNoteFields.map((f) => [f.key, f.defaultValue ?? ""]))
+  );
+  const [noteErrors,   setNoteErrors]   = useState({});
+  const [submitting,   setSubmitting]   = useState(false);
+  const [submitError,  setSubmitError]  = useState(null);
 
   const computedBreakdown = useMemo(() =>
     campaignAddOns
@@ -133,9 +129,46 @@ const Step3Addons = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipPct, customTipAmount, computedBreakdown, grandTotal]);
 
+  const buildApiScheduleConfig = (scheduleType, scheduleConfig) => {
+    const dateAmounts = scheduleConfig.dateAmounts ?? {};
+
+    if (scheduleType === "specific_dates") {
+      const dates = scheduleConfig.dates ?? [];
+      return {
+        dates: dates.map((isoDate) => {
+          const key = isoDate.split("T")[0];
+          return {
+            date:   isoDate,
+            amount: dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier,
+          };
+        }),
+      };
+    }
+
+    // date_range
+    const rawFreq  = scheduleConfig.frequency ?? "daily";
+    const apiFreq  = rawFreq === "custom" ? "interval" : rawFreq;
+    const interval = scheduleConfig.customInterval ?? 1;
+    const startKey = scheduleConfig.startDate?.split("T")[0] ?? "";
+    const endKey   = scheduleConfig.endDate?.split("T")[0]   ?? "";
+    const allKeys  = generateDatesInRange(startKey, endKey, rawFreq, interval);
+
+    return {
+      startDate: scheduleConfig.startDate ?? "",
+      endDate:   scheduleConfig.endDate   ?? "",
+      frequency: apiFreq,
+      ...(apiFreq === "interval" && { intervalValue: interval }),
+      dates: allKeys.map((d) => ({
+        date:   new Date(`${d}T00:00:00.000Z`).toISOString(),
+        amount: dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier,
+      })),
+    };
+  };
+
   const buildSubmitBody = () => {
     const scheduleType   = data.scheduleType   ?? "date_range";
     const scheduleConfig = data.scheduleConfig ?? {};
+
     const body = {
       ...(data.campaignId ? { formId: data.campaignId } : { formSlug: data.campaign }),
       info: {
@@ -155,6 +188,13 @@ const Step3Addons = () => {
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: gatewayState.gateway,
       ...(data.anonymous && { isAnonymous: true }),
+      ...(customNoteFields.length > 0 && {
+        customNotes: Object.fromEntries(
+          customNoteFields
+            .map((f) => [f.key, (customNoteValues[f.key] ?? "").trim()])
+            .filter(([, v]) => v)
+        ),
+      }),
       addons: {
         items: computedBreakdown.map((addon) => ({
           addOnId: addon.id,
@@ -166,7 +206,8 @@ const Step3Addons = () => {
     if (isRecurring) {
       body.payment = {
         paymentMode: "split",
-        amount:      amountTier,
+        // total across all scheduled dates (API validates sum matches dates array)
+        amount:      baseDonation,
         currency,
         ...(tipAmount > 0
           ? customTipParsed !== null
@@ -174,7 +215,7 @@ const Step3Addons = () => {
             : { platformTipPercent: tipPct }
           : {}),
         scheduleType,
-        scheduleConfig,
+        scheduleConfig: buildApiScheduleConfig(scheduleType, scheduleConfig),
       };
     } else {
       body.payment = {
@@ -193,6 +234,32 @@ const Step3Addons = () => {
       setSubmitError("Please go back to 'Info' and select at least one cause.");
       return;
     }
+    if (isRecurring) {
+      const schedCfg  = data.scheduleConfig ?? {};
+      const schedType = data.scheduleType   ?? "date_range";
+      if (schedType === "specific_dates") {
+        if (!schedCfg.dates?.length) {
+          setSubmitError("Please go back to 'Payment' and select at least one date for your schedule.");
+          return;
+        }
+      } else {
+        if (!schedCfg.startDate || !schedCfg.endDate) {
+          setSubmitError("Please go back to 'Payment' and set a start and end date for your schedule.");
+          return;
+        }
+      }
+    }
+    const errors = Object.fromEntries(
+      customNoteFields
+        .filter((f) => f.required && !(customNoteValues[f.key] ?? "").trim())
+        .map((f) => [f.key, true])
+    );
+    if (Object.keys(errors).length > 0) {
+      setNoteErrors(errors);
+      setSubmitError("Please fill in all required fields.");
+      return;
+    }
+    setNoteErrors({});
     update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod: gatewayState.gateway });
     setSubmitting(true);
     setSubmitError(null);
@@ -217,7 +284,7 @@ const Step3Addons = () => {
   return (
     <StepLayout
       step={3}
-      title="Add-ons & Payment"
+      title="Overview"
       subtitle="Enhance your donation with optional add-ons and complete your payment setup"
       onNext={handleSubmit}
       onPrev={() => {
@@ -229,12 +296,12 @@ const Step3Addons = () => {
     >
       <div className="flex flex-col gap-4">
 
-        <div className="border border-[#E5E5E5] rounded-xl px-4 py-3 bg-white">
+        {/* <div className="border border-[#E5E5E5] rounded-xl px-4 py-3 bg-white">
           <p className="text-[13px] text-[#737373] mb-1.5">Donation Amount</p>
           <p className="text-[28px] font-bold text-[#383838]">
             {sym}{baseDonation.toLocaleString()}
           </p>
-        </div>
+        </div> */}
 
         <AddOnsList
           campaignAddOns={campaignAddOns}
@@ -256,7 +323,7 @@ const Step3Addons = () => {
           />
         )}
 
-        <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3">
+        {/* <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-3">
           <p className="text-[13px] text-[#383838]">
             <span className="font-bold">Subtotal: </span>
             <span className="text-[#737373]">
@@ -271,7 +338,57 @@ const Step3Addons = () => {
               <span className="font-bold text-[#383838] text-[15px]">{sym}{grandTotal.toFixed(2)}</span>
             </span>
           </p>
-        </div>
+        </div> */}
+        {customNoteFields.length > 0 && (
+          <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-4 flex flex-col gap-4">
+            {customNoteFields.map((field) => {
+              const value   = customNoteValues[field.key] ?? "";
+              const hasError = noteErrors[field.key];
+              const baseInputClass = `w-full border rounded-lg px-3 py-2 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none resize-none transition-colors ${
+                hasError
+                  ? "border-[#EA3335] focus:border-[#EA3335]"
+                  : "border-[#E5E5E5] focus:border-[#EA3335]"
+              }`;
+              return (
+                <div key={field.id} className="flex flex-col gap-1.5">
+                  <p className="text-[13px] font-semibold text-[#383838]">
+                    {field.label}
+                    {field.required && <span className="text-[#EA3335] ml-0.5">*</span>}
+                  </p>
+                  {field.type === "textarea" ? (
+                    <textarea
+                      value={value}
+                      onChange={(e) => {
+                        setCustomNoteValues((prev) => ({ ...prev, [field.key]: e.target.value }));
+                        if (noteErrors[field.key]) setNoteErrors((prev) => ({ ...prev, [field.key]: false }));
+                      }}
+                      placeholder={field.placeholder ?? ""}
+                      rows={3}
+                      className={baseInputClass}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={(e) => {
+                        setCustomNoteValues((prev) => ({ ...prev, [field.key]: e.target.value }));
+                        if (noteErrors[field.key]) setNoteErrors((prev) => ({ ...prev, [field.key]: false }));
+                      }}
+                      placeholder={field.placeholder ?? ""}
+                      className={baseInputClass}
+                    />
+                  )}
+                  {field.helpText && (
+                    <p className="text-[12px] text-[#737373]">{field.helpText}</p>
+                  )}
+                  {hasError && (
+                    <p className="text-[12px] text-[#EA3335]">{field.label} is required.</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <PaymentGatewaySelector
           isRecurring={isRecurring}
