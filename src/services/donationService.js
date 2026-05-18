@@ -52,6 +52,7 @@ export function getUserSchedules({ page, limit, q } = {}) {
   if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
   if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
   if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  
   const query = params.toString();
   const endpoint = query ? `/user/schedules?${query}` : "/user/schedules";
   return apiRequest(endpoint, { method: "GET" });
@@ -63,4 +64,20 @@ export function getUserScheduleById(scheduleId) {
 
 export function getUserFundBreakdown() {
   return apiRequest("/user/fund-breakdown", { method: "GET" });
+}
+
+export function getUserProfile() {
+  return apiRequest("/user/profile", { method: "GET" });
+}
+
+export function updateUserProfile(payload) {
+  return apiRequest("/user/profile", { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function getUserNotificationPreferences() {
+  return apiRequest("/user/profile/notification-preferences", { method: "GET" });
+}
+
+export function updateUserNotificationPreferences(payload) {
+  return apiRequest("/user/profile/notification-preferences", { method: "PATCH", body: JSON.stringify(payload) });
 }
