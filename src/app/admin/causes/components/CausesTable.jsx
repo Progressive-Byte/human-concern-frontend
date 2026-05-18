@@ -42,6 +42,7 @@ export default function CausesTable({ items, loading, onEdit, onToggleEnabled, o
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                 <th className="px-5 py-3">Cause</th>
+                <th className="py-3 pr-4">Fund Code</th>
                 <th className="py-3 pr-4">Description</th>
                 <th className="py-3 pr-4">Zakat Eligible</th>
                 <th className="py-3 pr-4">Status</th>
@@ -62,6 +63,12 @@ export default function CausesTable({ items, loading, onEdit, onToggleEnabled, o
                         <div className="font-semibold text-[#111827]">{item?.name || "—"}</div>
                       </div>
                     </div>
+                  </td>
+
+                  <td className="py-4 pr-4 align-top">
+                    <span className="inline-flex rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[12px] font-medium text-[#111827]">
+                      {item?.fundCode || "—"}
+                    </span>
                   </td>
 
                   <td className="py-4 pr-4 align-top text-[#6B7280]">

@@ -588,3 +588,44 @@ export function updateAdminFormMedia(formId, body) {
 export function getAdminFormReview(formId) {
   return adminApiRequest(`/admin/forms/${formId}/review`, { method: "GET" });
 }
+
+// -----------------------------
+// Audit Logs
+// -----------------------------
+export function getAdminAuditLogs({
+  page,
+  limit,
+  sort,
+  q,
+  actorId,
+  actorEmail,
+  action,
+  actionPrefix,
+  targetType,
+  targetId,
+  requestId,
+  ip,
+  from,
+  to,
+} = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof actorId === "string" && actorId.trim()) params.set("actorId", actorId.trim());
+  if (typeof actorEmail === "string" && actorEmail.trim()) params.set("actorEmail", actorEmail.trim());
+  if (typeof action === "string" && action.trim()) params.set("action", action.trim());
+  if (typeof actionPrefix === "string" && actionPrefix.trim()) params.set("actionPrefix", actionPrefix.trim());
+  if (typeof targetType === "string" && targetType.trim()) params.set("targetType", targetType.trim());
+  if (typeof targetId === "string" && targetId.trim()) params.set("targetId", targetId.trim());
+  if (typeof requestId === "string" && requestId.trim()) params.set("requestId", requestId.trim());
+  if (typeof ip === "string" && ip.trim()) params.set("ip", ip.trim());
+  if (typeof from === "string" && from.trim()) params.set("from", from.trim());
+  if (typeof to === "string" && to.trim()) params.set("to", to.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/audit-logs?${query}` : "/admin/audit-logs";
+  return adminApiRequest(endpoint, { method: "GET" });
+}
