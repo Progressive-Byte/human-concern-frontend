@@ -20,3 +20,29 @@ export function getUserDashboard({ recentLimit, schedulesLimit, distributionLimi
   const endpoint = query ? `/user/dashboard?${query}` : "/user/dashboard";
   return apiRequest(endpoint, { method: "GET" });
 }
+
+export function getUserDonationsList({ page, limit, q, filter, status, sort, order } = {}) {
+  const params = new URLSearchParams();
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof filter === "string" && filter.trim()) params.set("filter", filter.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  const query = params.toString();
+  const endpoint = query ? `/user/donations?${query}` : "/user/donations";
+  return apiRequest(endpoint, { method: "GET" });
+}
+
+export function exportUserDonationsCsv({ q, filter, status, sort, order } = {}) {
+  const params = new URLSearchParams();
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof filter === "string" && filter.trim()) params.set("filter", filter.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  const query = params.toString();
+  const endpoint = query ? `/user/donations/export?${query}` : "/user/donations/export";
+  return apiRequest(endpoint, { method: "GET" });
+}

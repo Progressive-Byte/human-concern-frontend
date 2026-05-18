@@ -20,7 +20,7 @@ export const navItems = [
   { href: "/dashboard/donation-history", label: "Donation History", icon: historyIcon },
   { href: "/dashboard/schedules",        label: "Schedules",        icon: calendarIcon },
   { href: "/dashboard/fund-breakdown",   label: "Fund Breakdown",   icon: pieChartIcon },
-  { href: "/dashboard/payment-methods",  label: "Payment Methods",  icon: cardIcon },
+  // { href: "/dashboard/payment-methods",  label: "Payment Methods",  icon: cardIcon },
   { href: "/dashboard/profile",          label: "Profile",          icon: UserDashboardIcon },
 ];
 

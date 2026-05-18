@@ -1,26 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../components/DashboardHeader";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import ThankYouModal from "./ThankYouModal";
 import { DownloadIcon, EyeIcon, SearchIconFront } from "@/components/common/SvgIcon";
-
-const rows = [
-  { id: 1, date: "Feb 1, 2026",  campaign: "Ramadan Food Distribution",            cause: "Zakat",     amount: 100, status: "Completed", payment: "Visa •••• 4242"        },
-  { id: 2, date: "Jan 25, 2026", campaign: "Emergency Relief: Earthquake Response", cause: "Sadaqah",   amount: 250, status: "Completed", payment: "Mastercard •••• 5555" },
-  { id: 3, date: "Jan 15, 2026", campaign: "Orphan Sponsorship Program",            cause: "Zakat",     amount: 50,  status: "Completed", payment: "Visa •••• 4242"        },
-  { id: 4, date: "Jan 1, 2026",  campaign: "Clean Water Wells Project",             cause: "Sadaqah",   amount: 75,  status: "Completed", payment: "PayPal"                 },
-  { id: 5, date: "Dec 20, 2025", campaign: "Winter Aid for Refugees",               cause: "Emergency", amount: 120, status: "Completed", payment: "Visa •••• 4242"         },
-];
-
-const CAUSE_OPTIONS = [
-  { value: "All Causes", label: "All Causes" },
-  { value: "Zakat",      label: "Zakat"      },
-  { value: "Sadaqah",    label: "Sadaqah"    },
-  { value: "Emergency",  label: "Emergency"  },
-];
+import { exportUserDonationsCsv, getUserDonationsList } from "@/services/donationService";
+import { formatCurrency } from "@/utils/helpers";
 
 const causeBadgeStyles = {
   Zakat:     "bg-[#ECFDF5] text-[#047857]",
@@ -29,14 +16,50 @@ const causeBadgeStyles = {
   Fitrana:   "bg-[#EFF6FF] text-[#1D4ED8]",
 };
 
+function useDebouncedValue(value, delayMs) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(t);
+  }, [value, delayMs]);
+  return debounced;
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  } catch {
+    return "";
+  }
+}
+
+function statusClass(statusKey) {
+  const s = String(statusKey || "").toLowerCase();
+  if (s === "succeeded") return "text-[#047857]";
+  if (s === "pending") return "text-[#B45309]";
+  if (s === "failed") return "text-[#EA3335]";
+  if (s === "refunded") return "text-[#6B7280]";
+  return "text-[#047857]";
+}
+
 function DonationHistoryPage() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
-  const [cause, setCause]   = useState("All Causes");
+  const [cause, setCause]   = useState("all");
 
   const [showPopup, setShowPopup]       = useState(false);
   const [thankyouData, setThankyouData] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [items, setItems] = useState([]);
+  const [causeOptions, setCauseOptions] = useState([{ value: "all", label: "All Causes" }]);
+
+  const debouncedSearch = useDebouncedValue(search, 300);
 
   useEffect(() => {
     if (searchParams.get("thankyou") === "1") {
@@ -52,11 +75,55 @@ function DonationHistoryPage() {
     }
   }, [searchParams, router]);
 
-  const filtered = rows.filter((r) => {
-    const matchesSearch = r.campaign.toLowerCase().includes(search.toLowerCase());
-    const matchesCause  = cause === "All Causes" || r.cause === cause;
-    return matchesSearch && matchesCause;
-  });
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await getUserDonationsList({ page: "1", limit: "50", q: debouncedSearch, filter: cause, sort: "date", order: "desc" });
+        if (!alive) return;
+        const data = res?.data?.data || res?.data || {};
+        const nextItems = Array.isArray(data?.items) ? data.items : [];
+        const nextCauses = res?.meta?.filters?.causes || res?.data?.meta?.filters?.causes || [];
+        setItems(nextItems);
+
+        const list = Array.isArray(nextCauses) ? nextCauses : [];
+        const opts = list
+          .map((c) => ({
+            value: String(c?.key || "").trim(),
+            label: `${String(c?.label || "Cause")}${typeof c?.count === "number" ? ` (${c.count})` : ""}`,
+          }))
+          .filter((o) => o.value);
+        setCauseOptions(opts.length ? opts : [{ value: "all", label: "All Causes" }]);
+      } catch (e) {
+        if (!alive) return;
+        setItems([]);
+        setCauseOptions([{ value: "all", label: "All Causes" }]);
+        setError(e?.message || "Failed to load donations.");
+      } finally {
+        if (!alive) return;
+        setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [debouncedSearch, cause]);
+
+  const rows = useMemo(() => {
+    return (Array.isArray(items) ? items : []).map((it, idx) => {
+      const id = String(it?.donationId || idx);
+      const date = formatDate(it?.date) || "—";
+      const campaign = String(it?.campaign?.name || "").trim() || "—";
+      const causeLabel = String(it?.causeTag?.label || "").trim() || "—";
+      const amount = Number(it?.amount ?? 0);
+      const currency = String(it?.currency || "USD");
+      const statusKey = String(it?.status?.key || "");
+      const status = String(it?.status?.label || "").trim() || "—";
+      return { id, date, campaign, cause: causeLabel, amount, currency, status, statusKey, payment: "—" };
+    });
+  }, [items]);
 
   return (
     <>
@@ -66,6 +133,22 @@ function DonationHistoryPage() {
         actions={
           <button
             type="button"
+            onClick={async () => {
+              try {
+                const csv = await exportUserDonationsCsv({ q: debouncedSearch, filter: cause, sort: "date", order: "desc" });
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `donations-${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+              } catch (e) {
+                setError(e?.message || "Export failed.");
+              }
+            }}
             className="inline-flex items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#111827] hover:border-red-500/40 hover:text-red-600 transition-colors cursor-pointer"
           >
             {DownloadIcon}
@@ -75,6 +158,10 @@ function DonationHistoryPage() {
       />
 
       <div className="flex-1 p-4 md:p-6 space-y-5">
+        {error ? (
+          <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
+        ) : null}
+
         {/* Filter bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1">
@@ -89,7 +176,7 @@ function DonationHistoryPage() {
           </div>
           <div className="min-w-[170px]">
             <CustomDropdown
-              options={CAUSE_OPTIONS}
+              options={causeOptions}
               value={cause}
               onChange={setCause}
               variant="form"
@@ -111,16 +198,22 @@ function DonationHistoryPage() {
                   <th className="hidden sm:table-cell px-4 py-4 font-medium">Cause</th>
                   <th className="px-4 py-4 font-medium">Amount</th>
                   <th className="hidden md:table-cell px-4 py-4 font-medium">Status</th>
-                  <th className="hidden lg:table-cell px-4 py-4 font-medium">Payment</th>
                   <th className="px-4 py-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((r, idx) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#6B7280]">
+                      Loading…
+                    </td>
+                  </tr>
+                ) : (
+                  rows.map((r, idx) => (
                   <tr
                     key={r.id}
                     className={`hover:bg-[#F9FAFB] transition-colors ${
-                      idx !== filtered.length - 1 ? "border-b border-[#E5E7EB]" : ""
+                      idx !== rows.length - 1 ? "border-b border-[#E5E7EB]" : ""
                     }`}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
@@ -133,7 +226,7 @@ function DonationHistoryPage() {
                     </td>
                     <td className="px-4 py-4">
                       <p className="text-[#111827] text-sm leading-snug">{r.campaign}</p>
-                      <span className="md:hidden mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-[#047857]">
+                      <span className={`md:hidden mt-1 inline-flex items-center gap-1 text-[11px] font-medium ${statusClass(r.statusKey)}`}>
                         <span className="h-1.5 w-1.5 rounded-full bg-[#047857]" />
                         {r.status}
                       </span>
@@ -146,16 +239,13 @@ function DonationHistoryPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-[#111827] font-semibold whitespace-nowrap">
-                      ${r.amount}
+                      {formatCurrency(r.amount, r.currency)}
                     </td>
                     <td className="hidden md:table-cell px-4 py-4">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#047857]">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${statusClass(r.statusKey)}`}>
                         <span className="h-1.5 w-1.5 rounded-full bg-[#047857]" />
                         {r.status}
                       </span>
-                    </td>
-                    <td className="hidden lg:table-cell px-4 py-4 text-[#6B7280] whitespace-nowrap">
-                      {r.payment}
                     </td>
 
                     <td className="px-4 py-4 text-right">
@@ -167,8 +257,10 @@ function DonationHistoryPage() {
                       </button>
                     </td>
                   </tr>
-                ))}
-                {filtered.length === 0 && (
+                ))
+                )}
+
+                {!loading && rows.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#6B7280]">
                       No donations found.
