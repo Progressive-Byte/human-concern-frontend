@@ -71,7 +71,7 @@ export default function VerifyEmailClient() {
 
     timerRef.current = setTimeout(() => {
       router.replace("/user/login");
-    }, 3000);
+    }, 7000);
   };
 
   const runVerify = async () => {
