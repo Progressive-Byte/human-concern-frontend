@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertIcon, ProgressCheckIcon, Spinner } from "@/components/common/SvgIcon";
+import { serverApiBase } from "@/utils/constants";
 
 function getErrorMessage(err) {
   if (!err) return "Something went wrong. Please try again.";
@@ -13,12 +14,9 @@ function getErrorMessage(err) {
 }
 
 async function verifyEmailToken({ token }) {
-  const base = String(process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/+$/, "");
-  if (!base) {
-    throw new Error("Missing NEXT_PUBLIC_API_URL.");
-  }
-
-  const url = `${base}/auth/verify-email?token=${encodeURIComponent(token)}`;
+  const base = String(serverApiBase || "").trim();
+  if (!base) throw new Error("Missing serverApiBase.");
+  const url = `${base}auth/verify-email?token=${encodeURIComponent(token)}`;
   const res = await fetch(url, { method: "GET" });
 
   if (!res.ok) {
