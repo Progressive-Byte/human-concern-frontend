@@ -96,7 +96,7 @@ export default function ScheduleDetailPage() {
   const startedAt = formatDate(schedule?.startedAt) || "—";
   const nextDate = formatDate(schedule?.nextDonation?.date) || "—";
   const nextShort = formatShortDate(schedule?.nextDonation?.date) || "—";
-  const nextAmount = Number(schedule?.nextDonation?.amount ?? installmentAmount);
+  const nextAmount = Number((schedule?.nextDonation?.amount ?? schedule?.installmentAmount) || 0);
   const totalDonated = Number(schedule?.totalDonated ?? 0);
 
   return (
