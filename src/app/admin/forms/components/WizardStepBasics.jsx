@@ -450,17 +450,6 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
             <FieldError message={fieldErrors["internal.shortDescription"]} />
           </div>
         </div>
-
-        <div className="mt-5 rounded-2xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] p-4">
-          <div className="text-[11px] font-semibold tracking-wide text-[#6B7280]">PREVIEW</div>
-          <div className="mt-2 text-[13px] text-[#111827]">
-            {displayName ? (
-              <span className="font-semibold">{displayName}</span>
-            ) : (
-              <span className="text-[#6B7280]">Complete all fields to see preview</span>
-            )}
-          </div>
-        </div>
       </section>
 
       <section className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
