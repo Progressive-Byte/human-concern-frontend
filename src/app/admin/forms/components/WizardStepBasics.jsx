@@ -489,7 +489,7 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Optional description (max 500)"
-                className="min-h-[120px] w-full resize-none rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="min-h-30 w-full resize-none rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
               <div className="mt-1 text-[12px] text-[#6B7280]">{Math.min(500, description.length)}/500 characters</div>
