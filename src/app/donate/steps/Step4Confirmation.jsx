@@ -61,8 +61,8 @@ const Step4Confirmation = () => {
   if (!ready) return null;
 
   return (
-    <main className="min-h-screen bg-[#F9F9F9] pt-[120px] lg:pt-[160px] pb-16 px-4">
-      <div className="max-w-[1024px] mx-auto">
+    <main className="min-h-screen bg-[#F9F9F9] pt-30 lg:pt-40 pb-16 px-4">
+      <div className="max-w-5xl mx-auto">
         <StepProgress current={4} />
 
         <div className="flex flex-col lg:flex-row items-start gap-5">
