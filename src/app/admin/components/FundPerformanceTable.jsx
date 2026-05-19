@@ -16,7 +16,7 @@ export default function FundPerformanceTable({ items = [], currency = "USD" }) {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-[760px] w-full border-collapse">
+          <table className="min-w-190 w-full border-collapse">
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                 <th className="py-3 pr-4">Fund</th>
@@ -47,7 +47,7 @@ export default function FundPerformanceTable({ items = [], currency = "USD" }) {
                   <td className="py-3 pr-4">{Number(item?.donorsCount || 0).toLocaleString()}</td>
                   <td className="py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-[140px]">
+                      <div className="w-35">
                         <ProgressBar value={item?.progressPercent || 0} />
                       </div>
                     </div>
