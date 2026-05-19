@@ -23,6 +23,12 @@ function normalizeBasicsResponse(res) {
   return res?.data?.data || res?.data?.item || res?.data?.basics || res?.data || {};
 }
 
+function isActiveCategory(cat) {
+  const status = String(cat?.status || "").trim().toLowerCase();
+  if (!status) return true;
+  return status === "active";
+}
+
 export default function WizardStepBasics({ campaignId, initialFormId = "", onExit, onSaved }) {
   const toast = useToast();
 
@@ -77,10 +83,11 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
     setCategoriesError("");
     (async () => {
       try {
-        const res = await getAdminCategories({ page: "1", limit: "200", order: "asc" });
+        const res = await getAdminCategories({ page: "1", limit: "200", order: "asc", status: "active" });
         if (!alive) return;
         const items = res?.data?.items || res?.data?.data?.items || res?.items || [];
-        setCategories(Array.isArray(items) ? items : []);
+        const list = Array.isArray(items) ? items : [];
+        setCategories(list.filter(isActiveCategory));
       } catch (e) {
         if (!alive) return;
         setCategories([]);
@@ -94,6 +101,17 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
       alive = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (categoriesLoading) return;
+    const idSet = new Set(
+      categoryOptions
+        .map((c) => String(c?.id || c?._id || "").trim())
+        .filter(Boolean)
+    );
+    if (!idSet.size) return;
+    setCategoryIds((prev) => (Array.isArray(prev) ? prev.filter((id) => idSet.has(String(id).trim())) : []));
+  }, [categoriesLoading, categoryOptions]);
 
   useEffect(() => {
     if (!formId) return;
@@ -534,7 +552,7 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
                   />
                 </div>
 
-                <div className="mt-3 max-h-[220px] overflow-auto rounded-xl border border-[#E5E7EB] bg-white">
+                <div className="mt-3 max-h-55 overflow-auto rounded-xl border border-[#E5E7EB] bg-white">
                   {categoriesLoading ? (
                     <div className="px-3 py-3 text-[13px] text-[#6B7280]">Loading categories...</div>
                   ) : filteredCategoryOptions.length === 0 ? (

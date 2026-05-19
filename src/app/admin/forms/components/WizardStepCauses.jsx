@@ -82,12 +82,12 @@ export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }
     (async () => {
       try {
         const [causesRes, selectedRes] = await Promise.all([
-          getAdminCauses({ page: "1", limit: "200", order: "asc" }),
+          getAdminCauses({ page: "1", limit: "200", order: "asc", status: "active", enabled: "true" }),
           getAdminFormCauses(formId),
         ]);
         if (!alive) return;
 
-        const nextAll = normalizeItemsResponse(causesRes).filter((c) => c?.enabled !== false);
+        const nextAll = normalizeItemsResponse(causesRes).filter(isSelectableCause);
         const nextSelected = normalizeSelectedCauseIds(selectedRes);
         const enabledIdSet = new Set(
           nextAll

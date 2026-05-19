@@ -13,6 +13,12 @@ import WizardStepReview from "../components/WizardStepReview";
 import WizardStepPlaceholder from "../components/WizardStepPlaceholder";
 import { getAdminCategories, getAdminFormBasics, getAdminFormById } from "@/services/admin";
 
+function isActiveCategory(cat) {
+  const status = String(cat?.status || "").trim().toLowerCase();
+  if (!status) return true;
+  return status === "active";
+}
+
 export default function WizardPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -61,10 +67,11 @@ export default function WizardPageClient() {
     setCategoriesLoading(true);
     (async () => {
       try {
-        const res = await getAdminCategories({ page: "1", limit: "200", order: "asc" });
+        const res = await getAdminCategories({ page: "1", limit: "200", order: "asc", status: "active" });
         if (!alive) return;
         const items = res?.data?.items || res?.data?.data?.items || res?.items || [];
-        setCategories(Array.isArray(items) ? items : []);
+        const list = Array.isArray(items) ? items : [];
+        setCategories(list.filter(isActiveCategory));
       } catch {
         if (!alive) return;
         setCategories([]);

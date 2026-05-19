@@ -114,12 +114,12 @@ export default function WizardStepAddons({ campaignId, formId, onExit, onSaved, 
     (async () => {
       try {
         const [addOnsRes, selectedRes] = await Promise.all([
-          getAdminAddOns({ page: "1", limit: "200", order: "asc" }),
+          getAdminAddOns({ page: "1", limit: "200", order: "asc", status: "active", enabled: "true" }),
           getAdminFormAddons(formId),
         ]);
         if (!alive) return;
 
-        const nextAll = normalizeItemsResponse(addOnsRes).filter((a) => a?.enabled !== false);
+        const nextAll = normalizeItemsResponse(addOnsRes).filter(isSelectableAddOn);
         const nextSelected = normalizeSelectedAddOnIds(selectedRes);
         const enabledIdSet = new Set(
           nextAll

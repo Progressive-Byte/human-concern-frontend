@@ -100,12 +100,12 @@ export default function WizardStepObjectives({ campaignId, formId, onExit, onSav
     (async () => {
       try {
         const [objectivesRes, selectedRes] = await Promise.all([
-          getAdminObjectives({ page: "1", limit: "200", order: "asc" }),
+          getAdminObjectives({ page: "1", limit: "200", order: "asc", status: "active" }),
           getAdminFormObjectives(formId),
         ]);
         if (!alive) return;
 
-        const nextAll = normalizeItemsResponse(objectivesRes).filter((o) => o?.enabled !== false);
+        const nextAll = normalizeItemsResponse(objectivesRes).filter(isSelectableObjective);
         const nextSelected = normalizeSelectedObjectiveIds(selectedRes);
         const enabledIdSet = new Set(
           nextAll
