@@ -282,11 +282,23 @@ const Step3Addons = () => {
       }
       const res     = await apiRequest("donations/submit", { method: "POST", body: JSON.stringify(buildSubmitBody()) });
       const payment = res?.data?.payment ?? {};
+      const pendingSessionId =
+        res?.data?.pendingSessionId ??
+        payment?.pendingSessionId ??
+        res?.pendingSessionId ??
+        null;
+      const setupIntentId =
+        payment?.setupIntentId ??
+        payment?.setupIntent?.id ??
+        res?.data?.setupIntentId ??
+        null;
       update({
         donationId:           res?.data?.donationId     ?? null,
         guestSessionId:       res?.data?.guestSessionId ?? null,
         stripeClientSecret:   payment.clientSecret       ?? null,
         stripePublishableKey: gatewayState.publishableKey,
+        pendingSessionId,
+        setupIntentId,
         submitted:            true,
       });
       handleNext(4);

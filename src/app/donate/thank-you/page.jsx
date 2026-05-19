@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
+import { apiRequest } from "@/services/api";
 import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import { arrowIcon, ThankyouIcon, ShareCampaignIcon, CircleCheckIcon, DashboardTabIcon, BrowserIcon } from "@/components/common/SvgIcon";
 import { serverApiBase } from "@/utils/constants";
@@ -20,13 +21,16 @@ const FREQUENCY_LABELS = {
 
 const ThankYouPage = () => {
   const router = useRouter();
-  const { data } = useDonation();
+  const { data, update } = useDonation();
   const { isAuthenticated } = useAuth();
   const sym = CURRENCY_SYMBOLS[data.currency] || "$";
 
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [copied, setCopied]       = useState(false);
+  const [finalizeLoading, setFinalizeLoading] = useState(false);
+  const [finalizeError, setFinalizeError] = useState("");
+  const [finalizeAttempt, setFinalizeAttempt] = useState(0);
 
   const donationAmount = data.grandTotal ?? data.amountTier;
   const isRecurring    = data.paymentType === "recurring";
@@ -34,17 +38,75 @@ const ThankYouPage = () => {
   const numberOfDays   = data.numberOfDays ?? 0;
   const campaignTitle  = data.campaignTitle ?? "";
 
-  // Clear the payment-complete flag so a future donation starts fresh
-  useEffect(() => {
+  const finalizeRef = useRef(false);
+  const resolvedSetupIntentId = useMemo(() => {
+    const fromState = String(data.setupIntentId || "").trim();
+    if (fromState) return fromState;
+    if (typeof window === "undefined") return "";
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const fromQuery = String(sp.get("setup_intent") || "").trim();
+      return fromQuery;
+    } catch {
+      return "";
+    }
+  }, [data.setupIntentId]);
+
+  const pendingSessionId = useMemo(() => String(data.pendingSessionId || "").trim(), [data.pendingSessionId]);
+
+  const needsFinalize = Boolean(
+    isRecurring &&
+    pendingSessionId &&
+    resolvedSetupIntentId &&
+    !String(data.finalizedDonationId || "").trim()
+  );
+
+  const clearDonationSession = () => {
     try {
       sessionStorage.removeItem("hc_donation_done");
       sessionStorage.removeItem("hc_donation");
     } catch {}
-  }, []);
+  };
+
+  useEffect(() => {
+    if (!needsFinalize) return;
+    if (finalizeRef.current) return;
+    finalizeRef.current = true;
+
+    (async () => {
+      setFinalizeLoading(true);
+      setFinalizeError("");
+      try {
+        const res = await apiRequest("donations/finalize", {
+          method: "POST",
+          body: JSON.stringify({
+            pendingSessionId,
+            setupIntentId: resolvedSetupIntentId,
+          }),
+        });
+        const donationId =
+          res?.data?.donationId ??
+          res?.data?.data?.donationId ??
+          res?.donationId ??
+          null;
+        update({
+          finalizedDonationId: donationId ?? "1",
+          donationId: donationId ?? data.donationId ?? null,
+          setupIntentId: resolvedSetupIntentId,
+        });
+        setFinalizeLoading(false);
+      } catch (e) {
+        setFinalizeLoading(false);
+        setFinalizeError(e?.message || "Unable to finalize your donation. Please try again.");
+        finalizeRef.current = false;
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsFinalize, finalizeAttempt]);
 
   // If logged in, save data to sessionStorage and redirect to donation-history with popup flag
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !needsFinalize && !finalizeLoading && !finalizeError) {
       sessionStorage.setItem("thankyouData", JSON.stringify({
         donationAmount,
         currency:     data.currency   ?? "USD",
@@ -56,10 +118,11 @@ const ThankYouPage = () => {
         numberOfDays,
         paymentType:  data.paymentType ?? "one-time",
       }));
+      clearDonationSession();
       router.replace("/dashboard/donation-history?thankyou=1");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  }, [isAuthenticated, needsFinalize, finalizeLoading, finalizeError]);
 
   useEffect(() => {
     fetch(`${serverApiBase}campaigns/featured`)
@@ -68,6 +131,15 @@ const ThankYouPage = () => {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    if (needsFinalize) return;
+    if (finalizeLoading) return;
+    if (finalizeError) return;
+    clearDonationSession();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, needsFinalize, finalizeLoading, finalizeError]);
 
   const handleShare = async () => {
     const url = window.location.origin + "/campaigns";
@@ -80,8 +152,49 @@ const ThankYouPage = () => {
     }
   };
 
-  // While redirecting logged-in users, render nothing
-  if (isAuthenticated) return null;
+  if (isAuthenticated) {
+    if (finalizeLoading) {
+      return (
+        <main className="min-h-screen bg-[#F6F6F6] pt-[140px] px-4">
+          <div className="max-w-[720px] mx-auto bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6">
+            <h1 className="text-[20px] font-bold text-[#383838]">Finalizing your donation…</h1>
+            <p className="text-[13px] text-[#737373] mt-1">Please keep this tab open.</p>
+          </div>
+        </main>
+      );
+    }
+    if (finalizeError) {
+      return (
+        <main className="min-h-screen bg-[#F6F6F6] pt-[140px] px-4">
+          <div className="max-w-[720px] mx-auto bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6">
+            <h1 className="text-[20px] font-bold text-[#383838]">We couldn’t finalize your donation</h1>
+            <p className="text-[13px] text-[#737373] mt-1">{finalizeError}</p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  finalizeRef.current = false;
+                  setFinalizeError("");
+                  setFinalizeAttempt((n) => n + 1);
+                }}
+                className="rounded-xl bg-[#EA3335] px-4 py-2 text-[13px] font-semibold text-white hover:bg-red-700 transition-colors cursor-pointer"
+              >
+                Try Again
+              </button>
+              <button
+                type="button"
+                onClick={() => router.replace("/dashboard/donation-history")}
+                className="rounded-xl border border-[#E5E5E5] bg-white px-4 py-2 text-[13px] font-semibold text-[#383838] hover:bg-[#F9F9F9] transition cursor-pointer"
+              >
+                Go to Donation History
+              </button>
+            </div>
+          </div>
+        </main>
+      );
+    }
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-[#F6F6F6] pb-20">
@@ -128,8 +241,26 @@ const ThankYouPage = () => {
                     {sym}{Number(donationAmount).toFixed(2)}
                   </span>
                 ) : "your generous amount"}{" "}
-                has been processed successfully.
+                {finalizeLoading ? "is being finalized." : "has been processed successfully."}
               </p>
+
+              {finalizeError ? (
+                <div className="w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 mb-5 text-left">
+                  <p className="text-[13px] font-semibold text-red-700">Finalization failed</p>
+                  <p className="text-[12px] text-red-700/90 mt-1">{finalizeError}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      finalizeRef.current = false;
+                      setFinalizeError("");
+                      setFinalizeAttempt((n) => n + 1);
+                    }}
+                    className="mt-3 rounded-lg bg-[#EA3335] px-3 py-2 text-[12px] font-semibold text-white hover:bg-red-700 transition-colors cursor-pointer"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : null}
 
               {/* Donation details card */}
               <div className="w-full bg-[#F6F6F6] rounded-xl px-4 py-4 mb-5 text-left">

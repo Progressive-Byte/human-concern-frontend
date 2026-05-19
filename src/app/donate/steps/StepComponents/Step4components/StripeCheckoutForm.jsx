@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
+import { useDonation } from "@/context/DonationContext";
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
 const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   const stripe   = useStripe();
   const elements = useElements();
   const router   = useRouter();
+  const { update } = useDonation();
 
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
@@ -45,6 +47,7 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
       }
 
       if (setupIntent?.status === "succeeded") {
+        update({ setupIntentId: setupIntent.id ?? null });
         sessionStorage.setItem("hc_donation_done", "1");
         router.push("/donate/thank-you");
       }
