@@ -92,7 +92,7 @@ export default function ScheduleDetailPage() {
   const statusLabel = String(schedule?.status?.label || "").trim() || "—";
   const frequency = String(schedule?.frequencyLabel || "").trim() || "—";
   const perLabel = frequencyLabel[frequency] ?? String(frequency || "").toLowerCase();
-  const installmentAmount = Number(schedule?.installmentAmount ?? 0);
+  const nextDonationAmount = Number(schedule?.nextDonation?.amount ?? 0);
   const startedAt = formatDate(schedule?.startedAt) || "—";
   const nextDate = formatDate(schedule?.nextDonation?.date) || "—";
   const nextShort = formatShortDate(schedule?.nextDonation?.date) || "—";
@@ -128,8 +128,8 @@ export default function ScheduleDetailPage() {
                 <DetailRow label="Status" value={loading ? "Loading..." : statusLabel} />
                 <DetailRow label="Frequency" value={loading ? "Loading..." : frequency} />
                 <DetailRow
-                  label="Donation Amount"
-                  value={loading ? "—" : formatCurrency(installmentAmount, currency)}
+                  label="Next Donation Amount"
+                  value={loading ? "—" : formatCurrency(nextDonationAmount, currency)}
                   valueClass="text-2xl font-bold text-[#EA3335]"
                 />
                 <DetailRow label="Next Donation" value={loading ? "—" : nextDate} />
@@ -173,7 +173,7 @@ export default function ScheduleDetailPage() {
             <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
               <h2 className="text-base font-semibold text-[#111827] mb-4">Donation History</h2>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm min-w-[480px]">
+                <table className="w-full text-sm min-w-120">
                   <thead>
                     <tr className="text-left border-b border-[#E5E7EB]">
                       {["Date", "Amount", "Cause", "Status", "Receipt"].map((h) => (

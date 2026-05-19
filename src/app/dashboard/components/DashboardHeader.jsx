@@ -34,12 +34,12 @@ const DashboardHeader = ({ title, subtitle, actions }) => {
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            className="lg:hidden flex flex-col justify-center items-center w-9 h-9 rounded-xl border border-dashed border-[#E5E7EB] bg-white gap-[5px] cursor-pointer"
+            className="lg:hidden flex flex-col justify-center items-center w-9 h-9 rounded-xl border border-dashed border-[#E5E7EB] bg-white gap-1.25 cursor-pointer"
             aria-label="Toggle menu"
           >
-            <span className={`block w-5 h-0.5 bg-[#111827] transition-all ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-[#111827] transition-all ${menuOpen ? "rotate-45 translate-y-1.75" : ""}`} />
             <span className={`block w-5 h-0.5 bg-[#111827] transition-all ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`block w-5 h-0.5 bg-[#111827] transition-all ${menuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-[#111827] transition-all ${menuOpen ? "-rotate-45 -translate-y-1.75" : ""}`} />
           </button>
         </div>
       </header>
