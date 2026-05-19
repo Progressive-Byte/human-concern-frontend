@@ -24,7 +24,7 @@ export default function ScheduleDetailsCard({ schedule, stats, loading = false }
   const currency = String(schedule?.currency || "USD");
   const formName = String(schedule?.formName || "—");
   const frequency = String(schedule?.frequencyLabel || "—");
-  const amount = formatCurrency(Number(schedule?.installmentBaseAmount ?? schedule?.installmentAmount ?? 0), currency);
+  const amount = formatCurrency(Number(schedule?.nextDonationAmount ?? 0), currency);
   const nextDue = formatDate(schedule?.nextDueDate ?? schedule?.nextDonationDate ?? schedule?.nextDonation ?? null);
   const createdAt = formatDate(schedule?.createdAt);
   const s = stats && typeof stats === "object" ? stats : null;
@@ -57,7 +57,7 @@ export default function ScheduleDetailsCard({ schedule, stats, loading = false }
       <div className="mt-4 grid grid-cols-2 gap-5">
         <Row label="Campaign" value={loading ? "—" : formName} />
         <Row label="Frequency" value={loading ? "—" : frequency} />
-        <Row label="Donation Amount" value={loading ? "—" : amount} />
+        <Row label="Next Donation Amount" value={loading ? "—" : amount} />
         <Row label="Next Donation" value={loading ? "—" : nextDue} />
         <Row label="Total Donated" value={loading ? "—" : totalContributed} />
         <Row label="Payments Made" value={loading ? "—" : paymentsMadeLabel} />

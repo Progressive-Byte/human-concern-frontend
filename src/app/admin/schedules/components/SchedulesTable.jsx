@@ -48,14 +48,15 @@ export default function SchedulesTable({ items = [], loading = false, pagination
       <div className="border-t border-[#F3F4F6]" />
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1100px] border-collapse text-[13px] text-[#111827]">
+        <table className="w-full min-w-275 border-collapse text-[13px] text-[#111827]">
           <thead>
             <tr className="text-left text-[12px] font-medium text-[#6B7280]">
               <th className="px-5 py-3">Donor</th>
               <th className="py-3 pr-4">Campaign</th>
               <th className="py-3 pr-4">Cause</th>
               <th className="py-3 pr-4">Frequency</th>
-              <th className="py-3 pr-4 text-right">Amount</th>
+              <th className="py-3 pr-4 text-right">Total Amount</th>
+              <th className="py-3 pr-4 text-right">Next Donation Amount</th>
               <th className="py-3 pr-4">Next Date</th>
               <th className="py-3 pr-4">Status</th>
               <th className="py-3 pr-5 text-right">Actions</th>
@@ -75,9 +76,9 @@ export default function SchedulesTable({ items = [], loading = false, pagination
                 const donorEmail = String(d?.donor?.email || "");
                 const formName = String(d?.formName || "—");
                 const cause = String(d?.primaryCauseLabel || "—");
-                const causeType = String(d?.causeType || "");
                 const freq = String(d?.frequencyLabel || "—");
-                const amount = Number(d?.installmentAmount || 0);
+                const totalAmount = Number(d?.totalDonationAmount || 0);
+                const nextDonationAmount = Number(d?.nextDonationAmount || 0);
                 const nextDate = d?.nextDueDate || null;
                 const status = String(d?.scheduleStatus || "—");
 
@@ -99,11 +100,11 @@ export default function SchedulesTable({ items = [], loading = false, pagination
                     <td className="py-4 pr-4">
                       <span className="inline-flex items-center gap-2 rounded-full bg-[#F3F4F6] px-3 py-1 text-[11px] font-semibold text-[#6B7280]">
                         <span className="truncate">{cause}</span>
-                        {causeType ? <span className="text-[#9CA3AF]">{causeType}</span> : null}
                       </span>
                     </td>
                     <td className="py-4 pr-4">{freq}</td>
-                    <td className="py-4 pr-4 text-right font-semibold">{amt(amount, currency)}</td>
+                    <td className="py-4 pr-4 text-right font-semibold">{amt(totalAmount, currency)}</td>
+                    <td className="py-4 pr-4 text-right font-semibold">{amt(nextDonationAmount, currency)}</td>
                     <td className="py-4 pr-4 text-[#6B7280]">{formatDate(nextDate)}</td>
                     <td className="py-4 pr-4">
                       <ScheduleStatusPill status={status} />
