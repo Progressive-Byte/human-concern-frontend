@@ -219,8 +219,8 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
         </div>
 
         {loading ? (
-          <div className="mt-5 space-y-4">
-            {Array.from({ length: 5 }).map((_, idx) => (
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, idx) => (
               <div key={idx} className="animate-pulse rounded-2xl border border-[#E5E7EB] bg-white p-4">
                 <div className="h-3 w-32 rounded bg-[#E5E7EB]" />
                 <div className="mt-3 h-4 w-2/3 rounded bg-[#E5E7EB]" />
@@ -233,7 +233,7 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
             Unable to load review. Please try again.
           </div>
         ) : (
-          <div className="mt-5 space-y-4">
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
             <SummaryCard
               label="Basics"
               onEdit={() => onExit?.({ nextStep: "basics" })}
@@ -362,6 +362,14 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
                   : String(form?.status || "").trim().toLowerCase() === "published"
                     ? "Move to Draft"
                     : "Create as Draft"}
+              </button>
+              <button
+                type="button"
+                onClick={() => window.open(`/admin/forms/preview/1?formId=${encodeURIComponent(formId)}`, "_blank", "noopener,noreferrer")}
+                disabled={publishing || drafting || loading}
+                className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Preview Donation Form
               </button>
               <button
                 type="button"

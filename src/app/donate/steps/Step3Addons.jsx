@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "./StepComponents/StepLayout";
@@ -31,6 +32,8 @@ function calcAddOnTotal(addOn, inputValues) {
 }
 
 const Step3Addons = () => {
+  const pathname = usePathname();
+  const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 
@@ -79,8 +82,8 @@ const Step3Addons = () => {
 
   const [tipPct,          setTipPct]          = useState(data.tipPct ?? 10);
   const [customTipAmount, setCustomTipAmount] = useState(data.customTipAmount ?? "");
-  const [gatewayState,    setGatewayState]    = useState({
-    gateway:        ["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null,
+  const [gatewayState, setGatewayState] = useState({
+    gateway: isPreview ? "stripe" : (["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null),
     publishableKey: null,
   });
   const [customNoteValues, setCustomNoteValues] = useState(() =>
@@ -260,10 +263,23 @@ const Step3Addons = () => {
       return;
     }
     setNoteErrors({});
-    update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod: gatewayState.gateway });
+    const paymentMethod = isPreview ? "stripe" : gatewayState.gateway;
+    update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod });
     setSubmitting(true);
     setSubmitError(null);
     try {
+      if (isPreview) {
+        update({
+          donationId: "preview",
+          guestSessionId: null,
+          stripeClientSecret: null,
+          stripePublishableKey: null,
+          submitted: true,
+        });
+        handleNext(4);
+        setSubmitting(false);
+        return;
+      }
       const res     = await apiRequest("donations/submit", { method: "POST", body: JSON.stringify(buildSubmitBody()) });
       const payment = res?.data?.payment ?? {};
       update({
@@ -292,7 +308,7 @@ const Step3Addons = () => {
         handlePrev(2);
       }}
       prevLabel="Back"
-      nextLabel={submitting ? "Submitting…" : "Complete Donation"}
+      nextLabel={submitting ? "Submitting…" : isPreview ? "Preview Confirmation" : "Complete Donation"}
     >
       <div className="flex flex-col gap-4">
 
@@ -390,11 +406,13 @@ const Step3Addons = () => {
           </div>
         )}
 
-        <PaymentGatewaySelector
-          isRecurring={isRecurring}
-          initialGateway={["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null}
-          onChange={setGatewayState}
-        />
+        {!isPreview ? (
+          <PaymentGatewaySelector
+            isRecurring={isRecurring}
+            initialGateway={["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null}
+            onChange={setGatewayState}
+          />
+        ) : null}
 
         {submitError && (
           <p className="text-[13px] text-[#EA3335] bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-3">
