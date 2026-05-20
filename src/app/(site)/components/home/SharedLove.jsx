@@ -47,12 +47,12 @@ const SharedLove = () => {
   }, [reducedMotion]);
 
   const itemBase =
-    "hc-reveal motion-reduce:transition-none transition-[transform,opacity,filter,box-shadow] duration-[650ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]";
+    "hc-reveal motion-reduce:transition-none transition-[transform,opacity,filter,box-shadow] duration-[650ms] ease-out";
   const itemIn = inView ? "hc-reveal-in" : "";
   const hoverWrap =
-    "group will-change-[transform,box-shadow] transition-[transform,box-shadow] duration-[420ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:shadow-none hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(0,0,0,0.18)]";
+    "group will-change-transform transition duration-300 ease-out motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:shadow-none hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(0,0,0,0.18)]";
   const hoverImg =
-    "object-cover transform-gpu scale-100 will-change-transform transition-transform duration-[720ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.03]";
+    "object-cover transition-transform duration-700 ease-out motion-reduce:transition-none group-hover:scale-[1.03]";
 
   return (
     <section ref={sectionRef} className="pt-16 pb-16 sm:pt-20 sm:pb-20 lg:pt-[116px] lg:pb-[70px] bg-white" id="shared-love">
