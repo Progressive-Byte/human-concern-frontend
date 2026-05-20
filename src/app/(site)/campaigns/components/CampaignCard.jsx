@@ -21,7 +21,7 @@ const CampaignCard = ({ campaign }) => {
   
 
   return (
-    <div data-campaign-card className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1">
+    <div data-campaign-card className="group bg-white rounded-3xl overflow-hidden border border-gray-100">
       {/* Thumbnail */}
       <div className="relative h-[303px] overflow-hidden">
         <Image
