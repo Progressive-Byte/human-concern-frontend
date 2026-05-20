@@ -58,12 +58,11 @@ useEffect(() => {
 }, [reducedMotion]);
 
 const revealBase =
-  "hc-reveal motion-reduce:transition-none transition-[transform,opacity,filter] duration-[700ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]";
+  "hc-reveal motion-reduce:transition-none transition-[transform,opacity,filter] duration-[700ms] ease-out";
 const revealIn = inView ? "hc-reveal-in" : "";
-const cardHover =
-  "transition-[transform,box-shadow,border-color] duration-[360ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] will-change-[transform] hover:scale-[1.02] hover:shadow-[0_28px_64px_rgba(0,0,0,0.22)] hover:border-white/25";
+const cardHover = "group";
 const iconHover =
-  "transition-transform duration-[420ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] will-change-transform group-hover:-translate-y-1 group-hover:rotate-2";
+  "transition-transform duration-500 ease-in-out will-change-transform group-hover:-translate-y-1 group-hover:rotate-2";
 
   return (
     <section className="pt-[60px] pb-[80px] sm:pt-[80px] sm:pb-[100px] lg:pt-[140px] lg:pb-[170px] bg-[url('/images/bg/how-it-works.png')] bg-cover bg-center"
@@ -86,7 +85,7 @@ const iconHover =
               className={`${revealBase} ${revealIn} group relative bg-cover bg-center bg-no-repeat rounded-2xl overflow-hidden h-full px-5 py-6 sm:px-6 sm:py-8 lg:px-[57px] lg:py-[42px] border border-transparent ${cardHover}`}
               style={{ backgroundImage: `url(${bg})`, transitionDelay: `${180 + index * 200}ms` }}
             >
-              <div className="absolute inset-0 bg-transparent md:bg-[#00000033] lg:bg-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
 
               <div
                 className={`pointer-events-none absolute top-4 right-4 z-10 h-14 w-14 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md text-white/50 flex items-center justify-center ${index === 0 ? "hc-float-soft" : index === 1 ? "hc-float-soft-2" : "hc-float-soft-3"} ${iconHover}`}
