@@ -20,3 +20,5 @@ const SiteLayout = ({ children }) => {
     </>
   );
 }
+
+export default SiteLayout
