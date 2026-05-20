@@ -1,21 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader } from "@googlemaps/js-api-loader";
+import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 
-let loaderInstance = null;
-
-const getLoader = () => {
-  if (!loaderInstance) {
-    loaderInstance = new Loader({
-      apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
-      libraries: ["places"],
-    });
-  }
-  return loaderInstance;
-};
-
-const GooglePlacesInput = ({ value, onChange, onPlaceSelect, placeholder, required }) => {
+const GooglePlacesInput = ({ value, onChange, onPlaceSelect, placeholder }) => {
   const inputRef = useRef(null);
   const autocompleteRef = useRef(null);
   const [inputValue, setInputValue] = useState(value ?? "");
@@ -27,17 +15,17 @@ const GooglePlacesInput = ({ value, onChange, onPlaceSelect, placeholder, requir
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (!apiKey || apiKey === "your_google_maps_api_key_here") return;
+    if (!apiKey || apiKey === "AIzaSyAGJQEr8MSBv3Vf8OFhggbe01JbArhISeU") return;
 
-    getLoader()
-      .load()
-      .then(() => {
+    setOptions({ apiKey });
+
+    importLibrary("places")
+      .then(({ Autocomplete }) => {
         if (!inputRef.current) return;
 
-        autocompleteRef.current = new window.google.maps.places.Autocomplete(
-          inputRef.current,
-          { types: ["address"] }
-        );
+        autocompleteRef.current = new Autocomplete(inputRef.current, {
+          types: ["address"],
+        });
 
         autocompleteRef.current.addListener("place_changed", () => {
           const place = autocompleteRef.current.getPlace();
@@ -78,7 +66,6 @@ const GooglePlacesInput = ({ value, onChange, onPlaceSelect, placeholder, requir
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
-  // onPlaceSelect intentionally omitted — stable reference expected from parent
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
