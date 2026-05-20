@@ -78,8 +78,6 @@ const DonationWidget = ({ campaign }) => {
 
   return (
     <div className="flex flex-col gap-[25px]">
-
-      {/* ── Card 1: Progress + CTA ── */}
       <div className="rounded-2xl border border-dashed border-[#BFBFBF]">
         <div className="px-5 pt-5">
 
