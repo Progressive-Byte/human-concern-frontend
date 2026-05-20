@@ -14,3 +14,5 @@ const AdminAuthLayout = ({ children }) => {
     </AdminAuthProvider>
   );
 }
+
+export default AdminAuthLayout
