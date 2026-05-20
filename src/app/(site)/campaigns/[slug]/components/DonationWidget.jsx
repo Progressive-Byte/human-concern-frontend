@@ -146,17 +146,19 @@ const DonationWidget = ({ campaign }) => {
                     <button
                       key={amt}
                       onClick={() => { setSelectedAmount(amt); setCustomAmount(""); setShowCustom(false); }}
-                      className={`w-full flex items-center gap-4 rounded-2xl px-4 py-3.5 border transition-all duration-200 cursor-pointer text-left ${
+                      className={`w-full flex items-center rounded-2xl border transition-all duration-200 cursor-pointer text-left ${
                         isSelected
                           ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-                          : "bg-white border-[#E5E5E5] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                          : "bg-[#F5F5F5] border-transparent hover:border-[#055A4666]"
                       }`}
                     >
-                      <span className={`text-[22px] font-bold leading-tight shrink-0 w-16 ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
-                        ${amt}
-                      </span>
+                      <div className="shrink-0 w-20 bg-white rounded-xl m-2 px-2 py-3 text-center">
+                        <span className={`text-[20px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
+                          ${amt}
+                        </span>
+                      </div>
                       {desc && (
-                        <span className={`text-[13px] leading-snug ${isSelected ? "text-[#055A46]" : "text-[#737373]"}`}>
+                        <span className={`text-[13px] leading-snug px-3 ${isSelected ? "text-[#055A46]" : "text-[#737373]"}`}>
                           {desc}
                         </span>
                       )}
