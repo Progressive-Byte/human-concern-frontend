@@ -30,10 +30,7 @@ const DonationWidget = ({ campaign }) => {
   const [showCustom,     setShowCustom]     = useState(false);
   const [currency,       setCurrency]       = useState(campaign.currency ?? "USD");
   const [copied,         setCopied]         = useState(false);
-  const finalAmount        = (showCustom && customAmount) ? Number(customAmount) : selectedAmount;
-  const selectedAmtDesc    = !showCustom
-    ? (suggestedAmountsData.find((a) => a.value === selectedAmount)?.description ?? "")
-    : "";
+  const finalAmount = (showCustom && customAmount) ? Number(customAmount) : selectedAmount;
 
   const handleDonate = () => {
     const gd = campaign.goalsDates ?? {};
