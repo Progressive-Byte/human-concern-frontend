@@ -5,7 +5,7 @@ import AdminSidebar from "@/components/layout/AdminSidebar";
 import { ToastProvider } from "@/app/admin/campaigns/components/ToastProvider";
 import { useState } from "react";
 
-export default function AdminLayout({ children }) {
+const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -59,3 +59,4 @@ export default function AdminLayout({ children }) {
     </AdminAuthProvider>
   );
 }
+export default AdminLayout;

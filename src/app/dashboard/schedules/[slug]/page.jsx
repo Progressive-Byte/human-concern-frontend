@@ -52,17 +52,8 @@ function statusClass(statusKey) {
   return "text-[#047857]";
 }
 
-function statusDotClass(statusKey) {
-  const s = String(statusKey || "").toLowerCase();
-  if (s === "succeeded") return "bg-[#047857]";
-  if (s === "pending") return "bg-[#B45309]";
-  if (s === "requires_action") return "bg-[#B45309]";
-  if (s === "failed") return "bg-[#EA3335]";
-  if (s === "refunded") return "bg-[#6B7280]";
-  return "bg-[#047857]";
-}
+const ScheduleDetailPage = () => {
 
-export default function ScheduleDetailPage() {
   const params = useParams();
   const scheduleId = String(params?.slug || "").trim();
   const router = useRouter();
@@ -467,3 +458,4 @@ export default function ScheduleDetailPage() {
     </>
   );
 }
+export default ScheduleDetailPage;

@@ -1,4 +1,4 @@
-export default function AddOnsFilters({ q, status, onChangeQ, onChangeStatus }) {
+const AddOnsFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="relative flex-1">
@@ -36,3 +36,4 @@ export default function AddOnsFilters({ q, status, onChangeQ, onChangeStatus }) 
   );
 }
 
+export default AddOnsFilters;

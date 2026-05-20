@@ -4,7 +4,7 @@ import Link from "next/link";
 import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
-export default function AddOnsHeader({ onCreate }) {
+const AddOnsHeader = ({ onCreate }) => {
   const { admin } = useAdminAuth();
 
   return (
@@ -45,3 +45,4 @@ export default function AddOnsHeader({ onCreate }) {
   );
 }
 
+export default AddOnsHeader;
