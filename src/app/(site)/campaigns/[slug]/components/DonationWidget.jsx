@@ -169,14 +169,19 @@ const DonationWidget = ({ campaign }) => {
                 {/* Other Amount */}
                 <button
                   onClick={() => { setShowCustom(true); setCustomAmount(""); }}
-                  className={`w-full flex items-center gap-4 rounded-2xl px-4 py-3.5 border transition-all duration-200 cursor-pointer ${
+                  className={`w-full flex items-center rounded-2xl border transition-all duration-200 cursor-pointer ${
                     showCustom
                       ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-                      : "bg-white border-[#E5E5E5] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                      : "bg-[#F5F5F5] border-transparent hover:border-[#055A4666]"
                   }`}
                 >
-                  <span className={`text-[15px] font-bold ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
-                    Other Amount
+                  <div className="shrink-0 w-20 bg-white rounded-xl m-2 px-2 py-3 text-center">
+                    <span className={`text-[14px] font-bold ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
+                      Other
+                    </span>
+                  </div>
+                  <span className={`text-[13px] font-medium px-3 ${showCustom ? "text-[#055A46]" : "text-[#737373]"}`}>
+                    Enter a custom amount
                   </span>
                 </button>
               </div>
