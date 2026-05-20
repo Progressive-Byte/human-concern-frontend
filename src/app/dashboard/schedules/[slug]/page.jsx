@@ -53,7 +53,6 @@ function statusClass(statusKey) {
 }
 
 const ScheduleDetailPage = () => {
-
   const params = useParams();
   const scheduleId = String(params?.slug || "").trim();
   const router = useRouter();
@@ -397,6 +396,16 @@ const ScheduleDetailPage = () => {
                         const causeLabel = String(causes?.[0]?.label || "").trim() || "—";
                         const statusKey2 = String(row?.status?.key || "").trim().toLowerCase();
                         const statusLabel2 = String(row?.status?.label || "").trim() || "—";
+                        const statusDot =
+                          statusKey2 === "succeeded"
+                            ? "bg-[#047857]"
+                            : statusKey2 === "pending" || statusKey2 === "requires_action"
+                              ? "bg-[#B45309]"
+                              : statusKey2 === "failed"
+                                ? "bg-[#EA3335]"
+                                : statusKey2 === "refunded"
+                                  ? "bg-[#6B7280]"
+                                  : "bg-[#047857]";
                         return (
                           <tr key={String(row?.transactionId || i)} className="hover:bg-[#F9FAFB] transition-colors">
                             <td className="py-3.5 px-2 first:pl-0 text-[#111827] font-medium">{date}</td>
@@ -408,7 +417,7 @@ const ScheduleDetailPage = () => {
                             </td>
                             <td className="py-3.5 px-2">
                               <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${statusClass(statusKey2)}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${statusDotClass(statusKey2)}`} />
+                                <span className={`w-1.5 h-1.5 rounded-full ${statusDot}`} />
                                 {statusLabel2}
                               </span>
                             </td>
