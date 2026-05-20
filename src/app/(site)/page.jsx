@@ -12,7 +12,7 @@ import WaysToGive from "./components/home/WaysToGive";
 import CtaBanner from "./components/home/CtaBanner";
 
 /* ─── Page ───── */
-export default function HomePage() {
+const HomePage = () => {
 
   const [openVideo, setOpenVideo] = useState(false);
 
@@ -115,3 +115,4 @@ export default function HomePage() {
     </>
   );
 }
+export default HomePage;
