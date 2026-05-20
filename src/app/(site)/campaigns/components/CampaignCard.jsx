@@ -21,14 +21,15 @@ const CampaignCard = ({ campaign }) => {
   
 
   return (
-    <div className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1">
+    <div data-campaign-card className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1">
       {/* Thumbnail */}
       <div className="relative h-[303px] overflow-hidden">
         <Image
           src={thumbnailUrl}
           alt={title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          data-campaign-card-image
+          className="object-cover"
         />
         <div className="absolute top-4 left-4 flex gap-2">
             <div className="flex items-center bg-[#FFF1F1] text-[#FF3636] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm">
@@ -60,7 +61,7 @@ const CampaignCard = ({ campaign }) => {
 
       {/* Content */}
       <div className="px-5 pt-3">
-        <h3 className="font-semibold text-[26px] text-[#383838]">{title}</h3>
+        <h3 className="font-semibold text-[26px] text-[#383838]"><span data-campaign-card-title>{title}</span></h3>
 
         <p className="text-[#383838] pt-2 font-normal text-[15px]">
           {campaign.description}

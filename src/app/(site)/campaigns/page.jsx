@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef, Suspense } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import CustomDropdown from "@/components/common/CustomDropdown";
@@ -38,6 +38,23 @@ function buildURLParams({ q, category, cause, sort, page }) {
   return p.toString();
 }
 
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReduced(Boolean(mq.matches));
+    onChange();
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+    else mq.addListener(onChange);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", onChange);
+      else mq.removeListener(onChange);
+    };
+  }, []);
+  return reduced;
+}
+
 const CampaignsPageInner = () => {
   const router       = useRouter();
   const pathname     = usePathname();
@@ -62,6 +79,8 @@ const CampaignsPageInner = () => {
   const [categories,   setCategories]   = useState([ALL_OPTION]);
   const [causes,       setCauses]       = useState([ALL_OPTION]);
   const [filtersReady, setFiltersReady] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
+  const spotlightRef = useRef(null);
 
   // key → name maps used for client-side campaign filtering
   const categoryMap = useRef({});  // { "education": "Education", ... }
@@ -163,6 +182,40 @@ const CampaignsPageInner = () => {
     return () => clearTimeout(timer);
   }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const canSpotlight = useMemo(() => {
+    if (reducedMotion) return false;
+    if (typeof window === "undefined") return false;
+    const finePointer = window.matchMedia?.("(pointer: fine)")?.matches ?? false;
+    const hoverCapable = window.matchMedia?.("(hover: hover)")?.matches ?? false;
+    return finePointer && hoverCapable;
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    if (!canSpotlight) return;
+    const el = spotlightRef.current;
+    if (!el) return;
+
+    const onMove = (e) => {
+      const rect = el.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      el.style.setProperty("--hc-mx", `${Math.max(0, Math.min(100, x))}%`);
+      el.style.setProperty("--hc-my", `${Math.max(0, Math.min(100, y))}%`);
+      el.setAttribute("data-spotlight-active", "1");
+    };
+
+    const onLeave = () => {
+      el.setAttribute("data-spotlight-active", "0");
+    };
+
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+    };
+  }, [canSpotlight]);
+
   const handleCategoryChange = (category) => {
     setActiveCategory(category);
     setCurrentPage(1);
@@ -200,10 +253,13 @@ const CampaignsPageInner = () => {
   const activeCauseLabel    = causes.find(c => c.value === activeCause)?.label ?? "";
 
   return (
-    <main className="bg-[#F6F6F6] min-h-screen">
+    <main data-page="campaigns" className="bg-[#F6F6F6] min-h-screen hc-animate-fade-up">
 
       {/* Hero banner */}
-      <div className="bg-[url('/images/bg/cta-bg.png')] bg-cover bg-center bg-no-repeat w-full">
+      <div className="relative z-10 overflow-visible bg-[url('/images/bg/cta-bg.png')] bg-cover bg-center bg-no-repeat w-full">
+        <div className="absolute inset-0 pointer-events-none opacity-70">
+          <div className="absolute inset-0 hc-aurora" aria-hidden="true" />
+        </div>
         <div className="max-w-[1611px] mx-auto pt-[140px] pb-[92px] px-4 sm:px-6">
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
             All Campaigns
@@ -225,7 +281,7 @@ const CampaignsPageInner = () => {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search campaigns..."
-                className="w-full bg-[#FFFFFF40] rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white outline-none focus:ring-1 focus:ring-white/30 transition-all"
+                className="w-full bg-[#FFFFFF40] rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/80 outline-none focus:ring-1 focus:ring-white/30 transition-all hover:bg-[#FFFFFF4D] focus:shadow-[0_18px_40px_rgba(0,0,0,0.14)]"
               />
             </div>
 
@@ -238,6 +294,7 @@ const CampaignsPageInner = () => {
               showDot={!!activeCategory}
               maxHeight="260px"
               width="w-64"
+              className="hc-campaigns-filter"
             />
 
             <CustomDropdown
@@ -249,6 +306,7 @@ const CampaignsPageInner = () => {
               showDot={!!activeCause}
               maxHeight="260px"
               width="w-64"
+              className="hc-campaigns-filter"
             />
 
             {/* Sort */}
@@ -259,13 +317,14 @@ const CampaignsPageInner = () => {
               label="SORT BY"
               maxHeight="180px"
               width="w-52"
+              className="hc-campaigns-filter"
             />
           </div>
         </div>
       </div>
 
       {/* Results area */}
-      <div className="max-w-[1611px] mx-auto px-4 sm:px-6 py-8">
+      <div ref={spotlightRef} data-spotlight data-spotlight-active="0" className="relative z-0 max-w-[1611px] mx-auto px-4 sm:px-6 py-8">
 
         {/* Result count bar */}
         <div className="flex items-center justify-between mb-6">
