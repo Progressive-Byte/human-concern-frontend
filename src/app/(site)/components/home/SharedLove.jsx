@@ -49,10 +49,9 @@ const SharedLove = () => {
   const itemBase =
     "hc-reveal motion-reduce:transition-none transition-[transform,opacity,filter,box-shadow] duration-[650ms] ease-out";
   const itemIn = inView ? "hc-reveal-in" : "";
-  const hoverWrap =
-    "group will-change-transform transition duration-500 ease-out motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:shadow-none hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(0,0,0,0.18)]";
+  const hoverWrap = "group";
   const hoverImg =
-    "object-cover transition duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.03] group-hover:brightness-90";
+    "object-cover transition duration-500 ease-in-out motion-reduce:transition-none group-hover:scale-[1.08] group-hover:brightness-75";
 
   return (
     <section ref={sectionRef} className="pt-16 pb-16 sm:pt-20 sm:pb-20 lg:pt-[116px] lg:pb-[70px] bg-white" id="shared-love">
