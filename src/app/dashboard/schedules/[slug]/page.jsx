@@ -49,7 +49,7 @@ function statusClass(statusKey) {
   return "text-[#047857]";
 }
 
-export default function ScheduleDetailPage() {
+const ScheduleDetailPage = () => {
   const params = useParams();
   const scheduleId = String(params?.slug || "").trim();
 
@@ -263,3 +263,4 @@ export default function ScheduleDetailPage() {
     </>
   );
 }
+export default ScheduleDetailPage;
