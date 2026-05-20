@@ -180,7 +180,7 @@ const DonationWidget = ({ campaign }) => {
             </div>
           )}
         </div>
-        {/* Custom amount input — visible only when Custom is active */}
+        {/* Custom amount */}
         {showCustom && (
           <div className="relative mt-3 px-4">
             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
