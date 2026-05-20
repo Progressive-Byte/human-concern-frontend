@@ -81,3 +81,13 @@ export function getUserNotificationPreferences() {
 export function updateUserNotificationPreferences(payload) {
   return apiRequest("/user/profile/notification-preferences", { method: "PATCH", body: JSON.stringify(payload) });
 }
+
+export function getUserInstallmentAction(installmentId) {
+  const id = encodeURIComponent(String(installmentId || "").trim());
+  return apiRequest(`/user/installments/${id}/action`, { method: "GET" });
+}
+
+export function syncUserInstallment(installmentId) {
+  const id = encodeURIComponent(String(installmentId || "").trim());
+  return apiRequest(`/user/installments/${id}/sync`, { method: "POST" });
+}

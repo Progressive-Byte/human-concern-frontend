@@ -84,14 +84,24 @@ export function AuthProvider({ children }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function login(credentials) {
+  async function login(credentials, { redirectTo } = {}) {
     const res = await apiLogin(credentials);
     const { user, accessToken } = res.data;
 
     setCookie("token", accessToken);
     saveUser(user);
     setUser(user);
-    router.push("/dashboard");
+    let target = typeof redirectTo === "string" ? redirectTo : null;
+    if (!target && typeof window !== "undefined") {
+      try {
+        const stored = sessionStorage.getItem("hc_redirect_after_login");
+        if (stored) {
+          sessionStorage.removeItem("hc_redirect_after_login");
+          target = stored;
+        }
+      } catch {}
+    }
+    router.push(target || "/dashboard");
     return res;
   }
 

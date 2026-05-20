@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { AlertIcon, EyeIcon, EyeOffIcon, GoogleIcon, Spinner } from "@/components/common/SvgIcon";
@@ -8,6 +8,7 @@ import { FormField, FormInput, validateLogin } from "@/components/common/FormInp
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const [redirectTo, setRedirectTo] = useState(null);
 
   const [values, setValues] = useState({ email: "", password: "" });
   const [touched, setTouched] = useState({});
@@ -16,6 +17,16 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      const raw = params.get("redirect");
+      const next = typeof raw === "string" ? raw.trim() : "";
+      if (next && next.startsWith("/")) setRedirectTo(next);
+    } catch {}
+  }, []);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -40,7 +51,12 @@ export default function LoginPage() {
     setIsLoading(true);
     setServerError("");
     try {
-      await login({ email: values.email, password: values.password });
+      if (redirectTo && typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem("hc_redirect_after_login", redirectTo);
+        } catch {}
+      }
+      await login({ email: values.email, password: values.password }, { redirectTo });
     } catch (err) {
       setServerError(err.message || "Login failed. Please try again.");
     } finally {
