@@ -163,7 +163,7 @@ const DonationWidget = ({ campaign }) => {
                   );
                 })}
 
-                {/* Custom toggle button — same size as suggested amount tiles */}
+                {/* Custom toggle button */}
                 <button
                   onClick={() => { setShowCustom(true); setCustomAmount(""); }}
                   className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
