@@ -148,7 +148,7 @@ const DonationWidget = ({ campaign }) => {
                       onClick={() => { setSelectedAmount(amt); setCustomAmount(""); setShowCustom(false); }}
                       className={`w-full flex items-center gap-4 rounded-2xl px-4 py-3.5 border transition-all duration-200 cursor-pointer text-left ${
                         isSelected
-                          ? "bg-[#F0FDF4] border-[#055A46]"
+                          ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
                           : "bg-white border-[#E5E5E5] hover:border-[#055A4666] hover:bg-[#F7FFED]"
                       }`}
                     >
