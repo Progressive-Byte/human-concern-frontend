@@ -6,7 +6,7 @@ import { ThankyouIcon, ShareCampaignIcon, CircleCheckIcon, VideoDashboard, Brows
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-export default function ThankYouModal({ thankyouData, onClose }) {
+const ThankYouModal = ({ thankyouData, onClose }) => {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
 
@@ -136,3 +136,4 @@ export default function ThankYouModal({ thankyouData, onClose }) {
     </div>
   );
 }
+export default ThankYouModal;
