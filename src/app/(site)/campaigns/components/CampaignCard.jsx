@@ -29,7 +29,7 @@ const CampaignCard = ({ campaign }) => {
           alt={title}
           fill
           data-campaign-card-image
-          className="object-cover"
+          className="object-cover transition-transform duration-[780ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
         <div className="absolute top-4 left-4 flex gap-2">
             <div className="flex items-center bg-[#FFF1F1] text-[#FF3636] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm">
