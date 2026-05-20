@@ -227,6 +227,16 @@
       display: none;
     }
 
+    [data-campaign-card] {
+      transition: none;
+      will-change: auto;
+    }
+
+    [data-campaign-card-image] {
+      transition: none;
+      will-change: auto;
+    }
+
     .hc-hover-lift {
       transition: none;
     }
