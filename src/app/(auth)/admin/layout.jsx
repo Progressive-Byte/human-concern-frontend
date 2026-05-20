@@ -2,7 +2,7 @@
 
 import { AdminAuthProvider } from "@/context/AdminAuthContext";
 
-export default function AdminAuthLayout({ children }) {
+const AdminAuthLayout = ({ children }) => {
   return (
     <AdminAuthProvider>
       <div className="mb-5 rounded-lg bg-[#EA3335]/10 border border-[#EA3335]/20 px-3 py-1.5 text-center">
@@ -14,3 +14,5 @@ export default function AdminAuthLayout({ children }) {
     </AdminAuthProvider>
   );
 }
+
+export default AdminAuthLayout

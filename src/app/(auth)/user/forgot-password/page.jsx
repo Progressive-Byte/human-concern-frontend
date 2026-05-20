@@ -5,12 +5,7 @@ import Link from "next/link";
 import { AlertIcon, Spinner } from "@/components/common/SvgIcon";
 import { FormField, FormInput } from "@/components/common/FormInput";
 import { requestPasswordReset } from "@/services/authService";
-
-function validateEmail(value) {
-  if (!value) return "Email address is required";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Enter a valid email address";
-  return "";
-}
+import { validateEmail } from "@/utils/validateEmail";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

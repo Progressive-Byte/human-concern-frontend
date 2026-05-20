@@ -8,7 +8,7 @@ export const metadata = {
   description: "A platform for connecting people and resources to address human concerns.",
 };
 
-export default function RootLayout({ children }) {
+const RootLayout = ({ children }) => {
   return (
     <html lang="en">
       <body className="antialiased">
@@ -21,3 +21,5 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+export default RootLayout

@@ -78,8 +78,6 @@ const DonationWidget = ({ campaign }) => {
 
   return (
     <div className="flex flex-col gap-[25px]">
-
-      {/* ── Card 1: Progress + CTA ── */}
       <div className="rounded-2xl border border-dashed border-[#BFBFBF]">
         <div className="px-5 pt-5">
 
@@ -114,7 +112,7 @@ const DonationWidget = ({ campaign }) => {
             </>
           )}
 
-          {/* Donors + Days Left */}
+          {/* Donors */}
           <div className="grid grid-cols-2 gap-3 mt-4">
             <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
               <p className="text-[24px] font-bold text-[#383838]">
@@ -163,7 +161,7 @@ const DonationWidget = ({ campaign }) => {
                   );
                 })}
 
-                {/* Custom toggle button — same size as suggested amount tiles */}
+                {/* Custom toggle button */}
                 <button
                   onClick={() => { setShowCustom(true); setCustomAmount(""); }}
                   className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
@@ -180,7 +178,7 @@ const DonationWidget = ({ campaign }) => {
             </div>
           )}
         </div>
-        {/* Custom amount input — visible only when Custom is active */}
+        {/* Custom amount */}
         {showCustom && (
           <div className="relative mt-3 px-4">
             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
