@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function AuthLayout({ children }) {
+const AuthLayout = ({ children }) => {
   return (
     <div
       className="min-h-screen flex items-center justify-center py-[140px] bg-[url('/images/bg/registration-bg.png')] bg-cover bg-center bg-no-repeat"
@@ -22,3 +22,5 @@ export default function AuthLayout({ children }) {
     </div>
   );
 }
+
+export default AuthLayout
