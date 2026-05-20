@@ -114,7 +114,7 @@ const DonationWidget = ({ campaign }) => {
             </>
           )}
 
-          {/* Donors + Days Left */}
+          {/* Donors */}
           <div className="grid grid-cols-2 gap-3 mt-4">
             <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
               <p className="text-[24px] font-bold text-[#383838]">
