@@ -89,6 +89,20 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
     setError("");
   };
 
+  // called when Google Places autocomplete selects an address
+  const handlePlaceSelect = useCallback((parsed) => {
+    setCountryCode(parsed.countryCode);
+    setStateCode(parsed.stateCode);
+    update({
+      addressLine1: parsed.addressLine1,
+      country:      parsed.country,
+      province:     parsed.province,
+      city:         parsed.city,
+      zip:          parsed.zip,
+    });
+    setError("");
+  }, [update, setError]);
+
   return (
     <div className="border border-dashed border-[#E5E7EB] rounded-2xl">
       <button
