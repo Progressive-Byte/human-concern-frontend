@@ -138,36 +138,42 @@ const DonationWidget = ({ campaign }) => {
                   className="w-full rounded-2xl border border-[#CCCCCC] bg-white px-3 py-2.5 justify-between"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3 mt-3">
+              <div className="flex flex-col gap-2 mt-3">
                 {suggestedAmounts.map((amt) => {
                   const isSelected = selectedAmount === amt && !showCustom;
+                  const desc = suggestedAmountsData.find((a) => a.value === amt)?.description ?? "";
                   return (
                     <button
                       key={amt}
                       onClick={() => { setSelectedAmount(amt); setCustomAmount(""); setShowCustom(false); }}
-                      className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
+                      className={`w-full flex items-center gap-4 rounded-2xl px-4 py-3.5 border transition-all duration-200 cursor-pointer text-left ${
                         isSelected
-                          ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-                          : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                          ? "bg-[#F0FDF4] border-[#055A46]"
+                          : "bg-white border-[#E5E5E5] hover:border-[#055A4666] hover:bg-[#F7FFED]"
                       }`}
                     >
-                      <span className={`text-[24px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
+                      <span className={`text-[22px] font-bold leading-tight shrink-0 w-16 ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
                         ${amt}
                       </span>
+                      {desc && (
+                        <span className={`text-[13px] leading-snug ${isSelected ? "text-[#055A46]" : "text-[#737373]"}`}>
+                          {desc}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
 
-                {/* Custom toggle button */}
+                {/* Other Amount */}
                 <button
                   onClick={() => { setShowCustom(true); setCustomAmount(""); }}
-                  className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
+                  className={`w-full flex items-center gap-4 rounded-2xl px-4 py-3.5 border transition-all duration-200 cursor-pointer ${
                     showCustom
-                      ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-                      : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                      ? "bg-[#F0FDF4] border-[#055A46]"
+                      : "bg-white border-[#E5E5E5] hover:border-[#055A4666] hover:bg-[#F7FFED]"
                   }`}
                 >
-                  <span className={`text-[15px] font-bold leading-tight mt-1 ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
+                  <span className={`text-[15px] font-bold ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
                     Other Amount
                   </span>
                 </button>
