@@ -123,12 +123,20 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
 
       {addressExpanded && (
         <div className="flex flex-col gap-4 px-4 py-4">
-          <Field
-            label="Address Line 1"
-            required
-            placeholder="Street number, house number and street name"
-            {...addressField("addressLine1")}
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-[13px] font-medium text-[#111827]">
+              Address Line 1<span className="text-[#EA3335] ml-0.5">*</span>
+            </label>
+            <GooglePlacesInput
+              value={data.addressLine1 ?? ""}
+              onChange={(e) => { update({ addressLine1: e.target.value }); setError(""); }}
+              onPlaceSelect={handlePlaceSelect}
+              placeholder="Start typing your address…"
+            />
+            <p className="text-[11px] text-[#AEAEAE]">
+              Select from suggestions to auto-fill country, state and city — or type manually.
+            </p>
+          </div>
 
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-medium text-[#111827]">
