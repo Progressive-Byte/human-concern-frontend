@@ -107,3 +107,4 @@ const ForgotPasswordPage = () => {
     </div>
   );
 }
+export default ForgotPasswordPage;
