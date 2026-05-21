@@ -38,7 +38,7 @@ function InputRow({ input, index, onChange, onRemove }) {
   );
 }
 
-export default function PricingBuilder({ mode, pricing, baseUnitAmount, onChangeMode, onChangePricing }) {
+const PricingBuilder = ({ mode, pricing, baseUnitAmount, onChangeMode, onChangePricing }) => {
   const m = String(mode || "fixed");
   const p = pricing || {};
   const inputs = Array.isArray(p.inputs) ? p.inputs : [];
