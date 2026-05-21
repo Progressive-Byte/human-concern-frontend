@@ -235,3 +235,4 @@ const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo,
     </SettingsSectionCard>
   );
 }
+export default BrandingTab;
