@@ -144,4 +144,4 @@ const AddOnsTable = ({
     </section>
   );
 }
-
+export default AddOnsTable;
