@@ -1,6 +1,19 @@
-const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange }) => {
+const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled = false }) => {
   const isOverridden  = override !== "";
   const displayAmount = isOverridden ? Number(override) : effectiveAmount;
+
+  if (disabled) {
+    return (
+      <div className="flex items-center gap-2 opacity-40">
+        <span className="text-[11px] text-[#737373] w-[88px] shrink-0 font-medium tabular-nums">{d}</span>
+        <div className="flex-1 flex items-center px-3 py-2 text-[11px] text-[#AEAEAE] bg-[#F5F5F5] border border-[#E5E5E5] rounded-xl">
+          Past date
+        </div>
+        <span className="text-[12px] font-semibold w-14 text-right shrink-0 tabular-nums text-[#AEAEAE]">—</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-2">
       <span className="text-[11px] text-[#737373] w-[88px] shrink-0 font-medium tabular-nums">{d}</span>
