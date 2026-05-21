@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export default function DonorRowActions({ donor, onViewDetails, onEditProfile, onToggleStatus, onSendEmail }) {
+const DonorRowActions = ({ donor, onViewDetails, onEditProfile, onToggleStatus, onSendEmail }) => {
   const wrapRef = useRef(null);
 
   const [open, setOpen] = useState(false);
@@ -79,3 +79,4 @@ export default function DonorRowActions({ donor, onViewDetails, onEditProfile, o
     </div>
   );
 }
+export default DonorRowActions;
