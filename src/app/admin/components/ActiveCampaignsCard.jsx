@@ -43,3 +43,5 @@ const ActiveCampaignsCard = ({ items = [], currency = "USD" }) => {
     </div>
   );
 }
+
+export default ActiveCampaignsCard;
