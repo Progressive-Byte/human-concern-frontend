@@ -16,7 +16,7 @@ function SkeletonRows() {
   );
 }
 
-export default function CampaignsTable({
+const CampaignsTable = ({
   items,
   currency = "USD",
   loading,
@@ -25,7 +25,7 @@ export default function CampaignsTable({
   onNextPage,
   onEdit,
   onRefresh,
-}) {
+}) => {
   const rows = Array.isArray(items) ? items : [];
 
   return (
