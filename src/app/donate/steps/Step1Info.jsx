@@ -124,6 +124,10 @@ const Step1Info = ({ campaignSlug }) => {
   });
 
   const validateAndNext = () => {
+    if (!data.organization?.trim()) {
+      setError("Organization name is required.");
+      return;
+    }
     if (
       !data.firstName?.trim()    ||
       !data.lastName?.trim()     ||
