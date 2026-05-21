@@ -130,3 +130,4 @@ const CampaignRowActions =  ({ item, onEdit, onRefresh }) => {
     </div>
   );
 }
+export default CampaignRowActions;
