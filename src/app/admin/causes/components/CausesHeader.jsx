@@ -4,7 +4,7 @@ import Link from "next/link";
 import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
-export default function CausesHeader({ onCreate }) {
+const CausesHeader = ({ onCreate }) => {
   const { admin } = useAdminAuth();
 
   return (
