@@ -19,7 +19,7 @@ function getConfirmCopy(action) {
   return { title: "Confirm action", description: "", confirmText: "Confirm" };
 }
 
-export default function CauseRowActions({ item, onEdit, onDelete, onArchive, onRestore }) {
+const CauseRowActions = ({ item, onEdit, onDelete, onArchive, onRestore }) => {
   const wrapRef = useRef(null);
 
   const [open, setOpen] = useState(false);
@@ -100,3 +100,4 @@ export default function CauseRowActions({ item, onEdit, onDelete, onArchive, onR
     </div>
   );
 }
+export default CauseRowActions;
