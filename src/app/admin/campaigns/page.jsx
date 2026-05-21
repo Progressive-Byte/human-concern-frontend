@@ -144,3 +144,4 @@ const AdminCampaignsPage = () => {
     </main>
   );
 }
+export default AdminCampaignsPage;
