@@ -32,3 +32,4 @@ const CampaignsPagination = ({ pagination, onPrev, onNext }) => {
   );
 }
 
+export default CampaignsPagination;
