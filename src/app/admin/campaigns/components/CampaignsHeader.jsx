@@ -44,3 +44,4 @@ const CampaignsHeader = ({ onCreate }) => {
     </div>
   );
 }
+export default CampaignsHeader;
