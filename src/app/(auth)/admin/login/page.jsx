@@ -17,7 +17,7 @@ function validate(values) {
   return errors;
 }
 
-export default function AdminLoginPage() {
+const AdminLoginPage = () => {
   const { login } = useAdminAuth();
 
   const [values, setValues] = useState({ email: "", password: "" });
