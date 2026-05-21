@@ -209,3 +209,4 @@ const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => 
     </div>
   );
 }
+export default CampaignUpsertModal;
