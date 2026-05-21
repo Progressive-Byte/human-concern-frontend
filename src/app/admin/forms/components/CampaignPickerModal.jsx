@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-export default function CampaignPickerModal({ open, campaigns = [], loading, onClose, onSelect }) {
+const CampaignPickerModal = ({ open, campaigns = [], loading, onClose, onSelect }) => {
   const [q, setQ] = useState("");
   const [selectedId, setSelectedId] = useState("");
   const rows = Array.isArray(campaigns) ? campaigns : [];
@@ -116,3 +116,4 @@ export default function CampaignPickerModal({ open, campaigns = [], loading, onC
     </div>
   );
 }
+export default CampaignPickerModal;
