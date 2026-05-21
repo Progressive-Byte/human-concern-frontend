@@ -206,7 +206,7 @@ const Step1Info = ({ campaignSlug }) => {
             </p>
           )}
 
-          <Field label="Organization" placeholder="xyz ltd" {...personalField("organization")} />
+          <Field label="Organization" required placeholder="xyz ltd" {...personalField("organization")} />
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="First Name" required placeholder="John" {...personalField("firstName")} />
