@@ -27,6 +27,7 @@ const RecurringSchedule = ({
   apiPresets = [],
   onChange,
 }) => {
+  const todayStr = useMemo(getTodayStr, []);
   const [activePreset,   setActivePreset]   = useState(initialActivePreset ?? "custom");
   const [scheduleType,   setScheduleType]   = useState(initialScheduleType ?? "specific_dates");
   const [selectedDates,  setSelectedDates]  = useState(() =>
