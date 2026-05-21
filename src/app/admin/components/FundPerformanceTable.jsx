@@ -61,3 +61,5 @@ const FundPerformanceTable = ({ items = [], currency = "USD" }) => {
     </div>
   );
 }
+
+export default FundPerformanceTable;
