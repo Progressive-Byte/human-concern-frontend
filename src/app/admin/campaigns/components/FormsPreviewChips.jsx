@@ -15,4 +15,4 @@ const FormsPreviewChips = ({ items = [] }) => {
     </div>
   );
 }
-
+export default FormsPreviewChips;
