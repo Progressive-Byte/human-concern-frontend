@@ -205,3 +205,4 @@ const AdminCategoriesPage = () => {
     </main>
   );
 }
+export default AdminCategoriesPage;
