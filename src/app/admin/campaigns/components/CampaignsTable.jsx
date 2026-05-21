@@ -108,3 +108,4 @@ const CampaignsTable = ({
     </section>
   );
 }
+export default CampaignsTable;
