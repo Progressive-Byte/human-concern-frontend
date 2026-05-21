@@ -37,7 +37,7 @@ function RefreshIcon() {
   );
 }
 
-export default function DonationsHeader({ onExport, onRefresh, refreshing = false }) {
+const DonationsHeader = ({ onExport, onRefresh, refreshing = false }) => {
   const { admin } = useAdminAuth();
 
   return (
@@ -88,3 +88,4 @@ export default function DonationsHeader({ onExport, onRefresh, refreshing = fals
   );
 }
 
+export default DonationsHeader;
