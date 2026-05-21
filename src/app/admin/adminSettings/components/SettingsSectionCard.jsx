@@ -18,3 +18,4 @@ const SettingsSectionCard = ({ icon, title, subtitle, children }) => {
   );
 }
 
+export default SettingsSectionCard;
