@@ -1,6 +1,6 @@
 "use client";
 
-export default function ConfirmDialog({
+const ConfirmDialog = ({
   open,
   title = "Confirm",
   description = "",
@@ -9,7 +9,7 @@ export default function ConfirmDialog({
   loading = false,
   onConfirm,
   onClose,
-}) {
+}) => {
   if (!open) return null;
 
   return (
