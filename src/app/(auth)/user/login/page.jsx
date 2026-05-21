@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { AlertIcon, EyeIcon, EyeOffIcon, GoogleIcon, Spinner } from "@/components/common/SvgIcon";
 import { FormField, FormInput, validateLogin } from "@/components/common/FormInput";
 
-export default function LoginPage() {
+const LoginPage = () => {
   const { login } = useAuth();
   const [redirectTo, setRedirectTo] = useState(null);
 
