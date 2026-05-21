@@ -59,7 +59,7 @@ function SkeletonCard() {
   );
 }
 
-export default function AddOnsSummaryCards({ summary, loading }) {
+const AddOnsSummaryCards = ({ summary, loading }) => {
   const s = summary || {};
 
   return (
