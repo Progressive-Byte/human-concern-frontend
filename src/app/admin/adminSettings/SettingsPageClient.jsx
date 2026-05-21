@@ -48,7 +48,7 @@ function diffObject(prev, next) {
 
 const tabs = ["general", "payment", "notifications", "security", "branding"];
 
-export default function SettingsPageClient() {
+const SettingsPageClient = () => {
   const toast = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
