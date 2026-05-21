@@ -40,7 +40,7 @@ function normalizeCategory(raw) {
   return { id, key, name, status, createdAt, updatedAt };
 }
 
-export default function AdminCategoriesPage() {
+const AdminCategoriesPage = () => {
   const toast = useToast();
 
   const [filters, setFilters] = useState({
