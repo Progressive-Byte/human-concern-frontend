@@ -1,6 +1,6 @@
 "use client";
 
-export default function CampaignsFilters({ q, status, onChangeQ, onChangeStatus }) {
+const CampaignsFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
   return (
     <div className="hc-animate-fade-up flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex-1">
