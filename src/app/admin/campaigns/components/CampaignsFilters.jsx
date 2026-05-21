@@ -39,3 +39,5 @@ const CampaignsFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
     </div>
   );
 }
+
+export default CampaignsFilters;
