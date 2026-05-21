@@ -8,3 +8,4 @@ const AdminSettingsPage = () => {
     </Suspense>
   );
 }
+export default AdminSettingsPage;
