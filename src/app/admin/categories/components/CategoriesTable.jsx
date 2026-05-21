@@ -46,7 +46,7 @@ function PaginationBar({ pagination, onPrev, onNext }) {
   );
 }
 
-export default function CategoriesTable({ items, loading, pagination, onPrevPage, onNextPage, onEdit, onArchive, onRestore }) {
+const CategoriesTable = ({ items, loading, pagination, onPrevPage, onNextPage, onEdit, onArchive, onRestore }) => {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -100,3 +100,5 @@ export default function CategoriesTable({ items, loading, pagination, onPrevPage
     </section>
   );
 }
+
+export default CategoriesTable;
