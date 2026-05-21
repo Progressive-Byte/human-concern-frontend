@@ -16,7 +16,7 @@ function Skeleton() {
   );
 }
 
-export default function DonorCausesCard({ causes, loading, onViewAll }) {
+const DonorCausesCard = ({ causes, loading, onViewAll }) => {
   if (loading) return <Skeleton />;
 
   const rows = Array.isArray(causes?.data) ? causes.data : [];
@@ -60,3 +60,5 @@ export default function DonorCausesCard({ causes, loading, onViewAll }) {
     </section>
   );
 }
+
+export default DonorCausesCard;
