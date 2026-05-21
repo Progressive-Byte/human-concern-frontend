@@ -214,3 +214,4 @@ const AdminCausesPage = () => {
     </main>
   );
 }
+export default AdminCausesPage;
