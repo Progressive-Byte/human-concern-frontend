@@ -258,3 +258,4 @@ const AdminCampaignDetailsPage = ({ params }) => {
     </main>
   );
 }
+export default AdminCampaignDetailsPage;
