@@ -86,3 +86,4 @@ const NotificationsTab = ({ value, onChange, loading, saving, onSave }) => {
     </SettingsSectionCard>
   );
 }
+export default NotificationsTab;
