@@ -8,7 +8,7 @@ const items = [
   { key: "branding", label: "Branding" },
 ];
 
-export default function SettingsTabs({ value, onChange }) {
+const SettingsTabs = ({ value, onChange }) => {
   const active = String(value || "general").toLowerCase();
 
   return (
