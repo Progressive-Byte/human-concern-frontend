@@ -77,7 +77,7 @@ function RecurringPill({ value, loading }) {
   );
 }
 
-export default function DonorsTable({
+const DonorsTable = ({
   items,
   loading,
   pagination,
@@ -88,7 +88,7 @@ export default function DonorsTable({
   onEditProfile,
   onToggleStatus,
   onSendEmail,
-}) {
+}) => {
   const rows = Array.isArray(items) ? items : [];
   const totalCount = Number(pagination?.total || 0);
   const titleCount = totalCount > 0 ? totalCount : rows.length;
@@ -177,3 +177,4 @@ export default function DonorsTable({
     </section>
   );
 }
+export default DonorsTable;
