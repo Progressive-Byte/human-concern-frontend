@@ -34,3 +34,5 @@ const SettingsTabs = ({ value, onChange }) => {
   );
 }
 
+
+export default SettingsTabs;
