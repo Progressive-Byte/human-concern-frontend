@@ -1,4 +1,4 @@
-export default function KpiCard({ label, value, icon, iconPosition = "right" }) {
+const KpiCard = ({ label, value, icon, iconPosition = "right" }) => {
   const iconWrapClass =
     "flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-700 transition-colors duration-200 group-hover:bg-red-500/15";
 
