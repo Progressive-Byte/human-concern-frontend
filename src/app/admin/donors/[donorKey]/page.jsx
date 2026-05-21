@@ -81,7 +81,7 @@ function unwrapPagination(res) {
   return normalizePagination(raw);
 }
 
-export default function AdminDonorDetailPage() {
+const AdminDonorDetailPage = () => {
   const toast = useToast();
   const router = useRouter();
   const params = useParams();
@@ -270,3 +270,4 @@ export default function AdminDonorDetailPage() {
     </main>
   );
 }
+export default AdminDonorDetailPage;
