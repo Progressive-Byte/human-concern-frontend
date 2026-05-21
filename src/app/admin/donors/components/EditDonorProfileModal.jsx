@@ -9,7 +9,7 @@ function normalizeStr(v) {
   return s;
 }
 
-export default function EditDonorProfileModal({ open, donorKey, donor, onClose, onSaved }) {
+const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
   const toast = useToast();
   const donorLabel = useMemo(() => String(donor?.name || donor?.email || donorKey || "Donor"), [donor, donorKey]);
 
@@ -269,3 +269,4 @@ export default function EditDonorProfileModal({ open, donorKey, donor, onClose, 
     </div>
   );
 }
+export default EditDonorProfileModal;
