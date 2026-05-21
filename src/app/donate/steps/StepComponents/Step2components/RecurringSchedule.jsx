@@ -7,6 +7,8 @@ import SpecificDatesSection from "./SpecificDatesSection";
 import DateRangeSection from "./DateRangeSection";
 import PerDateAmountTable from "./PerDateAmountTable";
 
+const getTodayStr = () => new Date().toISOString().split("T")[0];
+
 const SCHEDULE_TYPES = [
   { value: "specific_dates", label: "Specific Dates" },
   { value: "date_range",     label: "Date Range" },
