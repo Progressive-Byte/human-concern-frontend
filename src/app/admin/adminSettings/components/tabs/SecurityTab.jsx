@@ -167,3 +167,5 @@ const SecurityTab = ({ value, onChange, loading, saving, passwordForm, onChangeP
     </SettingsSectionCard>
   );
 }
+
+export default SecurityTab;
