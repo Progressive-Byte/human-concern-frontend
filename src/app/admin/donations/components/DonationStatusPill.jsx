@@ -41,7 +41,7 @@ function getIcon(key) {
   return null;
 }
 
-export default function DonationStatusPill({ status }) {
+const DonationStatusPill = ({ status }) => {
   const key = String(status || "").toLowerCase();
   const cls = styles[key] || "bg-[#F3F4F6] text-[#6B7280]";
   const label = key || "—";
@@ -54,3 +54,5 @@ export default function DonationStatusPill({ status }) {
     </span>
   );
 }
+
+export default DonationStatusPill;
