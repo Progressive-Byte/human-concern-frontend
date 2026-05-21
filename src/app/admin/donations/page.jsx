@@ -150,7 +150,7 @@ function escapeCsvCell(value) {
   return s;
 }
 
-export default function AdminDonationsPage() {
+const AdminDonationsPage = () => {
   const toast = useToast();
 
   const [filters, setFilters] = useState({
@@ -392,3 +392,4 @@ export default function AdminDonationsPage() {
     </main>
   );
 }
+export default AdminDonationsPage;
