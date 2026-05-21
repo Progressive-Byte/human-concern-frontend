@@ -300,6 +300,7 @@ const RecurringSchedule = ({
           effectiveAmount={effectiveAmount}
           sym={sym}
           onChange={handleDateAmountChange}
+          todayStr={todayStr}
         />
       )}
 
