@@ -81,3 +81,4 @@ const AddOnsSummaryCards = ({ summary, loading }) => {
   );
 }
 
+export default AddOnsSummaryCards;
