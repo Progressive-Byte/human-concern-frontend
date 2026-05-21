@@ -60,10 +60,12 @@ const Step1Info = ({ campaignSlug }) => {
 
     let campaignId    = null;
     let zakatEligible = false;
+    let campaignTitle = "";
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
-      campaignId    = meta.id ?? null;
+      campaignId    = meta.id           ?? null;
       zakatEligible = meta.zakatEligible ?? false;
+      campaignTitle = meta.name          ?? "";
     } catch {}
 
     if (campaign) {
@@ -71,6 +73,7 @@ const Step1Info = ({ campaignSlug }) => {
         campaignId,
         campaign,
         zakatEligible,
+        campaignTitle,
         ...(amount   && { amount }),
         ...(currency && { currency }),
       });
