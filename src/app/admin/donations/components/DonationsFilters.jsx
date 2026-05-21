@@ -22,7 +22,7 @@ function CalendarIcon() {
   );
 }
 
-export default function DonationsFilters({
+const DonationsFilters = ({
   q,
   status,
   limit,
@@ -35,7 +35,7 @@ export default function DonationsFilters({
   onChangeDatePreset,
   onChangeFrom,
   onChangeTo,
-}) {
+}) => {
   const preset = String(datePreset || "all");
   const showCustom = preset === "custom";
 
@@ -128,3 +128,5 @@ export default function DonationsFilters({
     </div>
   );
 }
+
+export default DonationsFilters;
