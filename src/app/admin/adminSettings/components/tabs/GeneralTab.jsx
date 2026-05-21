@@ -77,7 +77,7 @@ function TipIcon() {
   );
 }
 
-export default function GeneralTab({ value, onChange, loading, saving, onSaveOrganization, onSaveLocalization }) {
+const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSaveLocalization }) => {
   const organization = value?.organization || {};
   const localization = value?.localization || {};
 
