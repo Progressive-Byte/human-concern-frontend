@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import SettingsPageClient from "./SettingsPageClient";
 
-export default function AdminSettingsPage() {
+const AdminSettingsPage = () => {
   return (
     <Suspense>
       <SettingsPageClient />
