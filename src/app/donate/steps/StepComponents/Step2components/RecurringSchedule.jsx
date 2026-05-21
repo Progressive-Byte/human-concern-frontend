@@ -186,8 +186,12 @@ const RecurringSchedule = ({
   const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
   // Show full controls for: Custom pill, template presets, or no API presets at all
   const showFullControls = isCustom || isTemplateActive || !hasPresets;
+  const futureSelectedDates = selectedDates.filter((d) => d >= todayStr);
   const presetDateCount  = !showFullControls
-    ? (scheduleType === "date_range" ? generatedDates.length : selectedDates.length)
+    ? (scheduleType === "date_range" ? generatedDates.length : futureSelectedDates.length)
+    : 0;
+  const pastPresetCount = !showFullControls && scheduleType === "specific_dates"
+    ? selectedDates.length - futureSelectedDates.length
     : 0;
   // When a template preset has intervalValue, lock frequency controls to read-only
   const lockedInterval = (isTemplateActive && (activeApiPreset?.scheduleConfig?.intervalValue ?? 0) > 1)
