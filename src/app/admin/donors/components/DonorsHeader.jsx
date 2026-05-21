@@ -4,7 +4,7 @@ import Link from "next/link";
 import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
-export default function DonorsHeader({ onCreate, onExport }) {
+const DonorsHeader = ({ onCreate, onExport }) => {
   const { admin } = useAdminAuth();
 
   return (
@@ -59,3 +59,4 @@ export default function DonorsHeader({ onCreate, onExport }) {
     </div>
   );
 }
+export default DonorsHeader;

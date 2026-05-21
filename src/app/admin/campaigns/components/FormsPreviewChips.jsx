@@ -1,4 +1,4 @@
-export default function FormsPreviewChips({ items = [] }) {
+const FormsPreviewChips = ({ items = [] }) => {
   const rows = Array.isArray(items) ? items : [];
   if (rows.length === 0) return null;
 
@@ -15,4 +15,4 @@ export default function FormsPreviewChips({ items = [] }) {
     </div>
   );
 }
-
+export default FormsPreviewChips;

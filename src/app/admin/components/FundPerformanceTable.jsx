@@ -1,7 +1,7 @@
 import ProgressBar from "./ProgressBar";
 import { formatCurrency } from "@/utils/helpers";
 
-export default function FundPerformanceTable({ items = [], currency = "USD" }) {
+const FundPerformanceTable = ({ items = [], currency = "USD" }) => {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -61,3 +61,5 @@ export default function FundPerformanceTable({ items = [], currency = "USD" }) {
     </div>
   );
 }
+
+export default FundPerformanceTable;

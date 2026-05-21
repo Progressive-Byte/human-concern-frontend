@@ -1,6 +1,6 @@
 "use client";
 
-export default function SettingsSectionCard({ icon, title, subtitle, children }) {
+const SettingsSectionCard = ({ icon, title, subtitle, children }) => {
   return (
     <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-6">
       <div className="flex items-start gap-3">
@@ -18,3 +18,4 @@ export default function SettingsSectionCard({ icon, title, subtitle, children })
   );
 }
 
+export default SettingsSectionCard;

@@ -6,7 +6,7 @@ import { ThankyouIcon, ShareCampaignIcon, CircleCheckIcon, VideoDashboard, Brows
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-export default function ThankYouModal({ thankyouData, onClose }) {
+const ThankYouModal = ({ thankyouData, onClose }) => {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
 
@@ -61,9 +61,9 @@ export default function ThankYouModal({ thankyouData, onClose }) {
           </p>
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] text-[#737373]">Project</span>
+              <span className="text-[12px] text-[#737373]">Campaign</span>
               <span className="text-[13px] font-semibold text-[#383838]">
-                {thankyouData.isRamadan ? "Ramadan Project" : (thankyouData.campaignTitle || "—")}
+                {thankyouData.campaignTitle || "—"}
               </span>
             </div>
 
@@ -136,3 +136,4 @@ export default function ThankYouModal({ thankyouData, onClose }) {
     </div>
   );
 }
+export default ThankYouModal;

@@ -33,7 +33,7 @@ function Skeleton() {
   );
 }
 
-export default function DonorDonationsTable({ donations, loading, onViewAll }) {
+const DonorDonationsTable = ({ donations, loading, onViewAll }) => {
   if (loading) return <Skeleton />;
 
   const rows = Array.isArray(donations?.data) ? donations.data : [];
@@ -92,3 +92,4 @@ export default function DonorDonationsTable({ donations, loading, onViewAll }) {
     </section>
   );
 }
+export default DonorDonationsTable;

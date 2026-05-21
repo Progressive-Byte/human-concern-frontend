@@ -19,7 +19,7 @@ function getConfirmCopy(action) {
   return { title: "Confirm action", description: "", confirmText: "Confirm" };
 }
 
-export default function CategoryRowActions({ item, onEdit, onArchive, onRestore }) {
+const CategoryRowActions = ({ item, onEdit, onArchive, onRestore }) => {
   const wrapRef = useRef(null);
 
   const [open, setOpen] = useState(false);
@@ -96,3 +96,4 @@ export default function CategoryRowActions({ item, onEdit, onArchive, onRestore 
     </div>
   );
 }
+export default CategoryRowActions;

@@ -13,7 +13,7 @@ function initialsFromAdmin(admin) {
   return `${first}${second}`.toUpperCase();
 }
 
-export default function AdminAvatarMenu({ admin }) {
+const AdminAvatarMenu = ({ admin }) => {
   const { logout } = useAdminAuth();
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
@@ -106,3 +106,5 @@ export default function AdminAvatarMenu({ admin }) {
     </div>
   );
 }
+
+export default AdminAvatarMenu;

@@ -12,7 +12,7 @@ const STEPS = [
   "Confirmation",
 ];
 
-export default function StepProgress({ current }) {
+const StepProgress = ({ current }) => {
   const { data } = useDonation();
   const maxStep = data.maxStep ?? 1;
   const base = data.campaign ? `/${data.campaign}` : "/donate";
@@ -76,3 +76,5 @@ export default function StepProgress({ current }) {
     </div>
   );
 }
+
+export default StepProgress;

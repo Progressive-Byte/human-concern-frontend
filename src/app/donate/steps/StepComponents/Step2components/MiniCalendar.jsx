@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAY_LABELS  = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 
 // mode="multi"  — default multi-select toggle behaviour
@@ -18,41 +18,172 @@ const MiniCalendar = ({ selectedDates, onToggleDate, mode = "multi", minDateStr 
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
 
+  // "calendar" | "month" | "year"
+  const [viewMode, setViewMode] = useState("calendar");
+
+  // yearStart: first year shown in the year-picker grid (12 per page)
+  const [yearStart, setYearStart] = useState(() => {
+    const y = viewDate.getFullYear();
+    return y - (y % 12);
+  });
+
   const year  = viewDate.getFullYear();
   const month = viewDate.getMonth();
 
+  // ── calendar grid ─────────────────────────────────────────────────────────
   const firstDayOfWeek = new Date(year, month, 1).getDay();
   const daysInMonth    = new Date(year, month + 1, 0).getDate();
-
   const toDateStr = (d) =>
     `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-
   const cells = Array(firstDayOfWeek).fill(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
-  return (
-    <div className="rounded-xl border border-[#E5E5E5] px-2 py-2 bg-white select-none">
+  // ── header ────────────────────────────────────────────────────────────────
+  const renderHeader = () => {
+    if (viewMode === "calendar") {
+      return (
+        <>
+          <button
+            type="button"
+            onClick={() => setViewDate(new Date(year, month - 1, 1))}
+            className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#F5F5F5] text-[#737373] text-[18px] leading-none transition-colors cursor-pointer"
+          >‹</button>
 
-      <div className="flex items-center justify-between mb-2 px-1">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setViewMode("month")}
+              className="text-[12px] font-semibold text-[#383838] hover:text-[#EA3335] px-1 py-0.5 rounded transition-colors cursor-pointer"
+            >
+              {MONTH_SHORT[month]}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setYearStart(year - (year % 12));
+                setViewMode("year");
+              }}
+              className="text-[12px] font-semibold text-[#383838] hover:text-[#EA3335] px-1 py-0.5 rounded transition-colors cursor-pointer"
+            >
+              {year}
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setViewDate(new Date(year, month + 1, 1))}
+            className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#F5F5F5] text-[#737373] text-[18px] leading-none transition-colors cursor-pointer"
+          >›</button>
+        </>
+      );
+    }
+
+    if (viewMode === "month") {
+      return (
+        <>
+          <button
+            type="button"
+            onClick={() => setViewDate(new Date(year - 1, month, 1))}
+            className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#F5F5F5] text-[#737373] text-[18px] leading-none transition-colors cursor-pointer"
+          >‹</button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setYearStart(year - (year % 12));
+              setViewMode("year");
+            }}
+            className="text-[12px] font-semibold text-[#383838] hover:text-[#EA3335] px-1 py-0.5 rounded transition-colors cursor-pointer"
+          >
+            {year}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setViewDate(new Date(year + 1, month, 1))}
+            className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#F5F5F5] text-[#737373] text-[18px] leading-none transition-colors cursor-pointer"
+          >›</button>
+        </>
+      );
+    }
+
+    // year picker
+    return (
+      <>
         <button
           type="button"
-          onClick={() => setViewDate(new Date(year, month - 1, 1))}
+          onClick={() => setYearStart((s) => s - 12)}
           className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#F5F5F5] text-[#737373] text-[18px] leading-none transition-colors cursor-pointer"
-        >
-          ‹
-        </button>
-        <span className="text-[12px] font-semibold text-[#383838]">
-          {MONTH_NAMES[month]} {year}
+        >‹</button>
+
+        <span className="text-[12px] font-semibold text-[#737373]">
+          {yearStart} – {yearStart + 11}
         </span>
+
         <button
           type="button"
-          onClick={() => setViewDate(new Date(year, month + 1, 1))}
+          onClick={() => setYearStart((s) => s + 12)}
           className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#F5F5F5] text-[#737373] text-[18px] leading-none transition-colors cursor-pointer"
-        >
-          ›
-        </button>
-      </div>
+        >›</button>
+      </>
+    );
+  };
 
+  // ── month picker body ─────────────────────────────────────────────────────
+  const renderMonthPicker = () => (
+    <div className="grid grid-cols-3 gap-1.5 pt-1 pb-0.5 px-0.5">
+      {MONTH_SHORT.map((name, i) => {
+        const isActive = i === month;
+        return (
+          <button
+            key={name}
+            type="button"
+            onClick={() => {
+              setViewDate(new Date(year, i, 1));
+              setViewMode("calendar");
+            }}
+            className={`py-2 rounded-lg text-[12px] font-medium transition-all cursor-pointer ${
+              isActive
+                ? "bg-[#EA3335] text-white"
+                : "bg-[#F5F5F5] text-[#383838] hover:bg-[#FFF0F0] hover:text-[#EA3335]"
+            }`}
+          >
+            {name}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  // ── year picker body ──────────────────────────────────────────────────────
+  const renderYearPicker = () => (
+    <div className="grid grid-cols-3 gap-1.5 pt-1 pb-0.5 px-0.5">
+      {Array.from({ length: 12 }, (_, i) => yearStart + i).map((y) => {
+        const isActive = y === year;
+        return (
+          <button
+            key={y}
+            type="button"
+            onClick={() => {
+              setViewDate(new Date(y, month, 1));
+              setViewMode("calendar");
+            }}
+            className={`py-2 rounded-lg text-[12px] font-medium transition-all cursor-pointer ${
+              isActive
+                ? "bg-[#EA3335] text-white"
+                : "bg-[#F5F5F5] text-[#383838] hover:bg-[#FFF0F0] hover:text-[#EA3335]"
+            }`}
+          >
+            {y}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  // ── calendar body ─────────────────────────────────────────────────────────
+  const renderCalendar = () => (
+    <>
       <div className="grid grid-cols-7 mb-1">
         {DAY_LABELS.map((d) => (
           <span key={d} className="text-center text-[10px] font-semibold text-[#AEAEAE] uppercase tracking-wide">
@@ -66,7 +197,7 @@ const MiniCalendar = ({ selectedDates, onToggleDate, mode = "multi", minDateStr 
           if (!day) return <span key={i} />;
           const dateStr    = toDateStr(day);
           const dateObj    = new Date(year, month, day);
-          const isPast     = dateObj < today;
+          const isPast     = dateObj <= today;
           const isDisabled = isPast || (minDateStr != null && dateStr < minDateStr);
           const isSel      = selectedDates.includes(dateStr);
           const isToday    = dateObj.getTime() === today.getTime();
@@ -101,6 +232,19 @@ const MiniCalendar = ({ selectedDates, onToggleDate, mode = "multi", minDateStr 
           );
         })}
       </div>
+    </>
+  );
+
+  return (
+    <div className="rounded-xl border border-[#E5E5E5] px-2 py-2 bg-white select-none">
+
+      <div className="flex items-center justify-between mb-2 px-1">
+        {renderHeader()}
+      </div>
+
+      {viewMode === "month"    && renderMonthPicker()}
+      {viewMode === "year"     && renderYearPicker()}
+      {viewMode === "calendar" && renderCalendar()}
 
     </div>
   );

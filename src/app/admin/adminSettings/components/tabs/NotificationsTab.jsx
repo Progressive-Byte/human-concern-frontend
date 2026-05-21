@@ -50,7 +50,7 @@ function MailIcon() {
   );
 }
 
-export default function NotificationsTab({ value, onChange, loading, saving, onSave }) {
+const NotificationsTab = ({ value, onChange, loading, saving, onSave }) => {
   const v = value || {};
 
   const rows = [
@@ -86,3 +86,4 @@ export default function NotificationsTab({ value, onChange, loading, saving, onS
     </SettingsSectionCard>
   );
 }
+export default NotificationsTab;

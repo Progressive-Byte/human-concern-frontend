@@ -52,7 +52,7 @@ function SkeletonCard() {
   );
 }
 
-export default function DonorKpisRow({ donor, stats, schedulesSummary, loading }) {
+const DonorKpisRow = ({ donor, stats, schedulesSummary, loading }) => {
   if (loading) {
     return (
       <section className="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -78,3 +78,4 @@ export default function DonorKpisRow({ donor, stats, schedulesSummary, loading }
     </section>
   );
 }
+export default DonorKpisRow;

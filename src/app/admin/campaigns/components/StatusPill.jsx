@@ -4,7 +4,7 @@ const styles = {
   archived: "bg-[#F3F4F6] text-[#6B7280]",
 };
 
-export default function StatusPill({ status }) {
+const StatusPill = ({ status }) => {
   const key = String(status || "").toLowerCase();
   const className = styles[key] || "bg-[#F3F4F6] text-[#6B7280]";
   const label = key || "—";
@@ -16,3 +16,4 @@ export default function StatusPill({ status }) {
   );
 }
 
+export default StatusPill;

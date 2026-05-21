@@ -78,7 +78,7 @@ function Skeleton() {
   );
 }
 
-export default function DonorDetailHeader({ donor, loading, onSendEmail }) {
+const DonorDetailHeader = ({ donor, loading, onSendEmail }) => {
   if (loading) return <Skeleton />;
 
   const name =
@@ -132,3 +132,4 @@ export default function DonorDetailHeader({ donor, loading, onSendEmail }) {
     </section>
   );
 }
+export default DonorDetailHeader;

@@ -7,7 +7,7 @@ import { FormField, FormInput } from "@/components/common/FormInput";
 import { adminRequestPasswordReset } from "@/services/adminAuthService";
 import { validateEmail } from "@/utils/validateEmail";
 
-export default function AdminForgotPasswordPage() {
+const AdminForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState("");
@@ -107,3 +107,4 @@ export default function AdminForgotPasswordPage() {
     </div>
   );
 }
+export default AdminForgotPasswordPage;

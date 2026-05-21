@@ -1,4 +1,4 @@
-export default function ProgressBar({ value = 0, className = "", trackClassName = "", fillClassName = "" }) {
+const ProgressBar = ({ value = 0, className = "", trackClassName = "", fillClassName = "" }) => {
   const safe = Number.isFinite(Number(value)) ? Number(value) : 0;
   const percent = Math.max(0, Math.min(100, safe));
 
@@ -11,3 +11,4 @@ export default function ProgressBar({ value = 0, className = "", trackClassName 
     </div>
   );
 }
+export default ProgressBar;

@@ -1,4 +1,4 @@
-export default function AddOnStatusPill({ status }) {
+const AddOnStatusPill = ({ status }) => {
   const s = String(status || "").toLowerCase();
 
   const cls =
@@ -12,4 +12,5 @@ export default function AddOnStatusPill({ status }) {
 
   return <span className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-semibold ${cls}`}>{label}</span>;
 }
+export default AddOnStatusPill;
 

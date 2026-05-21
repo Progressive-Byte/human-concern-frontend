@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Country, State, City } from "country-state-city";
 import { useDonation } from "@/context/DonationContext";
 import Field from "@/components/ui/Field";
 import CustomDropdown from "@/components/common/CustomDropdown";
+import GooglePlacesInput from "@/components/common/GooglePlacesInput";
 import { ChevronIcon } from "@/components/common/SvgIcon";
 import { resolveCountryIso, resolveStateIso } from "@/utils/isoHelpers";
 
@@ -88,6 +89,20 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
     setError("");
   };
 
+  // called when Google Places autocomplete selects an address
+  const handlePlaceSelect = useCallback((parsed) => {
+    setCountryCode(parsed.countryCode);
+    setStateCode(parsed.stateCode);
+    update({
+      addressLine1: parsed.addressLine1,
+      country:      parsed.country,
+      province:     parsed.province,
+      city:         parsed.city,
+      zip:          parsed.zip,
+    });
+    setError("");
+  }, [update, setError]);
+
   return (
     <div className="border border-dashed border-[#E5E7EB] rounded-2xl">
       <button
@@ -108,12 +123,20 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
 
       {addressExpanded && (
         <div className="flex flex-col gap-4 px-4 py-4">
-          <Field
-            label="Address Line 1"
-            required
-            placeholder="Street number, house number and street name"
-            {...addressField("addressLine1")}
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-[13px] font-medium text-[#111827]">
+              Address Line 1<span className="text-[#EA3335] ml-0.5">*</span>
+            </label>
+            <GooglePlacesInput
+              value={data.addressLine1 ?? ""}
+              onChange={(e) => { update({ addressLine1: e.target.value }); setError(""); }}
+              onPlaceSelect={handlePlaceSelect}
+              placeholder="Start typing your address…"
+            />
+            <p className="text-[11px] text-[#AEAEAE]">
+              Select from suggestions to auto-fill country, state and city — or type manually.
+            </p>
+          </div>
 
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-medium text-[#111827]">

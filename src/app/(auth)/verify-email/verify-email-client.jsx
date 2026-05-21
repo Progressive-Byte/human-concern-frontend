@@ -37,7 +37,7 @@ async function verifyEmailToken({ token }) {
   return res.text().catch(() => "");
 }
 
-export default function VerifyEmailClient() {
+const VerifyEmailClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -186,4 +186,4 @@ export default function VerifyEmailClient() {
     </div>
   );
 }
-
+export default VerifyEmailClient;

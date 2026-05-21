@@ -25,7 +25,7 @@ function Skeleton() {
   );
 }
 
-export default function DonorActivityTimeline({ activity, loading }) {
+const DonorActivityTimeline = ({ activity, loading }) => {
   if (loading) return <Skeleton />;
 
   const rows = Array.isArray(activity?.data) ? activity.data : [];
@@ -71,3 +71,4 @@ export default function DonorActivityTimeline({ activity, loading }) {
     </section>
   );
 }
+export default DonorActivityTimeline;

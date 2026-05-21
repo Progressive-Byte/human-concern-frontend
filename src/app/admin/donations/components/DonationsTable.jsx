@@ -37,7 +37,7 @@ function Skeleton() {
   );
 }
 
-export default function DonationsTable({
+const DonationsTable = ({
   items = [],
   loading = false,
   pagination = null,
@@ -46,7 +46,7 @@ export default function DonationsTable({
   onNextPage,
   showingLabel,
   formatAmount,
-}) {
+}) => {
   if (loading && (!Array.isArray(items) || items.length === 0)) return <Skeleton />;
 
   const rows = Array.isArray(items) ? items : [];
@@ -140,3 +140,4 @@ export default function DonationsTable({
     </section>
   );
 }
+export default DonationsTable;

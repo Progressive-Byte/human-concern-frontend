@@ -20,7 +20,7 @@ function useDebouncedValue(value, delayMs) {
   return debounced;
 }
 
-export default function AdminCampaignsPage() {
+const AdminCampaignsPage = () => {
   const [filters, setFilters] = useState({
     page: "1",
     limit: "10",
@@ -144,3 +144,4 @@ export default function AdminCampaignsPage() {
     </main>
   );
 }
+export default AdminCampaignsPage;

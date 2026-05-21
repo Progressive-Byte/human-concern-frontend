@@ -21,7 +21,7 @@ async function copyText(value) {
   return false;
 }
 
-export default function DonationRowActions({ donation }) {
+const DonationRowActions = ({ donation }) => {
   const toast = useToast();
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
@@ -105,3 +105,4 @@ export default function DonationRowActions({ donation }) {
   );
 }
 
+export default DonationRowActions;

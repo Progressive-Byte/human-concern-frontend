@@ -1,4 +1,4 @@
-export default function CampaignsPagination({ pagination, onPrev, onNext }) {
+const CampaignsPagination = ({ pagination, onPrev, onNext }) => {
   const page = Number(pagination?.page || 1);
   const pages = Number(pagination?.pages || 1);
   const hasPrev = Boolean(pagination?.hasPrev);
@@ -32,3 +32,4 @@ export default function CampaignsPagination({ pagination, onPrev, onNext }) {
   );
 }
 
+export default CampaignsPagination;

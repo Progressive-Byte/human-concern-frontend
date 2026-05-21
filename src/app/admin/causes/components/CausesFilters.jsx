@@ -1,4 +1,4 @@
-export default function CausesFilters({ q, onChangeQ }) {
+const CausesFilters = ({ q, onChangeQ }) => {
   return (
     <div className="relative">
       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]">
@@ -22,3 +22,5 @@ export default function CausesFilters({ q, onChangeQ }) {
   );
 }
 
+
+export default CausesFilters;

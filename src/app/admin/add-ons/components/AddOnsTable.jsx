@@ -54,7 +54,7 @@ function pricingTypeLabel(pricing) {
   return "Fixed";
 }
 
-export default function AddOnsTable({
+const AddOnsTable = ({
   items,
   loading,
   pagination,
@@ -64,7 +64,7 @@ export default function AddOnsTable({
   onToggleEnabled,
   onArchive,
   onRestore,
-}) {
+}) => {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -144,4 +144,4 @@ export default function AddOnsTable({
     </section>
   );
 }
-
+export default AddOnsTable;

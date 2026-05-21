@@ -30,7 +30,7 @@ function getConfirmCopy(action) {
   return { title: "Confirm action", description: "" };
 }
 
-export default function CampaignRowActions({ item, onEdit, onRefresh }) {
+const CampaignRowActions =  ({ item, onEdit, onRefresh }) => {
   const router = useRouter();
   const toast = useToast();
   const wrapRef = useRef(null);
@@ -130,3 +130,4 @@ export default function CampaignRowActions({ item, onEdit, onRefresh }) {
     </div>
   );
 }
+export default CampaignRowActions;

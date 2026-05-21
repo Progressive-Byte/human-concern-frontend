@@ -66,7 +66,7 @@ function SkeletonCard() {
   );
 }
 
-export default function DonationsSummaryCards({ summary = {}, loading = false, currency = "USD" }) {
+const DonationsSummaryCards = ({ summary = {}, loading = false, currency = "USD" }) => {
   const s = summary || {};
 
   return (
@@ -90,3 +90,4 @@ export default function DonationsSummaryCards({ summary = {}, loading = false, c
   );
 }
 
+export default DonationsSummaryCards;

@@ -181,7 +181,7 @@ function validatePricing(mode, pricingState) {
   return "";
 }
 
-export default function AddOnUpsertModal({ open, mode, addOn, onClose, onSuccess }) {
+const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
   const toast = useToast();
   const isEdit = mode === "edit";
 
@@ -471,3 +471,4 @@ export default function AddOnUpsertModal({ open, mode, addOn, onClose, onSuccess
     </div>
   );
 }
+export default AddOnUpsertModal;

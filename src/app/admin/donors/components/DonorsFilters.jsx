@@ -1,4 +1,4 @@
-export default function DonorsFilters({ q, status, onChangeQ, onChangeStatus }) {
+const DonorsFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-3">
       <div className="relative flex-1">
@@ -40,3 +40,4 @@ export default function DonorsFilters({ q, status, onChangeQ, onChangeStatus }) 
     </div>
   );
 }
+export default DonorsFilters;

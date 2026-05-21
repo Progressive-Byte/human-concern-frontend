@@ -1,7 +1,7 @@
 import Link from "next/link";
 import AdminAvatarMenu from "./AdminAvatarMenu";
 
-export default function AdminDashboardHeader({ admin }) {
+const AdminDashboardHeader = ({ admin }) => {
   return (
     <div className="hc-animate-fade-up flex items-start justify-between gap-4">
       <div>
@@ -27,3 +27,5 @@ export default function AdminDashboardHeader({ admin }) {
     </div>
   );
 }
+
+export default AdminDashboardHeader

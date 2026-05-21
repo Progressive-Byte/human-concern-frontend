@@ -112,7 +112,7 @@ function UploadIcon() {
   );
 }
 
-export default function BrandingTab({ value, onChange, loading, saving, logoBusy, onUploadLogo, onRemoveLogo, onSave }) {
+const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo, onRemoveLogo, onSave }) => {
   const v = value || {};
   const branding = v?.branding && typeof v.branding === "object" ? v.branding : v;
   const fileRef = useRef(null);
@@ -235,3 +235,4 @@ export default function BrandingTab({ value, onChange, loading, saving, logoBusy
     </SettingsSectionCard>
   );
 }
+export default BrandingTab;

@@ -25,7 +25,7 @@ function Skeleton() {
   );
 }
 
-export default function DonorProfileCard({ donor, loading, onEdit }) {
+const DonorProfileCard = ({ donor, loading, onEdit }) => {
   if (loading) return <Skeleton />;
 
   const name =
@@ -68,3 +68,4 @@ export default function DonorProfileCard({ donor, loading, onEdit }) {
     </section>
   );
 }
+export default DonorProfileCard;

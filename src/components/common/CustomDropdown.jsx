@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { ArrowDownIcon, FilterIcon, IsActiveIcon } from "@/components/common/SvgIcon";
 
-export default function CustomDropdown({
+const CustomDropdown = ({
   options = [],
   value,
   onChange,
@@ -18,7 +18,7 @@ export default function CustomDropdown({
   className = "",
   variant = "pill",
   disabled = false,
-}) {
+}) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [dropUp, setDropUp] = useState(false);
@@ -176,3 +176,4 @@ export default function CustomDropdown({
     </div>
   );
 }
+export default CustomDropdown;
