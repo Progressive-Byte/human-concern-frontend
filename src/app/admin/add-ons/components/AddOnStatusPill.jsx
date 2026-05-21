@@ -1,4 +1,4 @@
-export default function AddOnStatusPill({ status }) {
+const AddOnStatusPill = ({ status }) => {
   const s = String(status || "").toLowerCase();
 
   const cls =
