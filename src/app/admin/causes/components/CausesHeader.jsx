@@ -44,4 +44,5 @@ const CausesHeader = ({ onCreate }) => {
     </div>
   );
 }
+export default CausesHeader;
 
