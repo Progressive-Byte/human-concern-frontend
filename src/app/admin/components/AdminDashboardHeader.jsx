@@ -27,3 +27,5 @@ const AdminDashboardHeader = ({ admin }) => {
     </div>
   );
 }
+
+export default AdminDashboardHeader
