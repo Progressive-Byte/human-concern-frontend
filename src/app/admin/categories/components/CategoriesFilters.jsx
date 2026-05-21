@@ -33,3 +33,5 @@ const CategoriesFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
     </div>
   );
 }
+
+export default CategoriesFilters;
