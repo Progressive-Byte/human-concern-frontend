@@ -459,3 +459,4 @@ const SettingsPageClient = () => {
     </main>
   );
 }
+export default SettingsPageClient;
