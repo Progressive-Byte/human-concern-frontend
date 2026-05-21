@@ -26,7 +26,7 @@ function getConfirmCopy(action) {
   return { title: "Confirm action", description: "" };
 }
 
-export default function FormRowActions({ item, onRefresh, campaignIdFilter = "" }) {
+const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
   const router = useRouter();
   const toast = useToast();
   const wrapRef = useRef(null);
@@ -138,3 +138,4 @@ export default function FormRowActions({ item, onRefresh, campaignIdFilter = "" 
     </div>
   );
 }
+export default FormRowActions;
