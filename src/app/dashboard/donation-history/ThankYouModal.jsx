@@ -61,9 +61,9 @@ const ThankYouModal = ({ thankyouData, onClose }) => {
           </p>
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] text-[#737373]">Project</span>
+              <span className="text-[12px] text-[#737373]">Campaign</span>
               <span className="text-[13px] font-semibold text-[#383838]">
-                {thankyouData.isRamadan ? "Ramadan Project" : (thankyouData.campaignTitle || "—")}
+                {thankyouData.campaignTitle || "—"}
               </span>
             </div>
 
