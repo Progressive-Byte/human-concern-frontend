@@ -225,10 +225,15 @@ const RecurringSchedule = ({
       )}
 
       {/* Summary banner — only for fixed presets (not template, not custom) */}
-      {!showFullControls && presetDateCount > 0 && (
+      {!showFullControls && (presetDateCount > 0 || pastPresetCount > 0) && (
         <div className="flex items-center justify-between bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-2.5">
-          <span className="text-[12px] text-[#EA3335] font-medium">
+          <span className="text-[12px] text-[#EA3335] font-medium flex items-center gap-1.5">
             {presetDateCount} date{presetDateCount !== 1 ? "s" : ""} selected from preset
+            {pastPresetCount > 0 && (
+              <span className="text-[11px] text-[#AEAEAE] font-normal">
+                ({pastPresetCount} past, disabled)
+              </span>
+            )}
           </span>
           <button
             type="button"
