@@ -105,3 +105,5 @@ const CampaignsSummaryCards = ({ summary, currency = "USD", loading }) => {
     </section>
   );
 }
+
+export default CampaignsSummaryCards;
