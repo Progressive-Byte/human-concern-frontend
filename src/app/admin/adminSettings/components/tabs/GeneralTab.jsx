@@ -221,3 +221,4 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
   );
 }
 
+export default GeneralTab;
