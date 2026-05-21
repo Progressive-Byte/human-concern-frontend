@@ -214,7 +214,7 @@ const Step1Info = ({ campaignSlug }) => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Field label="Email"            required type="email" placeholder="you@example.com" {...personalField("email")} />
-            <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...personalField("phone")} />
+            <Field label="Phone (Optional)" type="tel"            placeholder="1-800-583-5841"       {...personalField("phone")} />
           </div>
         </div>
 
