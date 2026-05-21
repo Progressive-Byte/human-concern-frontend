@@ -63,7 +63,7 @@ function normalizeDonor(raw) {
   return { key, name, email, phone, type, status, totalDonated, donationCount, lastDonationAt, createdAt };
 }
 
-export default function AdminDonorsPage() {
+const AdminDonorsPage = () => {
   const toast = useToast();
   const router = useRouter();
 
@@ -383,3 +383,4 @@ export default function AdminDonorsPage() {
     </main>
   );
 }
+export default AdminDonorsPage;
