@@ -186,4 +186,4 @@ const VerifyEmailClient = () => {
     </div>
   );
 }
-
+export default VerifyEmailClient;
