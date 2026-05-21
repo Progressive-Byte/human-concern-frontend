@@ -471,3 +471,4 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
     </div>
   );
 }
+export default AddOnUpsertModal;
