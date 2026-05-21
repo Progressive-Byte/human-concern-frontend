@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createAdminCategory, updateAdminCategory } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 
-export default function CategoryUpsertModal({ open, mode, category, onClose, onSuccess }) {
+const CategoryUpsertModal = ({ open, mode, category, onClose, onSuccess }) => {
   const toast = useToast();
   const isEdit = mode === "edit";
 
@@ -167,3 +167,4 @@ export default function CategoryUpsertModal({ open, mode, category, onClose, onS
     </div>
   );
 }
+export default CategoryUpsertModal;
