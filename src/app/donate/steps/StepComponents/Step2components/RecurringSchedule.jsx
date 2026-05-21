@@ -51,10 +51,14 @@ const RecurringSchedule = ({
     : [...selectedDates].sort();
 
   const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset) => {
+    const futureDates = type === "specific_dates" ? dates.filter((d) => d >= todayStr) : dates;
+    const futureAmounts = type === "specific_dates"
+      ? Object.fromEntries(Object.entries(amounts).filter(([d]) => d >= todayStr))
+      : amounts;
     const occ    = type === "specific_dates"
-      ? dates.length
+      ? futureDates.length
       : countOccurrences(start, end, freq, interval);
-    const config = buildConfig(type, dates, start, end, freq, amounts, interval);
+    const config = buildConfig(type, futureDates, start, end, freq, futureAmounts, interval);
     onChange({ scheduleType: type, scheduleConfig: config, occurrences: occ, activePreset: preset });
   };
 
