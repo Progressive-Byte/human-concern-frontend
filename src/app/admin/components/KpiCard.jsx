@@ -29,3 +29,5 @@ const KpiCard = ({ label, value, icon, iconPosition = "right" }) => {
     </div>
   );
 }
+
+export default KpiCard
