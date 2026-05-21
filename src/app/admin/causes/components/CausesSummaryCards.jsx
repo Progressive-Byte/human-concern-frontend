@@ -45,7 +45,7 @@ function SkeletonCard() {
   );
 }
 
-export default function CausesSummaryCards({ summary, loading }) {
+const CausesSummaryCards = ({ summary, loading }) => {
   const s = summary || {};
 
   return (
@@ -66,3 +66,5 @@ export default function CausesSummaryCards({ summary, loading }) {
     </section>
   );
 }
+
+export default CausesSummaryCards;
