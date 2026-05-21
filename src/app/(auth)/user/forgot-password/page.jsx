@@ -7,7 +7,7 @@ import { FormField, FormInput } from "@/components/common/FormInput";
 import { requestPasswordReset } from "@/services/authService";
 import { validateEmail } from "@/utils/validateEmail";
 
-export default function ForgotPasswordPage() {
+const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState("");
