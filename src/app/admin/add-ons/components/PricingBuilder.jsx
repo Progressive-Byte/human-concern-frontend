@@ -144,3 +144,5 @@ const PricingBuilder = ({ mode, pricing, baseUnitAmount, onChangeMode, onChangeP
     </div>
   );
 }
+
+export default PricingBuilder;
