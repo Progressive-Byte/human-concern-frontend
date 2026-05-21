@@ -52,7 +52,7 @@ function unwrapSummary(res) {
   return res?.summary || res?.data?.summary || res?.data?.data?.summary || null;
 }
 
-export default function DonorTransactionsModal({ open, donorKey, onClose }) {
+const DonorTransactionsModal = ({ open, donorKey, onClose }) => {
   const toast = useToast();
   const key = useMemo(() => String(donorKey || "").trim(), [donorKey]);
 
@@ -280,3 +280,4 @@ export default function DonorTransactionsModal({ open, donorKey, onClose }) {
     </div>
   );
 }
+export default DonorTransactionsModal;
