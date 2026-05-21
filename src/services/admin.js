@@ -150,7 +150,8 @@ export function getAdminFormBasics(formId) {
 }
 
 export function updateAdminFormBasics(formId, payload) {
-  return adminApiRequest(`/admin/forms/${formId}/basics`, { method: "PATCH", body: JSON.stringify(payload) });
+  const isFormDataBody = typeof FormData !== "undefined" && payload instanceof FormData;
+  return adminApiRequest(`/admin/forms/${formId}/basics`, { method: "PATCH", body: isFormDataBody ? payload : JSON.stringify(payload) });
 }
 
 export function getAdminFormGoalsDates(formId) {

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
 import { createAdminCampaignForm, getAdminCategories, getAdminFormBasics, updateAdminFormBasics } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import { siteUrl } from "@/utils/constants";
 import FieldError from "./FieldError";
 import WizardFooterNav from "./WizardFooterNav";
 
@@ -17,6 +18,14 @@ function isDigits(value) {
 
 function isInternalCampaignId(value) {
   return /^[0-9]+(-[0-9]+)*$/.test(String(value || "").trim());
+}
+
+function resolveAssetUrl(path) {
+  const p = String(path || "").trim();
+  if (!p) return "";
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  if (p.startsWith("/")) return `${siteUrl}${p}`;
+  return `${siteUrl}/${p}`;
 }
 
 function normalizeBasicsResponse(res) {
@@ -48,6 +57,12 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
 
   const [displayName, setDisplayName] = useState("");
   const [description, setDescription] = useState("");
+  const [collaborating, setCollaborating] = useState(false);
+  const [collaborationOrganizationName, setCollaborationOrganizationName] = useState("");
+  const [collaborationOrganizationImage, setCollaborationOrganizationImage] = useState("");
+  const [collaborationImageFile, setCollaborationImageFile] = useState(null);
+  const [collaborationImagePreview, setCollaborationImagePreview] = useState("");
+  const [collaborationImageRemoved, setCollaborationImageRemoved] = useState(false);
   const [campaignType, setCampaignType] = useState("seasonal");
   const [categoryIds, setCategoryIds] = useState([]);
   const [featured, setFeatured] = useState(false);
@@ -136,6 +151,14 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
 
         setDisplayName(String(pub?.displayName || ""));
         setDescription(String(pub?.description || ""));
+        const orgName = String(pub?.collaborationOrganizationName || "").trim();
+        const orgImage = String(pub?.collaborationOrganizationImage || "").trim();
+        setCollaborationOrganizationName(orgName);
+        setCollaborationOrganizationImage(orgImage);
+        setCollaborationImageFile(null);
+        setCollaborationImagePreview("");
+        setCollaborationImageRemoved(false);
+        setCollaborating(Boolean(orgName) || Boolean(orgImage));
         setCampaignType(String(pub?.campaignType || "seasonal"));
         setCategoryIds(
           Array.isArray(pub?.categoryIds)
@@ -172,6 +195,8 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
     const pub = {
       displayName: String(displayName || "").trim(),
       description: String(description || "").trim(),
+      collaborationOrganizationName: String(collaborationOrganizationName || "").trim(),
+      collaborationOrganizationImage: String(collaborationOrganizationImage || "").trim(),
       campaignType: String(campaignType || "").trim(),
       categoryIds: Array.isArray(categoryIds) ? categoryIds : [],
       featured: Boolean(featured),
@@ -227,6 +252,14 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
       public: {
         displayName: pub.displayName,
         description: pub.description || undefined,
+        collaborationOrganizationName: collaborating
+          ? pub.collaborationOrganizationName || undefined
+          : null,
+        collaborationOrganizationImage: collaborating
+          ? collaborationImageRemoved
+            ? null
+            : pub.collaborationOrganizationImage || undefined
+          : null,
         campaignType: pub.campaignType,
         categoryIds: uniqueCats,
         featured: pub.featured || undefined,
@@ -234,6 +267,30 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
     };
 
     return { errors, payload };
+  }
+
+  useEffect(() => {
+    if (!collaborationImageFile) {
+      setCollaborationImagePreview("");
+      return;
+    }
+    const url = URL.createObjectURL(collaborationImageFile);
+    setCollaborationImagePreview(url);
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [collaborationImageFile]);
+
+  function buildBasicsFormData(payload) {
+    const fd = new FormData();
+    fd.append("internal", JSON.stringify(payload?.internal || {}));
+    const pub = { ...(payload?.public || {}) };
+    if (collaborationImageFile) {
+      delete pub.collaborationOrganizationImage;
+    }
+    fd.append("public", JSON.stringify(pub));
+    if (collaborationImageFile) fd.append("collaborationOrganizationImage", collaborationImageFile);
+    return fd;
   }
 
   function toggleCategoryId(id) {
@@ -274,12 +331,21 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
         const createdId =
           res?.data?.formId || res?.data?.id || res?.data?.data?.formId || res?.data?.data?.id || res?.formId || res?.id;
         if (createdId) setFormId(String(createdId));
+        if (createdId && collaborating && collaborationImageFile) {
+          const fd = buildBasicsFormData(payload);
+          await updateAdminFormBasics(String(createdId), fd);
+        }
         onSaved?.(createdId || null);
         toast.success("Basics saved");
         return { ok: true, formId: createdId || null };
       }
 
-      await updateAdminFormBasics(formId, payload);
+      if (collaborating && collaborationImageFile) {
+        const fd = buildBasicsFormData(payload);
+        await updateAdminFormBasics(formId, fd);
+      } else {
+        await updateAdminFormBasics(formId, payload);
+      }
       onSaved?.(formId);
       toast.success("Basics saved");
       return { ok: true, formId };
@@ -483,6 +549,87 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
               />
               <div className="mt-1 text-[12px] text-[#6B7280]">{Math.min(500, description.length)}/500 characters</div>
               <FieldError message={fieldErrors["public.description"]} />
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-[13px] font-semibold text-[#111827]">Collaborating with</div>
+                  <div className="mt-1 text-[12px] text-[#6B7280]">Optionally show a partner organization on the donation form.</div>
+                </div>
+                <Toggle
+                  enabled={collaborating}
+                  onChange={(next) => {
+                    setCollaborating(Boolean(next));
+                    if (!next) {
+                      setCollaborationOrganizationName("");
+                      setCollaborationOrganizationImage("");
+                      setCollaborationImageFile(null);
+                      setCollaborationImagePreview("");
+                      setCollaborationImageRemoved(false);
+                    }
+                  }}
+                />
+              </div>
+
+              {collaborating ? (
+                <div className="mt-4 grid grid-cols-1 gap-4">
+                  <div>
+                    <div className="mb-2 text-[13px] font-semibold text-[#111827]">Collaboration Organization Name</div>
+                    <input
+                      value={collaborationOrganizationName}
+                      onChange={(e) => setCollaborationOrganizationName(e.target.value)}
+                      placeholder="e.g. Human Concern International"
+                      className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                      disabled={saving}
+                    />
+                  </div>
+
+                  <div>
+                    <div className="mb-2 text-[13px] font-semibold text-[#111827]">Collaboration Organization Image</div>
+                    <div className="flex flex-col gap-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setCollaborationImageFile(file);
+                          setCollaborationImageRemoved(false);
+                        }}
+                        disabled={saving}
+                        className="block w-full text-[13px] text-[#111827] file:mr-4 file:rounded-xl file:border-0 file:bg-[#111827]/5 file:px-4 file:py-2 file:text-[13px] file:font-semibold file:text-[#111827] hover:file:bg-[#111827]/10"
+                      />
+
+                      {collaborationImagePreview || collaborationOrganizationImage ? (
+                        <div className="overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-2">
+                          <img
+                            src={collaborationImagePreview || resolveAssetUrl(collaborationOrganizationImage)}
+                            alt=""
+                            className="h-28 w-full rounded-xl bg-[#F9FAFB] object-contain"
+                          />
+                        </div>
+                      ) : null}
+
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="text-[12px] text-[#6B7280]">Optional. Upload a PNG/JPG image.</div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCollaborationImageFile(null);
+                            setCollaborationImagePreview("");
+                            setCollaborationOrganizationImage("");
+                            setCollaborationImageRemoved(true);
+                          }}
+                          disabled={saving || (!collaborationImagePreview && !collaborationOrganizationImage)}
+                          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3.5 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
 
