@@ -66,7 +66,7 @@ const MiniCalendar = ({ selectedDates, onToggleDate, mode = "multi", minDateStr 
           if (!day) return <span key={i} />;
           const dateStr    = toDateStr(day);
           const dateObj    = new Date(year, month, day);
-          const isPast     = dateObj < today;
+          const isPast     = dateObj <= today;
           const isDisabled = isPast || (minDateStr != null && dateStr < minDateStr);
           const isSel      = selectedDates.includes(dateStr);
           const isToday    = dateObj.getTime() === today.getTime();
