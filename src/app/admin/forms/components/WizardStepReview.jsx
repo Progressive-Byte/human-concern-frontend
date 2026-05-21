@@ -363,14 +363,21 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
                     ? "Move to Draft"
                     : "Create as Draft"}
               </button>
-              <button
-                type="button"
-                onClick={() => window.open(`/admin/forms/preview/1?formId=${encodeURIComponent(formId)}`, "_blank", "noopener,noreferrer")}
-                disabled={publishing || drafting || loading}
-                className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+              <a
+                href={`/admin/forms/preview/1?formId=${encodeURIComponent(formId)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled={publishing || drafting || loading}
+                tabIndex={publishing || drafting || loading ? -1 : 0}
+                onClick={(e) => {
+                  if (publishing || drafting || loading) e.preventDefault();
+                }}
+                className={`cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] ${
+                  publishing || drafting || loading ? "pointer-events-none cursor-not-allowed opacity-50" : ""
+                }`}
               >
                 Preview Donation Form
-              </button>
+              </a>
               <button
                 type="button"
                 onClick={publish}
