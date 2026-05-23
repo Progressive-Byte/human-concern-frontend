@@ -1,6 +1,6 @@
 "use client";
 
-export default function FormsPagination({ pagination, onPrev, onNext }) {
+const FormsPagination = ({ pagination, onPrev, onNext }) => {
   if (!pagination) return null;
 
   const page = Number(pagination?.page || 1);
@@ -37,3 +37,4 @@ export default function FormsPagination({ pagination, onPrev, onNext }) {
   );
 }
 
+export default FormsPagination;

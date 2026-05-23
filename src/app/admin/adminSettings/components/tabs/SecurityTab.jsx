@@ -81,7 +81,7 @@ function ShieldIcon() {
   );
 }
 
-export default function SecurityTab({ value, onChange, loading, saving, passwordForm, onChangePasswordForm, onSave }) {
+const SecurityTab = ({ value, onChange, loading, saving, passwordForm, onChangePasswordForm, onSave }) => {
   const v = value || {};
   const sessionTimeoutMinutes = v.sessionTimeoutMinutes ?? "";
   const twoFactorEnabled = Boolean(v.twoFactorEnabled);
@@ -167,3 +167,5 @@ export default function SecurityTab({ value, onChange, loading, saving, password
     </SettingsSectionCard>
   );
 }
+
+export default SecurityTab;

@@ -52,7 +52,7 @@ function normalizeAddOn(raw) {
   return { id, iconEmoji, addonName, shortDescription, amountFieldLabel, amount, labelUnderAmount, enabled, status, pricing };
 }
 
-export default function AdminAddOnsPage() {
+const AdminAddOnsPage = () => {
   const toast = useToast();
 
   const [filters, setFilters] = useState({
@@ -232,4 +232,4 @@ export default function AdminAddOnsPage() {
     </main>
   );
 }
-
+export default AdminAddOnsPage;

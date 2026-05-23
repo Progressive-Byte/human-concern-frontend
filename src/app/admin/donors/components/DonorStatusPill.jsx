@@ -1,4 +1,4 @@
-export default function DonorStatusPill({ status }) {
+const DonorStatusPill = ({ status }) => {
   const s = String(status || "").toLowerCase();
   const cls =
     s === "active"
@@ -10,3 +10,4 @@ export default function DonorStatusPill({ status }) {
 
   return <span className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-semibold ${cls}`}>{label}</span>;
 }
+export default DonorStatusPill;

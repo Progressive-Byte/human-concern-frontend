@@ -22,7 +22,7 @@ function actionForStatus(status) {
   return "";
 }
 
-export default function AdminCampaignDetailsPage({ params }) {
+const AdminCampaignDetailsPage = ({ params }) => {
   const router = useRouter();
   const toast = useToast();
   const resolvedParams = typeof params?.then === "function" ? usePromise(params) : params;
@@ -258,3 +258,4 @@ export default function AdminCampaignDetailsPage({ params }) {
     </main>
   );
 }
+export default AdminCampaignDetailsPage;

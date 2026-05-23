@@ -1,4 +1,4 @@
-export default function CategoriesFilters({ q, status, onChangeQ, onChangeStatus }) {
+const CategoriesFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="relative flex-1">
@@ -33,3 +33,5 @@ export default function CategoriesFilters({ q, status, onChangeQ, onChangeStatus
     </div>
   );
 }
+
+export default CategoriesFilters;

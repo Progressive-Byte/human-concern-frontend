@@ -4,7 +4,7 @@ import Link from "next/link";
 import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
-export default function CategoriesHeader({ onCreate }) {
+const CategoriesHeader = ({ onCreate }) => {
   const { admin } = useAdminAuth();
 
   return (
@@ -45,3 +45,4 @@ export default function CategoriesHeader({ onCreate }) {
   );
 }
 
+export default CategoriesHeader;

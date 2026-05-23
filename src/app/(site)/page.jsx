@@ -63,7 +63,7 @@ function Reveal({ children, delayMs = 0, reducedMotion = false }) {
 }
 
 /* ─── Page ───── */
-export default function HomePage() {
+const HomePage = () => {
 
   const [openVideo, setOpenVideo] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
@@ -215,3 +215,4 @@ export default function HomePage() {
     </>
   );
 }
+export default HomePage;

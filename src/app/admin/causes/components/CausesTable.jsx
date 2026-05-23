@@ -21,7 +21,7 @@ function yesPill(label) {
   );
 }
 
-export default function CausesTable({ items, loading, onEdit, onToggleEnabled, onDelete, onArchive, onRestore }) {
+const CausesTable = ({ items, loading, onEdit, onToggleEnabled, onDelete, onArchive, onRestore }) => {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -97,3 +97,4 @@ export default function CausesTable({ items, loading, onEdit, onToggleEnabled, o
     </section>
   );
 }
+export default CausesTable;

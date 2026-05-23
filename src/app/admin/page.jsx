@@ -119,7 +119,7 @@ function SkeletonPanel({ className = "" }) {
   return <div className={`h-80 animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-white ${className}`.trim()} />;
 }
 
-export default function AdminDashboardPage() {
+const AdminDashboardPage = () => {
   const { admin } = useAdminAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -224,3 +224,4 @@ export default function AdminDashboardPage() {
     </main>
   );
 }
+export default AdminDashboardPage;

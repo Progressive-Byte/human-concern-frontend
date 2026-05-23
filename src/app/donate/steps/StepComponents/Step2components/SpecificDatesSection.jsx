@@ -2,7 +2,7 @@
 
 import MiniCalendar from "./MiniCalendar";
 
-export default function SpecificDatesSection({ selectedDates, onToggleDate }) {
+const SpecificDatesSection = ({ selectedDates, onToggleDate }) => {
   return (
     <div className="flex flex-col gap-3">
       <div>
@@ -34,3 +34,4 @@ export default function SpecificDatesSection({ selectedDates, onToggleDate }) {
     </div>
   );
 }
+export default SpecificDatesSection;

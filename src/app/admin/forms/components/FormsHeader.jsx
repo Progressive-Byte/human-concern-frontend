@@ -4,7 +4,7 @@ import Link from "next/link";
 import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
-export default function FormsHeader({ onCreate }) {
+const FormsHeader = ({ onCreate }) => {
   const { admin } = useAdminAuth();
 
   return (
@@ -44,3 +44,5 @@ export default function FormsHeader({ onCreate }) {
     </div>
   );
 }
+
+export default FormsHeader;

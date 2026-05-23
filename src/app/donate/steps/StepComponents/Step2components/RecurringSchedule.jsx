@@ -7,6 +7,8 @@ import SpecificDatesSection from "./SpecificDatesSection";
 import DateRangeSection from "./DateRangeSection";
 import PerDateAmountTable from "./PerDateAmountTable";
 
+const getTodayStr = () => new Date().toISOString().split("T")[0];
+
 const SCHEDULE_TYPES = [
   { value: "specific_dates", label: "Specific Dates" },
   { value: "date_range",     label: "Date Range" },
@@ -25,6 +27,7 @@ const RecurringSchedule = ({
   apiPresets = [],
   onChange,
 }) => {
+  const todayStr = useMemo(getTodayStr, []);
   const [activePreset,   setActivePreset]   = useState(initialActivePreset ?? "custom");
   const [scheduleType,   setScheduleType]   = useState(initialScheduleType ?? "specific_dates");
   const [selectedDates,  setSelectedDates]  = useState(() =>
@@ -48,10 +51,14 @@ const RecurringSchedule = ({
     : [...selectedDates].sort();
 
   const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset) => {
+    const futureDates = type === "specific_dates" ? dates.filter((d) => d >= todayStr) : dates;
+    const futureAmounts = type === "specific_dates"
+      ? Object.fromEntries(Object.entries(amounts).filter(([d]) => d >= todayStr))
+      : amounts;
     const occ    = type === "specific_dates"
-      ? dates.length
+      ? futureDates.length
       : countOccurrences(start, end, freq, interval);
-    const config = buildConfig(type, dates, start, end, freq, amounts, interval);
+    const config = buildConfig(type, futureDates, start, end, freq, futureAmounts, interval);
     onChange({ scheduleType: type, scheduleConfig: config, occurrences: occ, activePreset: preset });
   };
 
@@ -179,8 +186,12 @@ const RecurringSchedule = ({
   const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
   // Show full controls for: Custom pill, template presets, or no API presets at all
   const showFullControls = isCustom || isTemplateActive || !hasPresets;
+  const futureSelectedDates = selectedDates.filter((d) => d >= todayStr);
   const presetDateCount  = !showFullControls
-    ? (scheduleType === "date_range" ? generatedDates.length : selectedDates.length)
+    ? (scheduleType === "date_range" ? generatedDates.length : futureSelectedDates.length)
+    : 0;
+  const pastPresetCount = !showFullControls && scheduleType === "specific_dates"
+    ? selectedDates.length - futureSelectedDates.length
     : 0;
   // When a template preset has intervalValue, lock frequency controls to read-only
   const lockedInterval = (isTemplateActive && (activeApiPreset?.scheduleConfig?.intervalValue ?? 0) > 1)
@@ -214,10 +225,15 @@ const RecurringSchedule = ({
       )}
 
       {/* Summary banner — only for fixed presets (not template, not custom) */}
-      {!showFullControls && presetDateCount > 0 && (
+      {!showFullControls && (presetDateCount > 0 || pastPresetCount > 0) && (
         <div className="flex items-center justify-between bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-2.5">
-          <span className="text-[12px] text-[#EA3335] font-medium">
+          <span className="text-[12px] text-[#EA3335] font-medium flex items-center gap-1.5">
             {presetDateCount} date{presetDateCount !== 1 ? "s" : ""} selected from preset
+            {pastPresetCount > 0 && (
+              <span className="text-[11px] text-[#AEAEAE] font-normal">
+                ({pastPresetCount} past, disabled)
+              </span>
+            )}
           </span>
           <button
             type="button"
@@ -284,6 +300,7 @@ const RecurringSchedule = ({
           effectiveAmount={effectiveAmount}
           sym={sym}
           onChange={handleDateAmountChange}
+          todayStr={todayStr}
         />
       )}
 

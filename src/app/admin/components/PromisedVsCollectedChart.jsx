@@ -23,7 +23,7 @@ function truncateLabel(value, max = 14) {
   return `${s.slice(0, max - 1)}…`;
 }
 
-export default function PromisedVsCollectedChart({ items = [] }) {
+const PromisedVsCollectedChart = ({ items = [] }) => {
   const rows = Array.isArray(items) ? items : [];
   const data = rows.map((item) => ({
     name: item?.campaignName || "—",
@@ -84,3 +84,4 @@ export default function PromisedVsCollectedChart({ items = [] }) {
     </div>
   );
 }
+export default PromisedVsCollectedChart;

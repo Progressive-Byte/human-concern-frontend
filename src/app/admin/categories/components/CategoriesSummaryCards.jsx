@@ -44,7 +44,7 @@ function SkeletonCard() {
   );
 }
 
-export default function CategoriesSummaryCards({ summary, loading }) {
+const CategoriesSummaryCards = ({ summary, loading }) => {
   const s = summary || {};
 
   return (
@@ -65,3 +65,4 @@ export default function CategoriesSummaryCards({ summary, loading }) {
     </section>
   );
 }
+export default CategoriesSummaryCards;

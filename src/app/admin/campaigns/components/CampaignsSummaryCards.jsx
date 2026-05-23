@@ -20,7 +20,7 @@ function Skeleton() {
   return <div className="h-[82px] animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-white" />;
 }
 
-export default function CampaignsSummaryCards({ summary, currency = "USD", loading }) {
+const CampaignsSummaryCards = ({ summary, currency = "USD", loading }) => {
   if (loading) {
     return (
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -105,3 +105,5 @@ export default function CampaignsSummaryCards({ summary, currency = "USD", loadi
     </section>
   );
 }
+
+export default CampaignsSummaryCards;

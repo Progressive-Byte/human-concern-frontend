@@ -30,10 +30,7 @@ const DonationWidget = ({ campaign }) => {
   const [showCustom,     setShowCustom]     = useState(false);
   const [currency,       setCurrency]       = useState(campaign.currency ?? "USD");
   const [copied,         setCopied]         = useState(false);
-  const finalAmount        = (showCustom && customAmount) ? Number(customAmount) : selectedAmount;
-  const selectedAmtDesc    = !showCustom
-    ? (suggestedAmountsData.find((a) => a.value === selectedAmount)?.description ?? "")
-    : "";
+  const finalAmount = (showCustom && customAmount) ? Number(customAmount) : selectedAmount;
 
   const handleDonate = () => {
     const gd = campaign.goalsDates ?? {};
@@ -141,37 +138,50 @@ const DonationWidget = ({ campaign }) => {
                   className="w-full rounded-2xl border border-[#CCCCCC] bg-white px-3 py-2.5 justify-between"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3 mt-3">
+              <div className="flex flex-col gap-2 mt-3">
                 {suggestedAmounts.map((amt) => {
                   const isSelected = selectedAmount === amt && !showCustom;
+                  const desc = suggestedAmountsData.find((a) => a.value === amt)?.description ?? "";
                   return (
                     <button
                       key={amt}
                       onClick={() => { setSelectedAmount(amt); setCustomAmount(""); setShowCustom(false); }}
-                      className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
+                      className={`w-full flex items-center rounded-2xl border transition-all duration-200 cursor-pointer text-left ${
                         isSelected
                           ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-                          : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                          : "bg-[#F5F5F5] border-transparent hover:border-[#055A4666]"
                       }`}
                     >
-                      <span className={`text-[24px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
-                        ${amt}
-                      </span>
+                      <div className="shrink-0 w-20 bg-white rounded-xl m-2 px-2 py-3 text-center">
+                        <span className={`text-[20px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
+                          ${amt}
+                        </span>
+                      </div>
+                      {desc && (
+                        <span className={`text-[13px] leading-snug px-3 ${isSelected ? "text-[#055A46]" : "text-[#737373]"}`}>
+                          {desc}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
 
-                {/* Custom toggle button */}
+                {/* Other Amount */}
                 <button
                   onClick={() => { setShowCustom(true); setCustomAmount(""); }}
-                  className={`w-full flex flex-col items-center justify-center text-center rounded-2xl px-4 py-5 border transition-all duration-200 cursor-pointer ${
+                  className={`w-full flex items-center rounded-2xl border transition-all duration-200 cursor-pointer ${
                     showCustom
                       ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
-                      : "bg-white border-[#38383833] hover:border-[#055A4666] hover:bg-[#F7FFED]"
+                      : "bg-[#F5F5F5] border-transparent hover:border-[#055A4666]"
                   }`}
                 >
-                  <span className={`text-[15px] font-bold leading-tight mt-1 ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
-                    Other Amount
+                  <div className="shrink-0 w-20 bg-white rounded-xl m-2 px-2 py-3 text-center">
+                    <span className={`text-[14px] font-bold ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
+                      Other
+                    </span>
+                  </div>
+                  <span className={`text-[13px] font-medium px-3 ${showCustom ? "text-[#055A46]" : "text-[#737373]"}`}>
+                    Enter a custom amount
                   </span>
                 </button>
               </div>
@@ -207,12 +217,6 @@ const DonationWidget = ({ campaign }) => {
 
         {/* Buttons */}
         <div className="px-5 pt-5 pb-5 flex flex-col gap-2.5">
-          {selectedAmtDesc && (
-            <div className="flex items-start gap-2.5 bg-[#F0FDF4] border border-[#A7F3D0] rounded-xl px-3.5 py-3">
-              <span className="text-[18px] leading-none mt-0.5">💡</span>
-              <p className="text-[13px] text-[#065F46] font-bold leading-snug">{selectedAmtDesc}</p>
-            </div>
-          )}
           <button
             onClick={handleDonate}
             className="w-full cursor-pointer bg-[#EA3335] hover:bg-red-700 text-white font-semibold py-3 rounded-xl text-[15px] transition-colors active:scale-95"

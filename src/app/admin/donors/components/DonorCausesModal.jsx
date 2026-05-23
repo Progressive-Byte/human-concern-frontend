@@ -16,7 +16,7 @@ function unwrapSummary(res) {
   return res?.summary || res?.data?.summary || res?.data?.data?.summary || null;
 }
 
-export default function DonorCausesModal({ open, donorKey, onClose }) {
+const DonorCausesModal = ({ open, donorKey, onClose }) => {
   const key = useMemo(() => String(donorKey || "").trim(), [donorKey]);
 
   const [loading, setLoading] = useState(false);
@@ -163,3 +163,4 @@ export default function DonorCausesModal({ open, donorKey, onClose }) {
   );
 }
 
+export default DonorCausesModal;

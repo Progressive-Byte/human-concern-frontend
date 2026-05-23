@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+const overlay = "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out bg-gradient-to-br from-[#055A46]/10 to-transparent pointer-events-none z-[1]";
+
 const WaysToGive = () => {
   const sectionRef = useRef(null);
   const [inView, setInView] = useState(false);
@@ -31,12 +33,11 @@ const WaysToGive = () => {
   }, [reducedMotion]);
 
   const revealBase =
-    "hc-reveal motion-reduce:transition-none transition-[transform,opacity,filter] duration-[700ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]";
+    "hc-reveal motion-reduce:transition-none transition-[transform,opacity,filter] duration-[700ms] ease-out";
   const revealIn = inView ? "hc-reveal-in" : "";
-  const cardHover =
-    "group transition-[transform,box-shadow,border-color] duration-300 ease-out will-change-[transform] hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(0,0,0,0.14)]";
+  const cardHover = "group relative";
   const imgHover =
-    "transform-gpu scale-100 will-change-transform transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-1";
+    "transition-transform duration-500 ease-in-out group-hover:scale-105";
   const zakatImgSize = "w-[120%] sm:w-[128%] lg:w-[255%] max-w-none";
   const sadaqahImgSize = "w-[78%] sm:w-[84%] lg:w-[165%]";
 
@@ -57,6 +58,7 @@ const WaysToGive = () => {
             {/* Bento Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8 md:gap-4">
                 <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col sm:row-span-1 lg:row-span-2 ${cardHover}`} style={{ transitionDelay: "160ms" }}>
+                    <div className={overlay} />
                     <div className="p-6 mt-4 ml-1">
                         <h4 className="text-[20px] xl:text-[32px] md:text-[25px] font-semibold text-[#383838]">Zakat</h4>
                         <p className="text-[13px] xl:text-[18px] md:text-[15px] font-semibold text-[#38383899]">
@@ -70,6 +72,7 @@ const WaysToGive = () => {
                     </div>
                 </div>
                 <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col ${cardHover}`} style={{ transitionDelay: "280ms" }}>
+                    <div className={overlay} />
                     <div className="p-6 mt-4 ml-1">
                     <h4 className="text-[20px] xl:text-[32px] md:text-[25px] font-semibold text-[#383838]">Sadaqah</h4>
                     <p className="text-[13px] xl:text-[18px] md:text-[15px] font-semibold text-[#38383899]">
@@ -83,6 +86,7 @@ const WaysToGive = () => {
                     </div>
                 </div>
                 <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col ${cardHover}`} style={{ transitionDelay: "400ms" }}>
+                    <div className={overlay} />
                     <div className="p-6 mt-4 ml-1">
                         <h4 className="text-[20px] xl:text-[32px] md:text-[25px] font-semibold text-[#383838]">Emergency Relief</h4>
                         <p className="text-[13px] xl:text-[18px] md:text-[15px] font-semibold text-[#38383899]">
@@ -96,6 +100,7 @@ const WaysToGive = () => {
                     </div>
                 </div>
                 <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col ${cardHover}`} style={{ transitionDelay: "520ms" }}>
+                    <div className={overlay} />
                     <div className="p-6 mt-4 ml-1">
                         <h4 className="text-[20px] xl:text-[32px] md:text-[25px] font-semibold text-[#383838]">Water Aid</h4>
                         <p className="text-[13px] xl:text-[18px] md:text-[15px] font-semibold text-[#38383899]">
@@ -109,6 +114,7 @@ const WaysToGive = () => {
                     </div>
                 </div>
                 <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col lg:row-span-2 lg:col-start-3 lg:row-start-2 ${cardHover}`} style={{ transitionDelay: "640ms" }}>
+                    <div className={overlay} />
                     <div className="p-6">
                     <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Food Aid</h4>
                     <p className="text-[13px] lg:text-[18px] mr-[80px] font-semibold text-[#38383899]">
@@ -122,6 +128,7 @@ const WaysToGive = () => {
                     </div>
                 </div>
                 <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-row items-start sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3 ${cardHover}`} style={{ transitionDelay: "760ms" }}>
+                    <div className={overlay} />
                     <div className="p-7 flex-1">
                     <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Child Sponsorship</h4>
                     <p className="text-[13px] lg:text-[18px] font-semibold text-[#38383899]">

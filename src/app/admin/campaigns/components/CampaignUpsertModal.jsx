@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createAdminCampaign, getAdminCampaignById, updateAdminCampaign } from "@/services/admin";
 import { useToast } from "./ToastProvider";
 
-export default function CampaignUpsertModal({ open, mode, campaignId, onClose, onSuccess }) {
+const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => {
   const toast = useToast();
   const isEdit = mode === "edit";
 
@@ -209,3 +209,4 @@ export default function CampaignUpsertModal({ open, mode, campaignId, onClose, o
     </div>
   );
 }
+export default CampaignUpsertModal;

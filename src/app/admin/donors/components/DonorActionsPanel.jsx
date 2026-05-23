@@ -86,7 +86,7 @@ function Skeleton() {
   );
 }
 
-export default function DonorActionsPanel({ donor, loading, onSendEmail, onToggleStatus, onEditProfile }) {
+const DonorActionsPanel = ({ donor, loading, onSendEmail, onToggleStatus, onEditProfile }) => {
   if (loading) return <Skeleton />;
 
   const active = String(donor?.status || "").toLowerCase() === "active";
@@ -105,3 +105,4 @@ export default function DonorActionsPanel({ donor, loading, onSendEmail, onToggl
     </section>
   );
 }
+export default DonorActionsPanel;

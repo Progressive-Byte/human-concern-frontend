@@ -4,7 +4,7 @@ import Link from "next/link";
 import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
-export default function CampaignsHeader({ onCreate }) {
+const CampaignsHeader = ({ onCreate }) => {
   const { admin } = useAdminAuth();
 
   return (
@@ -44,3 +44,4 @@ export default function CampaignsHeader({ onCreate }) {
     </div>
   );
 }
+export default CampaignsHeader;

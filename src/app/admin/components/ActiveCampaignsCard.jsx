@@ -1,7 +1,7 @@
 import ProgressBar from "./ProgressBar";
 import { formatCurrency } from "@/utils/helpers";
 
-export default function ActiveCampaignsCard({ items = [], currency = "USD" }) {
+const ActiveCampaignsCard = ({ items = [], currency = "USD" }) => {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -43,3 +43,5 @@ export default function ActiveCampaignsCard({ items = [], currency = "USD" }) {
     </div>
   );
 }
+
+export default ActiveCampaignsCard;

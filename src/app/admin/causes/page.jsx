@@ -38,7 +38,7 @@ function normalizeCause(raw) {
   return { id, name, fundCode, description, icon, zakatEligible, enabled, status };
 }
 
-export default function AdminCausesPage() {
+const AdminCausesPage = () => {
   const toast = useToast();
 
   const [filters, setFilters] = useState({
@@ -214,3 +214,4 @@ export default function AdminCausesPage() {
     </main>
   );
 }
+export default AdminCausesPage;

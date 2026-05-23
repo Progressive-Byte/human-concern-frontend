@@ -2,8 +2,13 @@
 
 import DateAmountRow from "./DateAmountRow";
 
-const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange }) => {
-  const total = activeDates.reduce((sum, d) => {
+const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange, todayStr }) => {
+  const today = todayStr ?? new Date().toISOString().split("T")[0];
+
+  const futureDates = activeDates.filter((d) => d >= today);
+  const pastDates   = activeDates.filter((d) => d < today);
+
+  const total = futureDates.reduce((sum, d) => {
     const ov  = dateAmounts[d] ?? "";
     const amt = ov !== "" ? Number(ov) : effectiveAmount;
     return sum + (isNaN(amt) ? effectiveAmount : amt);
@@ -16,8 +21,13 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
         <div className="flex items-center gap-2">
           <p className="text-[13px] font-medium text-[#383838]">Amount Per Date</p>
           <span className="text-[11px] text-[#737373] bg-[#F0F0F0] rounded-full px-2 py-0.5 tabular-nums">
-            {activeDates.length} date{activeDates.length !== 1 ? "s" : ""}
+            {futureDates.length} date{futureDates.length !== 1 ? "s" : ""}
           </span>
+          {pastDates.length > 0 && (
+            <span className="text-[11px] text-[#AEAEAE] bg-[#F5F5F5] rounded-full px-2 py-0.5 tabular-nums">
+              {pastDates.length} past
+            </span>
+          )}
         </div>
         <p className="text-[11px] text-[#737373]">Default: {sym}{effectiveAmount}</p>
       </div>
@@ -34,13 +44,14 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
             effectiveAmount={effectiveAmount}
             sym={sym}
             onChange={onChange}
+            disabled={d < today}
           />
         ))}
       </div>
 
       <div className="flex items-center justify-between px-3 py-2.5 border-t border-[#E5E5E5] bg-white">
         <span className="text-[12px] font-semibold text-[#383838]">
-          Total ({activeDates.length} payment{activeDates.length !== 1 ? "s" : ""})
+          Total ({futureDates.length} payment{futureDates.length !== 1 ? "s" : ""})
         </span>
         <span className="text-[14px] font-bold text-[#EA3335] tabular-nums">
           {sym}{total.toLocaleString()}
@@ -49,5 +60,6 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
 
     </div>
   );
-}
+};
+
 export default PerDateAmountTable;

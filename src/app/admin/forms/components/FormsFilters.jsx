@@ -1,6 +1,6 @@
 "use client";
 
-export default function FormsFilters({
+const FormsFilters = ({
   q,
   status,
   campaignId,
@@ -12,7 +12,7 @@ export default function FormsFilters({
   onChangeCampaignId,
   onChangeSort,
   onChangeOrder,
-}) {
+}) => {
   const campaignRows = Array.isArray(campaigns) ? campaigns : [];
 
   return (
@@ -92,3 +92,4 @@ export default function FormsFilters({
   );
 }
 
+export default FormsFilters;

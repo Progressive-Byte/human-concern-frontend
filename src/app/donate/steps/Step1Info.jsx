@@ -60,10 +60,12 @@ const Step1Info = ({ campaignSlug }) => {
 
     let campaignId    = null;
     let zakatEligible = false;
+    let campaignTitle = "";
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
-      campaignId    = meta.id ?? null;
+      campaignId    = meta.id           ?? null;
       zakatEligible = meta.zakatEligible ?? false;
+      campaignTitle = meta.name          ?? "";
     } catch {}
 
     if (campaign) {
@@ -71,6 +73,7 @@ const Step1Info = ({ campaignSlug }) => {
         campaignId,
         campaign,
         zakatEligible,
+        campaignTitle,
         ...(amount   && { amount }),
         ...(currency && { currency }),
       });
@@ -121,6 +124,10 @@ const Step1Info = ({ campaignSlug }) => {
   });
 
   const validateAndNext = () => {
+    if (!data.organization?.trim()) {
+      setError("Organization name is required.");
+      return;
+    }
     if (
       !data.firstName?.trim()    ||
       !data.lastName?.trim()     ||
@@ -199,7 +206,7 @@ const Step1Info = ({ campaignSlug }) => {
             </p>
           )}
 
-          <Field label="Organization" placeholder="xyz ltd" {...personalField("organization")} />
+          <Field label="Organization" required placeholder="xyz ltd" {...personalField("organization")} />
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="First Name" required placeholder="John" {...personalField("firstName")} />
@@ -207,7 +214,7 @@ const Step1Info = ({ campaignSlug }) => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Field label="Email"            required type="email" placeholder="you@example.com" {...personalField("email")} />
-            <Field label="Phone (Optional)" type="tel"            placeholder="018******"       {...personalField("phone")} />
+            <Field label="Phone (Optional)" type="tel"            placeholder="1-800-583-5841"       {...personalField("phone")} />
           </div>
         </div>
 

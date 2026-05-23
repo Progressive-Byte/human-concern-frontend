@@ -45,7 +45,7 @@ function formatShortDate(value) {
   }
 }
 
-export default function DonorSchedulesCard({ schedules, loading, onViewAll }) {
+const DonorSchedulesCard = ({ schedules, loading, onViewAll }) => {
   if (loading) return <Skeleton />;
 
   const rows = Array.isArray(schedules?.data) ? schedules.data : [];
@@ -94,3 +94,4 @@ export default function DonorSchedulesCard({ schedules, loading, onViewAll }) {
     </section>
   );
 }
+export default DonorSchedulesCard;

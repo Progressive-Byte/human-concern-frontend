@@ -1,6 +1,6 @@
 "use client";
 
-export default function DonationsPagination({ pagination, onPrev, onNext, showingLabel }) {
+const DonationsPagination = ({ pagination, onPrev, onNext, showingLabel }) => {
   const page = Number(pagination?.page || 1);
   const totalPages = Number(pagination?.totalPages || 1);
   const total = Number(pagination?.total || 0);
@@ -38,3 +38,4 @@ export default function DonationsPagination({ pagination, onPrev, onNext, showin
   );
 }
 
+export default DonationsPagination;

@@ -148,7 +148,7 @@ function EmojiPickerField({ value, onChange }) {
   );
 }
 
-export default function CauseUpsertModal({ open, mode, cause, onClose, onSuccess }) {
+const CauseUpsertModal = ({ open, mode, cause, onClose, onSuccess }) => {
   const toast = useToast();
   const isEdit = mode === "edit";
 
@@ -365,3 +365,4 @@ export default function CauseUpsertModal({ open, mode, cause, onClose, onSuccess
     </div>
   );
 }
+export default CauseUpsertModal;

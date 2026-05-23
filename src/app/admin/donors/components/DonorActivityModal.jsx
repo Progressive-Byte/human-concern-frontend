@@ -47,7 +47,7 @@ function unwrapPagination(res) {
   return normalizePagination(raw);
 }
 
-export default function DonorActivityModal({ open, donorKey, onClose }) {
+const DonorActivityModal = ({ open, donorKey, onClose }) => {
   const key = useMemo(() => String(donorKey || "").trim(), [donorKey]);
 
   const [loading, setLoading] = useState(false);
@@ -215,3 +215,5 @@ export default function DonorActivityModal({ open, donorKey, onClose }) {
     </div>
   );
 }
+
+export default DonorActivityModal;

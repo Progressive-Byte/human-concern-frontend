@@ -120,7 +120,7 @@ function ProviderLabel({ provider }) {
   return p ? p[0].toUpperCase() + p.slice(1) : "Provider";
 }
 
-export default function PaymentTab({ value, loading, busy, onConfigure, onToggleEnabled, onDisconnect }) {
+const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisconnect }) => {
   const gateways = useMemo(() => {
     const arr = Array.isArray(value?.gateways) ? value.gateways : [];
     const byProvider = new Map(arr.map((g) => [String(g?.provider || g?.id || "").toLowerCase(), g]));
@@ -256,3 +256,4 @@ export default function PaymentTab({ value, loading, busy, onConfigure, onToggle
   );
 }
 
+export default PaymentTab;

@@ -79,6 +79,8 @@ function normalizeScheduleRow(raw) {
   const installmentAmount = typeof raw?.installmentAmount === "number" ? raw.installmentAmount : Number(raw?.installmentAmount || 0);
   const currency = String(raw?.currency || "USD");
   const causeType = raw?.causeType ? String(raw.causeType) : "";
+  const totalDonationAmount = typeof raw?.totalDonationAmount === "number" ? Number(raw?.totalDonationAmount || 0) : 0;
+  const nextDonationAmount = typeof raw?.nextDonationAmount === "number" ? Number(raw?.nextDonationAmount || 0) : 0;
 
   return {
     donationId,
@@ -91,6 +93,8 @@ function normalizeScheduleRow(raw) {
     installmentAmount,
     currency,
     causeType,
+    totalDonationAmount,
+    nextDonationAmount,
   };
 }
 
