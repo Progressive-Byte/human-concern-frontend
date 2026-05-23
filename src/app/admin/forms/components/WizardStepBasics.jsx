@@ -20,8 +20,14 @@ function isInternalCampaignId(value) {
   return /^[0-9]+(-[0-9]+)*$/.test(String(value || "").trim());
 }
 
-function resolveAssetUrl(path) {
-  const p = String(path || "").trim();
+function resolveAssetUrl(value) {
+  const raw =
+    typeof value === "string"
+      ? value
+      : value && typeof value === "object"
+        ? value?.url || value?.path || value?.location || value?.src
+        : "";
+  const p = String(raw || "").trim();
   if (!p) return "";
   if (p.startsWith("http://") || p.startsWith("https://")) return p;
   if (p.startsWith("/")) return `${siteUrl}${p}`;
@@ -152,7 +158,11 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
         setDisplayName(String(pub?.displayName || ""));
         setDescription(String(pub?.description || ""));
         const orgName = String(pub?.collaborationOrganizationName || "").trim();
-        const orgImage = String(pub?.collaborationOrganizationImage || "").trim();
+        const orgImageRaw = pub?.collaborationOrganizationImage;
+        const orgImage =
+          typeof orgImageRaw === "string"
+            ? orgImageRaw.trim()
+            : String(orgImageRaw?.path || orgImageRaw?.url || orgImageRaw?.location || "").trim();
         setCollaborationOrganizationName(orgName);
         setCollaborationOrganizationImage(orgImage);
         setCollaborationImageFile(null);
@@ -326,6 +336,24 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
 
     setSaving(true);
     try {
+      const refreshBasics = async (id) => {
+        const res = await getAdminFormBasics(id);
+        const d = normalizeBasicsResponse(res);
+        const pub = d?.public || {};
+        const orgName = String(pub?.collaborationOrganizationName || "").trim();
+        const orgImageRaw = pub?.collaborationOrganizationImage;
+        const orgImage =
+          typeof orgImageRaw === "string"
+            ? orgImageRaw.trim()
+            : String(orgImageRaw?.path || orgImageRaw?.url || orgImageRaw?.location || "").trim();
+        setCollaborationOrganizationName(orgName);
+        setCollaborationOrganizationImage(orgImage);
+        setCollaborating(Boolean(orgName) || Boolean(orgImage));
+        setCollaborationImageFile(null);
+        setCollaborationImagePreview("");
+        setCollaborationImageRemoved(false);
+      };
+
       if (!formId) {
         const res = await createAdminCampaignForm(campaignId, payload);
         const createdId =
@@ -334,6 +362,7 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
         if (createdId && collaborating && collaborationImageFile) {
           const fd = buildBasicsFormData(payload);
           await updateAdminFormBasics(String(createdId), fd);
+          await refreshBasics(String(createdId));
         }
         onSaved?.(createdId || null);
         toast.success("Basics saved");
@@ -343,8 +372,12 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
       if (collaborating && collaborationImageFile) {
         const fd = buildBasicsFormData(payload);
         await updateAdminFormBasics(formId, fd);
+        await refreshBasics(formId);
       } else {
         await updateAdminFormBasics(formId, payload);
+        if (collaborating && collaborationImageRemoved) {
+          await refreshBasics(formId);
+        }
       }
       onSaved?.(formId);
       toast.success("Basics saved");

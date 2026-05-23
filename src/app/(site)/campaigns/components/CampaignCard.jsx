@@ -1,6 +1,50 @@
+ "use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { apiBase, siteUrl } from "@/utils/constants";
+import { useEffect, useMemo, useState } from "react";
+import { serverApiBase, siteUrl } from "@/utils/constants";
+
+let brandingLogoUrlCache = null;
+let brandingLogoLoaded = false;
+let brandingLogoPromise = null;
+
+function resolveAssetUrl(value) {
+  const raw =
+    typeof value === "string"
+      ? value
+      : value && typeof value === "object"
+        ? value?.url || value?.path || value?.location || value?.src
+        : "";
+  const p = String(raw || "").trim();
+  if (!p) return "";
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  if (p.startsWith("/")) return `${siteUrl}${p}`;
+  return `${siteUrl}/${p}`;
+}
+
+async function loadBrandingLogoUrl() {
+  if (brandingLogoLoaded) return brandingLogoUrlCache;
+  if (brandingLogoPromise) return brandingLogoPromise;
+  brandingLogoPromise = (async () => {
+    try {
+      const res = await fetch(`${serverApiBase}settings/branding`, { method: "GET" });
+      const json = await res.json();
+      const path = json?.data?.branding?.logo?.path ?? null;
+      const url = resolveAssetUrl(path);
+      brandingLogoUrlCache = url || null;
+      brandingLogoLoaded = true;
+      return brandingLogoUrlCache;
+    } catch {
+      brandingLogoUrlCache = null;
+      brandingLogoLoaded = true;
+      return null;
+    } finally {
+      brandingLogoPromise = null;
+    }
+  })();
+  return brandingLogoPromise;
+}
 
 const CampaignCard = ({ campaign }) => {
   const raised = campaign.raised ?? 0;
@@ -18,7 +62,26 @@ const CampaignCard = ({ campaign }) => {
   const title = campaign.name ?? "";
   const thumbnail = campaign.thumbnailPath || `/images/placeholder.png`;
   const thumbnailUrl = siteUrl + thumbnail;
-  
+
+  const collabName = String(campaign?.collaborationOrganizationName || "").trim();
+  const collabImageUrl = useMemo(
+    () => resolveAssetUrl(campaign?.collaborationOrganizationImage),
+    [campaign?.collaborationOrganizationImage]
+  );
+  const collabImageAlt = String(campaign?.collaborationOrganizationImage?.alt || "").trim() || "Partner logo";
+  const [brandLogoUrl, setBrandLogoUrl] = useState(brandingLogoLoaded ? brandingLogoUrlCache : null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const url = await loadBrandingLogoUrl();
+      if (!alive) return;
+      setBrandLogoUrl(url);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   return (
     <div data-campaign-card className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_22px_46px_rgba(0,0,0,0.12)] hover:border-red-500/20 motion-reduce:transition-none">
@@ -47,17 +110,34 @@ const CampaignCard = ({ campaign }) => {
       </div>
 
       {/* Organization */}
-      <div className="px-5 py-3 flex items-center gap-2">
-        <div className="w-[82px] h-[28px] rounded-full relative">
-          <Image
-            src="/images/organization.png"
-            alt="organization"
-            fill
-            className="object-contain"
-          />
+      {collabName || collabImageUrl ? (
+        <div className="px-5 py-3 flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="w-[28px] h-[28px] rounded-full relative overflow-hidden border border-[#E5E7EB] bg-white">
+              <Image
+                src={brandLogoUrl || "/images/organization.png"}
+                alt="brand logo"
+                fill
+                className="object-contain p-1"
+              />
+            </div>
+            <span className="text-[14px] leading-none select-none">🤝</span>
+            {collabImageUrl ? (
+              <div className="w-[28px] h-[28px] rounded-full relative overflow-hidden border border-[#E5E7EB] bg-white">
+                <Image
+                  src={collabImageUrl}
+                  alt={collabImageAlt}
+                  fill
+                  className="object-contain p-1"
+                />
+              </div>
+            ) : null}
+          </div>
+          {collabName ? (
+            <span className="min-w-0 truncate font-normal text-lg text-[#383838]">{collabName}</span>
+          ) : null}
         </div>
-        <span className="font-normal text-lg text-[#383838]">MTWA LTD. Ca</span>
-      </div>
+      ) : null}
 
       {/* Content */}
       <div className="px-5 pt-3">
