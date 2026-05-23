@@ -28,7 +28,7 @@ function parsePagination(res) {
   return res?.meta?.pagination || res?.meta?.data?.pagination || res?.pagination || null;
 }
 
-export default function FormsPageClient() {
+const FormsPageClient = () => {
   const router = useRouter();
   const toast = useToast();
   const searchParams = useSearchParams();
@@ -200,3 +200,4 @@ export default function FormsPageClient() {
     </main>
   );
 }
+export default FormsPageClient;

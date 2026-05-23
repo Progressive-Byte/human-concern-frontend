@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { sendAdminDonorEmail } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 
-export default function SendDonorEmailModal({ open, donor, onClose, onSent }) {
+const SendDonorEmailModal = ({ open, donor, onClose, onSent }) => {
   const toast = useToast();
   const donorLabel = useMemo(() => String(donor?.name || donor?.email || "Donor"), [donor]);
 
@@ -140,3 +140,4 @@ export default function SendDonorEmailModal({ open, donor, onClose, onSent }) {
   );
 }
 
+export default SendDonorEmailModal;
