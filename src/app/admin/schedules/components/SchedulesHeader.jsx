@@ -76,3 +76,4 @@ const SchedulesHeader = ({ onExport, onRefresh, refreshing = false }) => {
   );
 }
 
+export default SchedulesHeader;
