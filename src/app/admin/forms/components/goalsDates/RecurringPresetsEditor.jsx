@@ -526,3 +526,5 @@ const RecurringPresetsEditor = ({
     </section>
   );
 }
+
+export default RecurringPresetsEditor;
