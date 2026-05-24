@@ -42,7 +42,7 @@ function computeCompletionPercent(item) {
   return Math.round((filled / total) * 100);
 }
 
-export default function FormsTable({ items, loading, pagination, campaignIdFilter = "", onPrevPage, onNextPage, onRefresh }) {
+const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevPage, onNextPage, onRefresh }) => {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -123,3 +123,5 @@ export default function FormsTable({ items, loading, pagination, campaignIdFilte
     </section>
   );
 }
+
+export default FormsTable;
