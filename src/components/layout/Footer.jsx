@@ -19,7 +19,7 @@ const socials = [
   { label: "YouTube", href: "#", svg: YoutubeIcon },
 ];
 
-export default function Footer() {
+const Footer = () => {
   const year = new Date().getFullYear();
   const pathname = usePathname();
   const isHome = pathname === "/";
