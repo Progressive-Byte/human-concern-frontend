@@ -8,7 +8,7 @@ function FilterIcon() {
   );
 }
 
-export default function SchedulesFilters({ q, status, onChangeQ, onChangeStatus }) {
+const SchedulesFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="relative flex-1">
