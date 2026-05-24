@@ -808,3 +808,4 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     </div>
   );
 }
+export default WizardStepBasics;
