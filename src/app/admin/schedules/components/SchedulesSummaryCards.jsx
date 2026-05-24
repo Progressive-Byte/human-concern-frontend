@@ -131,3 +131,4 @@ const SchedulesSummaryCards = ({ summary = {}, loading = false, currency = "USD"
   );
 }
 
+export default SchedulesSummaryCards;
