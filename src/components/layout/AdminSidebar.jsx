@@ -241,7 +241,7 @@ const navItems = [
   { href: "/admin/adminSettings", label: "Settings", icon: "settings" },
 ];
 
-export default function AdminSidebar({ onNavigate }) {
+const AdminSidebar = ({ onNavigate }) => {
   const pathname = usePathname();
   const { logout } = useAdminAuth();
 
