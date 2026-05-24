@@ -1,6 +1,6 @@
 "use client";
 
-export default function ScheduleAllocatedCausesCard({ allocatedCauses, loading = false }) {
+const ScheduleAllocatedCausesCard = ({ allocatedCauses, loading = false }) => {
   const causes = Array.isArray(allocatedCauses?.causes) ? allocatedCauses.causes : Array.isArray(allocatedCauses?.items) ? allocatedCauses.items : [];
 
   return (
