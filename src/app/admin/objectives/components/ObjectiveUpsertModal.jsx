@@ -340,3 +340,4 @@ const ObjectiveUpsertModal = ({ open, mode, objective, onClose, onSuccess }) => 
     </div>
   );
 }
+export default ObjectiveUpsertModal;
