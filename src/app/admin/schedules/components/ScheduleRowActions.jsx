@@ -66,3 +66,5 @@ const ScheduleRowActions = ({ donationId }) => {
   );
 }
 
+
+export default ScheduleRowActions;
