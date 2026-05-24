@@ -332,3 +332,4 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
     </div>
   );
 }
+export default WizardStepAddons;
