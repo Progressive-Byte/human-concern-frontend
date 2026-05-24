@@ -25,7 +25,7 @@ function RefreshIcon() {
   );
 }
 
-export default function SchedulesHeader({ onExport, onRefresh, refreshing = false }) {
+const SchedulesHeader = ({ onExport, onRefresh, refreshing = false }) => {
   const { admin } = useAdminAuth();
 
   return (
