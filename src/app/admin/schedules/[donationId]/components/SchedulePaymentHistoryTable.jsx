@@ -18,7 +18,7 @@ function shortId(id) {
   return `#${tail}`;
 }
 
-export default function SchedulePaymentHistoryTable({ paymentHistory, loading = false }) {
+const SchedulePaymentHistoryTable = ({ paymentHistory, loading = false }) => {
   const rows = Array.isArray(paymentHistory?.items) ? paymentHistory.items : Array.isArray(paymentHistory) ? paymentHistory : [];
   const currency = String(rows?.[0]?.currency || "USD");
 
