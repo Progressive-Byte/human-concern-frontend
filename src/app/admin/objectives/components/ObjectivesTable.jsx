@@ -88,3 +88,4 @@ const ObjectivesTable = ({ items, loading, onEdit, onArchive, onRestore }) => {
     </section>
   );
 }
+export default ObjectivesTable;
