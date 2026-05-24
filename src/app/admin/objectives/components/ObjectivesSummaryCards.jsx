@@ -65,3 +65,4 @@ const ObjectivesSummaryCards = ({ summary, loading }) => {
     </section>
   );
 }
+export default ObjectivesSummaryCards;
