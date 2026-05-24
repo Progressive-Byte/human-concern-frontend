@@ -20,7 +20,7 @@ function Row({ label, value }) {
   );
 }
 
-export default function ScheduleDetailsCard({ schedule, stats, loading = false }) {
+const ScheduleDetailsCard = ({ schedule, stats, loading = false }) => {
   const currency = String(schedule?.currency || "USD");
   const formName = String(schedule?.formName || "—");
   const frequency = String(schedule?.frequencyLabel || "—");
