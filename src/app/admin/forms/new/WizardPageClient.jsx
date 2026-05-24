@@ -19,7 +19,7 @@ function isActiveCategory(cat) {
   return status === "active";
 }
 
-export default function WizardPageClient() {
+const WizardPageClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
