@@ -45,3 +45,4 @@ const SchedulesFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
   );
 }
 
+export default SchedulesFilters;
