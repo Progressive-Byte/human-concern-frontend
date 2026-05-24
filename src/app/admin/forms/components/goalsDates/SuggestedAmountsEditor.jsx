@@ -133,3 +133,4 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
     </section>
   );
 }
+export default SuggestedAmountsEditor;
