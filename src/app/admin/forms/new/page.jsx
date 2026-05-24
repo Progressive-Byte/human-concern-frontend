@@ -8,3 +8,4 @@ const AdminCreateFormWizardPage = () => {
     </Suspense>
   );
 }
+export default AdminCreateFormWizardPage;
