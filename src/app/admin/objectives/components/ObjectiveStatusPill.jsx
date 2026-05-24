@@ -12,4 +12,4 @@ const ObjectiveStatusPill = ({ status }) => {
 
   return <span className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-semibold ${cls}`}>{label}</span>;
 }
-
+export default ObjectiveStatusPill;
