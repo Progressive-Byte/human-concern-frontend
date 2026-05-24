@@ -2,7 +2,7 @@
 
 import ScheduleStatusPill from "../../components/ScheduleStatusPill";
 
-export default function ScheduleDetailHeader({ schedule, donationId, loading = false }) {
+const ScheduleDetailHeader = ({ schedule, donationId, loading = false }) => {
   const formName = String(schedule?.formName || schedule?.campaignName || "—");
   const status = String(schedule?.scheduleStatus || schedule?.status || "");
 
