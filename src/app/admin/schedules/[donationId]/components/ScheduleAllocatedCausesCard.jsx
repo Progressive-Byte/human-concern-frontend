@@ -44,3 +44,4 @@ const ScheduleAllocatedCausesCard = ({ allocatedCauses, loading = false }) => {
   );
 }
 
+export default ScheduleAllocatedCausesCard;
