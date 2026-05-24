@@ -1,6 +1,6 @@
 "use client";
 
-export default function Field({
+const Field = ({
   label,
   value,
   onChange,
@@ -9,7 +9,7 @@ export default function Field({
   error,
   required,
   readOnly,
-}) {
+}) => {
   return (
     <div>
       <label className="text-[13px] font-medium text-[#111827] mb-1.5 block">
