@@ -14,7 +14,7 @@ function TrashIcon() {
   );
 }
 
-export default function SuggestedAmountsEditor({ currencyLabel = "", value = [], onChange, disabled, errors }) {
+const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disabled, errors }) => {
   const items = Array.isArray(value) ? value : [];
 
   function setItem(idx, patch) {
