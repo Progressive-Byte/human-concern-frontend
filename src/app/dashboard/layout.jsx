@@ -4,7 +4,7 @@ export const metadata = {
   title: "Dashboard — Human Concern",
 };
 
-export default function DashboardLayout({ children }) {
+const DashboardLayout = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-[#F9F9F9] text-[#111827]">
       <DashboardSidebar />
