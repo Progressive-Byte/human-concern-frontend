@@ -46,3 +46,4 @@ const WizardFooterNav = ({
     </div>
   );
 }
+export default WizardFooterNav;
