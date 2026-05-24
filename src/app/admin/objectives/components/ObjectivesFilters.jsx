@@ -52,3 +52,4 @@ const ObjectivesFilters = ({
     </div>
   );
 }
+export default ObjectivesFilters;
