@@ -106,7 +106,7 @@ function SkeletonCard() {
   );
 }
 
-export default function SchedulesSummaryCards({ summary = {}, loading = false, currency = "USD", formatAmount }) {
+const SchedulesSummaryCards = ({ summary = {}, loading = false, currency = "USD", formatAmount }) => {
   const s = summary || {};
   const fmt = typeof formatAmount === "function" ? formatAmount : (v) => String(v ?? "");
 
