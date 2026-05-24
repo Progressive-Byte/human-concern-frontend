@@ -328,3 +328,4 @@ const AdminSidebar = ({ onNavigate }) => {
     </aside>
   );
 }
+export default AdminSidebar;
