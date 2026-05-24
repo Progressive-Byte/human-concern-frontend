@@ -191,3 +191,4 @@ const AdminFormPreviewStepPage = () => {
 
   return index === 0 ? <StepComponent campaignSlug={CAMPAIGN_BASE} /> : <StepComponent />;
 }
+export default AdminFormPreviewStepPage;
