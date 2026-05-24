@@ -448,7 +448,7 @@ function PresetCard({ value, onChange, onRemove, disabled, errors }) {
   );
 }
 
-export default function RecurringPresetsEditor({
+const RecurringPresetsEditor = ({
   allowRecurringDonations,
   onChangeAllowRecurringDonations,
   value = [],
@@ -456,7 +456,7 @@ export default function RecurringPresetsEditor({
   disabled,
   errors,
   allowError,
-}) {
+}) => {
   const presets = Array.isArray(value) ? value : [];
 
   function setPreset(idx, patch) {
