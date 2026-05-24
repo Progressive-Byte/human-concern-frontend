@@ -17,4 +17,4 @@ const WizardStepPlaceholder = ({ title, description, saving = false, onBack, onN
     </div>
   );
 }
-
+export default WizardStepPlaceholder;
