@@ -66,3 +66,4 @@ const ScheduleRecentActivityCard = ({ items = [], loading = false }) => {
   );
 }
 
+export default ScheduleRecentActivityCard;
