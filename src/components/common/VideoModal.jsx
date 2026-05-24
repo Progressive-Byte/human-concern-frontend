@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-export default function VideoModal({ isOpen, onClose, videoId }) {
+const VideoModal = ({ isOpen, onClose, videoId }) => {
   // Close on ESC
   useEffect(() => {
     const handleEsc = (e) => {
