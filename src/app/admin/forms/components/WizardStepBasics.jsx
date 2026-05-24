@@ -44,7 +44,7 @@ function isActiveCategory(cat) {
   return status === "active";
 }
 
-export default function WizardStepBasics({ campaignId, initialFormId = "", onExit, onSaved }) {
+const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) => {
   const toast = useToast();
 
   const [formId, setFormId] = useState(String(initialFormId || ""));
