@@ -1,4 +1,4 @@
-export default function ObjectiveStatusPill({ status }) {
+const ObjectiveStatusPill = ({ status }) => {
   const s = String(status || "").toLowerCase();
 
   const cls =
