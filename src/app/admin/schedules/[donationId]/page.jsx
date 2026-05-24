@@ -30,7 +30,7 @@ function unwrapObject(res) {
   return res && typeof res === "object" ? res : null;
 }
 
-export default function AdminScheduleDetailPage() {
+const AdminScheduleDetailPage = () => {
   const toast = useToast();
   const router = useRouter();
   const params = useParams();
