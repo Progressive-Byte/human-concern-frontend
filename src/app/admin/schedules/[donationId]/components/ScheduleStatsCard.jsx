@@ -40,3 +40,5 @@ const ScheduleStatsCard = ({ stats, loading = false }) => {
   );
 }
 
+
+export default ScheduleStatsCard;
