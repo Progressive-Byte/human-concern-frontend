@@ -79,7 +79,7 @@ const STEPS = [Step1Info, Step2Payment, Step3Addons, Step4Confirmation];
 const CAMPAIGN_BASE = "admin/forms/preview";
 const STORAGE_FORM_KEY = "hc_admin_preview_form_id";
 
-export default function AdminFormPreviewStepPage() {
+const AdminFormPreviewStepPage = () => {
   const { step } = useParams();
   const searchParams = useSearchParams();
   const { update, reset } = useDonation();
