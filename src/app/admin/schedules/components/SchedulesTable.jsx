@@ -31,7 +31,7 @@ function Skeleton() {
   );
 }
 
-export default function SchedulesTable({ items = [], loading = false, pagination = null, currency = "USD", formatAmount, onPrevPage, onNextPage }) {
+const SchedulesTable = ({ items = [], loading = false, pagination = null, currency = "USD", formatAmount, onPrevPage, onNextPage }) => {
   const router = useRouter();
   if (loading && (!Array.isArray(items) || items.length === 0)) return <Skeleton />;
 
