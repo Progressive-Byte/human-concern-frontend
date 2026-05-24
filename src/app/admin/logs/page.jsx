@@ -355,3 +355,4 @@ const AdminLogsPage = () => {
   );
 }
 
+export default AdminLogsPage;
