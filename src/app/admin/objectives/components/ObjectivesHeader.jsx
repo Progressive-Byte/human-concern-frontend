@@ -45,3 +45,4 @@ const ObjectivesHeader = ({ onCreate }) => {
   );
 }
 
+export default ObjectivesHeader;
