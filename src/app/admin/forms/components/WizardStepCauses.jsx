@@ -279,3 +279,4 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
     </div>
   );
 }
+export default WizardStepCauses;
