@@ -480,3 +480,4 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     </div>
   );
 }
+export default WizardStepMedia;
