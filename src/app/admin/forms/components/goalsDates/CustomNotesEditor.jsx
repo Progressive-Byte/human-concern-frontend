@@ -310,3 +310,4 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors }) => {
     </section>
   );
 }
+export default CustomNotesEditor;
