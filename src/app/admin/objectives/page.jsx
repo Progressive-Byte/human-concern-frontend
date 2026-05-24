@@ -202,3 +202,4 @@ const AdminObjectivesPage = () => {
     </main>
   );
 }
+export default AdminObjectivesPage;
