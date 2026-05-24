@@ -125,3 +125,4 @@ const SchedulesTable = ({ items = [], loading = false, pagination = null, curren
   );
 }
 
+export default SchedulesTable;
