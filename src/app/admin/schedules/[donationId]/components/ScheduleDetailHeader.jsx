@@ -21,4 +21,5 @@ const ScheduleDetailHeader = ({ schedule, donationId, loading = false }) => {
     </section>
   );
 }
+export default ScheduleDetailHeader;
 
