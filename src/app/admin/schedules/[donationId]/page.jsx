@@ -138,3 +138,5 @@ const AdminScheduleDetailPage = () => {
     </main>
   );
 }
+
+export default AdminScheduleDetailPage;
