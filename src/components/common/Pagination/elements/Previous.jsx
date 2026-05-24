@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Previous({
+const Previous = ({
     baseSlug = "campaigns",
     subDir = "page",
     current = 1,
-}) {
+}) => {
     return (
         <>
             {current > 1 ? (
