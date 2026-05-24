@@ -28,3 +28,4 @@ const DonationSessionCleaner = () => {
 
   return null;
 }
+export default DonationSessionCleaner;
