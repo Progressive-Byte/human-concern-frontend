@@ -351,3 +351,4 @@ const WizardPageClient = () => {
     </FormWizardShell>
   );
 }
+export default WizardPageClient;
