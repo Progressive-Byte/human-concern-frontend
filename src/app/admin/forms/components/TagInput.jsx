@@ -95,3 +95,4 @@ const TagInput = ({
     </div>
   );
 }
+export default TagInput;
