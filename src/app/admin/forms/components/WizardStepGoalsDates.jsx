@@ -786,3 +786,4 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     </div>
   );
 }
+export default WizardStepGoalsDates;
