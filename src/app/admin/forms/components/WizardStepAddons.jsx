@@ -88,7 +88,7 @@ function SkeletonGrid() {
   );
 }
 
-export default function WizardStepAddons({ campaignId, formId, onExit, onSaved, backStep }) {
+const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => {
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
