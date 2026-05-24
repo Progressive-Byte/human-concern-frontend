@@ -67,3 +67,4 @@ const ScheduleDetailsCard = ({ schedule, stats, loading = false }) => {
     </section>
   );
 }
+export default ScheduleDetailsCard;
