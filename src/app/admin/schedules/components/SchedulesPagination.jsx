@@ -39,3 +39,4 @@ const SchedulesPagination = ({ pagination, onPrev, onNext }) => {
   );
 }
 
+export default SchedulesPagination;
