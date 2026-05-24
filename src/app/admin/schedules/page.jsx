@@ -263,3 +263,4 @@ const AdminSchedulesPage = () => {
   );
 }
 
+export default AdminSchedulesPage;
