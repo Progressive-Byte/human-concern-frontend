@@ -60,3 +60,4 @@ const ScheduleAdminActionsCard = ({ schedule, loading = false, onCancel, cancelL
     </section>
   );
 }
+export default ScheduleAdminActionsCard;
