@@ -393,3 +393,4 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
     </div>
   );
 }
+export default WizardStepReview;
