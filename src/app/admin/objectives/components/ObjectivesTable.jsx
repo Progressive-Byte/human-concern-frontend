@@ -20,7 +20,7 @@ function yesPill(label) {
   );
 }
 
-export default function ObjectivesTable({ items, loading, onEdit, onArchive, onRestore }) {
+const ObjectivesTable = ({ items, loading, onEdit, onArchive, onRestore }) => {
   const rows = Array.isArray(items) ? items : [];
 
   return (
