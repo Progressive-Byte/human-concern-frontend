@@ -10,7 +10,7 @@ function splitTokens(text) {
     .filter(Boolean);
 }
 
-export default function TagInput({
+const TagInput = ({
   label,
   placeholder = "",
   values = [],
@@ -19,7 +19,7 @@ export default function TagInput({
   helper = "",
   max = 10,
   validateToken,
-}) {
+}) => {
   const [input, setInput] = useState("");
   const rows = useMemo(() => (Array.isArray(values) ? values : []), [values]);
 
