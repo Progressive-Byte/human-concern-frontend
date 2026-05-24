@@ -88,3 +88,4 @@ const SchedulePaymentHistoryTable = ({ paymentHistory, loading = false }) => {
   );
 }
 
+export default SchedulePaymentHistoryTable;
