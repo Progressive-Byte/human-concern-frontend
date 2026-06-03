@@ -104,7 +104,7 @@ function escapeCsvCell(value) {
   return s;
 }
 
-export default function AdminSchedulesPage() {
+const AdminSchedulesPage = () => {
   const toast = useToast();
 
   const [filters, setFilters] = useState({
@@ -263,3 +263,4 @@ export default function AdminSchedulesPage() {
   );
 }
 
+export default AdminSchedulesPage;

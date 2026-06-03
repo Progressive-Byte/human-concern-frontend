@@ -1,6 +1,6 @@
 "use client";
 
-export default function WizardFooterNav({
+const WizardFooterNav = ({
   onBack,
   onSave,
   onNext,
@@ -9,7 +9,7 @@ export default function WizardFooterNav({
   nextDisabled,
   saving,
   nextLabel = "Next",
-}) {
+}) => {
   return (
     <div className="sticky bottom-0">
       <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
@@ -46,3 +46,4 @@ export default function WizardFooterNav({
     </div>
   );
 }
+export default WizardFooterNav;

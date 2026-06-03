@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 const inDonateFlow = (path) =>
   /^\/donate(\/|$)/.test(path) || /^\/[^/]+\/[1-4]$/.test(path);
 
-export default function DonationSessionCleaner() {
+const DonationSessionCleaner = () => {
   const pathname = usePathname();
   // Initialise the ref from the current path so a hard-load on a donate
   // page doesn't immediately trigger a false "just left" clear.
@@ -28,3 +28,4 @@ export default function DonationSessionCleaner() {
 
   return null;
 }
+export default DonationSessionCleaner;

@@ -1,9 +1,10 @@
 import { DonationProvider } from "@/context/DonationContext";
 
-export default function DonateLayout({ children }) {
+const DonateLayout = ({ children }) => {
   return (
     <DonationProvider>
       {children}
     </DonationProvider>
   );
 }
+export default DonateLayout;

@@ -56,7 +56,7 @@ function SkeletonGrid() {
   );
 }
 
-export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }) {
+const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -279,3 +279,4 @@ export default function WizardStepCauses({ campaignId, formId, onExit, onSaved }
     </div>
   );
 }
+export default WizardStepCauses;

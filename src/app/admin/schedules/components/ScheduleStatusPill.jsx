@@ -6,10 +6,12 @@ const styles = {
   cancelled: "bg-[#F3F4F6] text-[#6B7280]",
 };
 
-export default function ScheduleStatusPill({ status }) {
+const ScheduleStatusPill = ({ status }) => {
   const key = String(status || "").toLowerCase();
   const cls = styles[key] || "bg-[#F3F4F6] text-[#6B7280]";
   const label = key || "—";
   return <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold capitalize ${cls}`}>{label}</span>;
-}
+};
+
+export default ScheduleStatusPill;
 

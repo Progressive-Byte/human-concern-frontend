@@ -22,7 +22,7 @@ function ActionButton({ children, onClick, disabled, variant = "light" }) {
   );
 }
 
-export default function ScheduleAdminActionsCard({ schedule, loading = false, onCancel, cancelLoading = false }) {
+const ScheduleAdminActionsCard = ({ schedule, loading = false, onCancel, cancelLoading = false }) => {
   const status = useMemo(() => String(schedule?.scheduleStatus || "").toLowerCase(), [schedule]);
   const canCancel = status === "active";
 
@@ -60,3 +60,4 @@ export default function ScheduleAdminActionsCard({ schedule, loading = false, on
     </section>
   );
 }
+export default ScheduleAdminActionsCard;

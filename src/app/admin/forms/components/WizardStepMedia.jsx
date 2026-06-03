@@ -81,7 +81,7 @@ function PreviewEmpty({ label = "Select an image to preview" }) {
   );
 }
 
-export default function WizardStepMedia({ campaignId, formId, onExit, onSaved }) {
+const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
   const toast = useToast();
 
   const thumbnailInputRef = useRef(null);
@@ -480,3 +480,4 @@ export default function WizardStepMedia({ campaignId, formId, onExit, onSaved })
     </div>
   );
 }
+export default WizardStepMedia;

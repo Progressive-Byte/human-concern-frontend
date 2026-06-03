@@ -31,7 +31,7 @@ function RadioField({ label, checked, onChange, disabled }) {
   );
 }
 
-export default function CustomNotesEditor({ value = [], onChange, disabled, errors }) {
+const CustomNotesEditor = ({ value = [], onChange, disabled, errors }) => {
   const notes = Array.isArray(value) ? value : [];
 
   function setNote(idx, patch) {
@@ -310,3 +310,4 @@ export default function CustomNotesEditor({ value = [], onChange, disabled, erro
     </section>
   );
 }
+export default CustomNotesEditor;

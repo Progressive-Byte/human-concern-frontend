@@ -11,7 +11,7 @@ function StatBox({ label, value, dark = false }) {
   );
 }
 
-export default function ScheduleStatsCard({ stats, loading = false }) {
+const ScheduleStatsCard = ({ stats, loading = false }) => {
   const s = stats && typeof stats === "object" ? stats : {};
   const currency = String(s?.currency || "USD");
 
@@ -40,3 +40,5 @@ export default function ScheduleStatsCard({ stats, loading = false }) {
   );
 }
 
+
+export default ScheduleStatsCard;

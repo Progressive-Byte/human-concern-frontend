@@ -124,7 +124,7 @@ function PaginationBar({ pagination, onPrev, onNext }) {
   );
 }
 
-export default function AdminLogsPage() {
+const AdminLogsPage = () => {
   const toast = useToast();
 
   const [filters, setFilters] = useState({
@@ -355,3 +355,4 @@ export default function AdminLogsPage() {
   );
 }
 
+export default AdminLogsPage;

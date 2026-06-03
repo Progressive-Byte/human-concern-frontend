@@ -38,7 +38,7 @@ function normalizeObjective(raw) {
   return { id, name, slug, description, iconEmoji, ramadanOnly, status, createdAt };
 }
 
-export default function AdminObjectivesPage() {
+const AdminObjectivesPage = () => {
   const toast = useToast();
 
   const [filters, setFilters] = useState({
@@ -202,3 +202,4 @@ export default function AdminObjectivesPage() {
     </main>
   );
 }
+export default AdminObjectivesPage;

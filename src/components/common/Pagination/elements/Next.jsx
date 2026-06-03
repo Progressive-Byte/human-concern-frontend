@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Next({
+const Next = ({
     baseSlug = "plugins",
     subDir = "page",
     current = 1,
     total = 1,
-}) {
+}) => {
     return (
         <>
             {current < total ? (
@@ -83,3 +83,4 @@ export default function Next({
         </>
     );
 }
+export default Next;

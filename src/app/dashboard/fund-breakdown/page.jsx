@@ -258,25 +258,6 @@ const FundBreakdownPage = () => {
           </div>
         </div>
 
-        {/* Impact Summary */}
-        {/* <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
-          <h2 className="text-lg font-semibold text-[#111827] mb-5">Your Impact Summary</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
-            {impactStats.map((s) => (
-              <div
-                key={s.label}
-                className="rounded-2xl border border-dashed border-[#E5E7EB] p-4 md:p-5 text-center transition-all hover:shadow-sm"
-                style={{ backgroundColor: s.bg }}
-              >
-                <p className="text-3xl md:text-4xl font-bold leading-none" style={{ color: s.color }}>
-                  {s.value}
-                </p>
-                <p className="text-xs text-[#6B7280] mt-2 leading-snug">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div> */}
-
       </div>
     </>
   );

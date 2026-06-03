@@ -1,6 +1,6 @@
 "use client";
 
-export default function SchedulesPagination({ pagination, onPrev, onNext }) {
+const SchedulesPagination = ({ pagination, onPrev, onNext }) => {
   const page = Number(pagination?.page || 1);
   const totalPages = Number(pagination?.totalPages || 1);
   const total = Number(pagination?.total || 0);
@@ -39,3 +39,4 @@ export default function SchedulesPagination({ pagination, onPrev, onNext }) {
   );
 }
 
+export default SchedulesPagination;

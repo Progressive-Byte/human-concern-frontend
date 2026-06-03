@@ -44,7 +44,7 @@ function SkeletonCard() {
   );
 }
 
-export default function ObjectivesSummaryCards({ summary, loading }) {
+const ObjectivesSummaryCards = ({ summary, loading }) => {
   const s = summary || {};
 
   return (
@@ -65,3 +65,4 @@ export default function ObjectivesSummaryCards({ summary, loading }) {
     </section>
   );
 }
+export default ObjectivesSummaryCards;

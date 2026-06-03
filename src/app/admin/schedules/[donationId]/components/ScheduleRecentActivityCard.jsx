@@ -25,7 +25,7 @@ function iconFor(type) {
   );
 }
 
-export default function ScheduleRecentActivityCard({ items = [], loading = false }) {
+const ScheduleRecentActivityCard = ({ items = [], loading = false }) => {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -66,3 +66,4 @@ export default function ScheduleRecentActivityCard({ items = [], loading = false
   );
 }
 
+export default ScheduleRecentActivityCard;

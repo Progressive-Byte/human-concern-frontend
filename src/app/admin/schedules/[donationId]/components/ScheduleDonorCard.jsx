@@ -1,6 +1,6 @@
 "use client";
 
-export default function ScheduleDonorCard({ schedule, loading = false }) {
+const ScheduleDonorCard = ({ schedule, loading = false }) => {
   const donorDisplay = schedule?.donorDisplay && typeof schedule.donorDisplay === "object" ? schedule.donorDisplay : null;
   const label = String(donorDisplay?.label || "—");
   const email = donorDisplay?.email ? String(donorDisplay.email) : "";
@@ -31,3 +31,4 @@ export default function ScheduleDonorCard({ schedule, loading = false }) {
   );
 }
 
+export default ScheduleDonorCard;

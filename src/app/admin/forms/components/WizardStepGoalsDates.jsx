@@ -150,7 +150,7 @@ function Skeleton() {
   );
 }
 
-export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSaved }) {
+const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -786,3 +786,4 @@ export default function WizardStepGoalsDates({ campaignId, formId, onExit, onSav
     </div>
   );
 }
+export default WizardStepGoalsDates;

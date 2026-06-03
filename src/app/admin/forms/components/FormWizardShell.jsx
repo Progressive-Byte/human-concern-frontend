@@ -1,13 +1,13 @@
 "use client";
 
-export default function FormWizardShell({
+const FormWizardShell = ({
   step = "basics",
   title = "Create Form",
   steps,
   completedKeys,
   onStepClick,
   children,
-}) {
+}) => {
   const list = Array.isArray(steps) && steps.length ? steps : [
     { key: "basics", label: "Basics" },
     { key: "goals-dates", label: "Goals & Dates" },
@@ -77,3 +77,4 @@ export default function FormWizardShell({
     </div>
   );
 }
+export default FormWizardShell;

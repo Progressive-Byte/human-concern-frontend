@@ -74,7 +74,7 @@ function SkeletonGrid() {
   );
 }
 
-export default function WizardStepObjectives({ campaignId, formId, onExit, onSaved }) {
+const WizardStepObjectives = ({ campaignId, formId, onExit, onSaved }) => {
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -299,3 +299,4 @@ export default function WizardStepObjectives({ campaignId, formId, onExit, onSav
     </div>
   );
 }
+export default WizardStepObjectives;

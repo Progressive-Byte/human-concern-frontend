@@ -2,7 +2,7 @@
 
 import WizardFooterNav from "./WizardFooterNav";
 
-export default function WizardStepPlaceholder({ title, description, saving = false, onBack, onNext, nextLabel = "Next" }) {
+const WizardStepPlaceholder = ({ title, description, saving = false, onBack, onNext, nextLabel = "Next" }) => {
   return (
     <div className="space-y-6">
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
@@ -17,4 +17,4 @@ export default function WizardStepPlaceholder({ title, description, saving = fal
     </div>
   );
 }
-
+export default WizardStepPlaceholder;

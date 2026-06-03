@@ -11,7 +11,7 @@ function DotsIcon() {
   );
 }
 
-export default function ScheduleRowActions({ donationId }) {
+const ScheduleRowActions = ({ donationId }) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
@@ -66,3 +66,5 @@ export default function ScheduleRowActions({ donationId }) {
   );
 }
 
+
+export default ScheduleRowActions;

@@ -1,4 +1,4 @@
-export default function ObjectiveStatusPill({ status }) {
+const ObjectiveStatusPill = ({ status }) => {
   const s = String(status || "").toLowerCase();
 
   const cls =
@@ -12,4 +12,4 @@ export default function ObjectiveStatusPill({ status }) {
 
   return <span className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-semibold ${cls}`}>{label}</span>;
 }
-
+export default ObjectiveStatusPill;

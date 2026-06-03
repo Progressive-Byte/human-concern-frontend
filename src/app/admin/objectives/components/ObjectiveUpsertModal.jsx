@@ -143,7 +143,7 @@ function EmojiPickerField({ value, onChange }) {
   );
 }
 
-export default function ObjectiveUpsertModal({ open, mode, objective, onClose, onSuccess }) {
+const ObjectiveUpsertModal = ({ open, mode, objective, onClose, onSuccess }) => {
   const toast = useToast();
   const isEdit = mode === "edit";
 
@@ -340,3 +340,4 @@ export default function ObjectiveUpsertModal({ open, mode, objective, onClose, o
     </div>
   );
 }
+export default ObjectiveUpsertModal;

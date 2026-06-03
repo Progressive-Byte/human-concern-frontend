@@ -70,7 +70,7 @@ function SummaryCard({ label, onEdit, children, errors }) {
   );
 }
 
-export default function WizardStepReview({ campaignId, formId, isRamadanForm, onExit, onSaved }) {
+const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }) => {
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -393,3 +393,4 @@ export default function WizardStepReview({ campaignId, formId, isRamadanForm, on
     </div>
   );
 }
+export default WizardStepReview;

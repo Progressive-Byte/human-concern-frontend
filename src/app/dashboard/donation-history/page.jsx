@@ -283,10 +283,12 @@ function DonationHistoryPage() {
   );
 }
 
-export default function DonationHistory() {
+const DonationHistory = () => {
   return (
     <Suspense fallback={<p className="text-sm text-[#6B7280] p-6">Loading…</p>}>
       <DonationHistoryPage />
     </Suspense>
   );
 }
+
+export default DonationHistory;
