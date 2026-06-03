@@ -262,14 +262,14 @@ export default function WizardStepBasics({ campaignId, initialFormId = "", onExi
       public: {
         displayName: pub.displayName,
         description: pub.description || undefined,
-        collaborationOrganizationName: collaborating
-          ? pub.collaborationOrganizationName || undefined
-          : null,
-        collaborationOrganizationImage: collaborating
-          ? collaborationImageRemoved
-            ? null
-            : pub.collaborationOrganizationImage || undefined
-          : null,
+        ...(collaborating
+          ? {
+              collaborationOrganizationName: pub.collaborationOrganizationName || undefined,
+              collaborationOrganizationImage: collaborationImageRemoved
+                ? null
+                : pub.collaborationOrganizationImage || undefined,
+            }
+          : {}),
         campaignType: pub.campaignType,
         categoryIds: uniqueCats,
         featured: pub.featured || undefined,
