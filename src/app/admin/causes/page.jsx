@@ -47,6 +47,7 @@ const AdminCausesPage = () => {
     sort: "createdAt",
     order: "desc",
     q: "",
+    status: "",
   });
 
   const debouncedQ = useDebouncedValue(filters.q, 300);
@@ -90,6 +91,7 @@ const AdminCausesPage = () => {
           sort: filters.sort,
           order: filters.order,
           q: debouncedQ,
+          status: filters.status,
         });
         if (!alive) return;
 
@@ -112,7 +114,7 @@ const AdminCausesPage = () => {
     return () => {
       alive = false;
     };
-  }, [filters.page, filters.limit, filters.sort, filters.order, debouncedQ, refreshKey]);
+  }, [filters.page, filters.limit, filters.sort, filters.order, filters.status, debouncedQ, refreshKey]);
 
   async function handleToggleEnabled(causeId, nextEnabled) {
     const prevItems = items;
@@ -191,6 +193,8 @@ const AdminCausesPage = () => {
         <CausesFilters
           q={filters.q}
           onChangeQ={(next) => setFilters((prev) => ({ ...prev, page: "1", q: next }))}
+          status={filters.status}
+          onChangeStatus={(next) => setFilters((prev) => ({ ...prev, page: "1", status: next }))}
         />
       </div>
 
