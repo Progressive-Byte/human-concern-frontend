@@ -20,6 +20,11 @@ function isInternalCampaignId(value) {
   return /^[0-9]+(-[0-9]+)*$/.test(String(value || "").trim());
 }
 
+function buildGeneratedInternalCampaignId() {
+  const suffix = Math.floor(100 + Math.random() * 900);
+  return `1-${suffix}`;
+}
+
 function resolveAssetUrl(value) {
   const raw =
     typeof value === "string"
@@ -77,6 +82,25 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState("");
   const [categoryQuery, setCategoryQuery] = useState("");
+
+  useEffect(() => {
+    if (formId) return;
+    if (!campaignId) return;
+    if (String(internalCampaignId || "").trim()) return;
+    const key = `hc_admin_form_internal_campaign_id:${String(campaignId).trim()}`;
+    try {
+      const existing = String(sessionStorage.getItem(key) || "").trim();
+      if (existing) {
+        setInternalCampaignId(existing);
+        return;
+      }
+      const next = buildGeneratedInternalCampaignId();
+      sessionStorage.setItem(key, next);
+      setInternalCampaignId(next);
+    } catch {
+      setInternalCampaignId(buildGeneratedInternalCampaignId());
+    }
+  }, [formId, campaignId, internalCampaignId]);
 
   const categoryOptions = useMemo(() => (Array.isArray(categories) ? categories : []), [categories]);
   const filteredCategoryOptions = useMemo(() => {
@@ -212,9 +236,9 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       featured: Boolean(featured),
     };
 
-    if (!internal.campaignId) errors["internal.campaignId"] = "Required";
+    if (!internal.campaignId) errors["internal.campaignId"] = "Missing generated id";
     else if (internal.campaignId.length > 32) errors["internal.campaignId"] = "Max 32 characters";
-    else if (!isInternalCampaignId(internal.campaignId)) errors["internal.campaignId"] = "Use digits and hyphens only (example: 1-435)";
+    else if (!isInternalCampaignId(internal.campaignId)) errors["internal.campaignId"] = "Invalid format";
 
     if (!internal.fundCause) errors["internal.fundCause"] = "Required";
     else if (internal.fundCause.length > 200) errors["internal.fundCause"] = "Max 200 characters";
@@ -337,21 +361,25 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     setSaving(true);
     try {
       const refreshBasics = async (id) => {
-        const res = await getAdminFormBasics(id);
-        const d = normalizeBasicsResponse(res);
-        const pub = d?.public || {};
-        const orgName = String(pub?.collaborationOrganizationName || "").trim();
-        const orgImageRaw = pub?.collaborationOrganizationImage;
-        const orgImage =
-          typeof orgImageRaw === "string"
-            ? orgImageRaw.trim()
-            : String(orgImageRaw?.path || orgImageRaw?.url || orgImageRaw?.location || "").trim();
-        setCollaborationOrganizationName(orgName);
-        setCollaborationOrganizationImage(orgImage);
-        setCollaborating(Boolean(orgName) || Boolean(orgImage));
-        setCollaborationImageFile(null);
-        setCollaborationImagePreview("");
-        setCollaborationImageRemoved(false);
+        try {
+          const res = await getAdminFormBasics(id);
+          const d = normalizeBasicsResponse(res);
+          const internal = d?.internal || {};
+          const pub = d?.public || {};
+          const orgName = String(pub?.collaborationOrganizationName || "").trim();
+          const orgImageRaw = pub?.collaborationOrganizationImage;
+          const orgImage =
+            typeof orgImageRaw === "string"
+              ? orgImageRaw.trim()
+              : String(orgImageRaw?.path || orgImageRaw?.url || orgImageRaw?.location || "").trim();
+          setInternalCampaignId(String(internal?.campaignId || ""));
+          setCollaborationOrganizationName(orgName);
+          setCollaborationOrganizationImage(orgImage);
+          setCollaborating(Boolean(orgName) || Boolean(orgImage));
+          setCollaborationImageFile(null);
+          setCollaborationImagePreview("");
+          setCollaborationImageRemoved(false);
+        } catch {}
       };
 
       if (!formId) {
@@ -362,6 +390,8 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         if (createdId && collaborating && collaborationImageFile) {
           const fd = buildBasicsFormData(payload);
           await updateAdminFormBasics(String(createdId), fd);
+        }
+        if (createdId) {
           await refreshBasics(String(createdId));
         }
         onSaved?.(createdId || null);
@@ -372,13 +402,10 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       if (collaborating && collaborationImageFile) {
         const fd = buildBasicsFormData(payload);
         await updateAdminFormBasics(formId, fd);
-        await refreshBasics(formId);
       } else {
         await updateAdminFormBasics(formId, payload);
-        if (collaborating && collaborationImageRemoved) {
-          await refreshBasics(formId);
-        }
       }
+      await refreshBasics(formId);
       onSaved?.(formId);
       toast.success("Basics saved");
       return { ok: true, formId };
@@ -451,14 +478,12 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-              Campaign ID - Form ID <span className="text-red-600">*</span>
-            </div>
+            <div className="mb-2 text-[13px] font-semibold text-[#111827]">Form ID</div>
             <input
               value={internalCampaignId}
-              onChange={(e) => setInternalCampaignId(e.target.value)}
-              placeholder="e.g. 1-435"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              placeholder="Generating..."
+              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2.5 text-[13px] text-[#6B7280] outline-none"
+              readOnly
               disabled={saving}
             />
             <FieldError message={fieldErrors["internal.campaignId"]} />
