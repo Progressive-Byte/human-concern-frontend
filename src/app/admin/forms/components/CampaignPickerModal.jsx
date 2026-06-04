@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-const CampaignPickerModal = ({ open, campaigns = [], loading, onClose, onSelect }) => {
+const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = "", onClose, onSelect, onCreateCampaign }) => {
   const [q, setQ] = useState("");
   const [selectedId, setSelectedId] = useState("");
   const rows = Array.isArray(campaigns) ? campaigns : [];
@@ -10,8 +10,15 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, onClose, onSelect 
   useEffect(() => {
     if (!open) return;
     setQ("");
-    setSelectedId("");
+    setSelectedId(String(preselectedId || ""));
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const next = String(preselectedId || "");
+    if (!next) return;
+    setSelectedId(next);
+  }, [open, preselectedId]);
 
   const filtered = useMemo(() => {
     const needle = String(q || "").trim().toLowerCase();
@@ -34,15 +41,23 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, onClose, onSelect 
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">Select Campaign</div>
-            <div className="mt-1 text-[13px] text-[#6B7280]">Choose a campaign container to create a form under.</div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
-          >
-            Cancel
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onCreateCampaign}
+              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            >
+              Create Campaign
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5">

@@ -8,6 +8,7 @@ import FormsFilters from "./components/FormsFilters";
 import FormsTable from "./components/FormsTable";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import CampaignPickerModal from "./components/CampaignPickerModal";
+import CampaignUpsertModal from "@/app/admin/campaigns/components/CampaignUpsertModal";
 
 function useDebouncedValue(value, delayMs) {
   const [debounced, setDebounced] = useState(value);
@@ -50,6 +51,8 @@ const FormsPageClient = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [campaignsLoading, setCampaignsLoading] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [campaignCreateOpen, setCampaignCreateOpen] = useState(false);
+  const [pickerPreselectId, setPickerPreselectId] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -129,6 +132,18 @@ const FormsPageClient = () => {
     setPickerOpen(true);
   }
 
+  function normalizeCreatedCampaign(payload) {
+    const d = payload?.data?.data || payload?.data?.item || payload?.data?.campaign || payload?.data || payload || {};
+    const id = String(d?.id || d?._id || "");
+    if (!id) return null;
+    return {
+      id,
+      name: String(d?.name || ""),
+      slug: String(d?.slug || ""),
+      status: String(d?.status || "draft"),
+    };
+  }
+
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
       <FormsHeader onCreate={openCreate} />
@@ -137,14 +152,37 @@ const FormsPageClient = () => {
         open={pickerOpen}
         campaigns={campaigns}
         loading={campaignsLoading}
-        onClose={() => setPickerOpen(false)}
+        preselectedId={pickerPreselectId}
+        onClose={() => {
+          setPickerOpen(false);
+          setPickerPreselectId("");
+        }}
+        onCreateCampaign={() => setCampaignCreateOpen(true)}
         onSelect={(id) => {
           setPickerOpen(false);
+          setPickerPreselectId("");
           if (!id) {
             toast.error("Select a campaign");
             return;
           }
           router.push(`/admin/forms/new?step=basics&campaignId=${encodeURIComponent(id)}`);
+        }}
+      />
+
+      <CampaignUpsertModal
+        open={campaignCreateOpen}
+        mode="create"
+        campaignId=""
+        onClose={() => setCampaignCreateOpen(false)}
+        onSuccess={(res) => {
+          const created = normalizeCreatedCampaign(res);
+          if (!created?.id) return;
+          setCampaigns((prev) => {
+            const rows = Array.isArray(prev) ? prev : [];
+            const next = [created, ...rows.filter((c) => String(c?.id || c?._id) !== String(created.id))];
+            return next;
+          });
+          setPickerPreselectId(created.id);
         }}
       />
 
