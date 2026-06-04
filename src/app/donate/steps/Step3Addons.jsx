@@ -43,8 +43,9 @@ const Step3Addons = () => {
   }, []);
 
   const campaignAddOns  = campaignMeta.addOns ?? [];
-  const enableTipping   = campaignMeta.goalsDates?.enableTipping ?? true;
-  const customNoteFields = campaignMeta.goalsDates?.customNotes ?? [];
+  const goalsDatesCompleted = Boolean(campaignMeta.sectionsCompleted?.goalsDates);
+  const enableTipping = isPreview ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.enableTipping) : false) : (campaignMeta.goalsDates?.enableTipping ?? true);
+  const customNoteFields = isPreview ? (goalsDatesCompleted ? (campaignMeta.goalsDates?.customNotes ?? []) : []) : (campaignMeta.goalsDates?.customNotes ?? []);
 
   const currency     = data.currency     ?? "USD";
   const amountTier   = data.amountTier   ?? 0;

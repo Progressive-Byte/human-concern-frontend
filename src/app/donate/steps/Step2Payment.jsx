@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout        from "./StepComponents/StepLayout";
@@ -15,6 +16,8 @@ const PAYMENT_TYPES = [
 ];
 
 const Step2Payment = () => {
+  const pathname = usePathname();
+  const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 
@@ -22,19 +25,39 @@ const Step2Payment = () => {
     try {
       const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
       const goalsDates = meta.goalsDates ?? {};
+      const completed = Boolean(meta.sectionsCompleted?.goalsDates);
+
+      if (isPreview && !completed) {
+        return {
+          suggestedAmounts: [],
+          allowRecurring: false,
+          minDonation: 0,
+          maxDonation: undefined,
+          recurringPresets: [],
+        };
+      }
+
+      const suggestedRaw = meta.suggestedAmounts;
+      const suggestedList = Array.isArray(suggestedRaw) ? suggestedRaw : [];
+      const normalizedSuggested = suggestedList
+        .map((x) => (typeof x === "number" ? x : Number(x?.value ?? x)))
+        .filter((n) => Number.isFinite(n) && n > 0);
+
       return {
-        suggestedAmounts: meta.suggestedAmounts?.length ? meta.suggestedAmounts : [25, 50, 100],
+        suggestedAmounts: normalizedSuggested.length ? normalizedSuggested : (isPreview ? [] : [25, 50, 100]),
         allowRecurring:   goalsDates.allowRecurringDonations ?? true,
-        minDonation:      goalsDates.minimumDonation         ?? 1,
+        minDonation:      goalsDates.minimumDonation         ?? (isPreview ? 0 : 1),
         maxDonation:      goalsDates.maximumDonation         ?? undefined,
         recurringPresets: (goalsDates.recurringPresets ?? [])
           .filter((p) => p.enabled)
           .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
       };
     } catch {
-      return { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [] };
+      return isPreview
+        ? { suggestedAmounts: [], allowRecurring: false, minDonation: 0, maxDonation: undefined, recurringPresets: [] }
+        : { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [] };
     }
-  }, []);
+  }, [isPreview]);
 
   useEffect(() => {
     if (!allowRecurring && data.paymentType === "recurring") update({ paymentType: "one-time" });
@@ -48,7 +71,7 @@ const Step2Payment = () => {
   //               for restoring the amount field because it would show the divided value.
   const _donorAmt   = data.donorAmount && Number.isFinite(data.donorAmount) ? data.donorAmount : null;
   const _urlAmt     = data.amount && Number.isFinite(Number(data.amount)) ? Number(data.amount) : null;
-  const initAmount  = _donorAmt ?? _urlAmt ?? suggestedAmounts[0] ?? 25;
+  const initAmount  = _donorAmt ?? _urlAmt ?? suggestedAmounts[0] ?? (isPreview ? 0 : 25);
   const sym         = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" }[data.currency ?? "USD"] ?? "$";
 
   const initOccurrences = useMemo(() => {

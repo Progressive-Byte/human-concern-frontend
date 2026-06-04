@@ -475,6 +475,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
         onBack={() => onExit?.({ nextStep: "addons" })}
         onSave={() => save({ goNext: false })}
         onNext={() => save({ goNext: true })}
+        previewHref={formId ? `/admin/forms/preview/1?formId=${encodeURIComponent(formId)}` : ""}
         nextLabel="Next"
       />
     </div>

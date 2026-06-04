@@ -327,6 +327,7 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
         onBack={() => onExit?.({ nextStep: backStep || "objectives" })}
         onSave={() => save({ goNext: false })}
         onNext={() => save({ goNext: true })}
+        previewHref={formId ? `/admin/forms/preview/1?formId=${encodeURIComponent(formId)}` : ""}
         nextLabel="Next"
       />
     </div>

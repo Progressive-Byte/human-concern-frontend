@@ -9,7 +9,13 @@ const WizardFooterNav = ({
   nextDisabled,
   saving,
   nextLabel = "Next",
+  previewHref = "",
+  previewDisabled,
+  previewLabel = "Preview Donation Form",
 }) => {
+  const canPreview = Boolean(String(previewHref || "").trim());
+  const previewIsDisabled = Boolean(previewDisabled ?? saving) || !canPreview;
+
   return (
     <div className="sticky bottom-0">
       <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
@@ -32,6 +38,23 @@ const WizardFooterNav = ({
             >
               {saving ? "Saving..." : "Save Draft"}
             </button>
+            {canPreview ? (
+              <a
+                href={previewHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled={previewIsDisabled}
+                tabIndex={previewIsDisabled ? -1 : 0}
+                onClick={(e) => {
+                  if (previewIsDisabled) e.preventDefault();
+                }}
+                className={`cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] ${
+                  previewIsDisabled ? "pointer-events-none cursor-not-allowed opacity-50" : ""
+                }`}
+              >
+                {previewLabel}
+              </a>
+            ) : null}
             <button
               type="button"
               onClick={onNext}

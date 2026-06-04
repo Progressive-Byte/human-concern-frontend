@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 import Section from "@/components/ui/Section";
 import { useDonation } from "@/context/DonationContext";
 import { generateDatesInRange } from "./countOccurrences";
@@ -8,6 +9,8 @@ import { generateDatesInRange } from "./countOccurrences";
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
 const DonationPreview = ({ currentStep }) => {
+  const pathname = usePathname();
+  const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data } = useDonation();
   const sym = CURRENCY_SYMBOLS[data.currency] ?? "$";
 
@@ -18,9 +21,11 @@ const DonationPreview = ({ currentStep }) => {
   const enableTipping = useMemo(() => {
     try {
       const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
+      const completed = Boolean(meta.sectionsCompleted?.goalsDates);
+      if (isPreview && !completed) return false;
       return meta.goalsDates?.enableTipping ?? true;
     } catch { return true; }
-  }, []);
+  }, [isPreview]);
 
   const showPayment = effectiveAmountTier > 0;
 

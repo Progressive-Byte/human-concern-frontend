@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
@@ -12,6 +12,8 @@ import CauseSelector    from "./StepComponents/Step1components/CauseSelector";
 import DonorPreferences from "./StepComponents/Step1components/DonorPreferences";
 
 const Step1Info = ({ campaignSlug }) => {
+  const pathname = usePathname();
+  const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data, update } = useDonation();
   const { user, isAuthenticated, updateUser } = useAuth();
   const { handleNext } = useStepNavigation();
@@ -82,6 +84,7 @@ const Step1Info = ({ campaignSlug }) => {
   }, []);
 
   useEffect(() => {
+    if (isPreview) return;
     if (isAuthenticated && user) {
       update({
         organization: user.organization           ?? "",
@@ -97,9 +100,10 @@ const Step1Info = ({ campaignSlug }) => {
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, isPreview]);
 
   useEffect(() => {
+    if (isPreview) return;
     const wasAuth = prevAuthRef.current;
     prevAuthRef.current = isAuthenticated;
     if (wasAuth && !isAuthenticated) {
@@ -113,9 +117,9 @@ const Step1Info = ({ campaignSlug }) => {
       setAddressExpanded(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isPreview]);
 
-  const isLocked = (key) => isAuthenticated && !editMode && Boolean(data[key]?.trim());
+  const isLocked = (key) => !isPreview && isAuthenticated && !editMode && Boolean(data[key]?.trim());
 
   const personalField = (key) => ({
     value:    data[key] ?? "",
@@ -200,7 +204,7 @@ const Step1Info = ({ campaignSlug }) => {
             )}
           </div>
 
-          {isAuthenticated && !editMode && (
+          {isAuthenticated && !editMode && !isPreview && (
             <p className="text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
               Your account information has been pre-filled. Click <strong>Edit change</strong> to make changes.
             </p>

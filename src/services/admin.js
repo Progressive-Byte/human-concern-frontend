@@ -154,8 +154,8 @@ export function updateAdminFormBasics(formId, payload) {
   return adminApiRequest(`/admin/forms/${formId}/basics`, { method: "PATCH", body: isFormDataBody ? payload : JSON.stringify(payload) });
 }
 
-export function getAdminFormGoalsDates(formId) {
-  return adminApiRequest(`/admin/forms/${formId}/goals-dates`, { method: "GET" });
+export function getAdminFormGoalsDates(formId, options = {}) {
+  return adminApiRequest(`/admin/forms/${formId}/goals-dates`, { method: "GET", ...(options || {}) });
 }
 
 export function updateAdminFormGoalsDates(formId, payload) {
@@ -595,8 +595,8 @@ export function updateAdminFormMedia(formId, body) {
   return adminApiRequest(`/admin/forms/${formId}/media`, { method: "PATCH", body });
 }
 
-export function getAdminFormReview(formId) {
-  return adminApiRequest(`/admin/forms/${formId}/review`, { method: "GET" });
+export function getAdminFormReview(formId, options = {}) {
+  return adminApiRequest(`/admin/forms/${formId}/review`, { method: "GET", ...(options || {}) });
 }
 
 // -----------------------------

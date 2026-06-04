@@ -274,6 +274,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
         onBack={() => onExit?.({ nextStep: "goals-dates" })}
         onSave={() => save({ goNext: false })}
         onNext={() => save({ goNext: true })}
+        previewHref={formId ? `/admin/forms/preview/1?formId=${encodeURIComponent(formId)}` : ""}
         nextLabel="Next"
       />
     </div>

@@ -803,6 +803,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         onBack={() => onExit?.()}
         onSave={save}
         onNext={handleNext}
+        previewHref={formId ? `/admin/forms/preview/1?formId=${encodeURIComponent(formId)}` : ""}
         nextLabel="Next"
       />
     </div>

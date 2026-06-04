@@ -24,6 +24,7 @@ async function makeRequest(endpoint, options = {}, cookieName = "token") {
     credentials: "include",
     headers,
     body: options.body,
+    ...(options.cache ? { cache: options.cache } : {}),
   });
 
   if (!response.ok) {

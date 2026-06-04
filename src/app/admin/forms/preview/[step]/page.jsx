@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
-import { getAdminFormReview } from "@/services/admin";
+import { getAdminFormGoalsDates, getAdminFormReview } from "@/services/admin";
 import Step1Info from "@/app/donate/steps/Step1Info";
 import Step2Payment from "@/app/donate/steps/Step2Payment";
 import Step3Addons from "@/app/donate/steps/Step3Addons";
@@ -13,15 +13,35 @@ function normalizeReviewResponse(res) {
   return res?.data?.data || res?.data || {};
 }
 
+function normalizeGoalsDatesResponse(res) {
+  return res?.data?.data || res?.data?.item || res?.data?.goalsDates || res?.data || {};
+}
+
+function normalizeSuggestedNumbers(value) {
+  const list = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : [];
+  const out = [];
+  for (const x of list) {
+    const n = typeof x === "number" ? x : Number(x?.value ?? x?.amount ?? x);
+    if (!Number.isFinite(n) || n <= 0) continue;
+    out.push(n);
+  }
+  const seen = new Set();
+  return out.filter((n) => {
+    const key = String(n);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function buildCampaignDataFromAdminReview(review, formId) {
   const form = review?.form && typeof review.form === "object" ? review.form : {};
   const basics = form?.basics && typeof form.basics === "object" ? form.basics : {};
   const goalsDates = form?.goalsDates && typeof form.goalsDates === "object" ? form.goalsDates : {};
+  const sectionsCompleted = review?.sectionsCompleted || form?.sectionsCompleted || {};
 
   const suggestedRaw = goalsDates?.suggestedAmounts ?? form?.suggestedAmounts ?? [];
-  const suggestedAmounts = (Array.isArray(suggestedRaw) ? suggestedRaw : [])
-    .map((x) => (typeof x === "number" ? x : Number(x?.value ?? x)))
-    .filter((n) => Number.isFinite(n));
+  const suggestedAmounts = normalizeSuggestedNumbers(suggestedRaw);
 
   const causesRaw = Array.isArray(form?.causes) ? form.causes : [];
   const causes = causesRaw.map((c) => {
@@ -56,11 +76,12 @@ function buildCampaignDataFromAdminReview(review, formId) {
 
   return {
     id: String(formId || form?.id || form?._id || "").trim() || null,
-    name: String(basics?.displayName || basics?.name || "Donation Form").trim(),
+    name: String(basics?.displayName || basics?.name || "").trim(),
     description: String(basics?.description || "").trim(),
     zakatEligible,
     suggestedAmounts,
     addOns,
+    sectionsCompleted,
     goalsDates: {
       allowOneTimeDonations: goalsDates?.allowOneTimeDonations === undefined ? true : Boolean(goalsDates.allowOneTimeDonations),
       allowRecurringDonations: goalsDates?.allowRecurringDonations === undefined ? true : Boolean(goalsDates.allowRecurringDonations),
@@ -133,27 +154,38 @@ const AdminFormPreviewStepPage = () => {
         } catch {}
 
         updateRef.current({ campaign: CAMPAIGN_BASE, maxStep: 4 });
+        const [reviewRes, goalsRes] = await Promise.all([
+          getAdminFormReview(resolvedFormId, { cache: "no-store" }),
+          getAdminFormGoalsDates(resolvedFormId, { cache: "no-store" }),
+        ]);
+        if (!alive) return;
+        const review = normalizeReviewResponse(reviewRes);
+        const goalsDatesRaw = normalizeGoalsDatesResponse(goalsRes);
+        const campaignData = buildCampaignDataFromAdminReview(review, resolvedFormId);
 
-        const needsCampaignData = (() => {
-          try {
-            const raw = sessionStorage.getItem("campaignData");
-            if (!raw) return true;
-            const meta = JSON.parse(raw);
-            return String(meta?.id || "").trim() !== String(resolvedFormId).trim();
-          } catch {
-            return true;
-          }
-        })();
-
-        if (needsCampaignData) {
-          const res = await getAdminFormReview(resolvedFormId);
-          if (!alive) return;
-          const review = normalizeReviewResponse(res);
-          const campaignData = buildCampaignDataFromAdminReview(review, resolvedFormId);
-          try {
-            sessionStorage.setItem("campaignData", JSON.stringify(campaignData));
-          } catch {}
-        }
+        const goalsDatesCompleted = Boolean(campaignData?.sectionsCompleted?.goalsDates);
+        const overrideSuggested = goalsDatesCompleted ? normalizeSuggestedNumbers(goalsDatesRaw?.suggestedAmounts) : [];
+        campaignData.suggestedAmounts = overrideSuggested;
+        campaignData.goalsDates = {
+          ...(campaignData.goalsDates || {}),
+          ...(goalsDatesCompleted
+            ? {
+                allowOneTimeDonations:
+                  goalsDatesRaw?.allowOneTimeDonations === undefined ? campaignData.goalsDates?.allowOneTimeDonations : Boolean(goalsDatesRaw.allowOneTimeDonations),
+                allowRecurringDonations:
+                  goalsDatesRaw?.allowRecurringDonations === undefined ? campaignData.goalsDates?.allowRecurringDonations : Boolean(goalsDatesRaw.allowRecurringDonations),
+                enableTipping:
+                  goalsDatesRaw?.enableTipping === undefined ? campaignData.goalsDates?.enableTipping : Boolean(goalsDatesRaw.enableTipping),
+                minimumDonation: goalsDatesRaw?.minimumDonation ?? campaignData.goalsDates?.minimumDonation ?? 0,
+                maximumDonation: goalsDatesRaw?.maximumDonation ?? campaignData.goalsDates?.maximumDonation ?? null,
+                customNotes: Array.isArray(goalsDatesRaw?.customNotes) ? goalsDatesRaw.customNotes : campaignData.goalsDates?.customNotes || [],
+                recurringPresets: Array.isArray(goalsDatesRaw?.recurringPresets) ? goalsDatesRaw.recurringPresets : campaignData.goalsDates?.recurringPresets || [],
+              }
+            : {}),
+        };
+        try {
+          sessionStorage.setItem("campaignData", JSON.stringify(campaignData));
+        } catch {}
 
         if (!alive) return;
         setLoading(false);
