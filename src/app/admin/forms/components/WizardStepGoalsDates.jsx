@@ -267,6 +267,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     }
 
     const goalN = validatePositiveNumber("goalAmount", goal);
+    if (!min) errors.minimumDonation = "Required";
     const minN = validatePositiveNumber("minimumDonation", min);
     const maxN = validatePositiveNumber("maximumDonation", max);
 
@@ -524,7 +525,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       startAt: nextStartAt,
       endAt: nextEndAt ? nextEndAt : null,
       goalAmount: goalN === null ? undefined : goalN,
-      minimumDonation: minN === null ? undefined : minN,
+      minimumDonation: minN,
       maximumDonation: maxN === null ? undefined : maxN,
       allowOneTimeDonations: Boolean(oneTimeEnabled),
       suggestedAmounts: oneTimeEnabled && normalizedSuggested.length ? normalizedSuggested : undefined,
@@ -696,7 +697,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">Minimum Donation</div>
+            <div className="mb-2 text-[13px] font-semibold text-[#111827]">
+              Minimum Donation <span className="text-red-600">*</span>
+            </div>
             <input
               value={minimumDonation}
               onChange={(e) => setMinimumDonation(e.target.value)}
