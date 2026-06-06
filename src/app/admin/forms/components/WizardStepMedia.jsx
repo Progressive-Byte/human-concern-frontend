@@ -50,6 +50,25 @@ function isValidUrl(value) {
   }
 }
 
+function isValidImageType(file) {
+  if (!file) return { valid: true };
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  return {
+    valid: allowedTypes.includes(file.type),
+    fileName: file.name,
+  };
+}
+
+function isValidFileSize(file, maxSizeMB = 1) {
+  if (!file) return { valid: true };
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  return {
+    valid: file.size <= maxSizeBytes,
+    fileName: file.name,
+    fileSizeMB: (file.size / (1024 * 1024)).toFixed(2),
+  };
+}
+
 function PreviewEmpty({ label = "Select an image to preview" }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
@@ -175,6 +194,21 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
       setThumbnailPreviewUrl("");
       return;
     }
+    
+    const typeValidation = isValidImageType(file);
+    if (!typeValidation.valid) {
+      toast.error("Invalid file type. Please upload JPG, PNG, or WebP images.");
+      if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
+      return;
+    }
+
+    const sizeValidation = isValidFileSize(file, 1);
+    if (!sizeValidation.valid) {
+      toast.error(`File size too large. Maximum file size is 1 MB. Your file is ${sizeValidation.fileSizeMB} MB.`);
+      if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
+      return;
+    }
+
     setThumbnailFile(file);
     setThumbnailPreviewUrl(URL.createObjectURL(file));
   }
@@ -182,6 +216,15 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
   function onSliderChange(e) {
     const files = Array.from(e?.target?.files || []);
     if (!files.length) return;
+
+    for (const file of files) {
+      const validation = isValidImageType(file);
+      if (!validation.valid) {
+        toast.error("Invalid file type. Please upload JPG, PNG, or WebP images.");
+        if (sliderInputRef.current) sliderInputRef.current.value = "";
+        return;
+      }
+    }
 
     const remaining = Math.max(0, 10 - serverSliderImages.length - sliderFiles.length);
     if (remaining <= 0) {
@@ -352,9 +395,11 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
             <div className="text-[13px] font-semibold text-[#111827]">
               Thumbnail Image <span className="text-red-600">*</span>
             </div>
-            <div className="mt-1 text-[12px] text-[#6B7280]">Used as the main preview image</div>
+            <div className="mt-1 text-[12px] text-[#6B7280]">
+              Used as the main preview image. Upload JPG, PNG, or WebP images (max 1 MB).
+            </div>
 
-            <input ref={thumbnailInputRef} type="file" accept="image/*" onChange={onThumbnailChange} className="hidden" />
+            <input ref={thumbnailInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={onThumbnailChange} className="hidden" />
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <button
@@ -391,12 +436,14 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
 
           <div>
             <div className="text-[13px] font-semibold text-[#111827]">Slider Images (Optional)</div>
-            <div className="mt-1 text-[12px] text-[#6B7280]">Up to 10 images</div>
+            <div className="mt-1 text-[12px] text-[#6B7280]">
+              Up to 10 images. Upload JPG, PNG, or WebP images.
+            </div>
 
             <input
               ref={sliderInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               onChange={onSliderChange}
               className="hidden"
