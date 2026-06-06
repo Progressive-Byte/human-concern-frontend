@@ -88,7 +88,12 @@ const Step3Addons = () => {
     publishableKey: null,
   });
   const [customNoteValues, setCustomNoteValues] = useState(() =>
-    Object.fromEntries(customNoteFields.map((f) => [f.key, f.defaultValue ?? ""]))
+    Object.fromEntries(customNoteFields.map((f) => {
+      if (f.type === "checkbox") {
+        return [f.key, f.defaultValue ?? false];
+      }
+      return [f.key, f.defaultValue ?? ""];
+    }))
   );
   const [noteErrors,   setNoteErrors]   = useState({});
   const [submitting,   setSubmitting]   = useState(false);
@@ -195,8 +200,21 @@ const Step3Addons = () => {
       ...(customNoteFields.length > 0 && {
         customNotes: Object.fromEntries(
           customNoteFields
-            .map((f) => [f.key, (customNoteValues[f.key] ?? "").trim()])
-            .filter(([, v]) => v)
+            .map((f) => {
+              if (f.type === "checkbox") {
+                return [f.key, !!customNoteValues[f.key]];
+              }
+              const val = customNoteValues[f.key] ?? "";
+              return [f.key, typeof val === "string" ? val.trim() : val];
+            })
+            .filter(([_, v]) => {
+              // Include checkbox values even if false (if required), otherwise only include non-empty
+              const field = customNoteFields.find(f => f.key === _);
+              if (field?.type === "checkbox") {
+                return true; // Always include checkbox values
+              }
+              return v;
+            })
         ),
       }),
       addons: {
@@ -255,7 +273,15 @@ const Step3Addons = () => {
     }
     const errors = Object.fromEntries(
       customNoteFields
-        .filter((f) => f.required && !(customNoteValues[f.key] ?? "").trim())
+        .filter((f) => {
+          if (f.required) {
+            if (f.type === "checkbox") {
+              return !customNoteValues[f.key];
+            }
+            return !(customNoteValues[f.key] ?? "").toString().trim();
+          }
+          return false;
+        })
         .map((f) => [f.key, true])
     );
     if (Object.keys(errors).length > 0) {
@@ -378,12 +404,14 @@ const Step3Addons = () => {
                   ? "border-[#EA3335] focus:border-[#EA3335]"
                   : "border-[#E5E5E5] focus:border-[#EA3335]"
               }`;
+              
               return (
                 <div key={field.id} className="flex flex-col gap-1.5">
                   <p className="text-[13px] font-semibold text-[#383838]">
                     {field.label}
                     {field.required && <span className="text-[#EA3335] ml-0.5">*</span>}
                   </p>
+                  
                   {field.type === "textarea" ? (
                     <textarea
                       value={value}
@@ -395,6 +423,52 @@ const Step3Addons = () => {
                       rows={3}
                       className={baseInputClass}
                     />
+                  ) : field.type === "select" ? (
+                    <select
+                      value={value}
+                      onChange={(e) => {
+                        setCustomNoteValues((prev) => ({ ...prev, [field.key]: e.target.value }));
+                        if (noteErrors[field.key]) setNoteErrors((prev) => ({ ...prev, [field.key]: false }));
+                      }}
+                      className={baseInputClass}
+                    >
+                      <option value="">Select an option</option>
+                      {(field.options || []).map((opt, idx) => (
+                        <option key={opt.id || idx} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  ) : field.type === "radio" ? (
+                    <div className="flex flex-col gap-2">
+                      {(field.options || []).map((opt, idx) => (
+                        <label key={opt.id || idx} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`custom-note-${field.key}`}
+                            value={opt.value}
+                            checked={value === opt.value}
+                            onChange={(e) => {
+                              setCustomNoteValues((prev) => ({ ...prev, [field.key]: e.target.value }));
+                              if (noteErrors[field.key]) setNoteErrors((prev) => ({ ...prev, [field.key]: false }));
+                            }}
+                            className="h-4 w-4 text-[#EA3335] focus:ring-[#EA3335]"
+                          />
+                          <span className="text-[14px] text-[#383838]">{opt.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : field.type === "checkbox" ? (
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!value}
+                        onChange={(e) => {
+                          setCustomNoteValues((prev) => ({ ...prev, [field.key]: e.target.checked }));
+                          if (noteErrors[field.key]) setNoteErrors((prev) => ({ ...prev, [field.key]: false }));
+                        }}
+                        className="h-4 w-4 text-[#EA3335] focus:ring-[#EA3335]"
+                      />
+                      <span className="text-[14px] text-[#383838]">{field.label}</span>
+                    </label>
                   ) : (
                     <input
                       type="text"
@@ -407,6 +481,7 @@ const Step3Addons = () => {
                       className={baseInputClass}
                     />
                   )}
+                  
                   {field.helpText && (
                     <p className="text-[12px] text-[#737373]">{field.helpText}</p>
                   )}
