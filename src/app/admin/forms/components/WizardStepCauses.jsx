@@ -256,7 +256,14 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
                     </div>
                   </div>
 
-                  <div className="mt-3 text-[14px] font-semibold text-[#111827]">{name || "Cause"}</div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="text-[14px] font-semibold text-[#111827]">{name || "Cause"}</span>
+                    {cause?.fundCode ? (
+                      <span className="inline-flex items-center rounded-full bg-red-600 px-2 py-1 text-[10px] font-semibold text-white">
+                        {cause.fundCode}
+                      </span>
+                    ) : null}
+                  </div>
                   {desc ? <div className="mt-1 text-[12px] leading-snug text-[#6B7280]">{desc}</div> : null}
 
                   <div className="mt-3 inline-flex items-center rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-[#111827] border border-[#E5E7EB]">
