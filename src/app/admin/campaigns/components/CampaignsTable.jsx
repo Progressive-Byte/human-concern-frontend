@@ -5,6 +5,21 @@ import StatusPill from "./StatusPill";
 import CampaignsPagination from "./CampaignsPagination";
 import CampaignRowActions from "./CampaignRowActions";
 
+function formatDateTime(value) {
+  if (!value) return "—";
+  try {
+    return new Date(value).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "—";
+  }
+}
+
 function SkeletonRows() {
   return (
     <div className="space-y-3 px-5 py-4">
@@ -42,7 +57,7 @@ const CampaignsTable = ({
         <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No campaigns found</div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-[980px] w-full border-collapse">
+          <table className="min-w-[1150px] w-full border-collapse">
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                 <th className="px-5 py-3">Campaign</th>
@@ -51,6 +66,7 @@ const CampaignsTable = ({
                 <th className="py-3 pr-4">Raised</th>
                 <th className="py-3 pr-4">Progress</th>
                 <th className="py-3 pr-4">Donors</th>
+                <th className="py-3 pr-4">Published</th>
                 <th className="py-3 pr-5 text-right">Actions</th>
               </tr>
             </thead>
@@ -59,6 +75,7 @@ const CampaignsTable = ({
               {rows.map((item) => {
                 const percent = item?.progressPercent;
                 const showPercent = percent === null || percent === undefined ? null : Number(percent);
+                const publishedAt = item?.publishedAt;
 
                 return (
                   <tr
@@ -86,11 +103,12 @@ const CampaignsTable = ({
                           <div className="w-[140px]">
                             <ProgressBar value={showPercent} />
                           </div>
-                            <div className="text-[12px] font-semibold text-red-700">{showPercent}%</div>
+                          <div className="text-[12px] font-semibold text-red-700">{showPercent}%</div>
                         </div>
                       )}
                     </td>
                     <td className="py-4 pr-4 align-top">{Number(item?.donorsCount || 0).toLocaleString()}</td>
+                    <td className="py-4 pr-4 align-top">{formatDateTime(publishedAt)}</td>
                     <td className="py-4 pr-5 align-top text-right">
                       <CampaignRowActions item={item} onEdit={onEdit} onRefresh={onRefresh} />
                     </td>

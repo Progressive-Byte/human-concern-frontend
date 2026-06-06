@@ -4,6 +4,21 @@ import StatusPill from "./StatusPill";
 import FormsPagination from "./FormsPagination";
 import FormRowActions from "./FormRowActions";
 
+function formatDateTime(value) {
+  if (!value) return "—";
+  try {
+    return new Date(value).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "—";
+  }
+}
+
 function SkeletonRows() {
   return (
     <div className="space-y-3 px-5 py-4">
@@ -59,7 +74,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
         <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No forms found</div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-[1040px] w-full border-collapse">
+          <table className="min-w-[1200px] w-full border-collapse">
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                 <th className="px-5 py-3">Form</th>
@@ -67,6 +82,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                 <th className="py-3 pr-4">Complete</th>
                 <th className="py-3 pr-4">Fund Code</th>
                 <th className="py-3 pr-4">Designation</th>
+                <th className="py-3 pr-4">Published</th>
                 <th className="py-3 pr-5 text-right">Actions</th>
               </tr>
             </thead>
@@ -80,6 +96,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                 const campaignType = getCampaignType(item);
                 const featured = getFeatured(item);
                 const completion = computeCompletionPercent(item);
+                const publishedAt = item?.publishedAt;
 
                 return (
                   <tr
@@ -108,6 +125,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                     </td>
                     <td className="py-4 pr-4 align-top">{String(fundCode)}</td>
                     <td className="py-4 pr-4 align-top">{String(designation)}</td>
+                    <td className="py-4 pr-4 align-top">{formatDateTime(publishedAt)}</td>
                     <td className="py-4 pr-5 align-top text-right">
                       <FormRowActions item={item} onRefresh={onRefresh} campaignIdFilter={campaignIdFilter} />
                     </td>
