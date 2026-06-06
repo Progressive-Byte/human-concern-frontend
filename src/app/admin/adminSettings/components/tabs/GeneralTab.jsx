@@ -1,6 +1,7 @@
 "use client";
 
 import SettingsSectionCard from "../SettingsSectionCard";
+import CustomNotesEditor from "@/app/admin/forms/components/goalsDates/CustomNotesEditor";
 
 function Field({ label, children }) {
   return (
@@ -73,6 +74,16 @@ function TipIcon() {
     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
       <path d="M12 2a7 7 0 0 0-4 12.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26A7 7 0 0 0 12 2z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
       <path d="M10 22h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function NoteIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M14 2v6h6" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M8 13h8M8 17h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -173,6 +184,19 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
           </Field>
         </div>
 
+        <div className="mt-6">
+          <SaveButton onClick={onSaveOrganization} disabled={saving || loading}>
+            Save Changes
+          </SaveButton>
+        </div>
+      </SettingsSectionCard>
+
+      <SettingsSectionCard icon={<NoteIcon />} title="Global Notes" subtitle="Custom fields that can be enabled on any form">
+        <CustomNotesEditor
+          value={organization.globalNote || []}
+          onChange={(newValue) => onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), globalNote: newValue } }))}
+          disabled={loading}
+        />
         <div className="mt-6">
           <SaveButton onClick={onSaveOrganization} disabled={saving || loading}>
             Save Changes

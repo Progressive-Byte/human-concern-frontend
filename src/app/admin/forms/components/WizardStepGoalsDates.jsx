@@ -176,6 +176,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const [recurringPresets, setRecurringPresets] = useState([]);
   const [enableTipping, setEnableTipping] = useState(false);
   const [allowAnonymousDonations, setAllowAnonymousDonations] = useState(false);
+  const [showGlobalNote, setShowGlobalNote] = useState(false);
 
   const currencyOptions = useMemo(() => CURRENCY_OPTIONS, []);
 
@@ -209,6 +210,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
         setEnableTipping(Boolean(d?.enableTipping));
         setAllowAnonymousDonations(Boolean(d?.allowAnonymousDonations));
+        setShowGlobalNote(Boolean(d?.showGlobalNote));
       } catch (e) {
         if (!alive) return;
         setTopError(e?.message || "Failed to load goals & dates.");
@@ -534,6 +536,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       recurringPresets: recurringEnabled && normalizedPresets.length ? normalizedPresets : undefined,
       enableTipping: Boolean(enableTipping),
       allowAnonymousDonations: Boolean(allowAnonymousDonations),
+      showGlobalNote: Boolean(showGlobalNote),
     };
 
     return { errors, payload, suggErrors, presetsErrors, notesErrors };
@@ -754,6 +757,16 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
                 <div className="mt-1 text-[12px] text-[#6B7280]">Let donors hide their name on the public donation feed</div>
               </div>
               <Toggle enabled={allowAnonymousDonations} onChange={disabled ? () => {} : setAllowAnonymousDonations} />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-[13px] font-semibold text-[#111827]">Show Global Notes</div>
+                <div className="mt-1 text-[12px] text-[#6B7280]">Display the global custom notes configured in settings</div>
+              </div>
+              <Toggle enabled={showGlobalNote} onChange={disabled ? () => {} : setShowGlobalNote} />
             </div>
           </div>
         </div>

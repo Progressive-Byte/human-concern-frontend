@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
-import { getAdminFormGoalsDates, getAdminFormReview } from "@/services/admin";
+import { getAdminFormGoalsDates, getAdminFormReview, getAdminSettingsGeneral } from "@/services/admin";
 import Step1Info from "@/app/donate/steps/Step1Info";
 import Step2Payment from "@/app/donate/steps/Step2Payment";
 import Step3Addons from "@/app/donate/steps/Step3Addons";
@@ -15,6 +15,10 @@ function normalizeReviewResponse(res) {
 
 function normalizeGoalsDatesResponse(res) {
   return res?.data?.data || res?.data?.item || res?.data?.goalsDates || res?.data || {};
+}
+
+function normalizeGeneralSettingsResponse(res) {
+  return res?.data?.data || res?.data || {};
 }
 
 function normalizeSuggestedNumbers(value) {
@@ -34,7 +38,7 @@ function normalizeSuggestedNumbers(value) {
   });
 }
 
-function buildCampaignDataFromAdminReview(review, formId) {
+function buildCampaignDataFromAdminReview(review, formId, globalNote = []) {
   const form = review?.form && typeof review.form === "object" ? review.form : {};
   const basics = form?.basics && typeof form.basics === "object" ? form.basics : {};
   const goalsDates = form?.goalsDates && typeof form.goalsDates === "object" ? form.goalsDates : {};
@@ -82,6 +86,7 @@ function buildCampaignDataFromAdminReview(review, formId) {
     suggestedAmounts,
     addOns,
     sectionsCompleted,
+    globalNote,
     goalsDates: {
       allowOneTimeDonations: goalsDates?.allowOneTimeDonations === undefined ? true : Boolean(goalsDates.allowOneTimeDonations),
       allowRecurringDonations: goalsDates?.allowRecurringDonations === undefined ? true : Boolean(goalsDates.allowRecurringDonations),
@@ -91,6 +96,7 @@ function buildCampaignDataFromAdminReview(review, formId) {
       customNotes: Array.isArray(goalsDates?.customNotes) ? goalsDates.customNotes : [],
       recurringPresets: Array.isArray(goalsDates?.recurringPresets) ? goalsDates.recurringPresets : [],
       allowAnonymousDonations: goalsDates?.allowAnonymousDonations === undefined ? false : Boolean(goalsDates.allowAnonymousDonations),
+      showGlobalNote: goalsDates?.showGlobalNote === undefined ? false : Boolean(goalsDates.showGlobalNote),
     },
     causes,
   };
@@ -154,14 +160,17 @@ const AdminFormPreviewStepPage = () => {
         } catch {}
 
         updateRef.current({ campaign: CAMPAIGN_BASE, maxStep: 4 });
-        const [reviewRes, goalsRes] = await Promise.all([
+        const [reviewRes, goalsRes, generalSettingsRes] = await Promise.all([
           getAdminFormReview(resolvedFormId, { cache: "no-store" }),
           getAdminFormGoalsDates(resolvedFormId, { cache: "no-store" }),
+          getAdminSettingsGeneral(),
         ]);
         if (!alive) return;
         const review = normalizeReviewResponse(reviewRes);
         const goalsDatesRaw = normalizeGoalsDatesResponse(goalsRes);
-        const campaignData = buildCampaignDataFromAdminReview(review, resolvedFormId);
+        const generalSettings = normalizeGeneralSettingsResponse(generalSettingsRes);
+        const globalNote = generalSettings?.organization?.globalNote ?? [];
+        const campaignData = buildCampaignDataFromAdminReview(review, resolvedFormId, globalNote);
 
         const goalsDatesCompleted = Boolean(campaignData?.sectionsCompleted?.goalsDates);
         const overrideSuggested = goalsDatesCompleted ? normalizeSuggestedNumbers(goalsDatesRaw?.suggestedAmounts) : [];
@@ -180,6 +189,8 @@ const AdminFormPreviewStepPage = () => {
                 maximumDonation: goalsDatesRaw?.maximumDonation ?? campaignData.goalsDates?.maximumDonation ?? null,
                 customNotes: Array.isArray(goalsDatesRaw?.customNotes) ? goalsDatesRaw.customNotes : campaignData.goalsDates?.customNotes || [],
                 recurringPresets: Array.isArray(goalsDatesRaw?.recurringPresets) ? goalsDatesRaw.recurringPresets : campaignData.goalsDates?.recurringPresets || [],
+                showGlobalNote:
+                  goalsDatesRaw?.showGlobalNote === undefined ? campaignData.goalsDates?.showGlobalNote : Boolean(goalsDatesRaw.showGlobalNote),
               }
             : {}),
         };

@@ -45,7 +45,25 @@ const Step3Addons = () => {
   const campaignAddOns  = campaignMeta.addOns ?? [];
   const goalsDatesCompleted = Boolean(campaignMeta.sectionsCompleted?.goalsDates);
   const enableTipping = isPreview ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.enableTipping) : false) : (campaignMeta.goalsDates?.enableTipping ?? true);
-  const customNoteFields = isPreview ? (goalsDatesCompleted ? (campaignMeta.goalsDates?.customNotes ?? []) : []) : (campaignMeta.goalsDates?.customNotes ?? []);
+  const customNotes = isPreview ? (goalsDatesCompleted ? (campaignMeta.goalsDates?.customNotes ?? []) : []) : (campaignMeta.goalsDates?.customNotes ?? []);
+  const showGlobalNote = isPreview ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.showGlobalNote) : false) : Boolean(campaignMeta.goalsDates?.showGlobalNote);
+  const globalNoteFields = campaignMeta.globalNote ?? [];
+  
+  // Combine custom notes and global notes, avoiding duplicate keys
+  const customNoteFields = useMemo(() => {
+    const combined = [...customNotes];
+    const existingKeys = new Set(combined.map(f => String(f.key).trim()));
+    if (showGlobalNote) {
+      globalNoteFields.forEach(f => {
+        const key = String(f.key).trim();
+        if (!existingKeys.has(key)) {
+          existingKeys.add(key);
+          combined.push(f);
+        }
+      });
+    }
+    return combined;
+  }, [customNotes, showGlobalNote, globalNoteFields]);
 
   const currency     = data.currency     ?? "USD";
   const amountTier   = data.amountTier   ?? 0;

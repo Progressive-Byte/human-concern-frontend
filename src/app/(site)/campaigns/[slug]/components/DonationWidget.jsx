@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import { CircleCheckIcon, ShareCampaignIcon } from "@/components/common/SvgIcon";
+import { apiRequest } from "@/services/api";
 
 const CURRENCY_OPTIONS = [
   { label: "$ USD", value: "USD" },
@@ -15,13 +16,33 @@ const CURRENCY_OPTIONS = [
 const DonationWidget = ({ campaign }) => {
   const router = useRouter();
 
+  const [globalNote, setGlobalNote] = useState([]);
+  const [publicSettingsLoading, setPublicSettingsLoading] = useState(false);
+
+  useEffect(() => {
+    async function fetchPublicSettings() {
+      try {
+        setPublicSettingsLoading(true);
+        const res = await apiRequest("payment/settings", { method: "GET" });
+        const data = res?.data || {};
+        setGlobalNote(data?.globalNote || []);
+      } catch (e) {
+        console.error("Failed to fetch public settings", e);
+        setGlobalNote([]);
+      } finally {
+        setPublicSettingsLoading(false);
+      }
+    }
+    fetchPublicSettings();
+  }, []);
+
   const suggestedAmounts     = campaign.suggestedAmounts     ?? [];
   const suggestedAmountsData = campaign.suggestedAmountsData ?? [];
   const limits               = campaign.goalsDates           ?? {};
 
   const raised      = campaign.raised ?? 0;
   const goal        = campaign.goal   ?? 0;
-  const pct         = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+  const pct         = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100) : 0;
   const hasProgress = campaign.raised != null && goal > 0;
 
   const defaultAmount = suggestedAmountsData.find((a) => a.isDefault)?.value ?? suggestedAmounts[0] ?? 50;
@@ -41,6 +62,7 @@ const DonationWidget = ({ campaign }) => {
       zakatEligible:    campaign.zakatEligible ?? false,
       suggestedAmounts: campaign.suggestedAmounts ?? [],
       addOns:           campaign.addOns           ?? [],
+      globalNote:       globalNote,
       goalsDates: {
         allowOneTimeDonations:   gd.allowOneTimeDonations   ?? true,
         allowRecurringDonations: gd.allowRecurringDonations ?? true,
@@ -49,6 +71,7 @@ const DonationWidget = ({ campaign }) => {
         maximumDonation:         gd.maximumDonation         ?? null,
         customNotes:             gd.customNotes             ?? [],
         recurringPresets:        gd.recurringPresets        ?? [],
+        showGlobalNote:         gd.showGlobalNote         ?? false,
       },
       causes: (campaign.causes ?? []).map((c) => ({
         id:            c.id,
