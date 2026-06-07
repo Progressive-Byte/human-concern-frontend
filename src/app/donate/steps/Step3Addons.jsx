@@ -18,6 +18,10 @@ const CURRENCY_OPTIONS = [
   { label: "CAD (CA$)", value: "CAD", symbol: "CA$" },
 ];
 
+function normalizeNoteFields(value) {
+  return Array.isArray(value) ? value.filter((field) => field && typeof field === "object") : [];
+}
+
 function calcAddOnTotal(addOn, inputValues) {
   const { pricing, amount } = addOn;
   if (!pricing || pricing.type === "fixed") return amount ?? 0;
@@ -47,7 +51,7 @@ const Step3Addons = () => {
   const enableTipping = isPreview ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.enableTipping) : false) : (campaignMeta.goalsDates?.enableTipping ?? true);
   const customNotes = isPreview ? (goalsDatesCompleted ? (campaignMeta.goalsDates?.customNotes ?? []) : []) : (campaignMeta.goalsDates?.customNotes ?? []);
   const showGlobalNote = isPreview ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.showGlobalNote) : false) : Boolean(campaignMeta.goalsDates?.showGlobalNote);
-  const globalNoteFields = campaignMeta.globalNote ?? [];
+  const [globalNoteFields, setGlobalNoteFields] = useState(() => normalizeNoteFields(campaignMeta.globalNote));
   
   // Combine custom notes and global notes, avoiding duplicate keys
   const customNoteFields = useMemo(() => {
@@ -116,6 +120,39 @@ const Step3Addons = () => {
   const [noteErrors,   setNoteErrors]   = useState({});
   const [submitting,   setSubmitting]   = useState(false);
   const [submitError,  setSubmitError]  = useState(null);
+
+  useEffect(() => {
+    if (!showGlobalNote || isPreview) return;
+    let alive = true;
+
+    (async () => {
+      try {
+        const res = await apiRequest("payment/settings", { method: "GET" });
+        if (!alive) return;
+        const fetchedFields = normalizeNoteFields(res?.data?.globalNote);
+        if (fetchedFields.length > 0) {
+          setGlobalNoteFields(fetchedFields);
+        }
+      } catch (err) {
+        console.error("Failed to fetch global notes", err);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [showGlobalNote, isPreview]);
+
+  useEffect(() => {
+    setCustomNoteValues((prev) => {
+      const next = { ...(prev || {}) };
+      customNoteFields.forEach((field) => {
+        if (field?.key in next) return;
+        next[field.key] = field.type === "checkbox" ? (field.defaultValue ?? false) : (field.defaultValue ?? "");
+      });
+      return next;
+    });
+  }, [customNoteFields]);
 
   const computedBreakdown = useMemo(() =>
     campaignAddOns
