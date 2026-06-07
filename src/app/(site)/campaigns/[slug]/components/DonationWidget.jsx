@@ -42,7 +42,7 @@ const DonationWidget = ({ campaign }) => {
 
   const raised      = campaign.raised ?? 0;
   const goal        = campaign.goal   ?? 0;
-  const pct         = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100) : 0;
+  const pct         = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
   const hasProgress = campaign.raised != null && goal > 0;
 
   const defaultAmount = suggestedAmountsData.find((a) => a.isDefault)?.value ?? suggestedAmounts[0] ?? 50;
