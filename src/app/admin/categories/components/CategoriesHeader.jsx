@@ -10,7 +10,7 @@ const CategoriesHeader = ({ onCreate }) => {
   return (
     <div className="hc-animate-fade-up flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div>
-        <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">Categories</h1>
+        <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">Fundraising Campaign Categories.</h1>
         <p className="mt-1 text-[14px] text-[#6B7280]">Create and manage donation categories</p>
       </div>
 

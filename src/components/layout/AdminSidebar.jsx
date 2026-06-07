@@ -229,7 +229,7 @@ const navItems = [
   { href: "/admin", label: "Overview", icon: "overview" },
   { href: "/admin/campaigns", label: "Campaigns", icon: "campaigns" },
   { href: "/admin/forms", label: "Forms", icon: "forms" },
-  { href: "/admin/categories", label: "Categories", icon: "categories" },
+  { href: "/admin/categories", label: "FC Categories", icon: "categories" },
   { href: "/admin/causes", label: "Causes", icon: "causes" },
   { href: "/admin/objectives", label: "Objectives", icon: "objectives" },
   { href: "/admin/add-ons", label: "Addons", icon: "addons" },
