@@ -3,7 +3,24 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
+import { getAdminSettingsBranding } from "@/services/admin";
+import { siteUrl } from "@/utils/constants";
+
+function resolveAssetUrl(value) {
+  const raw =
+    typeof value === "string"
+      ? value
+      : value && typeof value === "object"
+        ? value?.url || value?.path || value?.location || value?.src
+        : "";
+  const p = String(raw || "").trim();
+  if (!p) return "";
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  if (p.startsWith("/")) return `${siteUrl}${p}`;
+  return `${siteUrl}/${p}`;
+}
 
 function Icon({ name }) {
   if (name === "overview") {
@@ -244,14 +261,36 @@ const navItems = [
 const AdminSidebar = ({ onNavigate }) => {
   const pathname = usePathname();
   const { logout } = useAdminAuth();
+  const [brandLogoUrl, setBrandLogoUrl] = useState("");
 
   const isActive = (href) => (href ? (href === "/admin" ? pathname === href : pathname?.startsWith(href)) : false);
+
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      try {
+        const res = await getAdminSettingsBranding();
+        if (!alive) return;
+        const data = res?.data?.data || res?.data || {};
+        const nextUrl = resolveAssetUrl(data?.branding?.logo || data?.logo);
+        setBrandLogoUrl(nextUrl);
+      } catch {
+        if (!alive) return;
+        setBrandLogoUrl("");
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   return (
     <aside className="flex h-screen w-65 shrink-0 flex-col bg-[#171717] text-white">
       <div className="flex items-center gap-3 border-b border-white/10 px-4 py-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10">
-          <Image src="/icons/hcu-icon-light.png" alt="Human Concern USA" width={22} height={22} />
+        <div className="flex items-center justify-center rounded-full bg-white/10">
+          <Image src={brandLogoUrl || "/icons/hcu-icon-light.png"} alt="Human Concern USA" width={30} height={30} />
         </div>
         <div className="leading-tight">
           <div className="text-[15px] font-semibold">Human Concern USA</div>
