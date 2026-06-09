@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getAdminDonorByKey, updateAdminDonor } from "@/services/admin";
+import { getAdminDonorByKey, getAdminDonors, updateAdminDonor } from "@/services/admin";
+import { register } from "@/services/authService";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 
 function normalizeStr(v) {
@@ -9,13 +10,21 @@ function normalizeStr(v) {
   return s;
 }
 
-const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
+function unwrapDonorObject(res) {
+  const wrapped = res?.data && typeof res.data === "object" && !Array.isArray(res.data) ? res.data : res;
+  return wrapped?.donor && typeof wrapped.donor === "object" ? wrapped.donor : wrapped;
+}
+
+const EditDonorProfileModal = ({ open, donorKey, donor, mode = "edit", onClose, onSaved }) => {
   const toast = useToast();
+  const isCreate = mode === "create";
   const donorLabel = useMemo(() => String(donor?.name || donor?.email || donorKey || "Donor"), [donor, donorKey]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -34,6 +43,8 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
     setLoading(false);
     setError("");
 
+    setEmail(normalizeStr(donor?.email));
+    setPassword("");
     setName(normalizeStr(donor?.name));
     setFirstName(normalizeStr(donor?.firstName));
     setLastName(normalizeStr(donor?.lastName));
@@ -49,6 +60,44 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
   }, [open, donor]);
 
   useEffect(() => {
+    if (!open || isCreate) return;
+    const key = normalizeStr(donorKey);
+    if (!key) return;
+    let alive = true;
+
+    (async () => {
+      try {
+        setLoading(true);
+        const fresh = await getAdminDonorByKey(key);
+        if (!alive) return;
+        const donorObj = unwrapDonorObject(fresh) || {};
+        setEmail(normalizeStr(donorObj?.email));
+        setName(normalizeStr(donorObj?.name));
+        setFirstName(normalizeStr(donorObj?.firstName));
+        setLastName(normalizeStr(donorObj?.lastName));
+        setPhone(normalizeStr(donorObj?.phone));
+        setOrganization(normalizeStr(donorObj?.organization));
+        setLine1(normalizeStr(donorObj?.address?.line1));
+        setCity(normalizeStr(donorObj?.address?.city));
+        setState(normalizeStr(donorObj?.address?.state));
+        setPostalCode(normalizeStr(donorObj?.address?.postalCode));
+        setStreetName(normalizeStr(donorObj?.address?.streetName));
+        setCountry(normalizeStr(donorObj?.address?.country));
+      } catch (e) {
+        if (!alive) return;
+        setError(e?.message || "Failed to load donor profile.");
+      } finally {
+        if (!alive) return;
+        setLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [open, donorKey, isCreate]);
+
+  useEffect(() => {
     if (!open) return;
     function onKeyDown(e) {
       if (e.key === "Escape") onClose?.();
@@ -60,6 +109,82 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
   async function handleSave(e) {
     e.preventDefault();
     setError("");
+
+    if (isCreate) {
+      const org = normalizeStr(organization);
+      const fn = normalizeStr(firstName);
+      const ln = normalizeStr(lastName);
+      const em = normalizeStr(email);
+      const pw = String(password || "");
+
+      if (!fn || !ln || !em || !pw) {
+        setError("First name, last name, email, and password are required.");
+        return;
+      }
+      if (pw.length < 8) {
+        setError("Password must be at least 8 characters.");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const fallbackOrganization = org || `${fn} ${ln}`.trim() || em;
+        const res = await register({
+          organization: fallbackOrganization,
+          firstName: fn,
+          lastName: ln,
+          email: em,
+          password: pw,
+        });
+
+        const optionalPayload = {};
+        const n = normalizeStr(name);
+        const ph = normalizeStr(phone);
+        if (n) optionalPayload.name = n;
+        if (ph) optionalPayload.phone = ph;
+        if (org) optionalPayload.organization = org;
+
+        const addr = {};
+        if (normalizeStr(line1)) addr.line1 = normalizeStr(line1);
+        if (normalizeStr(city)) addr.city = normalizeStr(city);
+        if (normalizeStr(postalCode)) addr.postalCode = normalizeStr(postalCode);
+        if (normalizeStr(state)) addr.state = normalizeStr(state);
+        if (normalizeStr(streetName)) addr.streetName = normalizeStr(streetName);
+        if (normalizeStr(country)) addr.country = normalizeStr(country);
+        if (Object.keys(addr).length > 0) optionalPayload.address = addr;
+
+        if (Object.keys(optionalPayload).length > 0) {
+          try {
+            const donorListRes = await getAdminDonors({ page: "1", limit: "10", q: em });
+            const donorItems = Array.isArray(donorListRes?.data)
+              ? donorListRes.data
+              : Array.isArray(donorListRes?.data?.data)
+                ? donorListRes.data.data
+                : Array.isArray(donorListRes?.data?.items)
+                  ? donorListRes.data.items
+                  : [];
+            const createdDonor = donorItems.find((item) => String(item?.email || "").trim().toLowerCase() === em.toLowerCase());
+            const createdKey = normalizeStr(createdDonor?.key || createdDonor?.donorKey || createdDonor?.id || createdDonor?._id);
+            if (createdKey) {
+              await updateAdminDonor(createdKey, optionalPayload);
+            }
+          } catch {
+            // Registration already succeeded; optional profile enrichment can fail silently.
+          }
+        }
+
+        toast.success(res?.data?.message || "Donor created");
+        onSaved?.(null);
+        onClose?.();
+      } catch (e2) {
+        const msg = e2?.message || "Create failed";
+        setError(msg);
+        toast.error(msg);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     const key = normalizeStr(donorKey);
     if (!key) {
@@ -99,8 +224,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
     try {
       await updateAdminDonor(key, payload);
       const fresh = await getAdminDonorByKey(key);
-      const wrapped = fresh?.data && typeof fresh.data === "object" && !Array.isArray(fresh.data) ? fresh.data : fresh;
-      const freshObj = wrapped?.donor && typeof wrapped.donor === "object" ? wrapped.donor : wrapped;
+      const freshObj = unwrapDonorObject(fresh);
       toast.success("Profile updated");
       onSaved?.(freshObj);
       onClose?.();
@@ -121,8 +245,8 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
       <div className="hc-animate-dropdown relative w-full max-w-[760px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-[16px] font-semibold text-[#111827]">Edit Profile</div>
-            <div className="mt-1 text-[13px] text-[#6B7280]">{donorLabel}</div>
+            <div className="text-[16px] font-semibold text-[#111827]">{isCreate ? "Add Donor" : "Edit Profile"}</div>
+            <div className="mt-1 text-[13px] text-[#6B7280]">{isCreate ? "Create a new donor account" : donorLabel}</div>
           </div>
           <button
             type="button"
@@ -142,6 +266,139 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
           ) : null}
 
           <form onSubmit={handleSave} className="space-y-4">
+            {isCreate ? (
+              <>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">Full Name</div>
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">Organization</div>
+                  <input
+                    value={organization}
+                    onChange={(e) => setOrganization(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">Phone</div>
+                  <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">Email</div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">First Name</div>
+                  <input
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">Last Name</div>
+                  <input
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">Password</div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <div className="pt-1 text-[13px] font-semibold text-[#111827]">Address</div>
+              <div>
+                <div className="mb-2 text-[13px] font-semibold text-[#111827]">Line 1</div>
+                <input
+                  value={line1}
+                  onChange={(e) => setLine1(e.target.value)}
+                  className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  disabled={loading}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">City</div>
+                  <input
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">State</div>
+                  <input
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">Postal Code</div>
+                  <input
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">Street Name</div>
+                  <input
+                    value={streetName}
+                    onChange={(e) => setStreetName(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 text-[13px] font-semibold text-[#111827]">Country</div>
+                  <input
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              </>
+            ) : null}
+
+            {!isCreate ? (
+              <>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div>
                 <div className="mb-2 text-[13px] font-semibold text-[#111827]">Full Name</div>
@@ -157,6 +414,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -168,6 +426,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  disabled={loading}
                 />
               </div>
               <div>
@@ -176,6 +435,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -186,6 +446,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
                 className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                disabled={loading}
               />
             </div>
 
@@ -197,6 +458,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                 value={line1}
                 onChange={(e) => setLine1(e.target.value)}
                 className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                disabled={loading}
               />
             </div>
 
@@ -207,6 +469,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  disabled={loading}
                 />
               </div>
               <div>
@@ -215,6 +478,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                   value={state}
                   onChange={(e) => setState(e.target.value)}
                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  disabled={loading}
                 />
               </div>
               <div>
@@ -223,6 +487,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -234,6 +499,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                   value={streetName}
                   onChange={(e) => setStreetName(e.target.value)}
                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  disabled={loading}
                 />
               </div>
               <div>
@@ -242,9 +508,12 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  disabled={loading}
                 />
               </div>
             </div>
+              </>
+            ) : null}
 
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
@@ -260,7 +529,7 @@ const EditDonorProfileModal = ({ open, donorKey, donor, onClose, onSaved }) => {
                 disabled={loading}
                 className="rounded-xl bg-red-600 px-4 py-2 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-red-700 disabled:opacity-60"
               >
-                {loading ? "Saving..." : "Save Changes"}
+                {loading ? (isCreate ? "Creating..." : "Saving...") : isCreate ? "Create Donor" : "Save Changes"}
               </button>
             </div>
           </form>

@@ -16,6 +16,7 @@ import DonorsFilters from "./components/DonorsFilters";
 import DonorsTable from "./components/DonorsTable";
 import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
 import SendDonorEmailModal from "./components/SendDonorEmailModal";
+import EditDonorProfileModal from "./components/EditDonorProfileModal";
 
 function useDebouncedValue(value, delayMs) {
   const [debounced, setDebounced] = useState(value);
@@ -94,6 +95,9 @@ const AdminDonorsPage = () => {
 
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailDonor, setEmailDonor] = useState(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileMode, setProfileMode] = useState("edit");
+  const [profileDonor, setProfileDonor] = useState(null);
 
   function refresh() {
     setRefreshKey((prev) => prev + 1);
@@ -308,7 +312,14 @@ const AdminDonorsPage = () => {
 
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
-      <DonorsHeader onCreate={() => toast.info("Create donor action still to wire")} onExport={downloadCsv} />
+      <DonorsHeader
+        onCreate={() => {
+          setProfileMode("create");
+          setProfileDonor(null);
+          setProfileOpen(true);
+        }}
+        onExport={downloadCsv}
+      />
 
       {error ? (
         <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
@@ -339,7 +350,11 @@ const AdminDonorsPage = () => {
           if (!donor?.key) return;
           router.push(`/admin/donors/${encodeURIComponent(donor.key)}`);
         }}
-        onEditProfile={(donor) => toast.info(`Edit profile for ${donor?.name || donor?.email}`)}
+        onEditProfile={(donor) => {
+          setProfileMode("edit");
+          setProfileDonor(donor || null);
+          setProfileOpen(true);
+        }}
         onToggleStatus={(donor) => {
           setConfirmDonor(donor || null);
           setConfirmStatusOpen(true);
@@ -378,6 +393,30 @@ const AdminDonorsPage = () => {
         onSent={() => {
           setEmailOpen(false);
           setEmailDonor(null);
+        }}
+      />
+
+      <EditDonorProfileModal
+        open={profileOpen}
+        mode={profileMode}
+        donorKey={profileMode === "edit" ? profileDonor?.key : ""}
+        donor={profileDonor}
+        onClose={() => {
+          setProfileOpen(false);
+          setProfileDonor(null);
+          setProfileMode("edit");
+        }}
+        onSaved={(fresh) => {
+          if (profileMode === "edit" && fresh) {
+            const normalized = normalizeDonor(fresh);
+            setItems((prev) =>
+              (Array.isArray(prev) ? prev : []).map((item) => (item?.key === normalized.key ? { ...item, ...normalized } : item))
+            );
+          }
+          setProfileOpen(false);
+          setProfileDonor(null);
+          setProfileMode("edit");
+          refresh();
         }}
       />
     </main>
