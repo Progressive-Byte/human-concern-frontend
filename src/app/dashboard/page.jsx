@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CalendarIcon, ClockIcon, DollarIcon, DonationContentIcon } from "@/components/common/SvgIcon";
+import { SkeletonStack } from "@/components/ui/Skeleton";
 import DashboardHeader from "./components/DashboardHeader";
 import StatCard from "./components/StatCard";
 import { getUserDashboard } from "@/services/donationService";
