@@ -196,11 +196,7 @@ const ProfilePage = () => {
 
           <div className="mt-4 space-y-2">
             {loading ? (
-              <div className="space-y-3">
-                <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
-              </div>
+              <SkeletonStack count={3} blockClass="h-12 rounded-xl" />
             ) : (
               <>
                 <UserToggle
