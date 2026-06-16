@@ -191,6 +191,8 @@ const ProfilePage = () => {
                 {savingProfile ? "Saving..." : "Save Changes"}
               </button>
             </div>
+              </>
+            )}
           </div>
         </section>
 
