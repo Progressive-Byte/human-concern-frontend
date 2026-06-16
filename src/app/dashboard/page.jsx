@@ -218,11 +218,7 @@ const DashboardPage = () => {
 
             <div className="space-y-5 mt-2">
               {loading ? (
-                <div className="space-y-3">
-                  <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                  <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                  <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                </div>
+                <SkeletonStack />
               ) : fundBreakdown.length ? (
                 fundBreakdown.map((f) => (
                 <div key={f.label}>
