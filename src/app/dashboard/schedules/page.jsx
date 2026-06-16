@@ -103,11 +103,7 @@ const SchedulesPage = () => {
         ) : null}
 
         {loading ? (
-          <div className="space-y-3">
-            <div className="h-24 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-            <div className="h-24 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-            <div className="h-24 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-          </div>
+          <SkeletonStack count={3} blockClass="h-24 rounded-2xl" />
         ) : schedules.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-5 py-12 text-center text-sm text-[#6B7280]">
             No schedules found.
