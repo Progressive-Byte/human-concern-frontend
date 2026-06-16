@@ -266,7 +266,7 @@ const ScheduleDetailPage = () => {
             ) : null}
 
             {actionLoading ? (
-              <div className="mt-4 h-16 animate-pulse rounded-xl bg-[#F3F4F6]" />
+              <SkeletonBlock className="mt-4 h-16 rounded-xl" />
             ) : (
               <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0">
