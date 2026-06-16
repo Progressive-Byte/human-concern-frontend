@@ -8,6 +8,7 @@ import Field from "@/components/ui/Field";
 import OutlineButton from "@/components/ui/OutlineButton";
 import UserSectionHeader from "@/components/ui/UserSectionHeader";
 import { getUserProfile, updateUserNotificationPreferences, updateUserProfile } from "@/services/donationService";
+import { SkeletonStack } from "@/components/ui/Skeleton";
 import { changePassword } from "@/services/authService";
 
 const ProfilePage = () => {
