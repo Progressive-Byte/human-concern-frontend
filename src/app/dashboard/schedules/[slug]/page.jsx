@@ -320,11 +320,7 @@ const ScheduleDetailPage = () => {
             <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
               <h2 className="text-base font-semibold text-[#111827] mb-5">Schedule Details</h2>
               {loading ? (
-                <div className="space-y-3">
-                  <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                  <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                  <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                </div>
+                <SkeletonStack />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
                   <DetailRow label="Status" value={statusLabel} />
