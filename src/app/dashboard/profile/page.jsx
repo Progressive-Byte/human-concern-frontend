@@ -201,30 +201,41 @@ const ProfilePage = () => {
           <UserSectionHeader icon={BellIcon} title="Notification Preferences" variant="bell" />
 
           <div className="mt-4 space-y-2">
-            <UserToggle
-              label="Email Notifications"
-              desc="Receive important updates via email"
-              checked={prefs.emailNotifications}
-              onChange={setPref("emailNotifications")}
-            />
-            <UserToggle
-              label="Donation Receipts"
-              desc="Receive email receipts for every donation"
-              checked={prefs.donationReceipts}
-              onChange={setPref("donationReceipts")}
-            />
-            <UserToggle
-              label="Campaign Updates"
-              desc="Get notified about campaign progress and impact"
-              checked={prefs.campaignUpdates}
-              onChange={setPref("campaignUpdates")}
-            />
+            {loading ? (
+              <div className="space-y-3">
+                <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
+              </div>
+            ) : (
+              <>
+                <UserToggle
+                  label="Email Notifications"
+                  desc="Receive important updates via email"
+                  checked={prefs.emailNotifications}
+                  onChange={setPref("emailNotifications")}
+                />
+                <UserToggle
+                  label="Donation Receipts"
+                  desc="Receive email receipts for every donation"
+                  checked={prefs.donationReceipts}
+                  onChange={setPref("donationReceipts")}
+                />
+                <UserToggle
+                  label="Campaign Updates"
+                  desc="Get notified about campaign progress and impact"
+                  checked={prefs.campaignUpdates}
+                  onChange={setPref("campaignUpdates")}
+                />
+              </>
+            )}
           </div>
 
+          {!loading && (
           <div className="pt-4">
             <button
               type="button"
-              disabled={loading || savingPrefs}
+              disabled={savingPrefs}
               onClick={async () => {
                 setError("");
                 setSuccess("");
@@ -250,6 +261,7 @@ const ProfilePage = () => {
               {savingPrefs ? "Saving..." : "Save Preferences"}
             </button>
           </div>
+          )}
         </section>
 
         {/* Security */}
