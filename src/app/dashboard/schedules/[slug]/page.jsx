@@ -8,6 +8,7 @@ import DashboardHeader from "../../components/DashboardHeader";
 import DetailRow from "@/components/ui/DetailRow";
 import { AlertIcon, BacklinkIcon, Spinner } from "@/components/common/SvgIcon";
 import { apiRequest } from "@/services/api";
+import { SkeletonBlock, SkeletonStack, SkeletonRows } from "@/components/ui/Skeleton";
 import { getUserInstallmentAction, getUserScheduleById, syncUserInstallment } from "@/services/donationService";
 import { formatCurrency } from "@/utils/helpers";
 
