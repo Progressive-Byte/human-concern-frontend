@@ -204,13 +204,7 @@ function DonationHistoryPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i}>
-                      <td colSpan={6} className="px-4 py-2.5">
-                        <div className="h-8 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                      </td>
-                    </tr>
-                  ))
+                  <SkeletonRows rows={5} cols={6} />
                 ) : (
                   rows.map((r, idx) => (
                   <tr
