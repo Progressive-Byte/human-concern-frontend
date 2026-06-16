@@ -123,14 +123,7 @@ const ProfilePage = () => {
 
           <div className="mt-5 space-y-4">
             {loading ? (
-              <div className="space-y-3">
-                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
-              </div>
+              <SkeletonStack count={6} />
             ) : (
               <>
             <Field label="Organization" value={form.organization} onChange={setField("organization")} placeholder="Organization" />
