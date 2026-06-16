@@ -280,9 +280,42 @@ function DonationHistoryPage() {
   );
 }
 
+function DonationHistoryFallback() {
+  return (
+    <>
+      <DashboardHeader
+        title="Donation History"
+        subtitle="View all your past donations"
+      />
+      <div className="flex-1 p-4 md:p-6 space-y-5">
+        <SkeletonBlock className="h-10 rounded-xl" />
+        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-[#6B7280] border-b border-dashed border-[#E5E7EB]">
+                  <th className="px-4 py-4 font-medium">Date</th>
+                  <th className="px-4 py-4 font-medium">Campaign</th>
+                  <th className="hidden sm:table-cell px-4 py-4 font-medium">Cause</th>
+                  <th className="px-4 py-4 font-medium">Amount</th>
+                  <th className="hidden md:table-cell px-4 py-4 font-medium">Status</th>
+                  <th className="px-4 py-4 font-medium text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <SkeletonRows rows={5} cols={6} />
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 const DonationHistory = () => {
   return (
-    <Suspense fallback={<p className="text-sm text-[#6B7280] p-6">Loading…</p>}>
+    <Suspense fallback={<DonationHistoryFallback />}>
       <DonationHistoryPage />
     </Suspense>
   );
