@@ -181,7 +181,7 @@ const FundBreakdownPage = () => {
               {/* Legend */}
               <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
                 {loading ? (
-                  <div className="h-5 w-44 animate-pulse rounded bg-[#F3F4F6]" />
+                  <SkeletonBlock className="h-5 w-44 rounded" />
                 ) : (
                   segments.map((f) => (
                   <span
