@@ -13,6 +13,10 @@ npm run lint     # Run ESLint
 
 No test runner is configured.
 
+## Environment Variables
+
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` — enables Google Places address autocomplete in `GooglePlacesInput`. Without it, the component falls back to a plain text input silently.
+
 ## Architecture Overview
 
 This is a **Next.js App Router** project using React 19 and Tailwind CSS 4. Recharts is used for admin charts. `canvas-confetti` fires on the thank-you page. `emoji-picker-react` is used in the admin form wizard for cause/add-on icon selection.
@@ -23,16 +27,18 @@ Routes live in `src/app/` using the App Router convention with route groups:
 - `(site)/` — public-facing pages (home, campaign listing)
 - `(auth)/user/` — user auth pages at `/user/login`, `/user/register`, `/user/forgot-password`, `/user/reset-password`
 - `(auth)/admin/` — admin auth pages at `/admin/login`, `/admin/forgot-password`, `/admin/reset-password` (has its own `layout.jsx`)
+- `(auth)/verify-email/` — email verification landing page (token passed as query param)
 - `[campaignSlug]/` — campaign detail page (`page.jsx`) **and** the campaign-specific donation flow (`[step]/page.jsx`); its `layout.jsx` only wraps `DonationProvider`
 - `dashboard/` — authenticated user area
-- `admin/` — admin-only panel (campaigns, forms, donations, add-ons, categories, causes, donors, settings)
+- `admin/` — admin-only panel (campaigns, forms, donations, add-ons, categories, causes, objectives, donors, schedules, logs, settings)
+- `admin/forms/preview/[step]` — admin-only preview of the full 4-step donation flow for a form under construction; reuses the same Step components but loads data from the admin API rather than sessionStorage
 - `donate/` — generic donation flow (no campaign context); includes `thank-you/` page rendered after successful payment
 
 Route protection is handled in `src/middleware.js`: unauthenticated users accessing `/dashboard` are redirected to `/user/login`; admin routes require a separate `adminToken` cookie. Authenticated users hitting auth pages are redirected back to their respective home (`/dashboard` or `/admin`).
 
 Dashboard sub-routes: `donation-history`, `fund-breakdown`, `payment-methods`, `profile`, `schedules`, `schedules/[slug]`.
 
-Admin sub-routes with dynamic params: `campaigns/[campaignId]`, `donors/[donorKey]`, `schedules/[donationId]`.
+Admin sub-routes with dynamic params: `campaigns/[campaignId]`, `donors/[donorKey]`, `schedules/[donationId]`. Flat admin sub-routes: `add-ons`, `categories`, `causes`, `objectives`, `schedules`, `logs`, `adminSettings`.
 
 ### API Layer
 
@@ -102,7 +108,7 @@ Key `DonationContext` fields: `campaign` (slug, used for routing), `campaignId`,
 
 - Mark interactive components with `"use client"` at the top.
 - Shared primitives go in `src/components/ui/` (`Field`, `Select`, `Toggle`, `Button`, `OutlineButton`, `Card`, `Row`, `Input`, `NumberInput`, `Stepper`, `Section`, `DetailRow`, `UserSectionHeader`, `UserToggle`).
-- Common non-primitive components go in `src/components/common/` (`SvgIcon`, `CustomDropdown`, `FormInput`, `VideoModal`, `Pagination`).
+- Common non-primitive components go in `src/components/common/` (`SvgIcon`, `CustomDropdown`, `FormInput`, `VideoModal`, `Pagination`, `GooglePlacesInput`).
 - Layout chrome (Navbar, Footer, Sidebar, AdminSidebar, RouteProgressBar, Topnoticebar) lives in `src/components/layout/`.
 - Page-specific components live alongside the page: `src/app/dashboard/components/`, `src/app/admin/components/`, etc.
 - Admin form creation (`admin/forms/new/`) uses a wizard shell (`FormWizardShell`) with a `WizardFooterNav` and per-step components in order: Basics → GoalsDates → Causes → Objectives → Addons → Media → Review. `WizardStepPlaceholder` is the template to follow when adding a new step. Each wizard step imports `useToast` from `@/app/admin/campaigns/components/ToastProvider` for feedback.
