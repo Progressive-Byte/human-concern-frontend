@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
 import { getUserFundBreakdown } from "@/services/donationService";
 import { formatCurrency } from "@/utils/helpers";
+import { SkeletonBlock, SkeletonStack } from "@/components/ui/Skeleton";
 
 const R     = 75;
 const STROKE = 30;
