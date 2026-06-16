@@ -318,18 +318,26 @@ const ScheduleDetailPage = () => {
             {/* Schedule Details */}
             <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
               <h2 className="text-base font-semibold text-[#111827] mb-5">Schedule Details</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
-                <DetailRow label="Status" value={loading ? "Loading..." : statusLabel} />
-                <DetailRow label="Frequency" value={loading ? "Loading..." : frequency} />
-                <DetailRow
-                  label="Next Donation Amount"
-                  value={loading ? "—" : formatCurrency(nextDonationAmount, currency)}
-                  valueClass="text-2xl font-bold text-[#EA3335]"
-                />
-                <DetailRow label="Next Donation" value={loading ? "—" : nextDate} />
-                <DetailRow label="Total Donated" value={loading ? "—" : formatCurrency(totalDonated, currency)} />
-                <DetailRow label="Created On" value={loading ? "—" : startedAt} />
-              </div>
+              {loading ? (
+                <div className="space-y-3">
+                  <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                  <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                  <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+                  <DetailRow label="Status" value={statusLabel} />
+                  <DetailRow label="Frequency" value={frequency} />
+                  <DetailRow
+                    label="Next Donation Amount"
+                    value={formatCurrency(nextDonationAmount, currency)}
+                    valueClass="text-2xl font-bold text-[#EA3335]"
+                  />
+                  <DetailRow label="Next Donation" value={nextDate} />
+                  <DetailRow label="Total Donated" value={formatCurrency(totalDonated, currency)} />
+                  <DetailRow label="Created On" value={startedAt} />
+                </div>
+              )}
             </div>
 
             {/* Allocated Causes */}
