@@ -21,11 +21,15 @@ export function SkeletonRows({
   blockClass = "h-8 rounded-xl",
   cellClass = "px-4 py-2.5",
 }) {
-  return Array.from({ length: rows }, (_, i) => (
-    <tr key={i}>
-      <td colSpan={cols} className={cellClass}>
-        <SkeletonBlock className={blockClass} />
-      </td>
-    </tr>
-  ));
+  return (
+    <>
+      {Array.from({ length: rows }, (_, i) => (
+        <tr key={i}>
+          <td colSpan={cols} className={cellClass}>
+            <SkeletonBlock className={blockClass} />
+          </td>
+        </tr>
+      ))}
+    </>
+  );
 }
