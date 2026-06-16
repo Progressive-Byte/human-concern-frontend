@@ -390,11 +390,13 @@ const ScheduleDetailPage = () => {
                   </thead>
                   <tbody className="divide-y divide-[#E5E7EB]">
                     {loading ? (
-                      <tr>
-                        <td colSpan={5} className="py-8 text-center text-sm text-[#6B7280]">
-                          Loading…
-                        </td>
-                      </tr>
+                      Array.from({ length: 4 }).map((_, i) => (
+                        <tr key={i}>
+                          <td colSpan={5} className="px-2 py-2.5">
+                            <div className="h-8 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                          </td>
+                        </tr>
+                      ))
                     ) : history.length ? (
                       history.map((row, i) => {
                         const date = formatShortDate(row?.date) || "—";
