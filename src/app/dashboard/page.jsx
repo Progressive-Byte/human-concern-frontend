@@ -255,11 +255,7 @@ const DashboardPage = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {loading ? (
-              <>
-                <div className="h-28 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-                <div className="h-28 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-                <div className="h-28 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-              </>
+              <SkeletonStack count={3} blockClass="h-28 rounded-2xl" asFragment />
             ) : activeSchedules.length ? (
               activeSchedules.map((s) => (
               <div
