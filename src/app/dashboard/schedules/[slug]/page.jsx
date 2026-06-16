@@ -444,8 +444,8 @@ const ScheduleDetailPage = () => {
             <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] overflow-hidden">
               {loading ? (
                 <div className="space-y-3 p-4">
-                  <div className="h-24 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-                  <div className="h-16 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                  <SkeletonBlock className="h-24 rounded-2xl" />
+                  <SkeletonBlock className="h-16 rounded-xl" />
                 </div>
               ) : (
               <div className="px-4 py-4">
