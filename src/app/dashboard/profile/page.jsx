@@ -121,6 +121,17 @@ const ProfilePage = () => {
           <UserSectionHeader icon={UserIcon} title="Personal Information" variant="user" />
 
           <div className="mt-5 space-y-4">
+            {loading ? (
+              <div className="space-y-3">
+                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
+              </div>
+            ) : (
+              <>
             <Field label="Organization" value={form.organization} onChange={setField("organization")} placeholder="Organization" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="First Name" value={form.firstName} onChange={setField("firstName")} placeholder="First name" />
@@ -146,7 +157,7 @@ const ProfilePage = () => {
             <div className="pt-1">
               <button
                 type="button"
-                disabled={loading || savingProfile}
+                disabled={savingProfile}
                 onClick={async () => {
                   setError("");
                   setSuccess("");
