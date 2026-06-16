@@ -341,7 +341,7 @@ const ScheduleDetailPage = () => {
             <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
               <h2 className="text-base font-semibold text-[#111827] mb-4">Allocated Causes</h2>
               {loading ? (
-                <div className="h-12 animate-pulse rounded-xl bg-[#F3F4F6]" />
+                <SkeletonBlock className="h-12 rounded-xl" />
               ) : allocated.length ? (
                 <div className="space-y-2">
                   {allocated.map((c, idx) => {
