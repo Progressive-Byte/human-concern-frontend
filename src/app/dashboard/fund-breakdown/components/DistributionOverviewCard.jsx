@@ -1,6 +1,9 @@
 import { SkeletonBlock } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/helpers";
-import { DONUT_R, DONUT_STROKE, DONUT_C } from "../utils";
+
+const DONUT_R      = 75;
+const DONUT_STROKE = 30;
+const DONUT_C      = 2 * Math.PI * DONUT_R;
 
 export function DistributionOverviewCard({ loading, segments, hovered, onHover, totalAllocated, currency }) {
   const active = hovered ? segments.find((s) => s.label === hovered) : null;
