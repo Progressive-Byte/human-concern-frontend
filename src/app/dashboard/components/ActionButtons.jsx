@@ -129,17 +129,19 @@ const ActionButtons = ({ isActive, slug }) => {
 
   return (
     <>
-      {isActive && (
-        <button
-          type="button"
-          title="Edit"
-          onClick={handleEdit}
-          disabled={editLoading}
-          className="w-8 h-8 rounded-lg border border-dashed border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:border-blue-500/40 hover:text-blue-600 hover:bg-blue-500/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {editLoading ? Spinner : EditIcon}
-        </button>
-      )}
+      <button
+        type="button"
+        title="Edit"
+        onClick={isActive ? handleEdit : undefined}
+        disabled={editLoading}
+        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
+          isActive
+            ? "border-[#E5E7EB] text-[#6B7280] hover:border-blue-500/40 hover:text-blue-600 hover:bg-blue-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
+        }`}
+      >
+        {editLoading ? Spinner : EditIcon}
+      </button>
 
       <button
         type="button"
