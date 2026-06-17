@@ -158,17 +158,19 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
             <div className="px-5 pt-4 pb-2">
               <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280] mb-3">Actions</p>
               <div className="space-y-2">
-                {isActive && (
-                  <button
-                    type="button"
-                    onClick={handleEdit}
-                    disabled={editLoading}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#F3F4F6] px-4 py-2.5 text-sm font-medium text-[#111827] hover:bg-[#E5E7EB] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {editLoading ? Spinner : EditIcon}
-                    {editLoading ? "Loading..." : "Edit Schedule"}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={isActive ? handleEdit : undefined}
+                  disabled={editLoading}
+                  className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-[#F3F4F6] text-[#111827] hover:bg-[#E5E7EB] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
+                  }`}
+                >
+                  {editLoading ? Spinner : EditIcon}
+                  {editLoading ? "Loading..." : "Edit Schedule"}
+                </button>
                 <button
                   type="button"
                   className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#F3F4F6] px-4 py-2.5 text-sm font-medium text-[#111827] hover:bg-[#E5E7EB] transition-colors cursor-pointer"
