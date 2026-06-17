@@ -9,7 +9,14 @@ import { FilterBar } from "./components/FilterBar";
 import { DonationTable } from "./components/DonationTable";
 import { DonationHistoryFallback } from "./components/DonationHistoryFallback";
 import ThankYouModal from "./ThankYouModal";
-import { formatDate } from "./utils";
+function formatDate(value) {
+  if (!value) return "";
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  } catch { return ""; }
+}
 
 const DEFAULT_CAUSE_OPTIONS = [{ value: "all", label: "All Causes" }];
 
