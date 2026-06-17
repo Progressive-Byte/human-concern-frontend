@@ -1,15 +1,142 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { EditIcon, EyeIcon, PauseIcon, PlayIcon } from "@/components/common/SvgIcon";
+import { EditIcon, EyeIcon, PauseIcon, PlayIcon, Spinner } from "@/components/common/SvgIcon";
+import { getUserScheduleEditForm } from "@/services/donationService";
+
+async function openScheduleEditSession(scheduleId, router) {
+  const res = await getUserScheduleEditForm(scheduleId);
+  const d = res?.data?.data || res?.data || {};
+
+  const form = d.form || {};
+  const currency = String(d.currency || "USD");
+  const selectedCauseIds = Array.isArray(d.selectedCauseIds) ? d.selectedCauseIds : [];
+  const causes = Array.isArray(d.causes) ? d.causes : [];
+  const availableCauses = Array.isArray(d.availableCauses) ? d.availableCauses : [];
+  const availableAddOns = Array.isArray(d.availableAddOns) ? d.availableAddOns : [];
+  const addons = Array.isArray(d.addons?.items) ? d.addons.items : [];
+  const tip = d.tip || {};
+  const constraints = d.constraints || {};
+  const editableSchedule = d.editableSchedule || {};
+  const dates = Array.isArray(editableSchedule.scheduleConfig?.dates)
+    ? editableSchedule.scheduleConfig.dates
+    : [];
+
+  const datesList = dates.map((dt) => String(dt.date));
+  const dateAmounts = {};
+  dates.forEach((dt) => { if (dt.date) dateAmounts[String(dt.date)] = Number(dt.amount || 0); });
+  const donorAmount = dates.reduce((sum, dt) => sum + Number(dt.amount || 0), 0);
+  const amountTier = dates.length > 0 ? Number(dates[0].amount || 0) : 0;
+
+  const addonsTotal = addons.reduce((sum, a) => sum + Number(a.amount || 0), 0);
+  const addOnBreakdown = addons.map((a) => ({
+    id: String(a.addOnId || ""),
+    name: String(a.name || ""),
+    iconEmoji: String(a.iconEmoji || ""),
+    amount: Number(a.amount || 0),
+    inputValues: a.inputValues || {},
+  }));
+
+  const campaignData = {
+    id: String(form.formId || ""),
+    name: String(form.name || ""),
+    suggestedAmounts: [],
+    causes: availableCauses.map((c) => ({
+      id: String(c.causeId || ""),
+      name: String(c.label || ""),
+      description: "",
+      iconEmoji: "",
+      zakatEligible: false,
+    })),
+    addOns: availableAddOns.map((a) => ({
+      id: String(a.addOnId || ""),
+      name: String(a.name || ""),
+      iconEmoji: String(a.iconEmoji || ""),
+      amount: Number(a.amount || 0),
+      pricing: a.pricing || { type: "fixed" },
+    })),
+    goalsDates: {
+      allowRecurringDonations: constraints.allowRecurring !== false,
+      minimumDonation: Number(constraints.minimumDonation || 1),
+      maximumDonation: Number(constraints.maximumDonation || 999999),
+      enableTipping: tip.enabled !== false,
+    },
+  };
+  sessionStorage.setItem("campaignData", JSON.stringify(campaignData));
+
+  sessionStorage.setItem(
+    "hc_schedule_edit",
+    JSON.stringify({
+      scheduleId: String(d.scheduleId || scheduleId),
+      isEditMode: true,
+      scheduleVersion: Number(d.scheduleVersion || 1),
+      rawData: d,
+    })
+  );
+
+  sessionStorage.removeItem("hc_donation_done");
+  sessionStorage.setItem(
+    "hc_donation",
+    JSON.stringify({
+      campaign: String(form.slug || ""),
+      campaignId: String(form.formId || ""),
+      campaignTitle: String(form.name || ""),
+      currency,
+      causeIds: selectedCauseIds,
+      causes: causes.map((c) => ({ id: String(c.causeId || ""), name: String(c.label || "") })),
+      isRamadan: false,
+      paymentType: "recurring",
+      scheduleType: String(editableSchedule.scheduleType || "specific_dates"),
+      scheduleConfig: { dates: datesList, dateAmounts },
+      splitMode: "repeat",
+      amountTier,
+      donorAmount,
+      amount: String(amountTier),
+      installmentCount: dates.length,
+      addOnsTotal: addonsTotal,
+      addOnBreakdown,
+      tipPct: Number(tip.platformTipPercent || 0),
+      customTipAmount: tip.platformTipAmount ? String(tip.platformTipAmount) : "",
+      maxStep: 1,
+      submitted: false,
+      donorMessage: "",
+      anonymous: false,
+      paymentMethod: "card",
+    })
+  );
+
+  const slug = String(form.slug || "");
+  router.push(slug ? `/${slug}/1` : "/donate/1");
+}
 
 const ActionButtons = ({ isActive, slug }) => {
+  const router = useRouter();
+  const [editLoading, setEditLoading] = useState(false);
+
+  const handleEdit = async () => {
+    if (editLoading) return;
+    setEditLoading(true);
+    try {
+      await openScheduleEditSession(slug, router);
+    } catch (e) {
+      console.error("Schedule edit failed:", e?.message);
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   return (
     <>
       <button
         type="button"
         title="Edit"
-        className="w-8 h-8 rounded-lg border border-dashed border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:border-blue-500/40 hover:text-blue-600 hover:bg-blue-500/10 transition-colors cursor-pointer"
+        onClick={handleEdit}
+        disabled={editLoading}
+        className="w-8 h-8 rounded-lg border border-dashed border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:border-blue-500/40 hover:text-blue-600 hover:bg-blue-500/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {EditIcon}
+        {editLoading ? Spinner : EditIcon}
       </button>
 
       <button
