@@ -245,12 +245,17 @@ const Step2Payment = () => {
           <div className="flex flex-col gap-2.5">
             {PAYMENT_TYPES.filter((t) => t.value === "one-time" || allowRecurring).map((type) => {
               const active = paymentType === type.value;
+              const locked = isEditMode && type.value === "one-time";
               return (
                 <button
                   key={type.value}
-                  onClick={() => update({ paymentType: type.value })}
-                  className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 cursor-pointer ${
-                    active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
+                  onClick={locked ? undefined : () => update({ paymentType: type.value })}
+                  className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 ${
+                    locked
+                      ? "border-[#E5E5E5] bg-white opacity-40 cursor-not-allowed"
+                      : active
+                      ? "border-[#EA3335] bg-[#FFF5F5] cursor-pointer"
+                      : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40 cursor-pointer"
                   }`}
                 >
                   <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
