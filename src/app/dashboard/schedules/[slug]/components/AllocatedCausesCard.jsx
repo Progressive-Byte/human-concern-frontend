@@ -1,6 +1,11 @@
 import { SkeletonBlock } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/helpers";
-import { causeBadgeStyles } from "../utils";
+const causeBadgeStyles = {
+  Zakat:     "bg-[#ECFDF5] text-[#047857]",
+  Sadaqah:   "bg-[#FFF8EC] text-[#B45309]",
+  Emergency: "bg-[#FFF5F5] text-[#EA3335]",
+  Fitrana:   "bg-[#EFF6FF] text-[#1D4ED8]",
+};
 
 export function AllocatedCausesCard({ loading, allocated, currency, perLabel }) {
   return (
