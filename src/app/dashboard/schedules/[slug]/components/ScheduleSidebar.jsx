@@ -86,7 +86,7 @@ async function openScheduleEditSession(scheduleId, router) {
       campaignTitle: String(form.name || ""),
       currency,
       causeIds: selectedCauseIds,
-      causes: causes.map((c) => ({ id: String(c.causeId || ""), name: String(c.label || "") })),
+      causes: causes.map((c) => String(c.label || "")),
       isRamadan: false,
       paymentType: "recurring",
       scheduleType: String(editableSchedule.scheduleType || "specific_dates"),
