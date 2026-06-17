@@ -86,15 +86,6 @@ const SchedulesPage = () => {
       <DashboardHeader
         title="Recurring Schedules"
         subtitle="Manage your recurring donation schedules"
-        // actions={
-        //   <button
-        //     type="button"
-        //     className="inline-flex items-center gap-2 rounded-xl bg-[#EA3335] px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 transition-colors cursor-pointer"
-        //   >
-        //     {PlusIcon}
-        //     New Schedule
-        //   </button>
-        // }
       />
 
       <div className="flex-1 p-4 md:p-6 space-y-4">
