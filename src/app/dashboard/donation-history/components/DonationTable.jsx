@@ -1,7 +1,20 @@
 import { EyeIcon } from "@/components/common/SvgIcon";
 import { SkeletonRows } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/helpers";
-import { causeBadgeStyles, statusClass } from "../utils";
+const causeBadgeStyles = {
+  Zakat:     "bg-[#ECFDF5] text-[#047857]",
+  Sadaqah:   "bg-[#FFF8EC] text-[#B45309]",
+  Emergency: "bg-[#FFF5F5] text-[#EA3335]",
+  Fitrana:   "bg-[#EFF6FF] text-[#1D4ED8]",
+};
+function statusClass(key) {
+  const s = String(key || "").toLowerCase();
+  if (s === "succeeded") return "text-[#047857]";
+  if (s === "pending") return "text-[#B45309]";
+  if (s === "failed") return "text-[#EA3335]";
+  if (s === "refunded") return "text-[#6B7280]";
+  return "text-[#047857]";
+}
 
 const HEADERS = [
   { label: "Date",     className: "px-4 py-4 font-medium" },
