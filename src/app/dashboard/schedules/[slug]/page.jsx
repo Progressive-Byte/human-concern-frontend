@@ -11,7 +11,24 @@ import { ScheduleDetailsCard } from "./components/ScheduleDetailsCard";
 import { AllocatedCausesCard } from "./components/AllocatedCausesCard";
 import { DonationHistoryCard } from "./components/DonationHistoryCard";
 import { ScheduleSidebar } from "./components/ScheduleSidebar";
-import { formatDate, formatShortDate, frequencyLabel } from "./utils";
+const frequencyLabel = { Weekly: "week", Monthly: "month", Daily: "day" };
+
+function formatDate(value) {
+  if (!value) return "";
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  } catch { return ""; }
+}
+function formatShortDate(value) {
+  if (!value) return "";
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  } catch { return ""; }
+}
 
 function useScheduleDetail(scheduleId) {
   const [loading, setLoading] = useState(true);
