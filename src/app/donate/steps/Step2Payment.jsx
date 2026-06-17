@@ -21,6 +21,12 @@ const Step2Payment = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 
+  const isEditMode = useMemo(() => {
+    try {
+      return Boolean(JSON.parse(sessionStorage.getItem("hc_schedule_edit") || "{}").isEditMode);
+    } catch { return false; }
+  }, []);
+
   const { suggestedAmounts, allowRecurring, minDonation, maxDonation, recurringPresets } = useMemo(() => {
     try {
       const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
