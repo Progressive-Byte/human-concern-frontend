@@ -7,7 +7,14 @@ import { SkeletonBlock } from "@/components/ui/Skeleton";
 import { apiRequest } from "@/services/api";
 import { syncUserInstallment } from "@/services/donationService";
 import { formatCurrency } from "@/utils/helpers";
-import { formatShortDate } from "../utils";
+function formatShortDate(value) {
+  if (!value) return "";
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  } catch { return ""; }
+}
 
 export function ActionBanner({
   installmentId,
