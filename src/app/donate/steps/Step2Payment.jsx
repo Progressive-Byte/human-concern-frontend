@@ -235,6 +235,7 @@ const Step2Payment = () => {
             onAmountChange={handleAmountChange}
             onCurrencyChange={(val) => update({ currency: val })}
             overrideTotal={perDateTotal}
+            disableCurrency={isEditMode}
           />
         </div>
 
