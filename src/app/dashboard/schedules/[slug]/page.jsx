@@ -218,6 +218,7 @@ const ScheduleDetailPage = () => {
             frequency={frequency}
             nextAmount={nextAmount}
             statusKey={String(schedule?.status?.key || "").trim().toLowerCase()}
+            scheduleId={scheduleId}
           />
         </div>
       </div>
