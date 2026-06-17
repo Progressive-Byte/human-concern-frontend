@@ -102,16 +102,41 @@ React Context only — no Redux or Zustand. The two auth contexts above plus `Do
 
 Key `DonationContext` fields: `campaign` (slug, used for routing), `campaignId`, `campaignTitle`, `isRamadan`, `zakatEligible`, `submitted`, `maxStep`, `amount`, `amountTier` (per-payment amount), `donorAmount` (UI-visible total, preserved on back-navigation), `currency`, `frequency`, `paymentType`, `splitMode` (`"repeat"`/`"divide"`), `scheduleType`, `scheduleConfig`, `schedulePreset`, `installmentCount`, `numberOfDays`, `perDateTotal` (pre-computed sum for specific_dates with overrides), `tipPct`, `customTipAmount`, `addOnsTotal`, `grandTotal`, `addOnBreakdown`, `donorMessage`, `anonymous`, `paymentMethod`, `stripeClientSecret`, `stripePublishableKey`, `donationId`, `guestSessionId`, `causeIds`, `causes`, `objective`, `objectiveLabel`, and donor fields (`firstName`, `lastName`, `email`, `phone`, `addressLine1`, `city`, `province`, `zip`, `country`).
 
+**Critical type**: `data.causes` is a `string[]` of cause label names (e.g. `["Sadaqah", "Global Emergency"]`), **not** an array of objects. `data.causeIds` is the parallel `string[]` of IDs. `DonationPreview` renders each `causes` item as text directly — storing objects here throws a React render error.
+
 `DonationSessionCleaner` (`src/components/common/DonationSessionCleaner.jsx`) auto-removes `hc_donation` from sessionStorage when the user navigates away from the donation flow (any path outside `/donate/*` or `/:slug/[1-4]`) without completing payment.
+
+### Schedule Edit Mode
+
+When the user clicks "Edit Schedule" (from the schedules list or detail sidebar), the handler calls `openScheduleEditSession(scheduleId, router)`, a module-level async function defined in both `ActionButtons.jsx` and `ScheduleSidebar.jsx`:
+
+1. Fetch `GET /api/v1/user/schedules/:scheduleId/edit-form`
+2. Write `campaignData` to sessionStorage (mapped from `availableCauses`, `availableAddOns`, `constraints`, `tip` in the response)
+3. Write `hc_schedule_edit` to sessionStorage: `{ scheduleId, isEditMode: true, scheduleVersion, rawData }` — `rawData` preserves the full API response for the later `PUT /edit-form` submission
+4. Write `hc_donation` pre-filled with the existing schedule's values (`paymentType: "recurring"`, `scheduleType`, `scheduleConfig`, `causeIds`, `causes` as label strings, `tipPct`, `addOnBreakdown`)
+5. Navigate to `/{campaign.slug}/1`
+
+The `PUT /edit-form` submission (which will replace Step 3's normal `donations/submit` in edit mode) is not yet wired — `hc_schedule_edit.rawData` is stored for that future implementation. All service functions live in `donationService.js`: `getUserScheduleEditForm`, `submitScheduleEditForm`, `pauseUserSchedule`, `resumeUserSchedule`, `cancelUserSchedule`.
 
 ### Component Conventions
 
 - Mark interactive components with `"use client"` at the top.
 - Shared primitives go in `src/components/ui/` (`Field`, `Select`, `Toggle`, `Button`, `OutlineButton`, `Card`, `Row`, `Input`, `NumberInput`, `Stepper`, `Section`, `DetailRow`, `UserSectionHeader`, `UserToggle`).
+- Skeleton loading primitives: `SkeletonBlock`, `SkeletonStack`, `SkeletonRows` — all from `@/components/ui/Skeleton`.
 - Common non-primitive components go in `src/components/common/` (`SvgIcon`, `CustomDropdown`, `FormInput`, `VideoModal`, `Pagination`, `GooglePlacesInput`).
 - Layout chrome (Navbar, Footer, Sidebar, AdminSidebar, RouteProgressBar, Topnoticebar) lives in `src/components/layout/`.
 - Page-specific components live alongside the page: `src/app/dashboard/components/`, `src/app/admin/components/`, etc.
 - Admin form creation (`admin/forms/new/`) uses a wizard shell (`FormWizardShell`) with a `WizardFooterNav` and per-step components in order: Basics → GoalsDates → Causes → Objectives → Addons → Media → Review. `WizardStepPlaceholder` is the template to follow when adding a new step. Each wizard step imports `useToast` from `@/app/admin/campaigns/components/ToastProvider` for feedback.
+
+### Code Organization Rules
+
+These conventions are enforced throughout the dashboard:
+
+- **No `hooks/` subdirectories** — custom hook logic (data fetching, side effects) is inlined directly in `page.jsx`, not extracted into a `hooks/` folder.
+- **No `utils.js` files** — helper functions and constants are defined locally in the file that uses them. Duplication across files is acceptable.
+- **Private sub-components** — components used only within a single parent (e.g. `StatusBadge`, `DonationRow`) are defined at the top of that parent file, not extracted into their own files.
+- **Module-level async functions** — multi-step side-effectful operations (e.g. `openScheduleEditSession`) are plain `async function`s at module scope, not hooks, receiving dependencies like `router` as parameters.
+- **`style={}`** — only for runtime-dynamic values (e.g. a color string from API data). Static tokens use Tailwind arbitrary values (`fill-[#EA3335]`, `text-[#6B7280]`).
 
 ### Path Alias
 
