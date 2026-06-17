@@ -217,6 +217,7 @@ const ScheduleDetailPage = () => {
             nextShort={formatShortDate(schedule?.nextDonation?.date) || "—"}
             frequency={frequency}
             nextAmount={nextAmount}
+            statusKey={String(schedule?.status?.key || "").trim().toLowerCase()}
           />
         </div>
       </div>
