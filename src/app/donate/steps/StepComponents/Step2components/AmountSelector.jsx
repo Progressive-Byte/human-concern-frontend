@@ -22,6 +22,7 @@ const AmountSelector = ({
   onAmountChange,
   onCurrencyChange,
   overrideTotal,
+  disableCurrency = false,
 }) => {
 
   const isCustomInit = initialAmount && !suggestedAmounts.includes(initialAmount);
