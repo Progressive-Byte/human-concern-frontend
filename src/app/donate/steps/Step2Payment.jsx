@@ -174,20 +174,24 @@ const Step2Payment = () => {
     ? perDateTotal
     : effectiveAmount * occurrences;
 
+  // Round to 2 decimal places for display to avoid JavaScript float imprecision
+  // (e.g. 132.02 - 22 - 10 = 100.02000000000001).
+  const fmtAmt = (n) => Number.isFinite(n) ? Number(n.toFixed(2)) : 0;
+
   const splitModes = [
     {
       value:   "divide",
       title:   "Divide total across dates",
       example: occurrences > 1
-        ? `${sym}${effectiveAmount} ÷ ${occurrences} = ${sym}${(effectiveAmount / safeOcc).toFixed(2)}/date`
+        ? `${sym}${fmtAmt(effectiveAmount)} ÷ ${occurrences} = ${sym}${(effectiveAmount / safeOcc).toFixed(2)}/date`
         : "Select dates to see per-date amount",
     },
     {
       value:   "repeat",
       title:   "Pay this amount each date",
       example: occurrences > 1
-        ? `${sym}${effectiveAmount} × ${occurrences} = ${sym}${repeatDisplayTotal.toLocaleString()} total`
-        : `${sym}${effectiveAmount} per scheduled date`,
+        ? `${sym}${fmtAmt(effectiveAmount)} × ${occurrences} = ${sym}${fmtAmt(repeatDisplayTotal).toLocaleString()} total`
+        : `${sym}${fmtAmt(effectiveAmount)} per scheduled date`,
     },
   ];
 
