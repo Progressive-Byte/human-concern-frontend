@@ -18,6 +18,11 @@ const CURRENCY_OPTIONS = [
   { label: "CAD (CA$)", value: "CAD", symbol: "CA$" },
 ];
 
+// Stable empty-array fallback — avoids creating a new reference on every render,
+// which would cause the customNoteFields useMemo to recompute and trigger an
+// infinite setState loop in the sync effect below.
+const EMPTY_NOTES = [];
+
 function normalizeNoteFields(value) {
   return Array.isArray(value) ? value.filter((field) => field && typeof field === "object") : [];
 }
