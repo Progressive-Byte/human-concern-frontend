@@ -44,10 +44,14 @@ async function openScheduleEditSession(scheduleId, router) {
     inputValues: a.inputValues || {},
   }));
 
+  const suggestedAmounts = Array.isArray(d.suggestedAmounts)
+    ? d.suggestedAmounts.map((s) => Number(s?.value ?? s)).filter((n) => Number.isFinite(n) && n > 0)
+    : [];
+
   const campaignData = {
     id: String(form.formId || ""),
     name: String(form.name || ""),
-    suggestedAmounts: [],
+    suggestedAmounts,
     causes: availableCauses.map((c) => ({
       id: String(c.causeId || ""),
       name: String(c.label || ""),
@@ -67,6 +71,7 @@ async function openScheduleEditSession(scheduleId, router) {
       minimumDonation: Number(constraints.minimumDonation || 1),
       maximumDonation: Number(constraints.maximumDonation || 999999),
       enableTipping: tip.enabled !== false,
+      recurringPresets: Array.isArray(goalsDates.recurringPresets) ? goalsDates.recurringPresets : [],
     },
   };
   sessionStorage.setItem("campaignData", JSON.stringify(campaignData));
