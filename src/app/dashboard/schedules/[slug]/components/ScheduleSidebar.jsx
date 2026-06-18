@@ -113,7 +113,7 @@ async function openScheduleEditSession(scheduleId, router) {
       scheduleType,
       scheduleConfig,
       frequency: scheduleType === "date_range" ? (rawConfig.frequency || "daily") : undefined,
-      splitMode: "repeat",
+      splitMode,
       amountTier,
       donorAmount,
       amount: String(amountTier),
