@@ -26,19 +26,28 @@ async function openScheduleEditSession(scheduleId, router) {
   const rawConfig = editableSchedule.scheduleConfig || {};
   const dates = Array.isArray(rawConfig.dates) ? rawConfig.dates : [];
 
+  // The backend bakes add-ons + tip into the first installment date.
+  // Strip them out so context holds only the base per-installment amounts.
+  const addonsTotal = addons.reduce((sum, a) => sum + Number(a.amount || 0), 0);
+  const tipAmt = Number(tip.platformTipAmount || 0);
+
+  const baseAmounts = dates.map((dt, i) => {
+    const raw = Number(dt.amount || 0);
+    return i === 0 ? Math.max(0, raw - addonsTotal - tipAmt) : raw;
+  });
+
   const datesList = dates.map((dt) => String(dt.date));
   const dateAmounts = {};
-  dates.forEach((dt) => { if (dt.date) dateAmounts[String(dt.date).split("T")[0]] = Number(dt.amount || 0); });
-  const donorAmount = dates.reduce((sum, dt) => sum + Number(dt.amount || 0), 0);
-  const amountTier = dates.length > 0 ? Number(dates[0].amount || 0) : 0;
-  const amounts = Object.values(dateAmounts);
-  const hasVaryingAmounts = amounts.length > 0 && amounts.some((a) => a !== amounts[0]);
+  dates.forEach((dt, i) => { if (dt.date) dateAmounts[String(dt.date).split("T")[0]] = baseAmounts[i]; });
+  const donorAmount = baseAmounts.reduce((sum, a) => sum + a, 0);
+  const amountTier = baseAmounts.length > 0 ? baseAmounts[0] : 0;
+  const allBaseAmounts = Object.values(dateAmounts);
+  const hasVaryingAmounts = allBaseAmounts.length > 0 && allBaseAmounts.some((a) => a !== allBaseAmounts[0]);
+  const splitMode = d.howToSplit === "divide" ? "divide" : "repeat";
 
   const scheduleConfig = scheduleType === "date_range"
     ? { startDate: rawConfig.startDate || "", endDate: rawConfig.endDate || "", frequency: rawConfig.frequency || "daily", dateAmounts }
     : { dates: datesList, dateAmounts };
-
-  const addonsTotal = addons.reduce((sum, a) => sum + Number(a.amount || 0), 0);
   const addOnBreakdown = addons.map((a) => ({
     id: String(a.addOnId || ""),
     name: String(a.name || ""),
