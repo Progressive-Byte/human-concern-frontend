@@ -111,12 +111,15 @@ async function openScheduleEditSession(scheduleId, router) {
   router.push(slug ? `/${slug}/1` : "/donate/1");
 }
 
-const ActionButtons = ({ isActive, slug }) => {
+const ActionButtons = ({ isActive, isPaused, slug }) => {
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
 
+  const canEdit = isActive;
+  const canPauseResume = isActive || isPaused;
+
   const handleEdit = async () => {
-    if (editLoading) return;
+    if (!canEdit || editLoading) return;
     setEditLoading(true);
     try {
       await openScheduleEditSession(slug, router);
@@ -132,10 +135,10 @@ const ActionButtons = ({ isActive, slug }) => {
       <button
         type="button"
         title="Edit"
-        onClick={isActive ? handleEdit : undefined}
+        onClick={canEdit ? handleEdit : undefined}
         disabled={editLoading}
         className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
-          isActive
+          canEdit
             ? "border-[#E5E7EB] text-[#6B7280] hover:border-blue-500/40 hover:text-blue-600 hover:bg-blue-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
         }`}
@@ -146,10 +149,13 @@ const ActionButtons = ({ isActive, slug }) => {
       <button
         type="button"
         title={isActive ? "Pause" : "Resume"}
-        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors cursor-pointer ${
-          isActive
-            ? "border-[#E5E7EB] text-[#6B7280] hover:border-amber-500/40 hover:text-amber-600 hover:bg-amber-500/10"
-            : "border-[#E5E7EB] text-[#6B7280] hover:border-emerald-500/40 hover:text-emerald-600 hover:bg-emerald-500/10"
+        disabled={!canPauseResume}
+        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
+          canPauseResume
+            ? isActive
+              ? "border-[#E5E7EB] text-[#6B7280] hover:border-amber-500/40 hover:text-amber-600 hover:bg-amber-500/10 cursor-pointer"
+              : "border-[#E5E7EB] text-[#6B7280] hover:border-emerald-500/40 hover:text-emerald-600 hover:bg-emerald-500/10 cursor-pointer"
+            : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
         }`}
       >
         {isActive ? PauseIcon : PlayIcon}
