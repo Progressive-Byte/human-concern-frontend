@@ -54,7 +54,7 @@ const Step3Addons = () => {
   const campaignAddOns  = campaignMeta.addOns ?? [];
   const goalsDatesCompleted = Boolean(campaignMeta.sectionsCompleted?.goalsDates);
   const enableTipping = isPreview ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.enableTipping) : false) : (campaignMeta.goalsDates?.enableTipping ?? true);
-  const customNotes = isPreview ? (goalsDatesCompleted ? (campaignMeta.goalsDates?.customNotes ?? []) : []) : (campaignMeta.goalsDates?.customNotes ?? []);
+  const customNotes = isPreview ? (goalsDatesCompleted ? (campaignMeta.goalsDates?.customNotes ?? EMPTY_NOTES) : EMPTY_NOTES) : (campaignMeta.goalsDates?.customNotes ?? EMPTY_NOTES);
   const showGlobalNote = isPreview ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.showGlobalNote) : false) : Boolean(campaignMeta.goalsDates?.showGlobalNote);
   const [globalNoteFields, setGlobalNoteFields] = useState(() => normalizeNoteFields(campaignMeta.globalNote));
   
