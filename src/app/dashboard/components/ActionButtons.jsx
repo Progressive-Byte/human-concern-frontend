@@ -27,9 +27,11 @@ async function openScheduleEditSession(scheduleId, router) {
 
   const datesList = dates.map((dt) => String(dt.date));
   const dateAmounts = {};
-  dates.forEach((dt) => { if (dt.date) dateAmounts[String(dt.date)] = Number(dt.amount || 0); });
+  dates.forEach((dt) => { if (dt.date) dateAmounts[String(dt.date).split("T")[0]] = Number(dt.amount || 0); });
   const donorAmount = dates.reduce((sum, dt) => sum + Number(dt.amount || 0), 0);
   const amountTier = dates.length > 0 ? Number(dates[0].amount || 0) : 0;
+  const amounts = Object.values(dateAmounts);
+  const hasVaryingAmounts = amounts.length > 0 && amounts.some((a) => a !== amounts[0]);
 
   const scheduleConfig = scheduleType === "date_range"
     ? { startDate: rawConfig.startDate || "", endDate: rawConfig.endDate || "", frequency: rawConfig.frequency || "daily", dateAmounts }
