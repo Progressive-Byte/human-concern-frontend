@@ -11,6 +11,7 @@ import {
   deleteAdminBrandingLogo,
   disconnectAdminPaymentGateway,
   getAdminSettingsBranding,
+  getAdminSettingsExchangeRates,
   getAdminSettingsGeneral,
   getAdminSettingsNotifications,
   getAdminSettingsPayment,
@@ -18,6 +19,7 @@ import {
   setAdminPaymentGatewayEnabled,
   updateAdminPaymentGatewayConfiguration,
   updateAdminSettingsBranding,
+  updateAdminSettingsExchangeRates,
   updateAdminSettingsGeneral,
   updateAdminSettingsNotifications,
   updateAdminSettingsSecurity,
@@ -29,6 +31,7 @@ import NotificationsTab from "./components/tabs/NotificationsTab";
 import SecurityTab from "./components/tabs/SecurityTab";
 import BrandingTab from "./components/tabs/BrandingTab";
 import PaymentTab from "./components/tabs/PaymentTab";
+import ExchangeRatesTab from "./components/tabs/ExchangeRatesTab";
 
 function normalizeObj(res) {
   if (res?.data && typeof res.data === "object" && !Array.isArray(res.data)) return res.data;
@@ -46,7 +49,20 @@ function diffObject(prev, next) {
   return out;
 }
 
-const tabs = ["general", "payment", "notifications", "security", "branding"];
+function normalizeExchangeRates(data) {
+  if (Array.isArray(data?.exchangeRates)) return data.exchangeRates;
+  if (Array.isArray(data?.rates)) return data.rates;
+  if (Array.isArray(data)) return data;
+  return [];
+}
+
+function diffList(prev, next) {
+  const p = Array.isArray(prev) ? prev : [];
+  const n = Array.isArray(next) ? next : [];
+  return JSON.stringify(p) === JSON.stringify(n) ? null : n;
+}
+
+const tabs = ["general", "exchange-rates", "payment", "notifications", "security", "branding"];
 
 const SettingsPageClient = () => {
   const toast = useToast();
@@ -100,6 +116,11 @@ const SettingsPageClient = () => {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentBusy, setPaymentBusy] = useState(false);
 
+  const [exchangeRates, setExchangeRates] = useState([]);
+  const [exchangeRatesInitial, setExchangeRatesInitial] = useState([]);
+  const [exchangeRatesLoading, setExchangeRatesLoading] = useState(false);
+  const [exchangeRatesSaving, setExchangeRatesSaving] = useState(false);
+
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
   const [passwordSaving, setPasswordSaving] = useState(false);
 
@@ -149,6 +170,15 @@ const SettingsPageClient = () => {
           const data = normalizeObj(res);
           setPayment(data);
         }
+        if (activeTab === "exchange-rates") {
+          setExchangeRatesLoading(true);
+          const res = await getAdminSettingsExchangeRates();
+          if (!alive) return;
+          const data = normalizeObj(res);
+          const rates = normalizeExchangeRates(data);
+          setExchangeRates(rates);
+          setExchangeRatesInitial(rates);
+        }
       } catch (e) {
         if (!alive) return;
         setError(e?.message || "Failed to load settings.");
@@ -159,6 +189,7 @@ const SettingsPageClient = () => {
         setSecurityLoading(false);
         setBrandingLoading(false);
         setPaymentLoading(false);
+        setExchangeRatesLoading(false);
       }
     }
     load();
@@ -388,6 +419,35 @@ const SettingsPageClient = () => {
     }
   }
 
+  async function saveExchangeRates() {
+    setExchangeRatesSaving(true);
+    setError("");
+    try {
+      const cleaned = (Array.isArray(exchangeRates) ? exchangeRates : []).map((item) => ({
+        currency: String(item?.currency || "").trim(),
+        rate: String(item?.rate || "").trim(),
+      }));
+      const payloadRates = diffList(exchangeRatesInitial, cleaned);
+
+      if (!payloadRates) {
+        toast.info("No changes to save.");
+        return;
+      }
+
+      const res = await updateAdminSettingsExchangeRates({ exchangeRates: cleaned });
+      const data = normalizeObj(res);
+      const rates = normalizeExchangeRates(data);
+      setExchangeRates(rates);
+      setExchangeRatesInitial(rates);
+      toast.success("Saved");
+    } catch (e) {
+      setError(e?.message || "Save failed.");
+      toast.error(e?.message || "Save failed.");
+    } finally {
+      setExchangeRatesSaving(false);
+    }
+  }
+
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
       <div className="hc-animate-fade-up flex items-start justify-between gap-4">
@@ -422,6 +482,16 @@ const SettingsPageClient = () => {
 
       {activeTab === "general" ? (
         <GeneralTab value={general} onChange={setGeneral} loading={generalLoading} saving={generalSaving} onSaveOrganization={() => saveGeneral("organization")} onSaveLocalization={() => saveGeneral("localization")} />
+      ) : null}
+
+      {activeTab === "exchange-rates" ? (
+        <ExchangeRatesTab
+          value={exchangeRates}
+          onChange={setExchangeRates}
+          loading={exchangeRatesLoading}
+          saving={exchangeRatesSaving}
+          onSave={saveExchangeRates}
+        />
       ) : null}
 
       {activeTab === "payment" ? (
