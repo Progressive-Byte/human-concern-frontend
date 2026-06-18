@@ -28,7 +28,7 @@ const AmountSelector = ({
   const isCustomInit = initialAmount && !suggestedAmounts.includes(initialAmount);
 
   const [selectedTier,      setSelectedTier]      = useState(isCustomInit ? null : (initialAmount || suggestedAmounts[0]));
-  const [customAmount,      setCustomAmount]      = useState(isCustomInit ? String(initialAmount) : "");
+  const [customAmount,      setCustomAmount]      = useState(isCustomInit ? String(Math.round(initialAmount * 100) / 100) : "");
   const [customAmountError, setCustomAmountError] = useState("");
 
   const currencyData    = CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0];
