@@ -20,6 +20,7 @@ async function openScheduleEditSession(scheduleId, router) {
   const addons = Array.isArray(d.addons?.items) ? d.addons.items : [];
   const tip = d.tip || {};
   const constraints = d.constraints || {};
+  const goalsDates = d.goalsDates || {};
   const editableSchedule = d.editableSchedule || {};
   const scheduleType = String(editableSchedule.scheduleType || "specific_dates");
   const rawConfig = editableSchedule.scheduleConfig || {};
