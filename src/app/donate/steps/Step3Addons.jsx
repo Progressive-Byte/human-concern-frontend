@@ -281,11 +281,13 @@ const Step3Addons = () => {
     };
 
     if (isRecurring) {
+      const howToSplit = (data.splitMode ?? "repeat") === "divide" ? "divide" : "each";
       body.payment = {
         paymentMode: "split",
         // total across all scheduled dates (API validates sum matches dates array)
         amount:      baseDonation,
         currency,
+        howToSplit,
         ...(tipAmount > 0
           ? customTipParsed !== null
             ? { platformTipAmount: tipAmount }
