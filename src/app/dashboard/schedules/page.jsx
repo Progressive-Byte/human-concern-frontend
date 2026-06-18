@@ -137,7 +137,7 @@ const SchedulesPage = () => {
                         <p className="text-[11px] text-[#6B7280] mt-0.5">{frequencyLabel[s.frequency] ?? s.frequency.toLowerCase()}</p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <ActionButtons isActive={isActive} slug={s.slug} />
+                        <ActionButtons isActive={isActive} isPaused={isPaused} slug={s.slug} />
                       </div>
                     </div>
                   </div>
