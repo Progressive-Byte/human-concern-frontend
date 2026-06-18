@@ -83,6 +83,8 @@ async function openScheduleEditSession(scheduleId, router) {
       maximumDonation: Number(constraints.maximumDonation || 999999),
       enableTipping: tip.enabled !== false,
       recurringPresets: Array.isArray(goalsDates.recurringPresets) ? goalsDates.recurringPresets : [],
+      customNotes: [],
+      showGlobalNote: false,
     },
   };
   sessionStorage.setItem("campaignData", JSON.stringify(campaignData));
