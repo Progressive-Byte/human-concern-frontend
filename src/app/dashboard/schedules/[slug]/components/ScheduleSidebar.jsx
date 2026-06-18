@@ -116,6 +116,9 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
   const isActive = String(statusKey || "").toLowerCase() === "active";
+  const isPaused = String(statusKey || "").toLowerCase() === "paused";
+  const canEdit = isActive;
+  const canPauseResume = isActive || isPaused;
 
   const handleEdit = async () => {
     if (editLoading || !scheduleId) return;
