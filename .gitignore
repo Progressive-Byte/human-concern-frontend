@@ -41,7 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 *.md
-
+.claude/
 docs/*
 entx.js
 AGENTS.md
@@ -49,3 +49,4 @@ CLAUSE.md
 .cloude
 tasks/*
 debug.log
+*.md
