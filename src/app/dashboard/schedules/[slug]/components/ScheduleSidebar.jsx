@@ -163,10 +163,10 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
               <div className="space-y-2">
                 <button
                   type="button"
-                  onClick={isActive ? handleEdit : undefined}
+                  onClick={canEdit ? handleEdit : undefined}
                   disabled={editLoading}
                   className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
-                    isActive
+                    canEdit
                       ? "bg-[#F3F4F6] text-[#111827] hover:bg-[#E5E7EB] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
                   }`}
@@ -176,7 +176,12 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                 </button>
                 <button
                   type="button"
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#F3F4F6] px-4 py-2.5 text-sm font-medium text-[#111827] hover:bg-[#E5E7EB] transition-colors cursor-pointer"
+                  disabled={!canPauseResume}
+                  className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                    canPauseResume
+                      ? "bg-[#F3F4F6] text-[#111827] hover:bg-[#E5E7EB] cursor-pointer"
+                      : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
+                  }`}
                 >
                   {isActive ? PauseIcon : PlayIcon}
                   {isActive ? "Pause Schedule" : "Resume Schedule"}
