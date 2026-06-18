@@ -20,15 +20,19 @@ async function openScheduleEditSession(scheduleId, router) {
   const tip = d.tip || {};
   const constraints = d.constraints || {};
   const editableSchedule = d.editableSchedule || {};
-  const dates = Array.isArray(editableSchedule.scheduleConfig?.dates)
-    ? editableSchedule.scheduleConfig.dates
-    : [];
+  const scheduleType = String(editableSchedule.scheduleType || "specific_dates");
+  const rawConfig = editableSchedule.scheduleConfig || {};
+  const dates = Array.isArray(rawConfig.dates) ? rawConfig.dates : [];
 
   const datesList = dates.map((dt) => String(dt.date));
   const dateAmounts = {};
   dates.forEach((dt) => { if (dt.date) dateAmounts[String(dt.date)] = Number(dt.amount || 0); });
   const donorAmount = dates.reduce((sum, dt) => sum + Number(dt.amount || 0), 0);
   const amountTier = dates.length > 0 ? Number(dates[0].amount || 0) : 0;
+
+  const scheduleConfig = scheduleType === "date_range"
+    ? { startDate: rawConfig.startDate || "", endDate: rawConfig.endDate || "", frequency: rawConfig.frequency || "daily", dateAmounts }
+    : { dates: datesList, dateAmounts };
 
   const addonsTotal = addons.reduce((sum, a) => sum + Number(a.amount || 0), 0);
   const addOnBreakdown = addons.map((a) => ({
