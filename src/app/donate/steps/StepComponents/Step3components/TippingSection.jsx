@@ -74,7 +74,7 @@ const TippingSection = ({
           ))}
         </div>
         <p className="text-[11px] text-[#AEAEAE] mt-2">
-          {tipPct}% of base donation ({sym}{baseDonation})
+          {tipPct}% of base donation ({sym}{Number(baseDonation.toFixed(2))})
         </p>
       </div>
 
