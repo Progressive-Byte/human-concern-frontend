@@ -33,13 +33,14 @@ async function openScheduleEditSession(scheduleId, router) {
 
   const baseAmounts = dates.map((dt, i) => {
     const raw = Number(dt.amount || 0);
-    return i === 0 ? Math.max(0, raw - addonsTotal - tipAmt) : raw;
+    const computed = i === 0 ? Math.max(0, raw - addonsTotal - tipAmt) : raw;
+    return Math.round(computed * 100) / 100;
   });
 
   const datesList = dates.map((dt) => String(dt.date));
   const dateAmounts = {};
   dates.forEach((dt, i) => { if (dt.date) dateAmounts[String(dt.date).split("T")[0]] = baseAmounts[i]; });
-  const donorAmount = baseAmounts.reduce((sum, a) => sum + a, 0);
+  const donorAmount = Math.round(baseAmounts.reduce((sum, a) => sum + a, 0) * 100) / 100;
   const amountTier = baseAmounts.length > 0 ? baseAmounts[0] : 0;
   const allBaseAmounts = Object.values(dateAmounts);
   const hasVaryingAmounts = allBaseAmounts.length > 0 && allBaseAmounts.some((a) => a !== allBaseAmounts[0]);
