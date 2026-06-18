@@ -108,6 +108,7 @@ async function openScheduleEditSession(scheduleId, router) {
       donorAmount,
       amount: String(amountTier),
       installmentCount: dates.length,
+      perDateTotal: scheduleType === "specific_dates" && hasVaryingAmounts ? donorAmount : undefined,
       addOnsTotal: addonsTotal,
       addOnBreakdown,
       tipPct: Number(tip.platformTipPercent || 0),
