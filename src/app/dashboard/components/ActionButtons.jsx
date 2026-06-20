@@ -247,7 +247,7 @@ const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
         type="button"
         title={isActive ? "Pause" : "Resume"}
         disabled={!canPauseResume || pauseLoading}
-        onClick={handlePauseResume}
+        onClick={handlePauseClick}
         className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
           canPauseResume
             ? isActive
@@ -258,6 +258,14 @@ const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
       >
         {pauseLoading ? Spinner : isActive ? PauseIcon : PlayIcon}
       </button>
+
+      <PauseScheduleModal
+        open={showPauseModal}
+        onClose={() => !pauseLoading && setShowPauseModal(false)}
+        onConfirm={handlePauseConfirm}
+        loading={pauseLoading}
+        error={pauseError}
+      />
 
       <Link
         href={`/dashboard/schedules/${slug}`}
