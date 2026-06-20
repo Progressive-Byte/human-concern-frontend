@@ -261,7 +261,6 @@ const Step3Addons = () => {
       addons: {
         items: computedBreakdown.map((addon) => ({
           addOnId: addon.id,
-          amount:  addon.total,
           values:  addon.values ?? {},
         })),
       },
