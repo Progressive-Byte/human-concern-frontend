@@ -274,6 +274,14 @@ const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
         error={pauseError}
       />
 
+      <ResumeScheduleModal
+        open={showResumeModal}
+        onClose={() => !resumeLoading && setShowResumeModal(false)}
+        onConfirm={handleResumeConfirm}
+        loading={resumeLoading}
+        error={resumeError}
+      />
+
       <Link
         href={`/dashboard/schedules/${slug}`}
         title="View"
