@@ -169,9 +169,11 @@ async function openScheduleEditSession(scheduleId, router) {
   router.push(slug ? `/${slug}/1` : "/donate/1");
 }
 
-export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, frequency, nextAmount, statusKey, scheduleId }) {
+export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, frequency, nextAmount, statusKey, scheduleId, onPauseResume }) {
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
+  const [pauseLoading, setPauseLoading] = useState(false);
+  const [pauseError, setPauseError] = useState("");
   const isActive = String(statusKey || "").toLowerCase() === "active";
   const isPaused = String(statusKey || "").toLowerCase() === "paused";
   const canEdit = isActive;
@@ -186,6 +188,24 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
       console.error("Schedule edit failed:", e?.message);
     } finally {
       setEditLoading(false);
+    }
+  };
+
+  const handlePauseResume = async () => {
+    if (!canPauseResume || pauseLoading || !scheduleId) return;
+    setPauseLoading(true);
+    setPauseError("");
+    try {
+      if (isActive) {
+        await pauseUserSchedule(scheduleId);
+      } else {
+        await resumeUserSchedule(scheduleId);
+      }
+      onPauseResume?.();
+    } catch (e) {
+      setPauseError(e?.message || "Action failed. Please try again.");
+    } finally {
+      setPauseLoading(false);
     }
   };
 
