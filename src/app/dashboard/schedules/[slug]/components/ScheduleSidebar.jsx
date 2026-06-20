@@ -288,8 +288,8 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                       : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
                   }`}
                 >
-                  {pauseLoading ? Spinner : isActive ? PauseIcon : PlayIcon}
-                  {pauseLoading ? "Processing…" : isActive ? "Pause Schedule" : "Resume Schedule"}
+                  {pauseLoading || resumeLoading ? Spinner : isActive ? PauseIcon : PlayIcon}
+                  {pauseLoading ? "Pausing…" : resumeLoading ? "Resuming…" : isActive ? "Pause Schedule" : "Resume Schedule"}
                 </button>
                 {pauseError ? (
                   <p className="text-[12px] text-[#EA3335] px-1">{pauseError}</p>
