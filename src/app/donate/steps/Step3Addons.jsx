@@ -256,21 +256,19 @@ const Step3Addons = () => {
       ? { platformTipPercent: tipPct }
       : {};
 
-    const howToSplit = (data.splitMode ?? "repeat") === "divide" ? "divide" : "each";
-
     return {
       causeIds: data.causeIds ?? [],
       addons: {
         items: computedBreakdown.map((addon) => ({
-          addOnId:     addon.id,
-          inputValues: addon.values ?? {},
+          addOnId: addon.id,
+          amount:  addon.total,
+          values:  addon.values ?? {},
         })),
       },
       payment: {
         paymentMode: "split",
         amount:      Math.round(baseDonation * 100) / 100,
         currency,
-        howToSplit,
         ...tipPayload,
         scheduleType,
         scheduleConfig: { dates: buildDates() },
