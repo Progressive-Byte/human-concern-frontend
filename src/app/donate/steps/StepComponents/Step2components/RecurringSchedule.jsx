@@ -21,6 +21,7 @@ const isTemplate = (preset) => TEMPLATE_NAMES.has((preset?.name ?? "").toLowerCa
 const RecurringSchedule = ({
   sym,
   effectiveAmount,
+  splitMode,
   initialScheduleType,
   initialConfig,
   initialActivePreset,
