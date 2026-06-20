@@ -309,6 +309,7 @@ const Step2Payment = () => {
               <RecurringSchedule
                 sym={sym}
                 effectiveAmount={defaultPerDate}
+                splitMode={splitMode}
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}
