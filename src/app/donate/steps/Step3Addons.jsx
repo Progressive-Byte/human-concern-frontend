@@ -644,7 +644,7 @@ const Step3Addons = () => {
           </div>
         )}
 
-        {!isPreview ? (
+        {!isPreview && !isEditMode ? (
           <PaymentGatewaySelector
             isRecurring={isRecurring}
             initialGateway={["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null}
