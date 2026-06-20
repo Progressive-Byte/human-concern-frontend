@@ -256,14 +256,9 @@ const Step3Addons = () => {
       ? { platformTipPercent: tipPct }
       : {};
 
+    // The PUT /edit-form endpoint does not accept add-ons — they are fixed at schedule creation.
     return {
       causeIds: data.causeIds ?? [],
-      addons: {
-        items: computedBreakdown.map((addon) => ({
-          addOnId: addon.id,
-          values:  addon.values ?? {},
-        })),
-      },
       payment: {
         paymentMode: "split",
         amount:      Math.round(baseDonation * 100) / 100,
