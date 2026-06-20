@@ -129,8 +129,16 @@ const RecurringSchedule = ({
   const toggleDate = (dateStr) => {
     const isSelected  = selectedDates.includes(dateStr);
     const nextDates   = isSelected ? selectedDates.filter((d) => d !== dateStr) : [...selectedDates, dateStr];
-    const nextAmounts = { ...dateAmounts };
-    if (isSelected) delete nextAmounts[dateStr];
+    // In divide mode, changing the date count redistributes the total evenly across all
+    // dates — clear all per-date overrides so the new defaultPerDate applies to everyone.
+    // In repeat mode, only remove the override for the toggled date.
+    let nextAmounts;
+    if (splitMode === "divide") {
+      nextAmounts = {};
+    } else {
+      nextAmounts = { ...dateAmounts };
+      if (isSelected) delete nextAmounts[dateStr];
+    }
     setSelectedDates(nextDates);
     setDateAmounts(nextAmounts);
     notify(scheduleType, nextDates, rangeStart, rangeEnd, rangeFreq, nextAmounts, customInterval);
