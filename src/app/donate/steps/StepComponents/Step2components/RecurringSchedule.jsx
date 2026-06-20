@@ -133,6 +133,20 @@ const RecurringSchedule = ({
     setSelectedDates(nextDates);
     setDateAmounts(nextAmounts);
     notify(scheduleType, nextDates, rangeStart, rangeEnd, rangeFreq, nextAmounts, customInterval);
+
+    // Keep prefillDateMap in sync: if this date was pre-filled, mark removed=true when
+    // deselected and removed=false when re-selected, so the PUT payload knows which
+    // dates carry a transactionId (pre-filled) vs are brand-new (no transactionId).
+    try {
+      const editRaw = sessionStorage.getItem("hc_schedule_edit");
+      if (editRaw) {
+        const editData = JSON.parse(editRaw);
+        if (editData.isEditMode && editData.prefillDateMap && dateStr in editData.prefillDateMap) {
+          editData.prefillDateMap[dateStr].removed = isSelected; // true = removing, false = re-adding
+          sessionStorage.setItem("hc_schedule_edit", JSON.stringify(editData));
+        }
+      }
+    } catch (_) {}
   };
 
   const handleDateAmountChange = (dateStr, val) => {
