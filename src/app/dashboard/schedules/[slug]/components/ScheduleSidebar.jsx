@@ -302,6 +302,14 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                   loading={pauseLoading}
                   error={pauseError}
                 />
+
+                <ResumeScheduleModal
+                  open={showResumeModal}
+                  onClose={() => !resumeLoading && setShowResumeModal(false)}
+                  onConfirm={handleResumeConfirm}
+                  loading={resumeLoading}
+                  error={resumeError}
+                />
               </div>
             </div>
           </div>
