@@ -196,12 +196,13 @@ const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
   };
 
   const handlePauseClick = () => {
-    if (!canPauseResume || pauseLoading) return;
+    if (!canPauseResume || pauseLoading || resumeLoading) return;
     if (isActive) {
       setPauseError("");
       setShowPauseModal(true);
     } else {
-      handleResume();
+      setResumeError("");
+      setShowResumeModal(true);
     }
   };
 
