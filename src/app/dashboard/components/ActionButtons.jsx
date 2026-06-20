@@ -172,19 +172,19 @@ async function openScheduleEditSession(scheduleId, router) {
 const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onPauseResume, onCancel }) => {
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
-  const [pauseLoading, setPauseLoading] = useState(false);
-  const [pauseError, setPauseError] = useState("");
-  const [showPauseModal, setShowPauseModal] = useState(false);
-  const [resumeLoading, setResumeLoading] = useState(false);
-  const [resumeError, setResumeError] = useState("");
-  const [showResumeModal, setShowResumeModal] = useState(false);
-  const [cancelLoading, setCancelLoading] = useState(false);
-  const [cancelError, setCancelError] = useState("");
-  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [activeModal, setActiveModal] = useState(null); // "pause" | "resume" | "cancel" | null
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalError, setModalError] = useState("");
 
   const canEdit = isActive;
   const canPauseResume = isActive || isPaused;
   const canCancel = isActive || isPaused;
+
+  const openModal = (mode) => {
+    setModalError("");
+    setActiveModal(mode);
+  };
+  const closeModal = () => { if (!modalLoading) setActiveModal(null); };
 
   const handleEdit = async () => {
     if (!canEdit || editLoading) return;
@@ -199,55 +199,29 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
   };
 
   const handlePauseClick = () => {
-    if (!canPauseResume || pauseLoading || resumeLoading) return;
-    if (isActive) {
-      setPauseError("");
-      setShowPauseModal(true);
-    } else {
-      setResumeError("");
-      setShowResumeModal(true);
-    }
+    if (!canPauseResume || modalLoading) return;
+    openModal(isActive ? "pause" : "resume");
   };
 
-  const handlePauseConfirm = async (reason) => {
-    setPauseLoading(true);
-    setPauseError("");
+  const handleModalConfirm = async (value) => {
+    setModalLoading(true);
+    setModalError("");
     try {
-      await pauseUserSchedule(slug, reason);
-      onPauseResume?.("paused");
-      setShowPauseModal(false);
+      if (activeModal === "pause") {
+        await pauseUserSchedule(slug, value);
+        onPauseResume?.("paused");
+      } else if (activeModal === "resume") {
+        await resumeUserSchedule(slug, value);
+        onPauseResume?.("active");
+      } else if (activeModal === "cancel") {
+        await cancelUserSchedule(slug, value);
+        onCancel?.("cancelled");
+      }
+      setActiveModal(null);
     } catch (e) {
-      setPauseError(e?.message || "Failed to pause. Please try again.");
+      setModalError(e?.message || "Something went wrong. Please try again.");
     } finally {
-      setPauseLoading(false);
-    }
-  };
-
-  const handleResumeConfirm = async (resumeFromDate) => {
-    setResumeLoading(true);
-    setResumeError("");
-    try {
-      await resumeUserSchedule(slug, resumeFromDate);
-      onPauseResume?.("active");
-      setShowResumeModal(false);
-    } catch (e) {
-      setResumeError(e?.message || "Failed to resume. Please try again.");
-    } finally {
-      setResumeLoading(false);
-    }
-  };
-
-  const handleCancelConfirm = async (reason) => {
-    setCancelLoading(true);
-    setCancelError("");
-    try {
-      await cancelUserSchedule(slug, reason);
-      onCancel?.("cancelled");
-      setShowCancelModal(false);
-    } catch (e) {
-      setCancelError(e?.message || "Failed to cancel. Please try again.");
-    } finally {
-      setCancelLoading(false);
+      setModalLoading(false);
     }
   };
 
