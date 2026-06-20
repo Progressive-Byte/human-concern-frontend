@@ -68,7 +68,7 @@ async function openScheduleEditSession(scheduleId, router) {
     name: String(a.name || ""),
     iconEmoji: String(a.iconEmoji || ""),
     amount: Number(a.amount || 0),
-    inputValues: a.inputValues || {},
+    values: a.inputValues || {},
   }));
 
   const suggestedAmounts = Array.isArray(d.suggestedAmounts)
