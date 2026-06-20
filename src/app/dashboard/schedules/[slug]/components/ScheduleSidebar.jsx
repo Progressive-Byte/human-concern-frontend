@@ -222,16 +222,17 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
     }
   };
 
-  const handleResume = async () => {
-    setPauseLoading(true);
-    setPauseError("");
+  const handleResumeConfirm = async (resumeFromDate) => {
+    setResumeLoading(true);
+    setResumeError("");
     try {
-      await resumeUserSchedule(scheduleId);
+      await resumeUserSchedule(scheduleId, resumeFromDate);
+      setShowResumeModal(false);
       onPauseResume?.();
     } catch (e) {
-      setPauseError(e?.message || "Failed to resume. Please try again.");
+      setResumeError(e?.message || "Failed to resume. Please try again.");
     } finally {
-      setPauseLoading(false);
+      setResumeLoading(false);
     }
   };
 
