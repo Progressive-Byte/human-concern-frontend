@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { SkeletonBlock } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/helpers";
 import { EditIcon, PauseIcon, PlayIcon, Spinner } from "@/components/common/SvgIcon";
-import { getUserScheduleEditForm, pauseUserSchedule, resumeUserSchedule } from "@/services/donationService";
+import { getUserScheduleEditForm, pauseUserSchedule, resumeUserSchedule, cancelUserSchedule } from "@/services/donationService";
 import { PauseScheduleModal } from "@/components/common/PauseScheduleModal";
 import { ResumeScheduleModal } from "@/components/common/ResumeScheduleModal";
+import { CancelScheduleModal } from "@/components/common/CancelScheduleModal";
 
 async function openScheduleEditSession(scheduleId, router) {
   const res = await getUserScheduleEditForm(scheduleId);
