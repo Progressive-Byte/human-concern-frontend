@@ -497,7 +497,7 @@ const Step3Addons = () => {
         handlePrev(2);
       }}
       prevLabel="Back"
-      nextLabel={submitting ? "Submitting…" : isPreview ? "Preview Confirmation" : "Complete Donation"}
+      nextLabel={submitting ? (isEditMode ? "Updating…" : "Submitting…") : isEditMode ? "Update Schedule" : isPreview ? "Preview Confirmation" : "Complete Donation"}
     >
       <div className="flex flex-col gap-4">
 
