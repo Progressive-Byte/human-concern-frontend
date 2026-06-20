@@ -137,7 +137,20 @@ const SchedulesPage = () => {
                         <p className="text-[11px] text-[#6B7280] mt-0.5">{frequencyLabel[s.frequency] ?? s.frequency.toLowerCase()}</p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <ActionButtons isActive={isActive} isPaused={isPaused} slug={s.slug} />
+                        <ActionButtons
+                          isActive={isActive}
+                          isPaused={isPaused}
+                          slug={s.slug}
+                          onPauseResume={(newStatus) =>
+                            setItems((prev) =>
+                              prev.map((item) =>
+                                String(item.scheduleId) === s.id
+                                  ? { ...item, status: { key: newStatus, label: newStatus.charAt(0).toUpperCase() + newStatus.slice(1) } }
+                                  : item
+                              )
+                            )
+                          }
+                        />
                       </div>
                     </div>
                   </div>
