@@ -220,15 +220,17 @@ const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
     }
   };
 
-  const handleResume = async () => {
-    setPauseLoading(true);
+  const handleResumeConfirm = async (resumeFromDate) => {
+    setResumeLoading(true);
+    setResumeError("");
     try {
-      await resumeUserSchedule(slug);
+      await resumeUserSchedule(slug, resumeFromDate);
       onPauseResume?.("active");
+      setShowResumeModal(false);
     } catch (e) {
-      console.error("Resume failed:", e?.message);
+      setResumeError(e?.message || "Failed to resume. Please try again.");
     } finally {
-      setPauseLoading(false);
+      setResumeLoading(false);
     }
   };
 
