@@ -142,12 +142,23 @@ const SchedulesPage = () => {
                         <ActionButtons
                           isActive={isActive}
                           isPaused={isPaused}
+                          isCancelled={isCancelled}
+                          isCompleted={isCompleted}
                           slug={s.slug}
                           onPauseResume={(newStatus) =>
                             setItems((prev) =>
                               prev.map((item) =>
                                 String(item.scheduleId) === s.id
                                   ? { ...item, status: { key: newStatus, label: newStatus.charAt(0).toUpperCase() + newStatus.slice(1) } }
+                                  : item
+                              )
+                            )
+                          }
+                          onCancel={() =>
+                            setItems((prev) =>
+                              prev.map((item) =>
+                                String(item.scheduleId) === s.id
+                                  ? { ...item, status: { key: "cancelled", label: "Cancelled" } }
                                   : item
                               )
                             )
