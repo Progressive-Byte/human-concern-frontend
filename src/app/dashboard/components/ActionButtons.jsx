@@ -176,6 +176,9 @@ const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
   const [pauseLoading, setPauseLoading] = useState(false);
   const [pauseError, setPauseError] = useState("");
   const [showPauseModal, setShowPauseModal] = useState(false);
+  const [resumeLoading, setResumeLoading] = useState(false);
+  const [resumeError, setResumeError] = useState("");
+  const [showResumeModal, setShowResumeModal] = useState(false);
 
   const canEdit = isActive;
   const canPauseResume = isActive || isPaused;
