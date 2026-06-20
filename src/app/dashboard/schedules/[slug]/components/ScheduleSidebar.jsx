@@ -193,19 +193,38 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
     }
   };
 
-  const handlePauseResume = async () => {
+  const handlePauseClick = () => {
     if (!canPauseResume || pauseLoading || !scheduleId) return;
+    if (isActive) {
+      setPauseError("");
+      setShowPauseModal(true);
+    } else {
+      handleResume();
+    }
+  };
+
+  const handlePauseConfirm = async (reason) => {
     setPauseLoading(true);
     setPauseError("");
     try {
-      if (isActive) {
-        await pauseUserSchedule(scheduleId);
-      } else {
-        await resumeUserSchedule(scheduleId);
-      }
+      await pauseUserSchedule(scheduleId, reason);
+      setShowPauseModal(false);
       onPauseResume?.();
     } catch (e) {
-      setPauseError(e?.message || "Action failed. Please try again.");
+      setPauseError(e?.message || "Failed to pause. Please try again.");
+    } finally {
+      setPauseLoading(false);
+    }
+  };
+
+  const handleResume = async () => {
+    setPauseLoading(true);
+    setPauseError("");
+    try {
+      await resumeUserSchedule(scheduleId);
+      onPauseResume?.();
+    } catch (e) {
+      setPauseError(e?.message || "Failed to resume. Please try again.");
     } finally {
       setPauseLoading(false);
     }
