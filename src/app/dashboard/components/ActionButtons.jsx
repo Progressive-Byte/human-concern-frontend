@@ -239,6 +239,20 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
     }
   };
 
+  const handleCancelConfirm = async (reason) => {
+    setCancelLoading(true);
+    setCancelError("");
+    try {
+      await cancelUserSchedule(slug, reason);
+      onCancel?.("cancelled");
+      setShowCancelModal(false);
+    } catch (e) {
+      setCancelError(e?.message || "Failed to cancel. Please try again.");
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
   return (
     <>
       <button
