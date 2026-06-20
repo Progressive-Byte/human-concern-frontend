@@ -2,13 +2,9 @@
 
 import { useState } from "react";
 import SettingsSectionCard from "../SettingsSectionCard";
+import { SUPPORTED_FORM_CURRENCY_OPTIONS } from "@/utils/currencies";
 
-const CURRENCY_OPTIONS = [
-  { label: "GBP (£)", value: "GBP" },
-  { label: "EUR (€)", value: "EUR" },
-  { label: "CAD (CA$)", value: "CAD" },
-  { label: "AED", value: "AED" },
-];
+const SETTINGS_EXCHANGE_RATE_OPTIONS = SUPPORTED_FORM_CURRENCY_OPTIONS.filter((option) => option.code !== "USD");
 
 function SaveIcon() {
   return (
@@ -155,8 +151,8 @@ const ExchangeRatesTab = ({ value, onChange, loading, saving, syncing, onSave, o
                     className="w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                   >
                     <option value="">Select currency</option>
-                    {CURRENCY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
+                    {SETTINGS_EXCHANGE_RATE_OPTIONS.map((option) => (
+                      <option key={option.code} value={option.code}>
                         {option.label}
                       </option>
                     ))}
