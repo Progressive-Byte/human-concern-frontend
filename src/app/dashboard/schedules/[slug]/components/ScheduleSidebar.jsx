@@ -253,16 +253,20 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                 </button>
                 <button
                   type="button"
-                  disabled={!canPauseResume}
+                  disabled={!canPauseResume || pauseLoading}
+                  onClick={handlePauseResume}
                   className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                     canPauseResume
-                      ? "bg-[#F3F4F6] text-[#111827] hover:bg-[#E5E7EB] cursor-pointer"
+                      ? "bg-[#F3F4F6] text-[#111827] hover:bg-[#E5E7EB] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
                   }`}
                 >
-                  {isActive ? PauseIcon : PlayIcon}
-                  {isActive ? "Pause Schedule" : "Resume Schedule"}
+                  {pauseLoading ? Spinner : isActive ? PauseIcon : PlayIcon}
+                  {pauseLoading ? "Processing…" : isActive ? "Pause Schedule" : "Resume Schedule"}
                 </button>
+                {pauseError ? (
+                  <p className="text-[12px] text-[#EA3335] px-1">{pauseError}</p>
+                ) : null}
               </div>
             </div>
           </div>
