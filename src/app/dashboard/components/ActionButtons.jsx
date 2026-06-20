@@ -110,6 +110,7 @@ async function openScheduleEditSession(scheduleId, router) {
       scheduleId: String(d.scheduleId || scheduleId),
       isEditMode: true,
       scheduleVersion: Number(d.scheduleVersion || 1),
+      prefillDateMap,
       rawData: d,
     })
   );
