@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CancelScheduleIcon, EditIcon, EyeIcon, PauseIcon, PlayIcon, Spinner } from "@/components/common/SvgIcon";
 import { getUserScheduleEditForm, pauseUserSchedule, resumeUserSchedule, cancelUserSchedule } from "@/services/donationService";
-import { PauseScheduleModal } from "@/components/common/PauseScheduleModal";
-import { ResumeScheduleModal } from "@/components/common/ResumeScheduleModal";
-import { CancelScheduleModal } from "@/components/common/CancelScheduleModal";
+import { ScheduleActionModal } from "@/components/common/ScheduleActionModal";
 
 async function openScheduleEditSession(scheduleId, router) {
   const res = await getUserScheduleEditForm(scheduleId);
