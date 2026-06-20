@@ -241,6 +241,20 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
     }
   };
 
+  const handleCancelConfirm = async (reason) => {
+    setCancelLoading(true);
+    setCancelError("");
+    try {
+      await cancelUserSchedule(scheduleId, reason);
+      setShowCancelModal(false);
+      onCancel?.();
+    } catch (e) {
+      setCancelError(e?.message || "Failed to cancel. Please try again.");
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] overflow-hidden">
