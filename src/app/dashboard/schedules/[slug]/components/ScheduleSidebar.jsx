@@ -6,6 +6,7 @@ import { SkeletonBlock } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/helpers";
 import { EditIcon, PauseIcon, PlayIcon, Spinner } from "@/components/common/SvgIcon";
 import { getUserScheduleEditForm, pauseUserSchedule, resumeUserSchedule } from "@/services/donationService";
+import { PauseScheduleModal } from "@/components/common/PauseScheduleModal";
 
 async function openScheduleEditSession(scheduleId, router) {
   const res = await getUserScheduleEditForm(scheduleId);
