@@ -43,9 +43,16 @@ function calcAddOnTotal(addOn, inputValues) {
 
 const Step3Addons = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
+
+  const isEditMode = useMemo(() => {
+    try {
+      return Boolean(JSON.parse(sessionStorage.getItem("hc_schedule_edit") || "{}").isEditMode);
+    } catch { return false; }
+  }, []);
 
   const campaignMeta = useMemo(() => {
     try { return JSON.parse(sessionStorage.getItem("campaignData") || "{}"); }
