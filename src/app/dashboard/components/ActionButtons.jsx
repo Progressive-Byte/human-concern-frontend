@@ -168,9 +168,10 @@ async function openScheduleEditSession(scheduleId, router) {
   router.push(slug ? `/${slug}/1` : "/donate/1");
 }
 
-const ActionButtons = ({ isActive, isPaused, slug }) => {
+const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
+  const [pauseLoading, setPauseLoading] = useState(false);
 
   const canEdit = isActive;
   const canPauseResume = isActive || isPaused;
@@ -184,6 +185,24 @@ const ActionButtons = ({ isActive, isPaused, slug }) => {
       console.error("Schedule edit failed:", e?.message);
     } finally {
       setEditLoading(false);
+    }
+  };
+
+  const handlePauseResume = async () => {
+    if (!canPauseResume || pauseLoading) return;
+    setPauseLoading(true);
+    try {
+      if (isActive) {
+        await pauseUserSchedule(slug);
+        onPauseResume?.("paused");
+      } else {
+        await resumeUserSchedule(slug);
+        onPauseResume?.("active");
+      }
+    } catch (e) {
+      console.error("Pause/resume failed:", e?.message);
+    } finally {
+      setPauseLoading(false);
     }
   };
 
@@ -206,16 +225,17 @@ const ActionButtons = ({ isActive, isPaused, slug }) => {
       <button
         type="button"
         title={isActive ? "Pause" : "Resume"}
-        disabled={!canPauseResume}
+        disabled={!canPauseResume || pauseLoading}
+        onClick={handlePauseResume}
         className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
           canPauseResume
             ? isActive
-              ? "border-[#E5E7EB] text-[#6B7280] hover:border-amber-500/40 hover:text-amber-600 hover:bg-amber-500/10 cursor-pointer"
-              : "border-[#E5E7EB] text-[#6B7280] hover:border-emerald-500/40 hover:text-emerald-600 hover:bg-emerald-500/10 cursor-pointer"
+              ? "border-[#E5E7EB] text-[#6B7280] hover:border-amber-500/40 hover:text-amber-600 hover:bg-amber-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              : "border-[#E5E7EB] text-[#6B7280] hover:border-emerald-500/40 hover:text-emerald-600 hover:bg-emerald-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
         }`}
       >
-        {isActive ? PauseIcon : PlayIcon}
+        {pauseLoading ? Spinner : isActive ? PauseIcon : PlayIcon}
       </button>
 
       <Link
