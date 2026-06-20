@@ -70,7 +70,7 @@ const ExchangeRatesTab = ({ value, onChange, loading, saving, onSave }) => {
   }
 
   return (
-    <SettingsSectionCard icon={<RateIcon />} title="Save Exchange Rates" subtitle="Add multiple currencies and the rate value to store for each one">
+    <SettingsSectionCard icon={<RateIcon />} title="Exchange Rates" subtitle="Add multiple currencies and the rate value to store for each one">
       <div className="space-y-3">
         {rates.length ? (
           rates.map((item, index) => {
