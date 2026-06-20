@@ -206,6 +206,72 @@ const Step3Addons = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipPct, customTipAmount, computedBreakdown, grandTotal]);
 
+  const buildEditPayload = () => {
+    const scheduleType   = data.scheduleType   ?? "specific_dates";
+    const scheduleConfig = data.scheduleConfig ?? {};
+    const dateAmounts    = scheduleConfig.dateAmounts ?? {};
+
+    let prefillDateMap = {};
+    try {
+      const editRaw = sessionStorage.getItem("hc_schedule_edit");
+      if (editRaw) prefillDateMap = JSON.parse(editRaw).prefillDateMap || {};
+    } catch (_) {}
+
+    const buildDates = () => {
+      if (scheduleType === "specific_dates") {
+        return (scheduleConfig.dates ?? []).map((isoDate) => {
+          const key    = isoDate.split("T")[0];
+          const prefill = prefillDateMap[key];
+          const amount = dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier;
+          const row = {
+            date:   isoDate.includes("T") ? isoDate : `${isoDate}T00:00:00.000Z`,
+            amount,
+          };
+          // Pre-filled date that wasn't removed → the backend must match its existing installment
+          if (prefill && !prefill.removed) row.transactionId = prefill.transactionId;
+          return row;
+        });
+      }
+
+      // date_range — expand to individual rows, each with optional transactionId
+      const rawFreq  = scheduleConfig.frequency ?? "daily";
+      const interval = scheduleConfig.customInterval ?? 1;
+      const startKey = scheduleConfig.startDate?.split("T")[0] ?? "";
+      const endKey   = scheduleConfig.endDate?.split("T")[0]   ?? "";
+      return generateDatesInRange(startKey, endKey, rawFreq, interval).map((d) => {
+        const prefill = prefillDateMap[d];
+        const amount  = dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier;
+        const row = { date: `${d}T00:00:00.000Z`, amount };
+        if (prefill && !prefill.removed) row.transactionId = prefill.transactionId;
+        return row;
+      });
+    };
+
+    const tipPayload = customTipParsed !== null
+      ? { platformTipAmount: tipAmount }
+      : tipPct > 0
+      ? { platformTipPercent: tipPct }
+      : {};
+
+    return {
+      causeIds: data.causeIds ?? [],
+      addons: {
+        items: computedBreakdown.map((addon) => ({
+          addOnId: addon.id,
+          values:  addon.values ?? {},
+        })),
+      },
+      payment: {
+        paymentMode: "split",
+        amount:      baseDonation,
+        currency,
+        ...tipPayload,
+        scheduleType,
+        scheduleConfig: { dates: buildDates() },
+      },
+    };
+  };
+
   const buildApiScheduleConfig = (scheduleType, scheduleConfig) => {
     const dateAmounts = scheduleConfig.dateAmounts ?? {};
 
