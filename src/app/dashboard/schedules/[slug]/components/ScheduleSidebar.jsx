@@ -314,6 +314,24 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                   <p className="text-[12px] text-[#EA3335] px-1">{pauseError}</p>
                 ) : null}
 
+                <button
+                  type="button"
+                  disabled={!canCancel || cancelLoading}
+                  onClick={() => canCancel && !cancelLoading && (setCancelError(""), setShowCancelModal(true))}
+                  className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                    canCancel
+                      ? "bg-red-50 text-[#EA3335] hover:bg-red-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
+                  }`}
+                >
+                  {cancelLoading ? Spinner : null}
+                  {cancelLoading ? "Cancelling…" : "Cancel Schedule"}
+                </button>
+
+                {cancelError ? (
+                  <p className="text-[12px] text-[#EA3335] px-1">{cancelError}</p>
+                ) : null}
+
                 <PauseScheduleModal
                   open={showPauseModal}
                   onClose={() => !pauseLoading && setShowPauseModal(false)}
@@ -328,6 +346,14 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                   onConfirm={handleResumeConfirm}
                   loading={resumeLoading}
                   error={resumeError}
+                />
+
+                <CancelScheduleModal
+                  open={showCancelModal}
+                  onClose={() => !cancelLoading && setShowCancelModal(false)}
+                  onConfirm={handleCancelConfirm}
+                  loading={cancelLoading}
+                  error={cancelError}
                 />
               </div>
             </div>
