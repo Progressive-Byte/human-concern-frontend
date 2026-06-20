@@ -103,6 +103,8 @@ const SchedulesPage = () => {
           schedules.map((s) => {
             const isActive = String(s.statusKey) === "active";
             const isPaused = String(s.statusKey) === "paused";
+            const isCancelled = String(s.statusKey) === "cancelled";
+            const isCompleted = String(s.statusKey) === "completed";
             return (
               <div
                 key={s.id}
