@@ -103,16 +103,19 @@ const Step3Addons = () => {
 
   const [addOnInputs, setAddOnInputs] = useState(() => {
     const breakdown   = data.addOnBreakdown;
+    // Support both 'values' (current) and legacy 'inputValues' key names
     const savedValues = breakdown
-      ? Object.fromEntries(breakdown.map((a) => [a.id, a.values ?? {}]))
+      ? Object.fromEntries(breakdown.map((a) => [a.id, a.values ?? a.inputValues ?? {}]))
       : {};
     return Object.fromEntries(
-      campaignAddOns.map((a) => [
-        a.id,
-        savedValues[a.id] ?? Object.fromEntries(
+      campaignAddOns.map((a) => {
+        // Always seed with pricing defaults so formula inputs are never missing,
+        // then overlay any saved values (from context/API restore) on top.
+        const defaults = Object.fromEntries(
           (a.pricing?.inputs ?? []).map((inp) => [inp.key, inp.defaultValue ?? 1])
-        ),
-      ])
+        );
+        return [a.id, { ...defaults, ...(savedValues[a.id] || {}) }];
+      })
     );
   });
 
