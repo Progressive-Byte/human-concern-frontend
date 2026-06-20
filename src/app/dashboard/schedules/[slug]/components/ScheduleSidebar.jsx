@@ -280,7 +280,7 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                 </button>
                 <button
                   type="button"
-                  disabled={!canPauseResume || pauseLoading}
+                  disabled={!canPauseResume || pauseLoading || resumeLoading}
                   onClick={handlePauseClick}
                   className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                     canPauseResume
