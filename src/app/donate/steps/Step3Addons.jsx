@@ -443,6 +443,20 @@ const Step3Addons = () => {
         setSubmitting(false);
         return;
       }
+
+      if (isEditMode) {
+        let scheduleId = "";
+        try {
+          scheduleId = JSON.parse(sessionStorage.getItem("hc_schedule_edit") || "{}").scheduleId ?? "";
+        } catch (_) {}
+        await submitScheduleEditForm(scheduleId, buildEditPayload());
+        sessionStorage.removeItem("hc_schedule_edit");
+        sessionStorage.removeItem("hc_donation");
+        sessionStorage.removeItem("campaignData");
+        router.push(`/dashboard/schedules/${encodeURIComponent(scheduleId)}`);
+        return;
+      }
+
       const res     = await apiRequest("donations/submit", { method: "POST", body: JSON.stringify(buildSubmitBody()) });
       const payment = res?.data?.payment ?? {};
       const pendingSessionId =
