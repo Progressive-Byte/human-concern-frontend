@@ -166,6 +166,18 @@ const Step2Payment = () => {
     if (preset !== undefined) setActivePreset(preset);
   };
 
+  const handleSplitModeChange = (val) => {
+    setSplitMode(val);
+    // Switching to divide clears any per-date overrides so the new per-date
+    // default (total ÷ count) applies evenly to all dates.
+    if (val === "divide") {
+      setScheduleState((prev) => ({
+        ...prev,
+        scheduleConfig: { ...prev.scheduleConfig, dateAmounts: {} },
+      }));
+    }
+  };
+
   // Dynamic example text for split mode cards
   const safeOcc = occurrences > 0 ? occurrences : 1;
   // Use perDateTotal (actual sum including per-date overrides) when available,
