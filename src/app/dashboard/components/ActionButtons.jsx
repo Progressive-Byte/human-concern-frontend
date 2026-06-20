@@ -244,7 +244,7 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
       <button
         type="button"
         title={isActive ? "Pause" : "Resume"}
-        disabled={!canPauseResume || pauseLoading}
+        disabled={!canPauseResume || modalLoading}
         onClick={handlePauseClick}
         className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
           canPauseResume
@@ -254,45 +254,30 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
             : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
         }`}
       >
-        {pauseLoading ? Spinner : isActive ? PauseIcon : PlayIcon}
+        {modalLoading && (activeModal === "pause" || activeModal === "resume") ? Spinner : isActive ? PauseIcon : PlayIcon}
       </button>
-
-      <PauseScheduleModal
-        open={showPauseModal}
-        onClose={() => !pauseLoading && setShowPauseModal(false)}
-        onConfirm={handlePauseConfirm}
-        loading={pauseLoading}
-        error={pauseError}
-      />
-
-      <ResumeScheduleModal
-        open={showResumeModal}
-        onClose={() => !resumeLoading && setShowResumeModal(false)}
-        onConfirm={handleResumeConfirm}
-        loading={resumeLoading}
-        error={resumeError}
-      />
 
       <button
         type="button"
         title="Cancel"
-        disabled={!canCancel || cancelLoading}
-        onClick={() => canCancel && !cancelLoading && (setCancelError(""), setShowCancelModal(true))}
+        disabled={!canCancel || modalLoading}
+        onClick={() => canCancel && !modalLoading && openModal("cancel")}
         className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
           canCancel
             ? "border-[#E5E7EB] text-[#6B7280] hover:border-red-500/40 hover:text-red-600 hover:bg-red-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
         }`}
       >
-        {cancelLoading ? Spinner : CancelScheduleIcon}
+        {modalLoading && activeModal === "cancel" ? Spinner : CancelScheduleIcon}
       </button>
 
-      <CancelScheduleModal
-        open={showCancelModal}
-        onClose={() => !cancelLoading && setShowCancelModal(false)}
-        onConfirm={handleCancelConfirm}
-        loading={cancelLoading}
-        error={cancelError}
+      <ScheduleActionModal
+        mode={activeModal}
+        open={activeModal !== null}
+        onClose={closeModal}
+        onConfirm={handleModalConfirm}
+        loading={modalLoading}
+        error={modalError}
       />
 
       <Link
