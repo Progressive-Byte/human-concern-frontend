@@ -46,6 +46,20 @@ async function openScheduleEditSession(scheduleId, router) {
   const hasVaryingAmounts = allBaseAmounts.length > 0 && allBaseAmounts.some((a) => a !== allBaseAmounts[0]);
   const splitMode = d.howToSplit === "divide" ? "divide" : "repeat";
 
+  // Track which dates came pre-filled from the API (have a transactionId).
+  // removed:false = date is still selected; removed:true = donor deselected it.
+  const prefillDateMap = {};
+  if (scheduleType === "specific_dates") {
+    dates.forEach((dt) => {
+      if (dt.date && dt.transactionId) {
+        prefillDateMap[String(dt.date).split("T")[0]] = {
+          transactionId: String(dt.transactionId),
+          removed: false,
+        };
+      }
+    });
+  }
+
   const scheduleConfig = scheduleType === "date_range"
     ? { startDate: rawConfig.startDate || "", endDate: rawConfig.endDate || "", frequency: rawConfig.frequency || "daily", dateAmounts }
     : { dates: datesList, dateAmounts };
