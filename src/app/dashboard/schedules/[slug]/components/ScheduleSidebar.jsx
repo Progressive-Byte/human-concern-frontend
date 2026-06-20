@@ -38,13 +38,29 @@ async function openScheduleEditSession(scheduleId, router) {
   });
 
   const datesList = dates.map((dt) => String(dt.date));
-  const dateAmounts = {};
-  dates.forEach((dt, i) => { if (dt.date) dateAmounts[String(dt.date).split("T")[0]] = baseAmounts[i]; });
-  const donorAmount = Math.round(baseAmounts.reduce((sum, a) => sum + a, 0) * 100) / 100;
   const amountTier = baseAmounts.length > 0 ? baseAmounts[0] : 0;
+  const splitMode = d.howToSplit === "divide" ? "divide" : "repeat";
+
+  // In repeat mode, amounts equal to amountTier are the default — not true per-date overrides.
+  // Loading them as overrides would cause new dates to use a wrong "total" as their default
+  // when the donor changes the amount. Only store genuinely custom per-date amounts.
+  const dateAmounts = {};
+  dates.forEach((dt, i) => {
+    if (dt.date) {
+      const key = String(dt.date).split("T")[0];
+      const amount = baseAmounts[i];
+      if (splitMode !== "repeat" || amount !== amountTier) {
+        dateAmounts[key] = amount;
+      }
+    }
+  });
+
+  // In repeat mode the amount field shows the per-payment amount (amountTier), not a running
+  // total — so donorAmount mirrors amountTier. In divide mode it shows the total to be split.
+  const totalBaseAmount = Math.round(baseAmounts.reduce((sum, a) => sum + a, 0) * 100) / 100;
+  const donorAmount = splitMode === "divide" ? totalBaseAmount : amountTier;
   const allBaseAmounts = Object.values(dateAmounts);
   const hasVaryingAmounts = allBaseAmounts.length > 0 && allBaseAmounts.some((a) => a !== allBaseAmounts[0]);
-  const splitMode = d.howToSplit === "divide" ? "divide" : "repeat";
 
   // Track which dates came pre-filled from the API (have a transactionId).
   // removed:false = date is still selected; removed:true = donor deselected it.
