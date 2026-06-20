@@ -172,7 +172,7 @@ async function openScheduleEditSession(scheduleId, router) {
   router.push(slug ? `/${slug}/1` : "/donate/1");
 }
 
-export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, frequency, nextAmount, statusKey, scheduleId, onPauseResume }) {
+export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, frequency, nextAmount, statusKey, scheduleId, onPauseResume, onCancel }) {
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState(false);
@@ -181,10 +181,14 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
   const [resumeLoading, setResumeLoading] = useState(false);
   const [resumeError, setResumeError] = useState("");
   const [showResumeModal, setShowResumeModal] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState("");
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const isActive = String(statusKey || "").toLowerCase() === "active";
   const isPaused = String(statusKey || "").toLowerCase() === "paused";
   const canEdit = isActive;
   const canPauseResume = isActive || isPaused;
+  const canCancel = isActive || isPaused;
 
   const handleEdit = async () => {
     if (editLoading || !scheduleId) return;
