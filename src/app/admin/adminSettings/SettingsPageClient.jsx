@@ -17,6 +17,7 @@ import {
   getAdminSettingsPayment,
   getAdminSettingsSecurity,
   setAdminPaymentGatewayEnabled,
+  syncAdminSettingsExchangeRates,
   updateAdminPaymentGatewayConfiguration,
   updateAdminSettingsBranding,
   updateAdminSettingsExchangeRates,
@@ -120,9 +121,19 @@ const SettingsPageClient = () => {
   const [exchangeRatesInitial, setExchangeRatesInitial] = useState([]);
   const [exchangeRatesLoading, setExchangeRatesLoading] = useState(false);
   const [exchangeRatesSaving, setExchangeRatesSaving] = useState(false);
+  const [exchangeRatesSyncing, setExchangeRatesSyncing] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
   const [passwordSaving, setPasswordSaving] = useState(false);
+
+  async function refreshExchangeRates() {
+    const res = await getAdminSettingsExchangeRates();
+    const data = normalizeObj(res);
+    const rates = normalizeExchangeRates(data);
+    setExchangeRates(rates);
+    setExchangeRatesInitial(rates);
+    return rates;
+  }
 
   useEffect(() => {
     let alive = true;
@@ -448,6 +459,21 @@ const SettingsPageClient = () => {
     }
   }
 
+  async function syncExchangeRates() {
+    setExchangeRatesSyncing(true);
+    setError("");
+    try {
+      await syncAdminSettingsExchangeRates();
+      await refreshExchangeRates();
+      toast.success("Exchange rates synced");
+    } catch (e) {
+      setError(e?.message || "Sync failed.");
+      toast.error(e?.message || "Sync failed.");
+    } finally {
+      setExchangeRatesSyncing(false);
+    }
+  }
+
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
       <div className="hc-animate-fade-up flex items-start justify-between gap-4">
@@ -490,7 +516,9 @@ const SettingsPageClient = () => {
           onChange={setExchangeRates}
           loading={exchangeRatesLoading}
           saving={exchangeRatesSaving}
+          syncing={exchangeRatesSyncing}
           onSave={saveExchangeRates}
+          onSync={syncExchangeRates}
         />
       ) : null}
 
