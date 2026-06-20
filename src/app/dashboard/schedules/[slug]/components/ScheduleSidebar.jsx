@@ -275,7 +275,7 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                 <button
                   type="button"
                   disabled={!canPauseResume || pauseLoading}
-                  onClick={handlePauseResume}
+                  onClick={handlePauseClick}
                   className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                     canPauseResume
                       ? "bg-[#F3F4F6] text-[#111827] hover:bg-[#E5E7EB] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
@@ -288,6 +288,14 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                 {pauseError ? (
                   <p className="text-[12px] text-[#EA3335] px-1">{pauseError}</p>
                 ) : null}
+
+                <PauseScheduleModal
+                  open={showPauseModal}
+                  onClose={() => !pauseLoading && setShowPauseModal(false)}
+                  onConfirm={handlePauseConfirm}
+                  loading={pauseLoading}
+                  error={pauseError}
+                />
               </div>
             </div>
           </div>
