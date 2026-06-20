@@ -219,6 +219,7 @@ const ScheduleDetailPage = () => {
             nextAmount={nextAmount}
             statusKey={String(schedule?.status?.key || "").trim().toLowerCase()}
             scheduleId={scheduleId}
+            onPauseResume={() => refreshRef.current?.()}
           />
         </div>
       </div>
