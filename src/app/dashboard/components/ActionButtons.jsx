@@ -301,6 +301,28 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
         error={resumeError}
       />
 
+      <button
+        type="button"
+        title="Cancel"
+        disabled={!canCancel || cancelLoading}
+        onClick={() => canCancel && !cancelLoading && (setCancelError(""), setShowCancelModal(true))}
+        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
+          canCancel
+            ? "border-[#E5E7EB] text-[#6B7280] hover:border-red-500/40 hover:text-red-600 hover:bg-red-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
+        }`}
+      >
+        {cancelLoading ? Spinner : CancelScheduleIcon}
+      </button>
+
+      <CancelScheduleModal
+        open={showCancelModal}
+        onClose={() => !cancelLoading && setShowCancelModal(false)}
+        onConfirm={handleCancelConfirm}
+        loading={cancelLoading}
+        error={cancelError}
+      />
+
       <Link
         href={`/dashboard/schedules/${slug}`}
         title="View"
