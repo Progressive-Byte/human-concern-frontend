@@ -175,6 +175,7 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
   const [editLoading, setEditLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState(false);
   const [pauseError, setPauseError] = useState("");
+  const [showPauseModal, setShowPauseModal] = useState(false);
   const isActive = String(statusKey || "").toLowerCase() === "active";
   const isPaused = String(statusKey || "").toLowerCase() === "paused";
   const canEdit = isActive;
