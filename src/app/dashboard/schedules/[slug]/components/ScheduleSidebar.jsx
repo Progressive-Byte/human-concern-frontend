@@ -198,12 +198,13 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
   };
 
   const handlePauseClick = () => {
-    if (!canPauseResume || pauseLoading || !scheduleId) return;
+    if (!canPauseResume || pauseLoading || resumeLoading || !scheduleId) return;
     if (isActive) {
       setPauseError("");
       setShowPauseModal(true);
     } else {
-      handleResume();
+      setResumeError("");
+      setShowResumeModal(true);
     }
   };
 
