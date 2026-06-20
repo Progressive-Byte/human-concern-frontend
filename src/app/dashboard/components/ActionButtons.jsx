@@ -171,7 +171,7 @@ async function openScheduleEditSession(scheduleId, router) {
   router.push(slug ? `/${slug}/1` : "/donate/1");
 }
 
-const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
+const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onPauseResume, onCancel }) => {
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState(false);
@@ -180,9 +180,13 @@ const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
   const [resumeLoading, setResumeLoading] = useState(false);
   const [resumeError, setResumeError] = useState("");
   const [showResumeModal, setShowResumeModal] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState("");
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const canEdit = isActive;
   const canPauseResume = isActive || isPaused;
+  const canCancel = isActive || isPaused;
 
   const handleEdit = async () => {
     if (!canEdit || editLoading) return;
