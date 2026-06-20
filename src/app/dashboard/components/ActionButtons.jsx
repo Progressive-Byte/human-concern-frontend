@@ -173,6 +173,8 @@ const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState(false);
+  const [pauseError, setPauseError] = useState("");
+  const [showPauseModal, setShowPauseModal] = useState(false);
 
   const canEdit = isActive;
   const canPauseResume = isActive || isPaused;
@@ -189,19 +191,37 @@ const ActionButtons = ({ isActive, isPaused, slug, onPauseResume }) => {
     }
   };
 
-  const handlePauseResume = async () => {
+  const handlePauseClick = () => {
     if (!canPauseResume || pauseLoading) return;
+    if (isActive) {
+      setPauseError("");
+      setShowPauseModal(true);
+    } else {
+      handleResume();
+    }
+  };
+
+  const handlePauseConfirm = async (reason) => {
+    setPauseLoading(true);
+    setPauseError("");
+    try {
+      await pauseUserSchedule(slug, reason);
+      onPauseResume?.("paused");
+      setShowPauseModal(false);
+    } catch (e) {
+      setPauseError(e?.message || "Failed to pause. Please try again.");
+    } finally {
+      setPauseLoading(false);
+    }
+  };
+
+  const handleResume = async () => {
     setPauseLoading(true);
     try {
-      if (isActive) {
-        await pauseUserSchedule(slug);
-        onPauseResume?.("paused");
-      } else {
-        await resumeUserSchedule(slug);
-        onPauseResume?.("active");
-      }
+      await resumeUserSchedule(slug);
+      onPauseResume?.("active");
     } catch (e) {
-      console.error("Pause/resume failed:", e?.message);
+      console.error("Resume failed:", e?.message);
     } finally {
       setPauseLoading(false);
     }
