@@ -269,7 +269,7 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                 </button>
                 <button
                   type="button"
-                  disabled={!canPauseResume || pauseLoading || resumeLoading}
+                  disabled={!canPauseResume || modalLoading}
                   onClick={handlePauseClick}
                   className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                     canPauseResume
@@ -277,53 +277,35 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
                       : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
                   }`}
                 >
-                  {pauseLoading || resumeLoading ? Spinner : isActive ? PauseIcon : PlayIcon}
-                  {pauseLoading ? "Pausing…" : resumeLoading ? "Resuming…" : isActive ? "Pause Schedule" : "Resume Schedule"}
+                  {modalLoading && (activeModal === "pause" || activeModal === "resume") ? Spinner : isActive ? PauseIcon : PlayIcon}
+                  {modalLoading && activeModal === "pause" ? "Pausing…" : modalLoading && activeModal === "resume" ? "Resuming…" : isActive ? "Pause Schedule" : "Resume Schedule"}
                 </button>
-                {pauseError ? (
-                  <p className="text-[12px] text-[#EA3335] px-1">{pauseError}</p>
-                ) : null}
 
                 <button
                   type="button"
-                  disabled={!canCancel || cancelLoading}
-                  onClick={() => canCancel && !cancelLoading && (setCancelError(""), setShowCancelModal(true))}
+                  disabled={!canCancel || modalLoading}
+                  onClick={() => canCancel && !modalLoading && openModal("cancel")}
                   className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                     canCancel
                       ? "bg-red-50 text-[#EA3335] hover:bg-red-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
                   }`}
                 >
-                  {cancelLoading ? Spinner : null}
-                  {cancelLoading ? "Cancelling…" : "Cancel Schedule"}
+                  {modalLoading && activeModal === "cancel" ? Spinner : null}
+                  {modalLoading && activeModal === "cancel" ? "Cancelling…" : "Cancel Schedule"}
                 </button>
 
-                {cancelError ? (
-                  <p className="text-[12px] text-[#EA3335] px-1">{cancelError}</p>
+                {modalError && !activeModal ? (
+                  <p className="text-[12px] text-[#EA3335] px-1">{modalError}</p>
                 ) : null}
 
-                <PauseScheduleModal
-                  open={showPauseModal}
-                  onClose={() => !pauseLoading && setShowPauseModal(false)}
-                  onConfirm={handlePauseConfirm}
-                  loading={pauseLoading}
-                  error={pauseError}
-                />
-
-                <ResumeScheduleModal
-                  open={showResumeModal}
-                  onClose={() => !resumeLoading && setShowResumeModal(false)}
-                  onConfirm={handleResumeConfirm}
-                  loading={resumeLoading}
-                  error={resumeError}
-                />
-
-                <CancelScheduleModal
-                  open={showCancelModal}
-                  onClose={() => !cancelLoading && setShowCancelModal(false)}
-                  onConfirm={handleCancelConfirm}
-                  loading={cancelLoading}
-                  error={cancelError}
+                <ScheduleActionModal
+                  mode={activeModal}
+                  open={activeModal !== null}
+                  onClose={closeModal}
+                  onConfirm={handleModalConfirm}
+                  loading={modalLoading}
+                  error={modalError}
                 />
               </div>
             </div>
