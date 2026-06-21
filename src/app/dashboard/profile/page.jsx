@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import DashboardHeader from "../components/DashboardHeader";
+import DashboardHeader from "@/components/layout/DashboardHeader";
 import { getUserProfile, updateUserNotificationPreferences, updateUserProfile } from "@/services/donationService";
 import { changePassword } from "@/services/authService";
 import { PersonalInfoCard } from "./components/PersonalInfoCard";

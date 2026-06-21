@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarIcon, ClockIcon } from "@/components/common/SvgIcon";
-import ActionButtons from "../../components/ActionButtons";
+import ActionButtons from "./ActionButtons";
 import { formatCurrency } from "@/utils/helpers";
 
 const frequencyLabel = { Weekly: "per week", Monthly: "per month", Daily: "per day" };

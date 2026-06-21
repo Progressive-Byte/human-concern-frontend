@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import DashboardHeader from "../../components/DashboardHeader";
+import DashboardHeader from "@/components/layout/DashboardHeader";
 import { BacklinkIcon } from "@/components/common/SvgIcon";
 import { getUserInstallmentAction, getUserScheduleById } from "@/services/donationService";
 import { ActionBanner } from "./components/ActionBanner";

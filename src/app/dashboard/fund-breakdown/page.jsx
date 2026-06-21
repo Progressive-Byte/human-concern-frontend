@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import DashboardHeader from "../components/DashboardHeader";
+import DashboardHeader from "@/components/layout/DashboardHeader";
 import { getUserFundBreakdown } from "@/services/donationService";
 import { DistributionOverviewCard } from "./components/DistributionOverviewCard";
 import { FundDetailsCard } from "./components/FundDetailsCard";
