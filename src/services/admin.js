@@ -495,6 +495,18 @@ export function getAdminSettingsPayment() {
   return adminApiRequest("/admin/settings/payment", { method: "GET" });
 }
 
+export function getAdminSettingsExchangeRates() {
+  return adminApiRequest("/admin/settings/exchange-rates", { method: "GET" });
+}
+
+export function updateAdminSettingsExchangeRates(payload) {
+  return adminApiRequest("/admin/settings/exchange-rates", { method: "PUT", body: JSON.stringify(payload) });
+}
+
+export function syncAdminSettingsExchangeRates() {
+  return adminApiRequest("/admin/settings/exchange-rates/sync", { method: "POST" });
+}
+
 export function updateAdminPaymentGatewayConfiguration(provider, payload) {
   return adminApiRequest(`/admin/settings/payment/gateways/${provider}/configuration`, { method: "PUT", body: JSON.stringify(payload) });
 }

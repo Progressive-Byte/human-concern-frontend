@@ -138,7 +138,7 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
               disabled={loading}
             />
           </Field>
-          <div className="md:col-span-2">
+          {/* <div className="md:col-span-2">
             <Field label="Timezone">
               <SelectInput
                 value={organization.timezone || ""}
@@ -153,7 +153,7 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
                 <option value="UTC">UTC</option>
               </SelectInput>
             </Field>
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-6">

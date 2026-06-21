@@ -1,24 +1,55 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
-import { getAdminFormGoalsDates, updateAdminFormGoalsDates } from "@/services/admin";
+import { getAdminFormGoalsDates, getAdminSettingsExchangeRates, updateAdminFormGoalsDates } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import FieldError from "./FieldError";
 import WizardFooterNav from "./WizardFooterNav";
 import SuggestedAmountsEditor from "./goalsDates/SuggestedAmountsEditor";
 import CustomNotesEditor from "./goalsDates/CustomNotesEditor";
 import RecurringPresetsEditor from "./goalsDates/RecurringPresetsEditor";
-
-const CURRENCY_OPTIONS = [
-  { code: "USD", label: "USD ($)" },
-  { code: "GBP", label: "GBP (£)" },
-  { code: "EUR", label: "EUR (€)" },
-  { code: "CAD", label: "CAD (CA$)" },
-];
+import { getSupportedCurrencyOptionsForCodes, normalizeSupportedCurrencyCodes, SUPPORTED_FORM_CURRENCY_OPTIONS } from "@/utils/currencies";
 
 function normalizeGoalsDatesResponse(res) {
   return res?.data?.data || res?.data?.item || res?.data?.goalsDates || res?.data || {};
+}
+
+function normalizeExchangeRatesResponse(res) {
+  console.log("normalizeExchangeRatesResponse", res);
+  return Array.isArray(res?.data?.exchangeRates) ? res.data.exchangeRates : [];
+}
+
+function buildCurrencyOptionsFromRates(rates) {
+  const codes = normalizeSupportedCurrencyCodes(["USD", ...(Array.isArray(rates) ? rates : []).map((item) => item?.currency)]);
+  return getSupportedCurrencyOptionsForCodes(codes);
+}
+
+function toCurrencyCodeList(value) {
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => {
+      if (typeof item === "string") return item.split(",");
+      if (item && typeof item === "object") {
+        const code = item.code ?? item.currency ?? item.value;
+        return code ? [code] : [];
+      }
+      return [];
+    });
+  }
+  if (typeof value === "string") return value.split(",");
+  if (value && typeof value === "object") {
+    const code = value.code ?? value.currency ?? value.value;
+    return code ? [code] : [];
+  }
+  return [];
+}
+
+function normalizeSelectedCurrencies(value, availableCodes = []) {
+  const raw = value?.currencies !== undefined ? toCurrencyCodeList(value.currencies) : value?.currency ? toCurrencyCodeList(value.currency) : toCurrencyCodeList(value);
+  const normalized = normalizeSupportedCurrencyCodes(raw);
+  if (!availableCodes.length) return normalized;
+  const filtered = normalized.filter((code) => availableCodes.includes(code));
+  return filtered.length ? filtered : availableCodes[0] ? [availableCodes[0]] : [];
 }
 
 function toDateInputValue(value) {
@@ -161,7 +192,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const [recurringPresetsErrors, setRecurringPresetsErrors] = useState([]);
   const [customNotesErrors, setCustomNotesErrors] = useState([]);
 
-  const [currency, setCurrency] = useState("USD");
+  const [currencies, setCurrencies] = useState(["USD"]);
+  const [currencyOptions, setCurrencyOptions] = useState(SUPPORTED_FORM_CURRENCY_OPTIONS);
   const [goalAmount, setGoalAmount] = useState("");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
@@ -178,8 +210,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const [allowAnonymousDonations, setAllowAnonymousDonations] = useState(false);
   const [showGlobalNote, setShowGlobalNote] = useState(false);
 
-  const currencyOptions = useMemo(() => CURRENCY_OPTIONS, []);
-
   useEffect(() => {
     if (!formId) {
       setLoading(false);
@@ -191,11 +221,15 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     setTopError("");
     (async () => {
       try {
-        const res = await getAdminFormGoalsDates(formId);
+        const [res, exchangeRatesRes] = await Promise.all([getAdminFormGoalsDates(formId), getAdminSettingsExchangeRates()]);
         if (!alive) return;
         const d = normalizeGoalsDatesResponse(res);
+        const exchangeRates = normalizeExchangeRatesResponse(exchangeRatesRes);
+        const nextCurrencyOptions = buildCurrencyOptionsFromRates(exchangeRates);
+        const availableCurrencyCodes = nextCurrencyOptions.map((item) => item.code);
 
-        setCurrency(String(d?.currency || "USD").trim() || "USD");
+        setCurrencyOptions(nextCurrencyOptions);
+        setCurrencies(availableCurrencyCodes.length ? normalizeSelectedCurrencies(d, availableCurrencyCodes) : []);
         setGoalAmount(parseNumberOrEmpty(d?.goalAmount));
         setStartAt(toDateInputValue(d?.startAt));
         setEndAt(toDateInputValue(d?.endAt));
@@ -229,8 +263,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     const errors = {};
     const suggErrors = [];
     const presetsErrors = [];
-
-    const nextCurrency = String(currency || "").trim();
+    const availableCurrencyCodes = currencyOptions.map((item) => item.code);
+    const nextCurrencies = availableCurrencyCodes.length ? normalizeSelectedCurrencies(currencies, availableCurrencyCodes) : [];
+    const nextCurrency = nextCurrencies[0] || "";
     const nextStartAt = String(startAt || "").trim();
     const nextEndAt = String(endAt || "").trim();
 
@@ -238,9 +273,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     const min = String(minimumDonation ?? "").trim();
     const max = String(maximumDonation ?? "").trim();
 
-    if (!nextCurrency) errors.currency = "Required";
-    else if (nextCurrency.length < 3) errors.currency = "Min 3 characters";
-    else if (nextCurrency.length > 10) errors.currency = "Max 10 characters";
+    if (!nextCurrencies.length) errors.currencies = "Select at least 1 currency";
 
     if (!nextStartAt) errors.startAt = "Required";
     else if (Number.isNaN(Date.parse(nextStartAt))) errors.startAt = "Invalid date";
@@ -524,6 +557,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
     const payload = {
       currency: nextCurrency,
+      currencies: nextCurrencies,
       startAt: nextStartAt,
       endAt: nextEndAt ? nextEndAt : null,
       goalAmount: goalN === null ? undefined : goalN,
@@ -574,6 +608,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       try {
         const res = await getAdminFormGoalsDates(formId);
         const d = normalizeGoalsDatesResponse(res);
+        const availableCurrencyCodes = currencyOptions.map((item) => item.code);
+        setCurrencies(availableCurrencyCodes.length ? normalizeSelectedCurrencies(d, availableCurrencyCodes) : []);
         setSuggestedAmounts(normalizeSuggestedAmountsState(d?.suggestedAmounts));
         setCustomNotes(normalizeCustomNotesState(d?.customNotes));
         setAllowOneTimeDonations(d?.allowOneTimeDonations === undefined ? true : Boolean(d?.allowOneTimeDonations));
@@ -617,6 +653,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   }
 
   const disabled = saving;
+  const availableCurrencyCodes = currencyOptions.map((item) => item.code);
+  const selectedCurrencies = availableCurrencyCodes.length ? normalizeSelectedCurrencies(currencies, availableCurrencyCodes) : [];
+  const primaryCurrency = selectedCurrencies[0] || "";
 
   return (
     <div className="space-y-6">
@@ -635,23 +674,38 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-              Currency <span className="text-red-600">*</span>
+              Currencies <span className="text-red-600">*</span>
             </div>
-            <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5">
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                disabled={disabled}
-                className="w-full bg-transparent text-[13px] text-[#111827] outline-none"
-              >
-                {currencyOptions.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
+            <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-3">
+              {currencyOptions.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {currencyOptions.map((c) => {
+                    const selected = selectedCurrencies.includes(c.code);
+                    return (
+                      <button
+                        key={c.code}
+                        type="button"
+                        onClick={() =>
+                          setCurrencies((prev) => {
+                            const list = Array.isArray(prev) ? prev : [];
+                            return list.includes(c.code) ? list.filter((item) => item !== c.code) : [...list, c.code];
+                          })
+                        }
+                        disabled={disabled}
+                        className={`rounded-xl border px-3 py-2 text-[13px] font-semibold transition ${
+                          selected ? "border-[#111827] bg-[#111827] text-white" : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
+                        } disabled:opacity-60`}
+                      >
+                        {c.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-[13px] text-[#6B7280]">No exchange-rate currencies available. Add or sync currencies in admin settings first.</div>
+              )}
             </div>
-            <FieldError message={fieldErrors.currency} />
+            <FieldError message={fieldErrors.currencies} />
           </div>
 
           <div>
@@ -773,7 +827,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       </section>
 
       <SuggestedAmountsEditor
-        currencyLabel={String(currency || "").trim()}
+        currencyLabel={primaryCurrency || selectedCurrencies.join(", ")}
         value={suggestedAmounts}
         onChange={setSuggestedAmounts}
         disabled={disabled || !allowOneTimeDonations}

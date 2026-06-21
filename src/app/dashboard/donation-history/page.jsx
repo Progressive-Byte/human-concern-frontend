@@ -8,7 +8,7 @@ import { exportUserDonationsCsv, getUserDonationsList } from "@/services/donatio
 import { FilterBar } from "./components/FilterBar";
 import { DonationTable } from "./components/DonationTable";
 import { DonationHistoryFallback } from "./components/DonationHistoryFallback";
-import ThankYouModal from "./ThankYouModal";
+import ThankYouModal from "./components/ThankYouModal";
 function formatDate(value) {
   if (!value) return "";
   try {

@@ -2,6 +2,7 @@
 
 const items = [
   { key: "general", label: "General" },
+  { key: "exchange-rates", label: "Exchange Rates" },
   { key: "payment", label: "Payment" },
   { key: "notifications", label: "Notifications" },
   { key: "security", label: "Security" },

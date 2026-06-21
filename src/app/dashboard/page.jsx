@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { CalendarIcon, ClockIcon, DollarIcon, DonationContentIcon } from "@/components/common/SvgIcon";
 import { SkeletonStack } from "@/components/ui/Skeleton";
 import DashboardHeader from "./components/DashboardHeader";
@@ -157,12 +158,12 @@ const DashboardPage = () => {
           <div className="lg:col-span-7 bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg md:text-xl font-semibold text-[#111827]">Recent Donations</h2>
-              <a
+              <Link
                 href="/dashboard/donation-history"
                 className="text-sm text-[#EA3335] hover:underline font-medium"
               >
                 View All →
-              </a>
+              </Link>
             </div>
 
             <div className="space-y-1">
@@ -208,12 +209,12 @@ const DashboardPage = () => {
           <div className="lg:col-span-5 bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg md:text-xl font-semibold text-[#111827]">Fund Breakdown</h2>
-              <a
+              <Link
                 href="/dashboard/fund-breakdown"
                 className="text-sm text-[#EA3335] hover:underline font-medium"
               >
                 Details
-              </a>
+              </Link>
             </div>
 
             <div className="space-y-5 mt-2">
@@ -245,12 +246,12 @@ const DashboardPage = () => {
         <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
           <div className="flex items-center justify-between mb-5 md:mb-6">
             <h2 className="text-lg md:text-xl font-semibold text-[#111827]">Active Schedules</h2>
-            <a
+            <Link
               href="/dashboard/schedules"
               className="text-sm text-[#EA3335] hover:underline font-medium"
             >
               Manage All →
-            </a>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

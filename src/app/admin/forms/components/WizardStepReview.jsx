@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAdminFormReview, publishAdminForm, unpublishAdminForm } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import { getCurrencyLabel, normalizeSupportedCurrencyCodes } from "@/utils/currencies";
 
 function normalizeReviewResponse(res) {
   return res?.data?.data || res?.data || {};
@@ -32,6 +33,11 @@ function formatMoney(amount, currency) {
   } catch {
     return `${c} ${n}`;
   }
+}
+
+function getGoalsDateCurrencies(goalsDates) {
+  const raw = Array.isArray(goalsDates?.currencies) ? goalsDates.currencies : goalsDates?.currency ? [goalsDates.currency] : [];
+  return normalizeSupportedCurrencyCodes(raw);
 }
 
 function Chip({ children }) {
@@ -251,9 +257,16 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
 
             <SummaryCard label="Goals & Timeline" onEdit={() => onExit?.({ nextStep: "goals-dates" })} errors={errorsBySection?.goalsDates}>
               <div className="space-y-2">
+                {getGoalsDateCurrencies(goalsDates).length ? (
+                  <div className="flex flex-wrap gap-2">
+                    {getGoalsDateCurrencies(goalsDates).map((code) => (
+                      <Chip key={code}>{getCurrencyLabel(code)}</Chip>
+                    ))}
+                  </div>
+                ) : null}
                 {goalsDates?.goalAmount ? (
                   <div className="text-[14px] font-semibold text-[#111827]">
-                    {formatMoney(goalsDates.goalAmount, goalsDates.currency)} goal
+                    {formatMoney(goalsDates.goalAmount, getGoalsDateCurrencies(goalsDates)[0] || goalsDates?.currency)} goal
                   </div>
                 ) : null}
                 <div className="text-[12px] text-[#6B7280]">
@@ -318,7 +331,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
                         <span className="mr-1">{emoji}</span>
                         <span className="font-semibold">{name}</span>
                         {amount !== undefined && amount !== null ? (
-                          <span className="text-[#6B7280]"> — {amountLabel}: {formatMoney(amount, goalsDates?.currency || "USD")}</span>
+                          <span className="text-[#6B7280]"> — {amountLabel}: {formatMoney(amount, getGoalsDateCurrencies(goalsDates)[0] || goalsDates?.currency || "USD")}</span>
                         ) : null}
                       </div>
                     );
