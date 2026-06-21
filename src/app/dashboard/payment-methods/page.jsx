@@ -1,5 +1,5 @@
 import { PlusIcon } from "@/components/common/SvgIcon";
-import DashboardHeader from "../components/DashboardHeader";
+import DashboardHeader from "@/components/layout/DashboardHeader";
 import { SavedCardsList } from "./components/SavedCardsList";
 import { OtherMethodsList } from "./components/OtherMethodsList";
 
