@@ -1,14 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarIcon, ClockIcon, PlusIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "../components/DashboardHeader";
-import ActionButtons from "../components/ActionButtons";
 import { getUserSchedules } from "@/services/donationService";
 import { SkeletonStack } from "@/components/ui/Skeleton";
-import { formatCurrency } from "@/utils/helpers";
-
-const frequencyLabel = { Weekly: "per week", Monthly: "per month", Daily: "per day" };
+import ScheduleCard from "./components/ScheduleCard";
 
 function formatDate(value) {
   if (!value) return "";
