@@ -21,6 +21,12 @@ const Step2Payment = () => {
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
 
+  const isEditMode = useMemo(() => {
+    try {
+      return Boolean(JSON.parse(sessionStorage.getItem("hc_schedule_edit") || "{}").isEditMode);
+    } catch { return false; }
+  }, []);
+
   const { suggestedAmounts, allowRecurring, minDonation, maxDonation, recurringPresets } = useMemo(() => {
     try {
       const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
@@ -160,6 +166,18 @@ const Step2Payment = () => {
     if (preset !== undefined) setActivePreset(preset);
   };
 
+  const handleSplitModeChange = (val) => {
+    setSplitMode(val);
+    // Switching to divide clears any per-date overrides so the new per-date
+    // default (total ÷ count) applies evenly to all dates.
+    if (val === "divide") {
+      setScheduleState((prev) => ({
+        ...prev,
+        scheduleConfig: { ...prev.scheduleConfig, dateAmounts: {} },
+      }));
+    }
+  };
+
   // Dynamic example text for split mode cards
   const safeOcc = occurrences > 0 ? occurrences : 1;
   // Use perDateTotal (actual sum including per-date overrides) when available,
@@ -168,20 +186,24 @@ const Step2Payment = () => {
     ? perDateTotal
     : effectiveAmount * occurrences;
 
+  // Round to 2 decimal places for display to avoid JavaScript float imprecision
+  // (e.g. 132.02 - 22 - 10 = 100.02000000000001).
+  const fmtAmt = (n) => Number.isFinite(n) ? Number(n.toFixed(2)) : 0;
+
   const splitModes = [
     {
       value:   "divide",
       title:   "Divide total across dates",
       example: occurrences > 1
-        ? `${sym}${effectiveAmount} ÷ ${occurrences} = ${sym}${(effectiveAmount / safeOcc).toFixed(2)}/date`
+        ? `${sym}${fmtAmt(effectiveAmount)} ÷ ${occurrences} = ${sym}${(effectiveAmount / safeOcc).toFixed(2)}/date`
         : "Select dates to see per-date amount",
     },
     {
       value:   "repeat",
       title:   "Pay this amount each date",
       example: occurrences > 1
-        ? `${sym}${effectiveAmount} × ${occurrences} = ${sym}${repeatDisplayTotal.toLocaleString()} total`
-        : `${sym}${effectiveAmount} per scheduled date`,
+        ? `${sym}${fmtAmt(effectiveAmount)} × ${occurrences} = ${sym}${fmtAmt(repeatDisplayTotal).toLocaleString()} total`
+        : `${sym}${fmtAmt(effectiveAmount)} per scheduled date`,
     },
   ];
 
@@ -229,6 +251,7 @@ const Step2Payment = () => {
             onAmountChange={handleAmountChange}
             onCurrencyChange={(val) => update({ currency: val })}
             overrideTotal={perDateTotal}
+            disableCurrency={isEditMode}
           />
         </div>
 
@@ -238,12 +261,17 @@ const Step2Payment = () => {
           <div className="flex flex-col gap-2.5">
             {PAYMENT_TYPES.filter((t) => t.value === "one-time" || allowRecurring).map((type) => {
               const active = paymentType === type.value;
+              const locked = isEditMode && type.value === "one-time";
               return (
                 <button
                   key={type.value}
-                  onClick={() => update({ paymentType: type.value })}
-                  className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 cursor-pointer ${
-                    active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
+                  onClick={locked ? undefined : () => update({ paymentType: type.value })}
+                  className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 ${
+                    locked
+                      ? "border-[#E5E5E5] bg-white opacity-40 cursor-not-allowed"
+                      : active
+                      ? "border-[#EA3335] bg-[#FFF5F5] cursor-pointer"
+                      : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40 cursor-pointer"
                   }`}
                 >
                   <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
@@ -272,7 +300,7 @@ const Step2Payment = () => {
                   return (
                     <button
                       key={mode.value}
-                      onClick={() => setSplitMode(mode.value)}
+                      onClick={() => handleSplitModeChange(mode.value)}
                       className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 cursor-pointer ${
                         active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
                       }`}
@@ -293,6 +321,7 @@ const Step2Payment = () => {
               <RecurringSchedule
                 sym={sym}
                 effectiveAmount={defaultPerDate}
+                splitMode={splitMode}
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}

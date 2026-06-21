@@ -91,3 +91,45 @@ export function syncUserInstallment(installmentId) {
   const id = encodeURIComponent(String(installmentId || "").trim());
   return apiRequest(`/user/installments/${id}/sync`, { method: "POST" });
 }
+
+export function getUserScheduleEditable(scheduleId) {
+  const id = encodeURIComponent(String(scheduleId || "").trim());
+  return apiRequest(`/user/schedules/${id}/editable`, { method: "GET" });
+}
+
+export function getUserScheduleEditForm(scheduleId) {
+  const id = encodeURIComponent(String(scheduleId || "").trim());
+  return apiRequest(`/user/schedules/${id}/edit-form`, { method: "GET" });
+}
+
+export function submitScheduleEditForm(scheduleId, payload) {
+  const id = encodeURIComponent(String(scheduleId || "").trim());
+  return apiRequest(`/user/schedules/${id}/edit-form`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function pauseUserSchedule(scheduleId, reason = "") {
+  const id = encodeURIComponent(String(scheduleId || "").trim());
+  return apiRequest(`/user/schedules/${id}/pause`, {
+    method: "POST",
+    body: JSON.stringify({ reason }),
+  });
+}
+
+export function resumeUserSchedule(scheduleId, resumeFromDate = "") {
+  const id = encodeURIComponent(String(scheduleId || "").trim());
+  return apiRequest(`/user/schedules/${id}/resume`, {
+    method: "POST",
+    body: JSON.stringify({ resumeFromDate }),
+  });
+}
+
+export function cancelUserSchedule(scheduleId, reason = "") {
+  const id = encodeURIComponent(String(scheduleId || "").trim());
+  return apiRequest(`/user/schedules/${id}/cancel`, {
+    method: "POST",
+    body: JSON.stringify({ reason }),
+  });
+}

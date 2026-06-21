@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout from "./StepComponents/StepLayout";
 import { apiRequest } from "@/services/api";
+import { submitScheduleEditForm } from "@/services/donationService";
 import { generateDatesInRange } from "./StepComponents/countOccurrences";
 import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
@@ -17,6 +18,11 @@ const CURRENCY_OPTIONS = [
   { label: "EUR (€)",   value: "EUR", symbol: "€"   },
   { label: "CAD (CA$)", value: "CAD", symbol: "CA$" },
 ];
+
+// Stable empty-array fallback — avoids creating a new reference on every render,
+// which would cause the customNoteFields useMemo to recompute and trigger an
+// infinite setState loop in the sync effect below.
+const EMPTY_NOTES = [];
 
 function normalizeNoteFields(value) {
   return Array.isArray(value) ? value.filter((field) => field && typeof field === "object") : [];
@@ -37,9 +43,16 @@ function calcAddOnTotal(addOn, inputValues) {
 
 const Step3Addons = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data, update } = useDonation();
   const { handleNext, handlePrev } = useStepNavigation();
+
+  const isEditMode = useMemo(() => {
+    try {
+      return Boolean(JSON.parse(sessionStorage.getItem("hc_schedule_edit") || "{}").isEditMode);
+    } catch { return false; }
+  }, []);
 
   const campaignMeta = useMemo(() => {
     try { return JSON.parse(sessionStorage.getItem("campaignData") || "{}"); }
@@ -49,7 +62,7 @@ const Step3Addons = () => {
   const campaignAddOns  = campaignMeta.addOns ?? [];
   const goalsDatesCompleted = Boolean(campaignMeta.sectionsCompleted?.goalsDates);
   const enableTipping = isPreview ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.enableTipping) : false) : (campaignMeta.goalsDates?.enableTipping ?? true);
-  const customNotes = isPreview ? (goalsDatesCompleted ? (campaignMeta.goalsDates?.customNotes ?? []) : []) : (campaignMeta.goalsDates?.customNotes ?? []);
+  const customNotes = isPreview ? (goalsDatesCompleted ? (campaignMeta.goalsDates?.customNotes ?? EMPTY_NOTES) : EMPTY_NOTES) : (campaignMeta.goalsDates?.customNotes ?? EMPTY_NOTES);
   const showGlobalNote = isPreview ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.showGlobalNote) : false) : Boolean(campaignMeta.goalsDates?.showGlobalNote);
   const [globalNoteFields, setGlobalNoteFields] = useState(() => normalizeNoteFields(campaignMeta.globalNote));
   
@@ -90,16 +103,19 @@ const Step3Addons = () => {
 
   const [addOnInputs, setAddOnInputs] = useState(() => {
     const breakdown   = data.addOnBreakdown;
+    // Support both 'values' (current) and legacy 'inputValues' key names
     const savedValues = breakdown
-      ? Object.fromEntries(breakdown.map((a) => [a.id, a.values ?? {}]))
+      ? Object.fromEntries(breakdown.map((a) => [a.id, a.values ?? a.inputValues ?? {}]))
       : {};
     return Object.fromEntries(
-      campaignAddOns.map((a) => [
-        a.id,
-        savedValues[a.id] ?? Object.fromEntries(
+      campaignAddOns.map((a) => {
+        // Always seed with pricing defaults so formula inputs are never missing,
+        // then overlay any saved values (from context/API restore) on top.
+        const defaults = Object.fromEntries(
           (a.pricing?.inputs ?? []).map((inp) => [inp.key, inp.defaultValue ?? 1])
-        ),
-      ])
+        );
+        return [a.id, { ...defaults, ...(savedValues[a.id] || {}) }];
+      })
     );
   });
 
@@ -193,6 +209,72 @@ const Step3Addons = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipPct, customTipAmount, computedBreakdown, grandTotal]);
 
+  const buildEditPayload = () => {
+    const scheduleType   = data.scheduleType   ?? "specific_dates";
+    const scheduleConfig = data.scheduleConfig ?? {};
+    const dateAmounts    = scheduleConfig.dateAmounts ?? {};
+
+    let prefillDateMap = {};
+    try {
+      const editRaw = sessionStorage.getItem("hc_schedule_edit");
+      if (editRaw) prefillDateMap = JSON.parse(editRaw).prefillDateMap || {};
+    } catch (_) {}
+
+    const buildDates = () => {
+      if (scheduleType === "specific_dates") {
+        return (scheduleConfig.dates ?? []).map((isoDate) => {
+          const key    = isoDate.split("T")[0];
+          const prefill = prefillDateMap[key];
+          const amount = dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier;
+          const row = {
+            date:   isoDate.includes("T") ? isoDate : `${isoDate}T00:00:00.000Z`,
+            amount,
+          };
+          // Pre-filled date that wasn't removed → the backend must match its existing installment
+          if (prefill && !prefill.removed) row.transactionId = prefill.transactionId;
+          return row;
+        });
+      }
+
+      // date_range — expand to individual rows, each with optional transactionId
+      const rawFreq  = scheduleConfig.frequency ?? "daily";
+      const interval = scheduleConfig.customInterval ?? 1;
+      const startKey = scheduleConfig.startDate?.split("T")[0] ?? "";
+      const endKey   = scheduleConfig.endDate?.split("T")[0]   ?? "";
+      return generateDatesInRange(startKey, endKey, rawFreq, interval).map((d) => {
+        const prefill = prefillDateMap[d];
+        const amount  = dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier;
+        const row = { date: `${d}T00:00:00.000Z`, amount };
+        if (prefill && !prefill.removed) row.transactionId = prefill.transactionId;
+        return row;
+      });
+    };
+
+    const tipPayload = customTipParsed !== null
+      ? { platformTipAmount: tipAmount }
+      : tipPct > 0
+      ? { platformTipPercent: tipPct }
+      : {};
+
+    return {
+      causeIds: data.causeIds ?? [],
+      addons: {
+        items: computedBreakdown.map((addon) => ({
+          addOnId: addon.id,
+          values:  addon.values ?? {},
+        })),
+      },
+      payment: {
+        paymentMode: "split",
+        amount:      Math.round(baseDonation * 100) / 100,
+        currency,
+        ...tipPayload,
+        scheduleType,
+        scheduleConfig: { dates: buildDates() },
+      },
+    };
+  };
+
   const buildApiScheduleConfig = (scheduleType, scheduleConfig) => {
     const dateAmounts = scheduleConfig.dateAmounts ?? {};
 
@@ -281,11 +363,13 @@ const Step3Addons = () => {
     };
 
     if (isRecurring) {
+      const howToSplit = (data.splitMode ?? "repeat") === "divide" ? "divide" : "each";
       body.payment = {
         paymentMode: "split",
         // total across all scheduled dates (API validates sum matches dates array)
         amount:      baseDonation,
         currency,
+        howToSplit,
         ...(tipAmount > 0
           ? customTipParsed !== null
             ? { platformTipAmount: tipAmount }
@@ -362,6 +446,20 @@ const Step3Addons = () => {
         setSubmitting(false);
         return;
       }
+
+      if (isEditMode) {
+        let scheduleId = "";
+        try {
+          scheduleId = JSON.parse(sessionStorage.getItem("hc_schedule_edit") || "{}").scheduleId ?? "";
+        } catch (_) {}
+        await submitScheduleEditForm(scheduleId, buildEditPayload());
+        sessionStorage.removeItem("hc_schedule_edit");
+        sessionStorage.removeItem("hc_donation");
+        sessionStorage.removeItem("campaignData");
+        router.push(`/dashboard/schedules/${encodeURIComponent(scheduleId)}`);
+        return;
+      }
+
       const res     = await apiRequest("donations/submit", { method: "POST", body: JSON.stringify(buildSubmitBody()) });
       const payment = res?.data?.payment ?? {};
       const pendingSessionId =
@@ -402,7 +500,7 @@ const Step3Addons = () => {
         handlePrev(2);
       }}
       prevLabel="Back"
-      nextLabel={submitting ? "Submitting…" : isPreview ? "Preview Confirmation" : "Complete Donation"}
+      nextLabel={submitting ? (isEditMode ? "Updating…" : "Submitting…") : isEditMode ? "Update Schedule" : isPreview ? "Preview Confirmation" : "Complete Donation"}
     >
       <div className="flex flex-col gap-4">
 
@@ -549,7 +647,7 @@ const Step3Addons = () => {
           </div>
         )}
 
-        {!isPreview ? (
+        {!isPreview && !isEditMode ? (
           <PaymentGatewaySelector
             isRecurring={isRecurring}
             initialGateway={["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null}

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { CancelScheduleIcon, EditIcon, EyeIcon, PauseIcon, PlayIcon, Spinner } from "@/components/common/SvgIcon";
+import { SkeletonBlock } from "@/components/ui/Skeleton";
+import { formatCurrency } from "@/utils/helpers";
+import { EditIcon, PauseIcon, PlayIcon, Spinner } from "@/components/common/SvgIcon";
 import { getUserScheduleEditForm, pauseUserSchedule, resumeUserSchedule, cancelUserSchedule } from "@/services/donationService";
 import { ScheduleActionModal } from "@/components/common/ScheduleActionModal";
 
@@ -169,28 +170,27 @@ async function openScheduleEditSession(scheduleId, router) {
   router.push(slug ? `/${slug}/1` : "/donate/1");
 }
 
-const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onPauseResume, onCancel }) => {
+export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, frequency, nextAmount, statusKey, scheduleId, onPauseResume, onCancel }) {
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
   const [activeModal, setActiveModal] = useState(null); // "pause" | "resume" | "cancel" | null
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState("");
 
+  const isActive = String(statusKey || "").toLowerCase() === "active";
+  const isPaused = String(statusKey || "").toLowerCase() === "paused";
   const canEdit = isActive;
   const canPauseResume = isActive || isPaused;
   const canCancel = isActive || isPaused;
 
-  const openModal = (mode) => {
-    setModalError("");
-    setActiveModal(mode);
-  };
+  const openModal = (mode) => { setModalError(""); setActiveModal(mode); };
   const closeModal = () => { if (!modalLoading) setActiveModal(null); };
 
   const handleEdit = async () => {
-    if (!canEdit || editLoading) return;
+    if (editLoading || !scheduleId) return;
     setEditLoading(true);
     try {
-      await openScheduleEditSession(slug, router);
+      await openScheduleEditSession(scheduleId, router);
     } catch (e) {
       console.error("Schedule edit failed:", e?.message);
     } finally {
@@ -199,7 +199,7 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
   };
 
   const handlePauseClick = () => {
-    if (!canPauseResume || modalLoading) return;
+    if (!canPauseResume || modalLoading || !scheduleId) return;
     openModal(isActive ? "pause" : "resume");
   };
 
@@ -208,14 +208,14 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
     setModalError("");
     try {
       if (activeModal === "pause") {
-        await pauseUserSchedule(slug, value);
-        onPauseResume?.("paused");
+        await pauseUserSchedule(scheduleId, value);
+        onPauseResume?.();
       } else if (activeModal === "resume") {
-        await resumeUserSchedule(slug, value);
-        onPauseResume?.("active");
+        await resumeUserSchedule(scheduleId, value);
+        onPauseResume?.();
       } else if (activeModal === "cancel") {
-        await cancelUserSchedule(slug, value);
-        onCancel?.("cancelled");
+        await cancelUserSchedule(scheduleId, value);
+        onCancel?.();
       }
       setActiveModal(null);
     } catch (e) {
@@ -226,69 +226,92 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
   };
 
   return (
-    <>
-      <button
-        type="button"
-        title="Edit"
-        onClick={canEdit ? handleEdit : undefined}
-        disabled={editLoading}
-        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
-          canEdit
-            ? "border-[#E5E7EB] text-[#6B7280] hover:border-blue-500/40 hover:text-blue-600 hover:bg-blue-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
-        }`}
-      >
-        {editLoading ? Spinner : EditIcon}
-      </button>
+    <div className="w-full">
+      <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] overflow-hidden">
+        {loading ? (
+          <div className="space-y-3 p-4">
+            <SkeletonBlock className="h-24 rounded-2xl" />
+            <SkeletonBlock className="h-16 rounded-xl" />
+            <SkeletonBlock className="h-20 rounded-xl" />
+          </div>
+        ) : (
+          <div className="px-4 py-4 space-y-0">
+            <div className="bg-[#1A1A1A] px-5 py-4 rounded-2xl">
+              <p className="text-xs font-semibold tracking-widest uppercase text-[#9CA3AF] mb-1">Total Contributed</p>
+              <p className="text-3xl font-bold text-white">{formatCurrency(totalDonated, currency)}</p>
+              <p className="mt-1 text-xs text-[#6B7280]">Lifetime for this schedule</p>
+            </div>
 
-      <button
-        type="button"
-        title={isActive ? "Pause" : "Resume"}
-        disabled={!canPauseResume || modalLoading}
-        onClick={handlePauseClick}
-        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
-          canPauseResume
-            ? isActive
-              ? "border-[#E5E7EB] text-[#6B7280] hover:border-amber-500/40 hover:text-amber-600 hover:bg-amber-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              : "border-[#E5E7EB] text-[#6B7280] hover:border-emerald-500/40 hover:text-emerald-600 hover:bg-emerald-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
-        }`}
-      >
-        {modalLoading && (activeModal === "pause" || activeModal === "resume") ? Spinner : isActive ? PauseIcon : PlayIcon}
-      </button>
+            <div className="border-b px-5 py-4 border-dashed border-[#E5E7EB]">
+              <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280] mb-1">Next Donation</p>
+              <p className="text-sm font-semibold text-[#111827]">{nextShort}</p>
+              <div className="mt-3 pt-3 border-t border-dashed border-[#E5E7EB] flex items-center justify-between text-xs text-[#6B7280]">
+                <span>{frequency}</span>
+                <span className="font-semibold text-[#EA3335]">{formatCurrency(nextAmount, currency)}</span>
+              </div>
+            </div>
 
-      <button
-        type="button"
-        title="Cancel"
-        disabled={!canCancel || modalLoading}
-        onClick={() => canCancel && !modalLoading && openModal("cancel")}
-        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
-          canCancel
-            ? "border-[#E5E7EB] text-[#6B7280] hover:border-red-500/40 hover:text-red-600 hover:bg-red-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
-        }`}
-      >
-        {modalLoading && activeModal === "cancel" ? Spinner : CancelScheduleIcon}
-      </button>
+            <div className="px-5 pt-4 pb-2">
+              <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280] mb-3">Actions</p>
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={canEdit ? handleEdit : undefined}
+                  disabled={editLoading}
+                  className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                    canEdit
+                      ? "bg-[#F3F4F6] text-[#111827] hover:bg-[#E5E7EB] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
+                  }`}
+                >
+                  {editLoading ? Spinner : EditIcon}
+                  {editLoading ? "Loading..." : "Edit Schedule"}
+                </button>
+                <button
+                  type="button"
+                  disabled={!canPauseResume || modalLoading}
+                  onClick={handlePauseClick}
+                  className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                    canPauseResume
+                      ? "bg-[#F3F4F6] text-[#111827] hover:bg-[#E5E7EB] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
+                  }`}
+                >
+                  {modalLoading && (activeModal === "pause" || activeModal === "resume") ? Spinner : isActive ? PauseIcon : PlayIcon}
+                  {modalLoading && activeModal === "pause" ? "Pausing…" : modalLoading && activeModal === "resume" ? "Resuming…" : isActive ? "Pause Schedule" : "Resume Schedule"}
+                </button>
 
-      <ScheduleActionModal
-        mode={activeModal}
-        open={activeModal !== null}
-        onClose={closeModal}
-        onConfirm={handleModalConfirm}
-        loading={modalLoading}
-        error={modalError}
-      />
+                <button
+                  type="button"
+                  disabled={!canCancel || modalLoading}
+                  onClick={() => canCancel && !modalLoading && openModal("cancel")}
+                  className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                    canCancel
+                      ? "bg-red-50 text-[#EA3335] hover:bg-red-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      : "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed opacity-50"
+                  }`}
+                >
+                  {modalLoading && activeModal === "cancel" ? Spinner : null}
+                  {modalLoading && activeModal === "cancel" ? "Cancelling…" : "Cancel Schedule"}
+                </button>
 
-      <Link
-        href={`/dashboard/schedules/${slug}`}
-        title="View"
-        className="w-8 h-8 rounded-lg border border-dashed border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:border-red-500/40 hover:text-red-600 hover:bg-red-500/10 transition-colors"
-      >
-        {EyeIcon}
-      </Link>
-    </>
+                {modalError && !activeModal ? (
+                  <p className="text-[12px] text-[#EA3335] px-1">{modalError}</p>
+                ) : null}
+
+                <ScheduleActionModal
+                  mode={activeModal}
+                  open={activeModal !== null}
+                  onClose={closeModal}
+                  onConfirm={handleModalConfirm}
+                  loading={modalLoading}
+                  error={modalError}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
-};
-
-export default ActionButtons;
+}

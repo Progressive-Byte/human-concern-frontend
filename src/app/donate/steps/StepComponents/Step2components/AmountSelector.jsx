@@ -22,12 +22,13 @@ const AmountSelector = ({
   onAmountChange,
   onCurrencyChange,
   overrideTotal,
+  disableCurrency = false,
 }) => {
 
   const isCustomInit = initialAmount && !suggestedAmounts.includes(initialAmount);
 
   const [selectedTier,      setSelectedTier]      = useState(isCustomInit ? null : (initialAmount || suggestedAmounts[0]));
-  const [customAmount,      setCustomAmount]      = useState(isCustomInit ? String(initialAmount) : "");
+  const [customAmount,      setCustomAmount]      = useState(isCustomInit ? String(Math.round(initialAmount * 100) / 100) : "");
   const [customAmountError, setCustomAmountError] = useState("");
 
   const currencyData    = CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0];
@@ -81,7 +82,16 @@ const AmountSelector = ({
     <div className="flex flex-col gap-4">
       <div>
         <label className="block text-[13px] font-medium text-[#383838] mb-2">Currency</label>
-        <Select value={currency} onChange={onCurrencyChange} options={CURRENCY_OPTIONS} />
+        {disableCurrency ? (
+          <div className="w-full bg-[#F9FAFB] border border-[#E5E5E5] rounded-xl px-4 py-3 text-[14px] text-[#9CA3AF] cursor-not-allowed flex items-center justify-between">
+            <span>{currencyData.label}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#D1D5DB]">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        ) : (
+          <Select value={currency} onChange={onCurrencyChange} options={CURRENCY_OPTIONS} />
+        )}
       </div>
 
       <div>
