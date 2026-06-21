@@ -209,12 +209,12 @@ const DashboardPage = () => {
           <div className="lg:col-span-5 bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg md:text-xl font-semibold text-[#111827]">Fund Breakdown</h2>
-              <a
+              <Link
                 href="/dashboard/fund-breakdown"
                 className="text-sm text-[#EA3335] hover:underline font-medium"
               >
                 Details
-              </a>
+              </Link>
             </div>
 
             <div className="space-y-5 mt-2">
