@@ -1,4 +1,4 @@
-import DashboardSidebar from "./components/DashboardSidebar";
+import DashboardSidebar from "@/components/layout/DashboardSidebar";
 
 export const metadata = {
   title: "Dashboard — Human Concern",
