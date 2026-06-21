@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import DashboardHeader from "../components/DashboardHeader";
+import DashboardHeader from "@/components/layout/DashboardHeader";
 import { getUserSchedules } from "@/services/donationService";
 import { SkeletonStack } from "@/components/ui/Skeleton";
 import ScheduleCard from "./components/ScheduleCard";
