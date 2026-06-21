@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import DashboardHeader from "../components/DashboardHeader";
+import DashboardHeader from "@/components/layout/DashboardHeader";
 import { DownloadIcon } from "@/components/common/SvgIcon";
 import { exportUserDonationsCsv, getUserDonationsList } from "@/services/donationService";
 import { FilterBar } from "./components/FilterBar";
