@@ -54,6 +54,9 @@ const DonationWidget = ({ campaign }) => {
   const finalAmount = (showCustom && customAmount) ? Number(customAmount) : selectedAmount;
 
   const handleDonate = () => {
+    sessionStorage.removeItem("hc_donation");
+    sessionStorage.removeItem("hc_donation_done");
+    sessionStorage.removeItem("hc_schedule_edit");
     const gd = campaign.goalsDates ?? {};
     sessionStorage.setItem("campaignData", JSON.stringify({
       id:               campaign.id,

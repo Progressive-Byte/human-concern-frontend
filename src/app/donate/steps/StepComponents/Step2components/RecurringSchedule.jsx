@@ -21,6 +21,7 @@ const isTemplate = (preset) => TEMPLATE_NAMES.has((preset?.name ?? "").toLowerCa
 const RecurringSchedule = ({
   sym,
   effectiveAmount,
+  splitMode,
   initialScheduleType,
   initialConfig,
   initialActivePreset,
@@ -128,11 +129,33 @@ const RecurringSchedule = ({
   const toggleDate = (dateStr) => {
     const isSelected  = selectedDates.includes(dateStr);
     const nextDates   = isSelected ? selectedDates.filter((d) => d !== dateStr) : [...selectedDates, dateStr];
-    const nextAmounts = { ...dateAmounts };
-    if (isSelected) delete nextAmounts[dateStr];
+    // In divide mode, changing the date count redistributes the total evenly across all
+    // dates — clear all per-date overrides so the new defaultPerDate applies to everyone.
+    // In repeat mode, only remove the override for the toggled date.
+    let nextAmounts;
+    if (splitMode === "divide") {
+      nextAmounts = {};
+    } else {
+      nextAmounts = { ...dateAmounts };
+      if (isSelected) delete nextAmounts[dateStr];
+    }
     setSelectedDates(nextDates);
     setDateAmounts(nextAmounts);
     notify(scheduleType, nextDates, rangeStart, rangeEnd, rangeFreq, nextAmounts, customInterval);
+
+    // Keep prefillDateMap in sync: if this date was pre-filled, mark removed=true when
+    // deselected and removed=false when re-selected, so the PUT payload knows which
+    // dates carry a transactionId (pre-filled) vs are brand-new (no transactionId).
+    try {
+      const editRaw = sessionStorage.getItem("hc_schedule_edit");
+      if (editRaw) {
+        const editData = JSON.parse(editRaw);
+        if (editData.isEditMode && editData.prefillDateMap && dateStr in editData.prefillDateMap) {
+          editData.prefillDateMap[dateStr].removed = isSelected; // true = removing, false = re-adding
+          sessionStorage.setItem("hc_schedule_edit", JSON.stringify(editData));
+        }
+      }
+    } catch (_) {}
   };
 
   const handleDateAmountChange = (dateStr, val) => {

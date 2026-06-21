@@ -5,6 +5,7 @@ import { CalendarIcon, ClockIcon, PlusIcon } from "@/components/common/SvgIcon";
 import DashboardHeader from "../components/DashboardHeader";
 import ActionButtons from "../components/ActionButtons";
 import { getUserSchedules } from "@/services/donationService";
+import { SkeletonStack } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/helpers";
 
 const frequencyLabel = { Weekly: "per week", Monthly: "per month", Daily: "per day" };
@@ -85,15 +86,6 @@ const SchedulesPage = () => {
       <DashboardHeader
         title="Recurring Schedules"
         subtitle="Manage your recurring donation schedules"
-        // actions={
-        //   <button
-        //     type="button"
-        //     className="inline-flex items-center gap-2 rounded-xl bg-[#EA3335] px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 transition-colors cursor-pointer"
-        //   >
-        //     {PlusIcon}
-        //     New Schedule
-        //   </button>
-        // }
       />
 
       <div className="flex-1 p-4 md:p-6 space-y-4">
@@ -102,11 +94,7 @@ const SchedulesPage = () => {
         ) : null}
 
         {loading ? (
-          <div className="space-y-3">
-            <div className="h-24 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-            <div className="h-24 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-            <div className="h-24 animate-pulse rounded-2xl bg-[#F3F4F6]" />
-          </div>
+          <SkeletonStack count={3} blockClass="h-24 rounded-2xl" />
         ) : schedules.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-5 py-12 text-center text-sm text-[#6B7280]">
             No schedules found.
@@ -114,6 +102,9 @@ const SchedulesPage = () => {
         ) : (
           schedules.map((s) => {
             const isActive = String(s.statusKey) === "active";
+            const isPaused = String(s.statusKey) === "paused";
+            const isCancelled = String(s.statusKey) === "cancelled";
+            const isCompleted = String(s.statusKey) === "completed";
             return (
               <div
                 key={s.id}
@@ -148,7 +139,31 @@ const SchedulesPage = () => {
                         <p className="text-[11px] text-[#6B7280] mt-0.5">{frequencyLabel[s.frequency] ?? s.frequency.toLowerCase()}</p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <ActionButtons isActive={isActive} slug={s.slug} />
+                        <ActionButtons
+                          isActive={isActive}
+                          isPaused={isPaused}
+                          isCancelled={isCancelled}
+                          isCompleted={isCompleted}
+                          slug={s.slug}
+                          onPauseResume={(newStatus) =>
+                            setItems((prev) =>
+                              prev.map((item) =>
+                                String(item.scheduleId) === s.id
+                                  ? { ...item, status: { key: newStatus, label: newStatus.charAt(0).toUpperCase() + newStatus.slice(1) } }
+                                  : item
+                              )
+                            )
+                          }
+                          onCancel={() =>
+                            setItems((prev) =>
+                              prev.map((item) =>
+                                String(item.scheduleId) === s.id
+                                  ? { ...item, status: { key: "cancelled", label: "Cancelled" } }
+                                  : item
+                              )
+                            )
+                          }
+                        />
                       </div>
                     </div>
                   </div>
