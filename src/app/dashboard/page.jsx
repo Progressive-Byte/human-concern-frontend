@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarIcon, ClockIcon, DollarIcon, DonationContentIcon } from "@/components/common/SvgIcon";
 import { SkeletonStack } from "@/components/ui/Skeleton";
-import DashboardHeader from "./components/DashboardHeader";
+import DashboardHeader from "@/components/layout/DashboardHeader";
 import StatCard from "./components/StatCard";
 import { getUserDashboard } from "@/services/donationService";
 import { formatCurrency } from "@/utils/helpers";
