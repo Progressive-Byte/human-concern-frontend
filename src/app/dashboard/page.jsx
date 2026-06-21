@@ -246,12 +246,12 @@ const DashboardPage = () => {
         <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
           <div className="flex items-center justify-between mb-5 md:mb-6">
             <h2 className="text-lg md:text-xl font-semibold text-[#111827]">Active Schedules</h2>
-            <a
+            <Link
               href="/dashboard/schedules"
               className="text-sm text-[#EA3335] hover:underline font-medium"
             >
               Manage All →
-            </a>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
