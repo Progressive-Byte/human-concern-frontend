@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { navItems } from "./DashboardSidebar";
+import { navItems } from "@/components/layout/DashboardSidebar";
 import { MakeDonerIcon, SignOutIcon } from "@/components/common/SvgIcon";
 
 const DashboardHeader = ({ title, subtitle, actions }) => {
