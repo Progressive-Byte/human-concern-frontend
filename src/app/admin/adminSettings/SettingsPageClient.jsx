@@ -396,11 +396,11 @@ const SettingsPageClient = () => {
     }
   }
 
-  async function toggleGateway(provider, enabled) {
+  async function toggleGateway(provider, configurationId, enabled) {
     setPaymentBusy(true);
     setError("");
     try {
-      await setAdminPaymentGatewayEnabled(provider, enabled);
+      await setAdminPaymentGatewayEnabled(provider, enabled, configurationId);
       const res = await getAdminSettingsPayment();
       const data = normalizeObj(res);
       setPayment(data);
@@ -413,11 +413,11 @@ const SettingsPageClient = () => {
     }
   }
 
-  async function disconnectGateway(provider) {
+  async function disconnectGateway(provider, configurationId) {
     setPaymentBusy(true);
     setError("");
     try {
-      await disconnectAdminPaymentGateway(provider);
+      await disconnectAdminPaymentGateway(provider, configurationId);
       const res = await getAdminSettingsPayment();
       const data = normalizeObj(res);
       setPayment(data);
