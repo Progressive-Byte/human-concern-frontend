@@ -525,6 +525,13 @@ export function disconnectAdminPaymentGateway(provider, configurationId) {
   });
 }
 
+export function setAdminSavedCardsConfiguration(configurationId) {
+  return adminApiRequest("/admin/settings/payment/saved-cards-configuration", {
+    method: "PATCH",
+    body: JSON.stringify({ configurationId }),
+  });
+}
+
 // -----------------------------
 // Add-ons
 // -----------------------------
