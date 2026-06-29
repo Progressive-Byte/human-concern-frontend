@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
-import { getAdminFormGoalsDates, getAdminSettingsExchangeRates, updateAdminFormGoalsDates } from "@/services/admin";
+import { getAdminFormGoalsDates, getAdminSettingsExchangeRates, getAdminSettingsPayment, updateAdminFormGoalsDates } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import FieldError from "./FieldError";
 import WizardFooterNav from "./WizardFooterNav";
@@ -13,6 +13,10 @@ import { getSupportedCurrencyOptionsForCodes, normalizeSupportedCurrencyCodes, S
 
 function normalizeGoalsDatesResponse(res) {
   return res?.data?.data || res?.data?.item || res?.data?.goalsDates || res?.data || {};
+}
+
+function normalizePaymentSettingsResponse(res) {
+  return res?.data?.data || res?.data || {};
 }
 
 function normalizeExchangeRatesResponse(res) {
@@ -143,6 +147,69 @@ function normalizeCustomNotesState(value) {
   }));
 }
 
+function getPaymentProviderLabel(provider) {
+  const p = String(provider || "").toLowerCase();
+  if (p === "bank_transfer") return "Bank Transfer";
+  if (p === "paypal") return "PayPal";
+  if (p === "stripe") return "Stripe";
+  return p ? p[0].toUpperCase() + p.slice(1) : "Provider";
+}
+
+function normalizePaymentMethodsState(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((m) => ({
+      provider: String(m?.provider || "").toLowerCase(),
+      configurationId: String(m?.configurationId || "").trim(),
+      name: String(m?.name || "").trim(),
+    }))
+    .filter((m) => (m.provider === "stripe" || m.provider === "paypal" || m.provider === "bank_transfer") && m.configurationId);
+}
+
+function buildEnabledPaymentMethodOptions(paymentSettings) {
+  const gateways = Array.isArray(paymentSettings?.gateways)
+    ? paymentSettings.gateways
+    : paymentSettings?.gateways && typeof paymentSettings.gateways === "object"
+      ? Object.values(paymentSettings.gateways)
+      : [];
+
+  const out = [];
+  gateways.forEach((gateway) => {
+    const provider = String(gateway?.provider || "").toLowerCase();
+    if (!(provider === "stripe" || provider === "paypal" || provider === "bank_transfer")) return;
+    const activeId = String(gateway?.activeConfigurationId || "").trim();
+    const providerEnabled = Boolean(gateway?.enabled);
+    const configs = Array.isArray(gateway?.configurations) ? gateway.configurations : [];
+    configs.forEach((cfg) => {
+      const configurationId = String(cfg?.configurationId || cfg?.id || "").trim();
+      if (!configurationId) return;
+      const enabled =
+        typeof cfg?.enabled === "boolean"
+          ? cfg.enabled
+          : Boolean(providerEnabled && activeId && configurationId === activeId);
+      if (!enabled) return;
+      const name = String(cfg?.name || "").trim();
+      out.push({ provider, configurationId, name });
+    });
+  });
+
+  const seen = new Set();
+  return out.filter((m) => {
+    const key = `${m.provider}:${m.configurationId}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function filterPaymentMethodsToOptions(selected, options) {
+  const normalized = normalizePaymentMethodsState(selected);
+  const map = new Map((Array.isArray(options) ? options : []).map((o) => [`${o.provider}:${o.configurationId}`, o]));
+  return normalized
+    .map((m) => map.get(`${m.provider}:${m.configurationId}`) || null)
+    .filter(Boolean);
+}
+
 function toIsoDateString(value) {
   const s = String(value || "").trim();
   if (!s) return "";
@@ -209,6 +276,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const [enableTipping, setEnableTipping] = useState(false);
   const [allowAnonymousDonations, setAllowAnonymousDonations] = useState(false);
   const [showGlobalNote, setShowGlobalNote] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [paymentMethodOptions, setPaymentMethodOptions] = useState([]);
 
   useEffect(() => {
     if (!formId) {
@@ -221,12 +290,14 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     setTopError("");
     (async () => {
       try {
-        const [res, exchangeRatesRes] = await Promise.all([getAdminFormGoalsDates(formId), getAdminSettingsExchangeRates()]);
+        const [res, exchangeRatesRes, paymentRes] = await Promise.all([getAdminFormGoalsDates(formId), getAdminSettingsExchangeRates(), getAdminSettingsPayment()]);
         if (!alive) return;
         const d = normalizeGoalsDatesResponse(res);
         const exchangeRates = normalizeExchangeRatesResponse(exchangeRatesRes);
         const nextCurrencyOptions = buildCurrencyOptionsFromRates(exchangeRates);
         const availableCurrencyCodes = nextCurrencyOptions.map((item) => item.code);
+        const paymentSettings = normalizePaymentSettingsResponse(paymentRes);
+        const enabledMethods = buildEnabledPaymentMethodOptions(paymentSettings);
 
         setCurrencyOptions(nextCurrencyOptions);
         setCurrencies(availableCurrencyCodes.length ? normalizeSelectedCurrencies(d, availableCurrencyCodes) : []);
@@ -245,6 +316,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         setEnableTipping(Boolean(d?.enableTipping));
         setAllowAnonymousDonations(Boolean(d?.allowAnonymousDonations));
         setShowGlobalNote(Boolean(d?.showGlobalNote));
+        setPaymentMethodOptions(enabledMethods);
+        setPaymentMethods(filterPaymentMethodsToOptions(d?.paymentMethods, enabledMethods));
       } catch (e) {
         if (!alive) return;
         setTopError(e?.message || "Failed to load goals & dates.");
@@ -555,6 +628,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       errors.customNotes = "Fix custom notes";
     }
 
+    const normalizedPaymentMethods = filterPaymentMethodsToOptions(paymentMethods, paymentMethodOptions);
+
     const payload = {
       currency: nextCurrency,
       currencies: nextCurrencies,
@@ -563,6 +638,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       goalAmount: goalN === null ? undefined : goalN,
       minimumDonation: minN,
       maximumDonation: maxN === null ? undefined : maxN,
+      paymentMethods: normalizedPaymentMethods,
       allowOneTimeDonations: Boolean(oneTimeEnabled),
       suggestedAmounts: oneTimeEnabled && normalizedSuggested.length ? normalizedSuggested : undefined,
       customNotes: normalizedNotes.length ? normalizedNotes : undefined,
@@ -615,6 +691,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         setAllowOneTimeDonations(d?.allowOneTimeDonations === undefined ? true : Boolean(d?.allowOneTimeDonations));
         setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
         setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
+        setPaymentMethods(filterPaymentMethodsToOptions(d?.paymentMethods, paymentMethodOptions));
       } catch {}
       toast.success("Goals & dates saved");
       onSaved?.();
@@ -779,6 +856,46 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               disabled={disabled}
             />
             <FieldError message={fieldErrors.maximumDonation} />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="mb-2 text-[13px] font-semibold text-[#111827]">Payment Methods</div>
+          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-3">
+            {paymentMethodOptions.length ? (
+              <div className="flex flex-wrap gap-2">
+                {paymentMethodOptions.map((method) => {
+                  const key = `${method.provider}:${method.configurationId}`;
+                  const selected = Array.isArray(paymentMethods)
+                    ? paymentMethods.some((m) => String(m?.provider || "").toLowerCase() === method.provider && String(m?.configurationId || "").trim() === method.configurationId)
+                    : false;
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() =>
+                        setPaymentMethods((prev) => {
+                          const list = normalizePaymentMethodsState(prev);
+                          const exists = list.some((m) => m.provider === method.provider && m.configurationId === method.configurationId);
+                          if (exists) return list.filter((m) => !(m.provider === method.provider && m.configurationId === method.configurationId));
+                          return [...list, { provider: method.provider, configurationId: method.configurationId, name: method.name }];
+                        })
+                      }
+                      disabled={disabled}
+                      className={`rounded-xl border px-3 py-2 text-[13px] font-semibold transition ${
+                        selected ? "border-[#111827] bg-[#111827] text-white" : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
+                      } disabled:opacity-60`}
+                      title={method.configurationId}
+                    >
+                      {getPaymentProviderLabel(method.provider)} · {method.name || "Unnamed"}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-[13px] text-[#6B7280]">No enabled payment methods available. Enable a gateway configuration in Settings → Payment first.</div>
+            )}
           </div>
         </div>
 

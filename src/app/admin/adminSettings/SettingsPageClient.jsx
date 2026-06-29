@@ -16,6 +16,7 @@ import {
   getAdminSettingsNotifications,
   getAdminSettingsPayment,
   getAdminSettingsSecurity,
+  setAdminSavedCardsConfiguration,
   setAdminPaymentGatewayEnabled,
   syncAdminSettingsExchangeRates,
   updateAdminPaymentGatewayConfiguration,
@@ -396,11 +397,11 @@ const SettingsPageClient = () => {
     }
   }
 
-  async function toggleGateway(provider, enabled) {
+  async function toggleGateway(provider, configurationId, enabled) {
     setPaymentBusy(true);
     setError("");
     try {
-      await setAdminPaymentGatewayEnabled(provider, enabled);
+      await setAdminPaymentGatewayEnabled(provider, enabled, configurationId);
       const res = await getAdminSettingsPayment();
       const data = normalizeObj(res);
       setPayment(data);
@@ -413,11 +414,11 @@ const SettingsPageClient = () => {
     }
   }
 
-  async function disconnectGateway(provider) {
+  async function disconnectGateway(provider, configurationId) {
     setPaymentBusy(true);
     setError("");
     try {
-      await disconnectAdminPaymentGateway(provider);
+      await disconnectAdminPaymentGateway(provider, configurationId);
       const res = await getAdminSettingsPayment();
       const data = normalizeObj(res);
       setPayment(data);
@@ -425,6 +426,23 @@ const SettingsPageClient = () => {
     } catch (e) {
       setError(e?.message || "Disconnect failed.");
       toast.error(e?.message || "Disconnect failed.");
+    } finally {
+      setPaymentBusy(false);
+    }
+  }
+
+  async function assignSavedCardsConfiguration(configurationId) {
+    setPaymentBusy(true);
+    setError("");
+    try {
+      await setAdminSavedCardsConfiguration(configurationId);
+      const res = await getAdminSettingsPayment();
+      const data = normalizeObj(res);
+      setPayment(data);
+      toast.success("Saved cards configuration updated");
+    } catch (e) {
+      setError(e?.message || "Update failed.");
+      toast.error(e?.message || "Update failed.");
     } finally {
       setPaymentBusy(false);
     }
@@ -523,7 +541,15 @@ const SettingsPageClient = () => {
       ) : null}
 
       {activeTab === "payment" ? (
-        <PaymentTab value={payment} loading={paymentLoading} busy={paymentBusy || paymentLoading} onConfigure={configureGateway} onToggleEnabled={toggleGateway} onDisconnect={disconnectGateway} />
+        <PaymentTab
+          value={payment}
+          loading={paymentLoading}
+          busy={paymentBusy || paymentLoading}
+          onConfigure={configureGateway}
+          onToggleEnabled={toggleGateway}
+          onDisconnect={disconnectGateway}
+          onAssignSavedCardsConfiguration={assignSavedCardsConfiguration}
+        />
       ) : null}
 
       {activeTab === "notifications" ? (

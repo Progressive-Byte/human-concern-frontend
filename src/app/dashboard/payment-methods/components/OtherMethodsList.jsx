@@ -5,6 +5,14 @@ const METHOD_ICONS = {
   paypal: "/images/paypal-icon.png",
 };
 
+function getIconForMethod(method) {
+  const provider = String(method?.provider || method?.id || "").toLowerCase();
+  const icon = String(method?.icon || "").toLowerCase();
+  if (icon && METHOD_ICONS[icon]) return METHOD_ICONS[icon];
+  if (provider === "paypal") return METHOD_ICONS.paypal;
+  return METHOD_ICONS.paypal;
+}
+
 function MethodItem({ method, isLast }) {
   return (
     <div
@@ -14,7 +22,7 @@ function MethodItem({ method, isLast }) {
     >
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#F3F4F6] border border-dashed border-[#E5E7EB]">
         <Image
-          src={METHOD_ICONS[method.icon] || METHOD_ICONS.paypal}
+          src={getIconForMethod(method)}
           alt={method.name}
           width={22}
           height={22}
@@ -47,12 +55,14 @@ function MethodItem({ method, isLast }) {
 }
 
 export function OtherMethodsList({ methods }) {
+  const list = Array.isArray(methods) ? methods : [];
+  if (!list.length) return null;
   return (
     <div>
       <h2 className="text-base font-semibold text-[#111827] mb-3">Other Payment Options</h2>
       <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] overflow-hidden">
-        {methods.map((method, idx) => (
-          <MethodItem key={method.id} method={method} isLast={idx === methods.length - 1} />
+        {list.map((method, idx) => (
+          <MethodItem key={method.id || `${method.provider || "other"}-${idx}`} method={method} isLast={idx === list.length - 1} />
         ))}
       </div>
     </div>

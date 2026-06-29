@@ -511,12 +511,25 @@ export function updateAdminPaymentGatewayConfiguration(provider, payload) {
   return adminApiRequest(`/admin/settings/payment/gateways/${provider}/configuration`, { method: "PUT", body: JSON.stringify(payload) });
 }
 
-export function setAdminPaymentGatewayEnabled(provider, enabled) {
-  return adminApiRequest(`/admin/settings/payment/gateways/${provider}/enabled`, { method: "PATCH", body: JSON.stringify({ enabled: Boolean(enabled) }) });
+export function setAdminPaymentGatewayEnabled(provider, enabled, configurationId) {
+  return adminApiRequest(`/admin/settings/payment/gateways/${provider}/enabled`, {
+    method: "PATCH",
+    body: JSON.stringify({ enabled: Boolean(enabled), configurationId }),
+  });
 }
 
-export function disconnectAdminPaymentGateway(provider) {
-  return adminApiRequest(`/admin/settings/payment/gateways/${provider}/disconnect`, { method: "POST" });
+export function disconnectAdminPaymentGateway(provider, configurationId) {
+  return adminApiRequest(`/admin/settings/payment/gateways/${provider}/disconnect`, {
+    method: "POST",
+    body: JSON.stringify(configurationId ? { configurationId } : {}),
+  });
+}
+
+export function setAdminSavedCardsConfiguration(configurationId) {
+  return adminApiRequest("/admin/settings/payment/saved-cards-configuration", {
+    method: "PATCH",
+    body: JSON.stringify({ configurationId }),
+  });
 }
 
 // -----------------------------
