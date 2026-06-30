@@ -223,13 +223,14 @@ const DonationWidget = ({ campaign }) => {
                           : "bg-[#F5F5F5] border-transparent hover:border-[#055A4666]"
                       }`}
                     >
-                      <div className="shrink-0 w-20 bg-white rounded-xl m-2 px-2 py-3 text-center">
-                        <span className={`text-[20px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
+                      <div className="shrink-0 bg-white rounded-xl m-2 px-3 py-2.5 min-w-[4.5rem] text-center">
+                        <span className={`text-[17px] font-bold whitespace-nowrap ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
                           {sym}{formatDisplay(displayAmt)}
                         </span>
                       </div>
+                      <div className={`w-px h-7 shrink-0 rounded-full ${isSelected ? "bg-[#055A46]/30" : "bg-[#E5E7EB]"}`} />
                       {desc && (
-                        <span className={`text-[13px] leading-snug px-3 ${isSelected ? "text-[#055A46]" : "text-[#737373]"}`}>
+                        <span className={`flex-1 text-[13px] leading-snug px-3 ${isSelected ? "text-[#055A46]" : "text-[#737373]"}`}>
                           {desc}
                         </span>
                       )}
@@ -246,12 +247,13 @@ const DonationWidget = ({ campaign }) => {
                       : "bg-[#F5F5F5] border-transparent hover:border-[#055A4666]"
                   }`}
                 >
-                  <div className="shrink-0 w-20 bg-white rounded-xl m-2 px-2 py-3 text-center">
+                  <div className="shrink-0 bg-white rounded-xl m-2 px-3 py-2.5 min-w-[4.5rem] text-center">
                     <span className={`text-[14px] font-bold ${showCustom ? "text-[#055A46]" : "text-[#383838]"}`}>
                       Other
                     </span>
                   </div>
-                  <span className={`text-[13px] font-medium px-3 ${showCustom ? "text-[#055A46]" : "text-[#737373]"}`}>
+                  <div className={`w-px h-7 shrink-0 rounded-full ${showCustom ? "bg-[#055A46]/30" : "bg-[#E5E7EB]"}`} />
+                  <span className={`flex-1 text-[13px] font-medium px-3 ${showCustom ? "text-[#055A46]" : "text-[#737373]"}`}>
                     Enter a custom amount
                   </span>
                 </button>
