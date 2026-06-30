@@ -163,7 +163,7 @@ const AmountSelector = ({
               : "Donation Amount (per payment)"
             : "Donation Amount"}
         </label>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {suggestedAmounts.map((base) => {
             const displayAmt = toConverted(base);
             const active     = selectedBase === base && !customAmount;
