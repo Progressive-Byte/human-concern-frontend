@@ -67,7 +67,7 @@ const DonationWidget = ({ campaign }) => {
 
   const defaultBaseAmount =
     suggestedAmountsData.find((a) => a.isDefault)?.value ??
-    suggestedAmountsData[0]?.value ??
+    suggestedAmounts[0] ??
     50;
 
   const [selectedBaseAmount, setSelectedBaseAmount] = useState(defaultBaseAmount);
