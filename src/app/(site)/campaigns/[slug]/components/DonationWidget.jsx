@@ -38,8 +38,11 @@ const DonationWidget = ({ campaign }) => {
     fetchPublicSettings();
   }, []);
 
-  // suggestedAmounts is now an array of objects: {id, value, description, isDefault}
-  const suggestedAmountsData = campaign.suggestedAmounts ?? [];
+  // page.jsx normalizes these before serialization:
+  // campaign.suggestedAmounts     → [25, 100]  (plain numbers)
+  // campaign.suggestedAmountsData → [{value, description, isDefault}]
+  const suggestedAmounts     = campaign.suggestedAmounts     ?? [];
+  const suggestedAmountsData = campaign.suggestedAmountsData ?? [];
   const limits               = campaign.goalsDates ?? {};
 
   // Build currency options and rate map from API data
