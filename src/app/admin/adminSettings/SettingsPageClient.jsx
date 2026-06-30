@@ -16,7 +16,6 @@ import {
   getAdminSettingsNotifications,
   getAdminSettingsPayment,
   getAdminSettingsSecurity,
-  setAdminSavedCardsConfiguration,
   setAdminPaymentGatewayEnabled,
   syncAdminSettingsExchangeRates,
   updateAdminPaymentGatewayConfiguration,
@@ -431,23 +430,6 @@ const SettingsPageClient = () => {
     }
   }
 
-  async function assignSavedCardsConfiguration(configurationId) {
-    setPaymentBusy(true);
-    setError("");
-    try {
-      await setAdminSavedCardsConfiguration(configurationId);
-      const res = await getAdminSettingsPayment();
-      const data = normalizeObj(res);
-      setPayment(data);
-      toast.success("Saved cards configuration updated");
-    } catch (e) {
-      setError(e?.message || "Update failed.");
-      toast.error(e?.message || "Update failed.");
-    } finally {
-      setPaymentBusy(false);
-    }
-  }
-
   async function saveExchangeRates() {
     setExchangeRatesSaving(true);
     setError("");
@@ -548,7 +530,6 @@ const SettingsPageClient = () => {
           onConfigure={configureGateway}
           onToggleEnabled={toggleGateway}
           onDisconnect={disconnectGateway}
-          onAssignSavedCardsConfiguration={assignSavedCardsConfiguration}
         />
       ) : null}
 

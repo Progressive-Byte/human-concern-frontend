@@ -161,12 +161,6 @@ function getConfigSummary(provider, config) {
   return parts.join(" · ");
 }
 
-function getSavedCardsSummary(value) {
-  const configurationId = getConfigId({ configurationId: value?.savedCardsConfigurationId });
-  const configuration = value?.savedCardsConfiguration && typeof value.savedCardsConfiguration === "object" ? value.savedCardsConfiguration : null;
-  return { configurationId, configuration };
-}
-
 function getConfigTitle(provider, config, index) {
   const preferred = String(config?.label || config?.name || config?.title || config?.displayName || "").trim();
   if (preferred) return preferred;
@@ -292,9 +286,8 @@ function ProviderLabel({ provider }) {
   return getProviderLabel(provider);
 }
 
-const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisconnect, onAssignSavedCardsConfiguration }) => {
+const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisconnect }) => {
   const gateways = useMemo(() => normalizeGateways(value), [value]);
-  const savedCards = useMemo(() => getSavedCardsSummary(value), [value]);
 
   const [openProvider, setOpenProvider] = useState("");
   const [editingConfigurationId, setEditingConfigurationId] = useState("");
@@ -401,46 +394,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
   return (
     <SettingsSectionCard icon={<CreditCardIcon />} title="Payment" subtitle="Configure payment gateways">
       <div className="space-y-4">
-        <div className="rounded-2xl border border-[#F3F4F6] bg-[#FCFCFD] p-4">
-          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-            <div className="min-w-0">
-              <div className="text-[13px] font-semibold text-[#111827]">Saved Cards Configuration</div>
-              <div className="mt-1 text-[12px] text-[#6B7280]">All user cards saved from the portal use one dedicated Stripe configuration selected here.</div>
-            </div>
-            {savedCards.configurationId ? (
-              <div className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">Assigned</div>
-            ) : (
-              <div className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">Not assigned</div>
-            )}
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
-            {savedCards.configurationId ? (
-              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="text-[13px] font-semibold text-[#111827]">
-                      {String(savedCards.configuration?.name || savedCards.configuration?.label || "Stripe configuration").trim()}
-                    </div>
-                    <div className="rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-medium text-[#6B7280]">{shortId(savedCards.configurationId)}</div>
-                    <div className="rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">Saved Cards</div>
-                  </div>
-                  <div className="mt-1 text-[12px] text-[#6B7280]">
-                    {savedCards.configuration?.webhookUrl
-                      ? String(savedCards.configuration.webhookUrl)
-                      : "Used by /user/payment-methods/setup-intent and /user/payment-methods"}
-                  </div>
-                </div>
-                <div className="text-[12px] text-[#6B7280]">To change it, expand Stripe and choose another enabled configuration.</div>
-              </div>
-            ) : (
-              <div className="text-[12px] text-[#6B7280]">
-                No Stripe configuration is assigned yet. Expand Stripe, enable a configured entry, then use <span className="font-semibold text-[#111827]">Set for Saved Cards</span>.
-              </div>
-            )}
-          </div>
-        </div>
-
         {gateways.map((gateway) => {
           const provider = String(gateway?.provider || "").toLowerCase();
           const configurations = Array.isArray(gateway?.configurations) ? gateway.configurations : [];
@@ -487,8 +440,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
                       {configurations.map((config, index) => {
                         const configurationId = getConfigId(config);
                         const isEnabled = Boolean(config?.enabled ?? (configurationId && gateway?.activeConfigurationIds?.includes(configurationId)));
-                        const isSavedCardsConfig = provider === "stripe" && Boolean(configurationId && configurationId === savedCards.configurationId);
-                        const canAssignSavedCards = provider === "stripe" && Boolean(configurationId) && Boolean(isEnabled) && Boolean(config?.configured ?? true);
 
                         return (
                           <div key={configurationId || `${provider}-${index}`} className="rounded-2xl border border-[#E5E7EB] bg-[#FCFCFD] p-4">
@@ -504,44 +455,23 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
                                   {isEnabled ? (
                                     <div className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">Enabled</div>
                                   ) : null}
-                                  {isSavedCardsConfig ? (
-                                    <div className="rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">Saved Cards</div>
-                                  ) : null}
                                 </div>
                                 <div className="mt-1 text-[12px] text-[#6B7280]">{getConfigSummary(provider, config)}</div>
-                                {provider === "stripe" ? (
-                                  <div className="mt-2 text-[12px] text-[#6B7280]">
-                                    {isSavedCardsConfig
-                                      ? "This Stripe configuration owns all user saved card tokens and cannot be disabled or disconnected while assigned."
-                                      : canAssignSavedCards
-                                        ? "Eligible for saved cards because it is configured and enabled."
-                                        : "Enable this configured Stripe entry before assigning it for saved cards."}
-                                  </div>
-                                ) : null}
                               </div>
 
                               <div className="flex flex-wrap items-center gap-2">
                                 <ActionButton onClick={() => openConfig(provider, config)} disabled={loading || busy} variant="light">
                                   Configure
                                 </ActionButton>
-                                {provider === "stripe" ? (
-                                  <ActionButton
-                                    onClick={() => onAssignSavedCardsConfiguration?.(configurationId)}
-                                    disabled={loading || busy || !canAssignSavedCards || isSavedCardsConfig}
-                                    variant={isSavedCardsConfig ? "dark" : "light"}
-                                  >
-                                    {isSavedCardsConfig ? "Current Saved Cards Config" : "Set for Saved Cards"}
-                                  </ActionButton>
-                                ) : null}
                                 <div className="flex items-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2">
                                   <div className="text-[12px] font-semibold text-[#6B7280]">Enabled</div>
                                   <ToggleSwitch
                                     enabled={isEnabled}
-                                    disabled={loading || busy || !configurationId || isSavedCardsConfig}
+                                    disabled={loading || busy || !configurationId}
                                     onChange={(next) => onToggleEnabled?.(provider, configurationId, next)}
                                   />
                                 </div>
-                                <ActionButton onClick={() => onDisconnect?.(provider, configurationId)} disabled={loading || busy || !configurationId || isSavedCardsConfig} variant="danger">
+                                <ActionButton onClick={() => onDisconnect?.(provider, configurationId)} disabled={loading || busy || !configurationId} variant="danger">
                                   Disconnect
                                 </ActionButton>
                               </div>
