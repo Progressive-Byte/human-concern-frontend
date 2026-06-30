@@ -12,12 +12,10 @@ import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
 
-const CURRENCY_OPTIONS = [
-  { label: "USD ($)",   value: "USD", symbol: "$"   },
-  { label: "GBP (£)",   value: "GBP", symbol: "£"   },
-  { label: "EUR (€)",   value: "EUR", symbol: "€"   },
-  { label: "CAD (CA$)", value: "CAD", symbol: "CA$" },
-];
+const CURRENCY_SYMBOLS = {
+  USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
+  SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥",
+};
 
 // Stable empty-array fallback — avoids creating a new reference on every render,
 // which would cause the customNoteFields useMemo to recompute and trigger an
