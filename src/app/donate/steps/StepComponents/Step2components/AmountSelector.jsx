@@ -186,23 +186,23 @@ const AmountSelector = ({
 
       <div>
         <label className="block text-[13px] font-medium text-[#383838] mb-2">Custom Amount</label>
-        <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#737373] font-medium text-[15px]">{sym}</span>
+        <div className={`flex items-center rounded-xl border transition-colors ${
+          customAmountError
+            ? "border-[#EA3335] bg-[#FFF5F5]"
+            : customAmount
+            ? "border-[#EA3335] bg-[#FFF5F5]"
+            : "border-[#E5E5E5] bg-white focus-within:border-[#EA3335]"
+        }`}>
+          <span className="pl-4 pr-1 shrink-0 text-[#737373] font-medium text-[15px]">{sym}</span>
           <input
             type="number"
             value={customAmount}
             onChange={handleCustomChange}
             onBlur={handleCustomBlur}
-            placeholder={`Enter amount (min ${sym}${formatDisplay(convertedMin)})`}
+            placeholder={`Enter amount (min ${formatDisplay(convertedMin)})`}
             min={convertedMin}
             max={convertedMax}
-            className={`w-full pl-9 pr-4 py-3 rounded-xl border text-[15px] outline-none transition-colors ${
-              customAmountError
-                ? "border-[#EA3335] bg-[#FFF5F5] text-[#383838]"
-                : customAmount
-                ? "border-[#EA3335] bg-[#FFF5F5] text-[#383838]"
-                : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335]"
-            }`}
+            className="flex-1 pr-4 py-3 text-[15px] outline-none bg-transparent text-[#383838]"
           />
         </div>
         {customAmountError && (
