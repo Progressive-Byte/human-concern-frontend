@@ -86,7 +86,8 @@ const Step3Addons = () => {
   const numberOfDays = data.numberOfDays ?? 30;
   const isRecurring  = paymentType === "recurring";
 
-  const sym          = (CURRENCY_OPTIONS.find((c) => c.value === currency) ?? CURRENCY_OPTIONS[0]).symbol;
+  const sym          = CURRENCY_SYMBOLS[currency] ?? currency;
+  const paymentMethods = campaignMeta.goalsDates?.paymentMethods ?? [];
   // For specific_dates recurring with per-date custom amounts, use the pre-computed sum stored in context.
   const baseDonation = isRecurring
     ? (data.perDateTotal ?? amountTier * numberOfDays)
