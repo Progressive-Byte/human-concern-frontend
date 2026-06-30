@@ -6,12 +6,14 @@ import CustomDropdown from "@/components/common/CustomDropdown";
 import { CircleCheckIcon, ShareCampaignIcon } from "@/components/common/SvgIcon";
 import { apiRequest } from "@/services/api";
 
-const CURRENCY_OPTIONS = [
-  { label: "$ USD", value: "USD" },
-  { label: "£ GBP", value: "GBP" },
-  { label: "€ EUR", value: "EUR" },
-  { label: "CA$ CAD", value: "CAD" },
-];
+const CURRENCY_SYMBOLS = {
+  USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
+  SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥", NOK: "kr", SEK: "kr", DKK: "kr",
+};
+
+function getCurrencySymbol(code) {
+  return CURRENCY_SYMBOLS[code] ?? code;
+}
 
 const DonationWidget = ({ campaign }) => {
   const router = useRouter();
@@ -36,22 +38,59 @@ const DonationWidget = ({ campaign }) => {
     fetchPublicSettings();
   }, []);
 
-  const suggestedAmounts     = campaign.suggestedAmounts     ?? [];
-  const suggestedAmountsData = campaign.suggestedAmountsData ?? [];
-  const limits               = campaign.goalsDates           ?? {};
+  // suggestedAmounts is now an array of objects: {id, value, description, isDefault}
+  const suggestedAmountsData = campaign.suggestedAmounts ?? [];
+  const limits               = campaign.goalsDates ?? {};
+
+  // Build currency options and rate map from API data
+  const currenciesWithRates = campaign.currenciesWithRates ?? [];
+  const currencyOptions = currenciesWithRates.map(({ currency }) => ({
+    value: currency,
+    label: `${getCurrencySymbol(currency)} ${currency}`,
+  }));
+  const rateMap = Object.fromEntries(
+    currenciesWithRates.map(({ currency, rate }) => [currency, parseFloat(rate) || 1])
+  );
 
   const raised      = campaign.raised ?? 0;
   const goal        = campaign.goal   ?? 0;
   const pct         = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
   const hasProgress = campaign.raised != null && goal > 0;
 
-  const defaultAmount = suggestedAmountsData.find((a) => a.isDefault)?.value ?? suggestedAmounts[0] ?? 50;
-  const [selectedAmount, setSelectedAmount] = useState(defaultAmount);
-  const [customAmount,   setCustomAmount]   = useState("");
-  const [showCustom,     setShowCustom]     = useState(false);
-  const [currency,       setCurrency]       = useState(campaign.currency ?? "USD");
-  const [copied,         setCopied]         = useState(false);
-  const finalAmount = (showCustom && customAmount) ? Number(customAmount) : selectedAmount;
+  // donors may be a number (old) or an object with pagination (new)
+  const donorCount = typeof campaign.donors === "object"
+    ? (campaign.donors?.meta?.pagination?.total ?? 0)
+    : (campaign.donors ?? 0);
+
+  const defaultBaseAmount =
+    suggestedAmountsData.find((a) => a.isDefault)?.value ??
+    suggestedAmountsData[0]?.value ??
+    50;
+
+  const [selectedBaseAmount, setSelectedBaseAmount] = useState(defaultBaseAmount);
+  const [customAmount,       setCustomAmount]       = useState("");
+  const [showCustom,         setShowCustom]         = useState(false);
+  const [currency,           setCurrency]           = useState(
+    currenciesWithRates[0]?.currency ?? campaign.currency ?? "USD"
+  );
+  const [copied, setCopied] = useState(false);
+
+  const rate = rateMap[currency] ?? 1;
+  const sym  = getCurrencySymbol(currency);
+
+  function toDisplay(baseAmt) {
+    const converted = baseAmt * rate;
+    const rounded   = Math.round(converted * 100) / 100;
+    return Number.isInteger(rounded) ? rounded : rounded;
+  }
+
+  function formatDisplay(val) {
+    return Number.isInteger(val) ? val.toLocaleString() : val.toFixed(2);
+  }
+
+  const finalAmount = showCustom && customAmount
+    ? Number(customAmount)
+    : toDisplay(selectedBaseAmount);
 
   const handleDonate = () => {
     sessionStorage.removeItem("hc_donation");
@@ -74,7 +113,7 @@ const DonationWidget = ({ campaign }) => {
         maximumDonation:         gd.maximumDonation         ?? null,
         customNotes:             gd.customNotes             ?? [],
         recurringPresets:        gd.recurringPresets        ?? [],
-        showGlobalNote:         gd.showGlobalNote         ?? false,
+        showGlobalNote:          gd.showGlobalNote          ?? false,
       },
       causes: (campaign.causes ?? []).map((c) => ({
         id:            c.id,
@@ -139,7 +178,7 @@ const DonationWidget = ({ campaign }) => {
           <div className="grid grid-cols-2 gap-3 mt-4">
             <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
               <p className="text-[24px] font-bold text-[#383838]">
-                {campaign.donors ?? 0}
+                {donorCount}
               </p>
               <p className="text-[14px] font-normal text-[#383838] mt-0.5">Donors</p>
             </div>
@@ -152,26 +191,28 @@ const DonationWidget = ({ campaign }) => {
           </div>
 
           {/* How Your Donation Helps */}
-          {suggestedAmounts.length > 0 && (
+          {suggestedAmountsData.length > 0 && (
             <div className="mt-5">
               <p className="text-[16px] font-bold text-[#383838]">How Your Donation Helps</p>
-              <div className="mt-3">
-                <CustomDropdown
-                  options={CURRENCY_OPTIONS}
-                  value={currency}
-                  onChange={setCurrency}
-                  width="w-full"
-                  className="w-full rounded-2xl border border-[#CCCCCC] bg-white px-3 py-2.5 justify-between"
-                />
-              </div>
+              {currencyOptions.length > 1 && (
+                <div className="mt-3">
+                  <CustomDropdown
+                    options={currencyOptions}
+                    value={currency}
+                    onChange={setCurrency}
+                    width="w-full"
+                    className="w-full rounded-2xl border border-[#CCCCCC] bg-white px-3 py-2.5 justify-between"
+                  />
+                </div>
+              )}
               <div className="flex flex-col gap-2 mt-3">
-                {suggestedAmounts.map((amt) => {
-                  const isSelected = selectedAmount === amt && !showCustom;
-                  const desc = suggestedAmountsData.find((a) => a.value === amt)?.description ?? "";
+                {suggestedAmountsData.map((item) => {
+                  const displayAmt = toDisplay(item.value);
+                  const isSelected = selectedBaseAmount === item.value && !showCustom;
                   return (
                     <button
-                      key={amt}
-                      onClick={() => { setSelectedAmount(amt); setCustomAmount(""); setShowCustom(false); }}
+                      key={item.id ?? item.value}
+                      onClick={() => { setSelectedBaseAmount(item.value); setCustomAmount(""); setShowCustom(false); }}
                       className={`w-full flex items-center rounded-2xl border transition-all duration-200 cursor-pointer text-left ${
                         isSelected
                           ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
@@ -180,12 +221,12 @@ const DonationWidget = ({ campaign }) => {
                     >
                       <div className="shrink-0 w-20 bg-white rounded-xl m-2 px-2 py-3 text-center">
                         <span className={`text-[20px] font-bold leading-tight ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
-                          ${amt}
+                          {sym}{formatDisplay(displayAmt)}
                         </span>
                       </div>
-                      {desc && (
+                      {item.description && (
                         <span className={`text-[13px] leading-snug px-3 ${isSelected ? "text-[#055A46]" : "text-[#737373]"}`}>
-                          {desc}
+                          {item.description}
                         </span>
                       )}
                     </button>
@@ -214,17 +255,18 @@ const DonationWidget = ({ campaign }) => {
             </div>
           )}
         </div>
+
         {/* Custom amount */}
         {showCustom && (
           <div className="relative mt-3 px-4">
-            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">$</span>
+            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#383838] font-semibold">{sym}</span>
             <input
               type="number"
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
-              placeholder={`Enter amount${limits.minimumDonation ? ` (min $${limits.minimumDonation})` : ""}`}
-              min={limits.minimumDonation ?? 1}
-              max={limits.maximumDonation ?? undefined}
+              placeholder={`Enter amount${limits.minimumDonation ? ` (min ${sym}${formatDisplay(toDisplay(limits.minimumDonation))})` : ""}`}
+              min={limits.minimumDonation ? toDisplay(limits.minimumDonation) : 1}
+              max={limits.maximumDonation ? toDisplay(limits.maximumDonation) : undefined}
               autoFocus
               className={`w-full pl-8 pr-4 py-3.5 rounded-2xl border text-sm outline-none transition-colors ${
                 customAmount
