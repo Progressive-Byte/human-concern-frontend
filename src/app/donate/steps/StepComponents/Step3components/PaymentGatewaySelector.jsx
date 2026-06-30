@@ -85,7 +85,7 @@ const PaymentGatewaySelector = ({
 
       {hasCampaignMethods ? (
         // Campaign-specific Stripe configurations
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {paymentMethods.map((method, idx) => (
             <MethodTile
               key={idx}
