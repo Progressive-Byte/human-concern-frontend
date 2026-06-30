@@ -71,7 +71,8 @@ const Step2Payment = () => {
   const _donorAmt   = data.donorAmount && Number.isFinite(data.donorAmount) ? data.donorAmount : null;
   const _urlAmt     = data.amount && Number.isFinite(Number(data.amount)) ? Number(data.amount) : null;
   const initAmount  = _donorAmt ?? _urlAmt ?? suggestedAmounts[0] ?? (isPreview ? 0 : 25);
-  const sym         = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" }[data.currency ?? "USD"] ?? "$";
+  const _currSymbols = { USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$", SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥" };
+  const sym          = _currSymbols[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
   const initOccurrences = useMemo(() => {
     const sc = data.scheduleConfig;
@@ -234,6 +235,7 @@ const Step2Payment = () => {
           <SectionStep num={1} title="Donation Amount" />
           <AmountSelector
             suggestedAmounts={suggestedAmounts}
+            currenciesWithRates={currenciesWithRates}
             minDonation={minDonation}
             maxDonation={maxDonation}
             currency={data.currency ?? "USD"}
