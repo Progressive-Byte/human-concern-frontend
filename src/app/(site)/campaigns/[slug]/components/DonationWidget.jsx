@@ -101,13 +101,14 @@ const DonationWidget = ({ campaign }) => {
     sessionStorage.removeItem("hc_schedule_edit");
     const gd = campaign.goalsDates ?? {};
     sessionStorage.setItem("campaignData", JSON.stringify({
-      id:               campaign.id,
-      name:             campaign.name          ?? "",
-      description:      campaign.description   ?? "",
-      zakatEligible:    campaign.zakatEligible ?? false,
-      suggestedAmounts: campaign.suggestedAmounts ?? [],
-      addOns:           campaign.addOns           ?? [],
-      globalNote:       globalNote,
+      id:                  campaign.id,
+      name:                campaign.name               ?? "",
+      description:         campaign.description        ?? "",
+      zakatEligible:       campaign.zakatEligible      ?? false,
+      suggestedAmounts:    campaign.suggestedAmounts   ?? [],
+      addOns:              campaign.addOns             ?? [],
+      currenciesWithRates: campaign.currenciesWithRates ?? [],
+      globalNote:          globalNote,
       goalsDates: {
         allowOneTimeDonations:   gd.allowOneTimeDonations   ?? true,
         allowRecurringDonations: gd.allowRecurringDonations ?? true,

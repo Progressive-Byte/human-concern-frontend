@@ -27,21 +27,15 @@ const Step2Payment = () => {
     } catch { return false; }
   }, []);
 
-  const { suggestedAmounts, allowRecurring, minDonation, maxDonation, recurringPresets } = useMemo(() => {
+  const { suggestedAmounts, allowRecurring, minDonation, maxDonation, recurringPresets, currenciesWithRates } = useMemo(() => {
+    const fallbackPreview = { suggestedAmounts: [], allowRecurring: false, minDonation: 0, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
+    const fallbackDefault = { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
     try {
       const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
       const goalsDates = meta.goalsDates ?? {};
-      const completed = Boolean(meta.sectionsCompleted?.goalsDates);
+      const completed  = Boolean(meta.sectionsCompleted?.goalsDates);
 
-      if (isPreview && !completed) {
-        return {
-          suggestedAmounts: [],
-          allowRecurring: false,
-          minDonation: 0,
-          maxDonation: undefined,
-          recurringPresets: [],
-        };
-      }
+      if (isPreview && !completed) return fallbackPreview;
 
       const suggestedRaw = meta.suggestedAmounts;
       const suggestedList = Array.isArray(suggestedRaw) ? suggestedRaw : [];
@@ -50,18 +44,17 @@ const Step2Payment = () => {
         .filter((n) => Number.isFinite(n) && n > 0);
 
       return {
-        suggestedAmounts: normalizedSuggested.length ? normalizedSuggested : (isPreview ? [] : [25, 50, 100]),
-        allowRecurring:   goalsDates.allowRecurringDonations ?? true,
-        minDonation:      goalsDates.minimumDonation         ?? (isPreview ? 0 : 1),
-        maxDonation:      goalsDates.maximumDonation         ?? undefined,
-        recurringPresets: (goalsDates.recurringPresets ?? [])
+        suggestedAmounts:    normalizedSuggested.length ? normalizedSuggested : (isPreview ? [] : [25, 50, 100]),
+        allowRecurring:      goalsDates.allowRecurringDonations ?? true,
+        minDonation:         goalsDates.minimumDonation         ?? (isPreview ? 0 : 1),
+        maxDonation:         goalsDates.maximumDonation         ?? undefined,
+        recurringPresets:    (goalsDates.recurringPresets ?? [])
           .filter((p) => p.enabled)
           .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
+        currenciesWithRates: meta.currenciesWithRates ?? [],
       };
     } catch {
-      return isPreview
-        ? { suggestedAmounts: [], allowRecurring: false, minDonation: 0, maxDonation: undefined, recurringPresets: [] }
-        : { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [] };
+      return isPreview ? fallbackPreview : fallbackDefault;
     }
   }, [isPreview]);
 
