@@ -194,7 +194,7 @@ const DonationWidget = ({ campaign }) => {
           </div>
 
           {/* How Your Donation Helps */}
-          {suggestedAmountsData.length > 0 && (
+          {suggestedAmounts.length > 0 && (
             <div className="mt-5">
               <p className="text-[16px] font-bold text-[#383838]">How Your Donation Helps</p>
               {currencyOptions.length > 1 && (
@@ -209,13 +209,14 @@ const DonationWidget = ({ campaign }) => {
                 </div>
               )}
               <div className="flex flex-col gap-2 mt-3">
-                {suggestedAmountsData.map((item) => {
-                  const displayAmt = toDisplay(item.value);
-                  const isSelected = selectedBaseAmount === item.value && !showCustom;
+                {suggestedAmounts.map((amt) => {
+                  const displayAmt = toDisplay(amt);
+                  const isSelected = selectedBaseAmount === amt && !showCustom;
+                  const desc = suggestedAmountsData.find((a) => a.value === amt)?.description ?? "";
                   return (
                     <button
-                      key={item.id ?? item.value}
-                      onClick={() => { setSelectedBaseAmount(item.value); setCustomAmount(""); setShowCustom(false); }}
+                      key={amt}
+                      onClick={() => { setSelectedBaseAmount(amt); setCustomAmount(""); setShowCustom(false); }}
                       className={`w-full flex items-center rounded-2xl border transition-all duration-200 cursor-pointer text-left ${
                         isSelected
                           ? "bg-[#F0FDF4] border-[#055A46] shadow-[0px_0px_8px_0px_#B3FF57]"
@@ -227,9 +228,9 @@ const DonationWidget = ({ campaign }) => {
                           {sym}{formatDisplay(displayAmt)}
                         </span>
                       </div>
-                      {item.description && (
+                      {desc && (
                         <span className={`text-[13px] leading-snug px-3 ${isSelected ? "text-[#055A46]" : "text-[#737373]"}`}>
-                          {item.description}
+                          {desc}
                         </span>
                       )}
                     </button>
