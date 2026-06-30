@@ -650,9 +650,9 @@ const Step3Addons = () => {
           <PaymentGatewaySelector
             isRecurring={isRecurring}
             initialGateway={["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null}
+            paymentMethods={paymentMethods}
             onChange={setGatewayState}
           />
-          paymentMethods={paymentMethods}
         ) : null}
 
         {submitError && (
