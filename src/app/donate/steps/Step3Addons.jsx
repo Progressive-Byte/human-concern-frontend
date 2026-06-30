@@ -652,6 +652,7 @@ const Step3Addons = () => {
             initialGateway={["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null}
             onChange={setGatewayState}
           />
+          paymentMethods={paymentMethods}
         ) : null}
 
         {submitError && (
