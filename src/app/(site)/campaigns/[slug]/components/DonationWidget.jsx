@@ -118,6 +118,7 @@ const DonationWidget = ({ campaign }) => {
         customNotes:             gd.customNotes             ?? [],
         recurringPresets:        gd.recurringPresets        ?? [],
         showGlobalNote:          gd.showGlobalNote          ?? false,
+        paymentMethods:          gd.paymentMethods          ?? [],
       },
       causes: (campaign.causes ?? []).map((c) => ({
         id:            c.id,
