@@ -27,7 +27,7 @@ const ActiveCampaignsCard = ({ items = [], currency = "USD" }) => {
                     {item?.campaignName || "—"}
                   </div>
                 </div>
-                <div className="text-[12px] font-semibold text-red-700">{Number(item?.progressPercent || 0)}%</div>
+                <div className="hc-admin-brand-text text-[12px] font-semibold">{Number(item?.progressPercent || 0)}%</div>
               </div>
 
               <ProgressBar value={item?.progressPercent || 0} />

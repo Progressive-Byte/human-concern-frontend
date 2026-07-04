@@ -1,10 +1,10 @@
 const KpiCard = ({ label, value, icon, iconPosition = "right" }) => {
   const iconWrapClass =
-    "flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-700 transition-colors duration-200 group-hover:bg-red-500/15";
+    "hc-admin-brand-soft hc-admin-brand-text hc-admin-brand-soft-hover flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200";
 
   if (iconPosition === "left") {
     return (
-      <div className="group hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white hover:border-red-500/20">
+      <div className="group hc-admin-brand-border-hover hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white">
         <div className="flex items-center gap-3">
           <div className={iconWrapClass}>{icon}</div>
           <div className="min-w-0">
@@ -17,7 +17,7 @@ const KpiCard = ({ label, value, icon, iconPosition = "right" }) => {
   }
 
   return (
-    <div className="group hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white hover:border-red-500/20">
+    <div className="group hc-admin-brand-border-hover hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[12px] text-[#6B7280]">{label}</p>

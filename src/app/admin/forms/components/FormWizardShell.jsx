@@ -49,7 +49,7 @@ const FormWizardShell = ({
                         : "text-[#6B7280]"
                     } ${clickable ? "cursor-pointer" : ""}`}
                   >
-                    <span className={`${active ? "text-red-600" : "text-[#9CA3AF]"}`}>{idx + 1}</span>
+                    <span className={`${active ? "hc-admin-brand-text" : "text-[#9CA3AF]"}`}>{idx + 1}</span>
                     <span>{s.label}</span>
                     {completed ? (
                       <span className="inline-flex items-center text-[#16A34A]" aria-label="Completed">

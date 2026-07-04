@@ -36,7 +36,7 @@ const FundPerformanceTable = ({ items = [], currency = "USD" }) => {
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{item?.fundCause || "—"}</span>
                       {item?.fundCode ? (
-                        <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-700">
+                        <span className="hc-admin-brand-soft hc-admin-brand-text rounded-full px-2 py-0.5 text-[11px] font-medium">
                           {item.fundCode}
                         </span>
                       ) : null}

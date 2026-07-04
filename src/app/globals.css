@@ -6,6 +6,14 @@
     --font-sans: "Inter", system-ui, sans-serif;
   }
 
+  .hc-admin-theme {
+    --admin-primary: #DC2626;
+    --admin-primary-rgb: 220 38 38;
+    --admin-primary-200: #FECACA;
+    --admin-primary-600: #DC2626;
+    --admin-primary-700: #B91C1C;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -38,6 +46,115 @@
 }
 
 @layer utilities {
+  .hc-admin-brand-soft {
+    background-color: rgb(var(--admin-primary-rgb) / 0.10) !important;
+  }
+
+  .hc-admin-brand-soft-hover:hover {
+    background-color: rgb(var(--admin-primary-rgb) / 0.15) !important;
+  }
+
+  .hc-admin-brand-text {
+    color: var(--admin-primary-700) !important;
+  }
+
+  .hc-admin-brand-border-hover:hover {
+    border-color: rgb(var(--admin-primary-rgb) / 0.20) !important;
+  }
+
+  .hc-admin-theme .bg-red-600 {
+    background-color: var(--admin-primary-600) !important;
+  }
+
+  .hc-admin-theme .bg-red-600\/15 {
+    background-color: rgb(var(--admin-primary-rgb) / 0.15) !important;
+  }
+
+  .hc-admin-theme .bg-red-600\/10 {
+    background-color: rgb(var(--admin-primary-rgb) / 0.10) !important;
+  }
+
+  .hc-admin-theme .bg-red-600\/5 {
+    background-color: rgb(var(--admin-primary-rgb) / 0.05) !important;
+  }
+
+  .hc-admin-theme .border-red-600 {
+    border-color: var(--admin-primary-600) !important;
+  }
+
+  .hc-admin-theme .border-red-600\/20 {
+    border-color: rgb(var(--admin-primary-rgb) / 0.20) !important;
+  }
+
+  .hc-admin-theme .border-red-600\/30 {
+    border-color: rgb(var(--admin-primary-rgb) / 0.30) !important;
+  }
+
+  .hc-admin-theme .border-red-600\/40 {
+    border-color: rgb(var(--admin-primary-rgb) / 0.40) !important;
+  }
+
+  .hc-admin-theme .border-red-500\/15 {
+    border-color: rgb(var(--admin-primary-rgb) / 0.15) !important;
+  }
+
+  .hc-admin-theme .border-red-500\/20 {
+    border-color: rgb(var(--admin-primary-rgb) / 0.20) !important;
+  }
+
+  .hc-admin-theme .border-red-500\/40 {
+    border-color: rgb(var(--admin-primary-rgb) / 0.40) !important;
+  }
+
+  .hc-admin-theme .ring-red-500\/25 {
+    --tw-ring-color: rgb(var(--admin-primary-rgb) / 0.25) !important;
+  }
+
+  .hc-admin-theme .ring-red-600\/40,
+  .hc-admin-theme .focus-visible\:ring-red-600\/40:focus-visible {
+    --tw-ring-color: rgb(var(--admin-primary-rgb) / 0.40) !important;
+  }
+
+  .hc-admin-theme .text-red-200 {
+    color: var(--admin-primary-200) !important;
+  }
+
+  .hc-admin-theme .hover\:bg-red-700:hover {
+    background-color: var(--admin-primary-700) !important;
+  }
+
+  .hc-admin-theme .hover\:bg-red-600\/95:hover {
+    background-color: var(--admin-primary-700) !important;
+  }
+
+  .hc-admin-theme .hover\:bg-red-500\/10:hover {
+    background-color: rgb(var(--admin-primary-rgb) / 0.10) !important;
+  }
+
+  .hc-admin-theme .hover\:bg-red-500\/15:hover {
+    background-color: rgb(var(--admin-primary-rgb) / 0.15) !important;
+  }
+
+  .hc-admin-theme .hover\:text-red-700:hover {
+    color: var(--admin-primary-700) !important;
+  }
+
+  .hc-admin-theme .hover\:border-red-500\/20:hover {
+    border-color: rgb(var(--admin-primary-rgb) / 0.20) !important;
+  }
+
+  .hc-admin-theme .focus-within\:border-red-500\/40:focus-within {
+    border-color: rgb(var(--admin-primary-rgb) / 0.40) !important;
+  }
+
+  .hc-admin-theme .accent-red-600 {
+    accent-color: var(--admin-primary-600) !important;
+  }
+
+  .hc-admin-theme .decoration-red-500 {
+    text-decoration-color: var(--admin-primary-600) !important;
+  }
+
   .font-playfair {
     font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
   }

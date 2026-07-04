@@ -416,7 +416,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
                   type="button"
                   onClick={removeThumbnail}
                   disabled={saving}
-                  className="cursor-pointer rounded-xl border border-dashed border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] font-semibold text-red-700 transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="hc-admin-brand-soft hc-admin-brand-soft-hover hc-admin-brand-text cursor-pointer rounded-xl border border-dashed border-red-500/20 px-3 py-2 text-[12px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Remove
                 </button>

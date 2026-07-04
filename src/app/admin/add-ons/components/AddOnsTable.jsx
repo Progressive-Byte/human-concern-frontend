@@ -101,7 +101,7 @@ const AddOnsTable = ({
                 >
                   <td className="px-5 py-4 align-top">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-500/10 text-[18px] text-red-700">
+                      <div className="hc-admin-brand-soft hc-admin-brand-text flex h-9 w-9 items-center justify-center rounded-full text-[18px]">
                         {item?.iconEmoji || "🎁"}
                       </div>
                       <div className="min-w-0">

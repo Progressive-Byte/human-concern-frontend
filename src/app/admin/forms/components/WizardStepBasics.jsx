@@ -798,7 +798,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                   {categoryIds.map((id) => (
                     <span
                       key={id}
-                      className="inline-flex items-center rounded-full bg-red-500/10 px-3 py-1 text-[11px] font-medium text-red-700"
+                      className="hc-admin-brand-soft hc-admin-brand-text inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium"
                     >
                       {categoryNameById.get(String(id)) || String(id)}
                     </span>

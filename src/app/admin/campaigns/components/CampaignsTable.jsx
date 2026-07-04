@@ -103,7 +103,7 @@ const CampaignsTable = ({
                           <div className="w-[140px]">
                             <ProgressBar value={showPercent} />
                           </div>
-                          <div className="text-[12px] font-semibold text-red-700">{showPercent}%</div>
+                          <div className="hc-admin-brand-text text-[12px] font-semibold">{showPercent}%</div>
                         </div>
                       )}
                     </td>
