@@ -5,10 +5,12 @@ import { getAdminSettingsBranding, getAdminSettingsGeneral } from "@/services/ad
 import { siteUrl } from "@/utils/constants";
 
 const DEFAULT_PRIMARY = "#DC2626";
+const DEFAULT_ACCENT = "#111827";
 const DEFAULT_NAME = "Human Concern USA";
 
 const AdminBrandingContext = createContext({
   primaryColor: DEFAULT_PRIMARY,
+  accentColor: DEFAULT_ACCENT,
   organizationName: DEFAULT_NAME,
   brandLogoUrl: "",
 });
@@ -67,12 +69,17 @@ function mixColors(baseHex, mixHex, weight) {
   });
 }
 
-function buildThemeStyle(primaryColor) {
+function buildThemeStyle(primaryColor, accentColor) {
   const primary = normalizeHex(primaryColor);
+  const accent = normalizeHex(accentColor, DEFAULT_ACCENT);
   const { r, g, b } = hexToRgb(primary);
+  const accentRgb = hexToRgb(accent);
   const primary200 = mixColors(primary, "#FFFFFF", 0.72);
   const primary600 = mixColors(primary, "#000000", 0.05);
   const primary700 = mixColors(primary, "#000000", 0.16);
+  const accent200 = mixColors(accent, "#FFFFFF", 0.78);
+  const accent600 = mixColors(accent, "#000000", 0.04);
+  const accent700 = mixColors(accent, "#000000", 0.14);
 
   return {
     "--admin-primary": primary,
@@ -80,12 +87,18 @@ function buildThemeStyle(primaryColor) {
     "--admin-primary-200": primary200,
     "--admin-primary-600": primary600,
     "--admin-primary-700": primary700,
+    "--admin-accent": accent,
+    "--admin-accent-rgb": `${accentRgb.r} ${accentRgb.g} ${accentRgb.b}`,
+    "--admin-accent-200": accent200,
+    "--admin-accent-600": accent600,
+    "--admin-accent-700": accent700,
   };
 }
 
 export function AdminBrandingProvider({ children }) {
   const [brandingState, setBrandingState] = useState({
     primaryColor: DEFAULT_PRIMARY,
+    accentColor: DEFAULT_ACCENT,
     organizationName: DEFAULT_NAME,
     brandLogoUrl: "",
   });
@@ -107,6 +120,7 @@ export function AdminBrandingProvider({ children }) {
 
         setBrandingState({
           primaryColor: normalizeHex(branding?.primaryColor, DEFAULT_PRIMARY),
+          accentColor: normalizeHex(branding?.accentColor, DEFAULT_ACCENT),
           organizationName: String(generalData?.organization?.organizationName || "").trim() || DEFAULT_NAME,
           brandLogoUrl: resolveAssetUrl(branding?.logo || brandingData?.logo),
         });
@@ -114,6 +128,7 @@ export function AdminBrandingProvider({ children }) {
         if (!alive) return;
         setBrandingState({
           primaryColor: DEFAULT_PRIMARY,
+          accentColor: DEFAULT_ACCENT,
           organizationName: DEFAULT_NAME,
           brandLogoUrl: "",
         });
@@ -125,7 +140,10 @@ export function AdminBrandingProvider({ children }) {
     };
   }, []);
 
-  const themeStyle = useMemo(() => buildThemeStyle(brandingState.primaryColor), [brandingState.primaryColor]);
+  const themeStyle = useMemo(
+    () => buildThemeStyle(brandingState.primaryColor, brandingState.accentColor),
+    [brandingState.primaryColor, brandingState.accentColor]
+  );
   const value = useMemo(() => brandingState, [brandingState]);
 
   return (

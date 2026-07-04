@@ -238,7 +238,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
 
                     <div
                       className={`flex h-5 w-5 items-center justify-center rounded-full border ${
-                        selected ? "border-red-600 bg-red-600" : "border-[#D1D5DB] bg-white"
+                        selected ? "border-[#111827] bg-[#111827]" : "border-[#D1D5DB] bg-white"
                       }`}
                       aria-hidden="true"
                     >
@@ -259,7 +259,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
                   <div className="mt-3 flex items-center gap-2">
                     <span className="text-[14px] font-semibold text-[#111827]">{name || "Cause"}</span>
                     {cause?.fundCode ? (
-                      <span className="inline-flex items-center rounded-full bg-red-600 px-2 py-1 text-[10px] font-semibold text-white">
+                      <span className="inline-flex items-center rounded-full bg-[#111827] px-2 py-1 text-[10px] font-semibold text-white">
                         {cause.fundCode}
                       </span>
                     ) : null}

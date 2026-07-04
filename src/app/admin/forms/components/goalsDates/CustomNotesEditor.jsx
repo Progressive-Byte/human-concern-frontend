@@ -25,13 +25,20 @@ function TrashIcon() {
 function RadioField({ label, checked, onChange, disabled }) {
   return (
     <label className="flex h-[42px] items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
-      <input type="radio" checked={checked} onChange={onChange} disabled={disabled} className="h-4 w-4" />
+      <input
+        type="radio"
+        checked={checked}
+        onChange={onChange}
+        disabled={disabled}
+        className="h-4 w-4"
+        style={{ accentColor: "var(--admin-accent-600, #111827)" }}
+      />
       <span className={checked ? "font-semibold" : "text-[#6B7280]"}>{label}</span>
     </label>
   );
 }
 
-const CustomNotesEditor = ({ value = [], onChange, disabled, errors }) => {
+const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonClassName = "" }) => {
   const notes = Array.isArray(value) ? value : [];
 
   function setNote(idx, patch) {
@@ -301,7 +308,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors }) => {
             type="button"
             onClick={addNote}
             disabled={disabled}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+            className={`cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60 ${addButtonClassName}`.trim()}
           >
             Add Note
           </button>

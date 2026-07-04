@@ -49,10 +49,10 @@ const FormWizardShell = ({
                         : "text-[#6B7280]"
                     } ${clickable ? "cursor-pointer" : ""}`}
                   >
-                    <span className={`${active ? "hc-admin-brand-text" : "text-[#9CA3AF]"}`}>{idx + 1}</span>
+                    <span className={`${active ? "hc-admin-accent-text" : "text-[#9CA3AF]"}`}>{idx + 1}</span>
                     <span>{s.label}</span>
                     {completed ? (
-                      <span className="inline-flex items-center text-[#16A34A]" aria-label="Completed">
+                      <span className="inline-flex items-center hc-admin-accent-text" aria-label="Completed">
                         <svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path
                             d="M16.25 5.75L8.75 13.25L3.75 8.25"

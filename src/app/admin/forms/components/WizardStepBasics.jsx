@@ -770,7 +770,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                             <div className="flex items-center gap-3 min-w-0">
                               <span
                                 className={`inline-flex h-5 w-5 items-center justify-center rounded border ${
-                                  checked ? "border-red-500/40 bg-red-600 text-white" : "border-[#E5E7EB] bg-white"
+                                  checked ? "border-red-500/40 bg-[#111827] text-white" : "border-[#E5E7EB] bg-white"
                                 }`}
                                 aria-hidden="true"
                               >
@@ -798,7 +798,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                   {categoryIds.map((id) => (
                     <span
                       key={id}
-                      className="hc-admin-brand-soft hc-admin-brand-text inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium"
+                      className="hc-admin-accent-soft hc-admin-accent-text inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium"
                     >
                       {categoryNameById.get(String(id)) || String(id)}
                     </span>

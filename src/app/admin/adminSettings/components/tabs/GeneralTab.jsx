@@ -36,7 +36,7 @@ function SaveButton({ onClick, disabled, children }) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center gap-2 rounded-xl bg-[#111827] px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-[#111827]/90 disabled:opacity-60"
+      className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
     >
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
         <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
@@ -196,6 +196,7 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
           value={organization.globalNote || []}
           onChange={(newValue) => onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), globalNote: newValue } }))}
           disabled={loading}
+          addButtonClassName="border-red-600/30 bg-red-600/5 text-red-700 hover:bg-red-600/10"
         />
         <div className="mt-6">
           <SaveButton onClick={onSaveOrganization} disabled={saving || loading}>

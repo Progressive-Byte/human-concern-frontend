@@ -56,7 +56,7 @@ const PricingBuilder = ({ mode, pricing, baseUnitAmount, onChangeMode, onChangeP
             type="button"
             onClick={() => onChangeMode?.("fixed")}
             className={`rounded-xl border border-dashed px-3 py-2 text-[13px] font-semibold transition ${
-              m === "fixed" ? "border-red-600 bg-red-600 text-white" : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
+              m === "fixed" ? "border-[#111827] bg-[#111827] text-white" : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
             }`}
           >
             Fixed
@@ -65,7 +65,7 @@ const PricingBuilder = ({ mode, pricing, baseUnitAmount, onChangeMode, onChangeP
             type="button"
             onClick={() => onChangeMode?.("formula")}
             className={`rounded-xl border border-dashed px-3 py-2 text-[13px] font-semibold transition ${
-              m === "formula" ? "border-red-600 bg-red-600 text-white" : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
+              m === "formula" ? "border-[#111827] bg-[#111827] text-white" : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
             }`}
           >
             Formula

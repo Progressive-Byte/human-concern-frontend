@@ -176,7 +176,7 @@ const DonorActivityModal = ({ open, donorKey, onClose }) => {
                 return (
                   <div key={`${idx}-${desc}`} className="flex items-start gap-3">
                     <div className="mt-1.5 flex h-3 w-3 items-center justify-center">
-                      <span className="h-2.5 w-2.5 rounded-full bg-red-600" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#111827]" />
                     </div>
                     <div className="min-w-0 flex-1 rounded-xl bg-[#F9FAFB] px-4 py-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">

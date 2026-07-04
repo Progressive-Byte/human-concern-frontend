@@ -99,7 +99,7 @@ function ConfirmModal({ open, busy, onClose, onConfirm }) {
             type="button"
             onClick={onConfirm}
             disabled={busy}
-            className="rounded-xl bg-[#111827] px-4 py-2.5 text-[13px] font-semibold text-white transition hover:bg-[#111827]/90 disabled:opacity-60"
+            className="rounded-xl bg-red-600 px-4 py-2.5 text-[13px] font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
           >
             {busy ? "Syncing..." : "Sync Now"}
           </button>
@@ -215,7 +215,7 @@ const ExchangeRatesTab = ({ value, onChange, loading, saving, syncing, onSave, o
             type="button"
             onClick={onSave}
             disabled={saving || loading || syncing}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#111827] px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-[#111827]/90 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
           >
             <SaveIcon />
             Save Changes

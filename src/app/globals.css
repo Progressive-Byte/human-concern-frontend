@@ -12,6 +12,11 @@
     --admin-primary-200: #FECACA;
     --admin-primary-600: #DC2626;
     --admin-primary-700: #B91C1C;
+    --admin-accent: #111827;
+    --admin-accent-rgb: 17 24 39;
+    --admin-accent-200: #D5DBE6;
+    --admin-accent-600: #111827;
+    --admin-accent-700: #0B1220;
   }
 
   html {
@@ -62,6 +67,26 @@
     border-color: rgb(var(--admin-primary-rgb) / 0.20) !important;
   }
 
+  .hc-admin-accent-soft {
+    background-color: rgb(var(--admin-accent-rgb) / 0.10) !important;
+  }
+
+  .hc-admin-accent-soft-hover:hover {
+    background-color: rgb(var(--admin-accent-rgb) / 0.15) !important;
+  }
+
+  .hc-admin-accent-text {
+    color: var(--admin-accent-700) !important;
+  }
+
+  .hc-admin-accent-bg {
+    background-color: var(--admin-accent-600) !important;
+  }
+
+  .hc-admin-accent-border {
+    border-color: var(--admin-accent-600) !important;
+  }
+
   .hc-admin-theme .bg-red-600 {
     background-color: var(--admin-primary-600) !important;
   }
@@ -71,11 +96,11 @@
   }
 
   .hc-admin-theme .bg-red-600\/10 {
-    background-color: rgb(var(--admin-primary-rgb) / 0.10) !important;
+    background-color: rgb(var(--admin-accent-rgb) / 0.10) !important;
   }
 
   .hc-admin-theme .bg-red-600\/5 {
-    background-color: rgb(var(--admin-primary-rgb) / 0.05) !important;
+    background-color: rgb(var(--admin-accent-rgb) / 0.05) !important;
   }
 
   .hc-admin-theme .border-red-600 {
@@ -83,15 +108,15 @@
   }
 
   .hc-admin-theme .border-red-600\/20 {
-    border-color: rgb(var(--admin-primary-rgb) / 0.20) !important;
+    border-color: rgb(var(--admin-accent-rgb) / 0.20) !important;
   }
 
   .hc-admin-theme .border-red-600\/30 {
-    border-color: rgb(var(--admin-primary-rgb) / 0.30) !important;
+    border-color: rgb(var(--admin-accent-rgb) / 0.30) !important;
   }
 
   .hc-admin-theme .border-red-600\/40 {
-    border-color: rgb(var(--admin-primary-rgb) / 0.40) !important;
+    border-color: rgb(var(--admin-accent-rgb) / 0.40) !important;
   }
 
   .hc-admin-theme .border-red-500\/15 {
@@ -103,7 +128,7 @@
   }
 
   .hc-admin-theme .border-red-500\/40 {
-    border-color: rgb(var(--admin-primary-rgb) / 0.40) !important;
+    border-color: rgb(var(--admin-accent-rgb) / 0.40) !important;
   }
 
   .hc-admin-theme .ring-red-500\/25 {
@@ -112,11 +137,15 @@
 
   .hc-admin-theme .ring-red-600\/40,
   .hc-admin-theme .focus-visible\:ring-red-600\/40:focus-visible {
-    --tw-ring-color: rgb(var(--admin-primary-rgb) / 0.40) !important;
+    --tw-ring-color: rgb(var(--admin-accent-rgb) / 0.40) !important;
   }
 
   .hc-admin-theme .text-red-200 {
     color: var(--admin-primary-200) !important;
+  }
+
+  .hc-admin-theme .text-red-700 {
+    color: var(--admin-accent-700) !important;
   }
 
   .hc-admin-theme .hover\:bg-red-700:hover {
@@ -128,15 +157,15 @@
   }
 
   .hc-admin-theme .hover\:bg-red-500\/10:hover {
-    background-color: rgb(var(--admin-primary-rgb) / 0.10) !important;
+    background-color: rgb(var(--admin-accent-rgb) / 0.10) !important;
   }
 
   .hc-admin-theme .hover\:bg-red-500\/15:hover {
-    background-color: rgb(var(--admin-primary-rgb) / 0.15) !important;
+    background-color: rgb(var(--admin-accent-rgb) / 0.15) !important;
   }
 
   .hc-admin-theme .hover\:text-red-700:hover {
-    color: var(--admin-primary-700) !important;
+    color: var(--admin-accent-700) !important;
   }
 
   .hc-admin-theme .hover\:border-red-500\/20:hover {
@@ -148,11 +177,44 @@
   }
 
   .hc-admin-theme .accent-red-600 {
-    accent-color: var(--admin-primary-600) !important;
+    accent-color: var(--admin-accent-600) !important;
   }
 
   .hc-admin-theme .decoration-red-500 {
-    text-decoration-color: var(--admin-primary-600) !important;
+    text-decoration-color: var(--admin-accent-600) !important;
+  }
+
+  .hc-admin-theme .bg-\[\#111827\] {
+    background-color: var(--admin-accent-600) !important;
+  }
+
+  .hc-admin-theme .bg-\[\#111827\]\/5 {
+    background-color: rgb(var(--admin-accent-rgb) / 0.05) !important;
+  }
+
+  .hc-admin-theme .bg-\[\#111827\]\/10 {
+    background-color: rgb(var(--admin-accent-rgb) / 0.10) !important;
+  }
+
+  .hc-admin-theme .border-\[\#111827\] {
+    border-color: var(--admin-accent-600) !important;
+  }
+
+  .hc-admin-theme .ring-\[\#111827\]\/30 {
+    --tw-ring-color: rgb(var(--admin-accent-rgb) / 0.30) !important;
+  }
+
+  .hc-admin-theme .hover\:bg-\[\#111827\]\/90:hover,
+  .hc-admin-theme .hover\:bg-\[\#111827\]\/95:hover {
+    background-color: var(--admin-accent-700) !important;
+  }
+
+  .hc-admin-theme .hover\:bg-\[\#EEF2FF\]:hover {
+    background-color: rgb(var(--admin-accent-rgb) / 0.10) !important;
+  }
+
+  .hc-admin-theme .focus\:ring-\[\#111827\]\/15:focus {
+    --tw-ring-color: rgb(var(--admin-accent-rgb) / 0.15) !important;
   }
 
   .font-playfair {

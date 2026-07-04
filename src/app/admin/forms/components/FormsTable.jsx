@@ -116,7 +116,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                       <div className="flex items-center gap-3">
                         <div className="w-[110px] rounded-full bg-[#F3F4F6]">
                           <div
-                            className="h-2 rounded-full bg-red-600"
+                            className="h-2 rounded-full bg-[#111827]"
                             style={{ width: `${Math.max(0, Math.min(100, completion))}%` }}
                           />
                         </div>

@@ -256,7 +256,7 @@ const WizardStepObjectives = ({ campaignId, formId, onExit, onSaved }) => {
 
                     <div
                       className={`flex h-5 w-5 items-center justify-center rounded-full border ${
-                        selected ? "border-red-600 bg-red-600" : "border-[#D1D5DB] bg-white"
+                        selected ? "border-[#111827] bg-[#111827]" : "border-[#D1D5DB] bg-white"
                       }`}
                       aria-hidden="true"
                     >

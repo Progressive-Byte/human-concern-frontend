@@ -265,7 +265,7 @@ function TextArea(props) {
 function ActionButton({ children, onClick, disabled, variant = "light" }) {
   const cls =
     variant === "dark"
-      ? "bg-[#111827] text-white hover:bg-[#111827]/90"
+      ? "bg-red-600 text-white hover:bg-red-700"
       : variant === "danger"
         ? "bg-white text-[#111827] hover:bg-red-500/10 hover:text-red-700"
         : "bg-white text-[#111827] hover:bg-[#F9FAFB]";

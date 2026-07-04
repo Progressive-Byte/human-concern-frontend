@@ -93,6 +93,7 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
                             onChange={() => setDefault(idx)}
                             disabled={disabled}
                             className="h-4 w-4"
+                            style={{ accentColor: "var(--admin-accent-600, #111827)" }}
                           />
                           <span className={Boolean(row.isDefault) ? "font-semibold" : "text-[#6B7280]"}>Use as default</span>
                         </label>
