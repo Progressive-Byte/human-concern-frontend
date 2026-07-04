@@ -49,7 +49,7 @@ const Step4Confirmation = () => {
   const appearance = {
     theme: "stripe",
     variables: {
-      colorPrimary: "#EA3335",
+      colorPrimary: primaryColor,
       colorBackground: "#ffffff",
       borderRadius: "12px",
       fontSizeBase: "14px",
