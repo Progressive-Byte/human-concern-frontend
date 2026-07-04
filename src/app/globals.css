@@ -230,6 +230,123 @@
     --tw-ring-color: rgb(var(--admin-accent-rgb) / 0.15) !important;
   }
 
+  /* Public site/donate/campaign branding — driven by admin Settings > Branding */
+  .hc-brand-theme .bg-\[\#EA3335\] {
+    background-color: var(--brand-primary) !important;
+  }
+
+  .hc-brand-theme .text-\[\#EA3335\] {
+    color: var(--brand-primary) !important;
+  }
+
+  .hc-brand-theme .border-\[\#EA3335\] {
+    border-color: var(--brand-primary) !important;
+  }
+
+  .hc-brand-theme .ring-\[\#EA3335\] {
+    --tw-ring-color: var(--brand-primary) !important;
+  }
+
+  .hc-brand-theme .accent-\[\#EA3335\] {
+    accent-color: var(--brand-primary) !important;
+  }
+
+  .hc-brand-theme .focus\:border-\[\#EA3335\]:focus {
+    border-color: var(--brand-primary) !important;
+  }
+
+  .hc-brand-theme .focus\:ring-\[\#EA3335\]:focus {
+    --tw-ring-color: var(--brand-primary) !important;
+  }
+
+  .hc-brand-theme .focus-within\:border-\[\#EA3335\]:focus-within {
+    border-color: var(--brand-primary) !important;
+  }
+
+  .hc-brand-theme .hover\:text-\[\#EA3335\]:hover {
+    color: var(--brand-primary) !important;
+  }
+
+  .hc-brand-theme .hover\:border-\[\#EA3335\]\/40:hover {
+    border-color: rgb(var(--brand-primary-rgb) / 0.4) !important;
+  }
+
+  .hc-brand-theme .hover\:border-\[\#EA3335\]\/50:hover {
+    border-color: rgb(var(--brand-primary-rgb) / 0.5) !important;
+  }
+
+  .hc-brand-theme .focus\:border-\[\#EA3335\]\/60:focus {
+    border-color: rgb(var(--brand-primary-rgb) / 0.6) !important;
+  }
+
+  .hc-brand-theme .hover\:bg-red-700:hover {
+    background-color: var(--brand-primary-700) !important;
+  }
+
+  .hc-brand-theme .hover\:border-red-500\/20:hover {
+    border-color: rgb(var(--brand-primary-rgb) / 0.2) !important;
+  }
+
+  .hc-brand-theme .hover\:shadow-\[0_16px_34px_rgba\(234\,51\,53\,0\.26\)\]:hover {
+    box-shadow: 0 16px 34px rgb(var(--brand-primary-rgb) / 0.26) !important;
+  }
+
+  .hc-brand-theme .bg-\[\#FFF5F5\],
+  .hc-brand-theme .bg-\[\#FFEEEE\],
+  .hc-brand-theme .bg-\[\#FFF0F0\] {
+    background-color: var(--brand-primary-50) !important;
+  }
+
+  .hc-brand-theme .hover\:bg-\[\#FFF0F0\]:hover {
+    background-color: var(--brand-primary-50) !important;
+  }
+
+  .hc-brand-theme .border-\[\#FFCCCC\] {
+    border-color: var(--brand-primary-100) !important;
+  }
+
+  .hc-brand-theme .bg-\[\#055A46\] {
+    background-color: var(--brand-accent) !important;
+  }
+
+  .hc-brand-theme .text-\[\#055A46\] {
+    color: var(--brand-accent) !important;
+  }
+
+  .hc-brand-theme .border-\[\#055A46\] {
+    border-color: var(--brand-accent) !important;
+  }
+
+  .hc-brand-theme .focus\:border-\[\#055A46\]:focus {
+    border-color: var(--brand-accent) !important;
+  }
+
+  .hc-brand-theme .bg-\[\#055A46\]\/30 {
+    background-color: rgb(var(--brand-accent-rgb) / 0.3) !important;
+  }
+
+  .hc-brand-theme .hover\:border-\[\#055A4666\]:hover {
+    border-color: rgb(var(--brand-accent-rgb) / 0.4) !important;
+  }
+
+  .hc-brand-theme .bg-\[\#DDFFB4\] {
+    background-color: var(--brand-accent-200) !important;
+  }
+
+  .hc-brand-theme .bg-\[\#F0FDF4\],
+  .hc-brand-theme .bg-\[\#F0FAF7\] {
+    background-color: var(--brand-accent-50) !important;
+  }
+
+  .hc-brand-theme .border-\[\#BBF7D0\],
+  .hc-brand-theme .border-\[\#C3E8DC\] {
+    border-color: var(--brand-accent-100) !important;
+  }
+
+  .hc-brand-theme .shadow-\[0px_0px_8px_0px_\#B3FF57\] {
+    box-shadow: 0px 0px 8px 0px rgb(var(--brand-accent-rgb) / 0.55) !important;
+  }
+
   .font-playfair {
     font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
   }
