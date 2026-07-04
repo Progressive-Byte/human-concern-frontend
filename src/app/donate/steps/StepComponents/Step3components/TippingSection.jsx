@@ -15,6 +15,7 @@ const TippingSection = ({
   setCustomTipAmount,
 }) => {
   const { update } = useDonation();
+  const { primaryColor } = useBranding();
 
   const customTipParsed = customTipAmount !== "" ? Math.max(0, Number(customTipAmount) || 0) : null;
   const tipAmount       = customTipParsed !== null
