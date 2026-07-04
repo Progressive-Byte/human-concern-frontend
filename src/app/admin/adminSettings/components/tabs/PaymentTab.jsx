@@ -137,10 +137,17 @@ function buildConfigurationPayload(provider, form) {
 
 function getProviderSummary(gateway) {
   const count = Array.isArray(gateway?.configurations) ? gateway.configurations.length : 0;
+  const activeCount = Array.isArray(gateway?.configurations) ? gateway.configurations.filter((config) => config?.enabled).length : 0;
   const parts = [count === 1 ? "1 configuration" : `${count} configurations`];
 
   if (!count && !gateway?.configured) parts[0] = "No saved configurations";
-  parts.push(gateway?.enabled ? "1 active" : "No active configuration");
+  parts.push(
+    activeCount > 0
+      ? activeCount === 1
+        ? "1 active"
+        : `${activeCount} active`
+      : "No active configuration"
+  );
 
   return parts.join(" · ");
 }
