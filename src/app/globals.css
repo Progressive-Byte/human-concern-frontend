@@ -19,6 +19,19 @@
     --admin-accent-700: #0B1220;
   }
 
+  .hc-brand-theme {
+    --brand-primary: #EA3335;
+    --brand-primary-rgb: 234 51 53;
+    --brand-primary-50: #FEF3F3;
+    --brand-primary-100: #FCE7E7;
+    --brand-primary-700: #C52B2D;
+    --brand-accent: #055A46;
+    --brand-accent-rgb: 5 90 70;
+    --brand-accent-50: #F0F5F4;
+    --brand-accent-100: #DCE8E5;
+    --brand-accent-200: #C0D6D1;
+  }
+
   html {
     scroll-behavior: smooth;
   }
