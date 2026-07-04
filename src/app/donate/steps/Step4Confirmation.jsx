@@ -13,6 +13,7 @@ import { NoticeIcon } from "@/components/common/SvgIcon";
 
 const Step4Confirmation = () => {
   const { data }          = useDonation();
+  const { primaryColor }  = useBranding();
   const pathname          = usePathname();
   const router            = useRouter();
   const [ready, setReady] = useState(false);
