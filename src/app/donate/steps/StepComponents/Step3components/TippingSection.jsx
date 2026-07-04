@@ -1,6 +1,7 @@
 "use client";
 
 import { useDonation } from "@/context/DonationContext";
+import { useBranding } from "@/context/BrandingContext";
 
 const TIP_PERCENTAGES = [0, 5, 10, 15];
 const SLIDER_MAX      = 15;
