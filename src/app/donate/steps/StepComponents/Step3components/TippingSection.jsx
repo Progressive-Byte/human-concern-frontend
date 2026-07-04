@@ -62,7 +62,7 @@ const TippingSection = ({
           onChange={handleSliderChange}
           className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#EA3335]"
           style={{
-            background: `linear-gradient(to right, #EA3335 ${(tipPct / SLIDER_MAX) * 100}%, #E5E5E5 ${(tipPct / SLIDER_MAX) * 100}%)`,
+            background: `linear-gradient(to right, ${primaryColor} ${(tipPct / SLIDER_MAX) * 100}%, #E5E5E5 ${(tipPct / SLIDER_MAX) * 100}%)`,
           }}
         />
         <div className="flex justify-between mt-2">
