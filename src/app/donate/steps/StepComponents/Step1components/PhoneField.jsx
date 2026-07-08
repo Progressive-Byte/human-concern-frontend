@@ -32,6 +32,7 @@ const PhoneField = ({ value, onChange, readOnly }) => {
   useEffect(() => {
     if ((value ?? "") === lastEmitted.current) return;
     lastEmitted.current = value ?? "";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing an external (context) value in, not deriving local state
     setPhone(splitPhone(value));
   }, [value]);
 
