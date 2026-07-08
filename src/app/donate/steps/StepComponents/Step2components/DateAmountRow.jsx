@@ -1,6 +1,10 @@
-const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled = false }) => {
+import { distributeAmount } from "@/utils/causeSplit";
+
+const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled = false, causeSplit, causeLabelById }) => {
   const isOverridden  = override !== "";
   const displayAmount = isOverridden ? Number(override) : effectiveAmount;
+  const showCauseSplit = causeSplit && Object.keys(causeSplit).length > 1;
+  const causeBreakdown = showCauseSplit ? distributeAmount(displayAmount, causeSplit) : [];
 
   if (disabled) {
     return (
