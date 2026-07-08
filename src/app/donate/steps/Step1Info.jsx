@@ -44,18 +44,29 @@ const Step1Info = ({ campaignSlug }) => {
   }, []);
 
   const selectedCauseIds = data.causeIds ?? [];
+  const causeSplit       = data.causeSplit ?? {};
+  const totalAmount      = data.donorAmount || Number(data.amount) || 0;
+  const sym              = CURRENCY_SYMBOLS[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
   const toggleCause = (cause) => {
     const isSelected = selectedCauseIds.includes(cause.id);
+    const nextIds = isSelected
+      ? selectedCauseIds.filter((id) => id !== cause.id)
+      : [...selectedCauseIds, cause.id];
     update({
-      causeIds: isSelected
-        ? selectedCauseIds.filter((id) => id !== cause.id)
-        : [...selectedCauseIds, cause.id],
+      causeIds: nextIds,
       causes: isSelected
         ? (data.causes ?? []).filter((l) => l !== cause.label)
         : [...(data.causes ?? []), cause.label],
+      causeSplit: equalSplit(nextIds),
     });
     setError("");
+  };
+
+  const handleSplitChange = (causeId, amount) => {
+    if (totalAmount <= 0) return;
+    const newRatio = Number(amount) / totalAmount;
+    update({ causeSplit: rebalanceOnEdit(causeSplit, causeId, newRatio) });
   };
 
   useEffect(() => {
