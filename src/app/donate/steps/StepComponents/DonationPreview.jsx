@@ -127,12 +127,16 @@ const DonationPreview = ({ currentStep }) => {
             <Section label="Causes">
               {data.causes.length > 1 && effectiveAmountTier > 0 ? (
                 <div className="flex flex-col gap-1">
-                  {distributeAmount(effectiveAmountTier, data.causeSplit ?? {}).map(({ causeId, amount }, idx) => (
-                    <div key={causeId} className="flex items-center justify-between gap-2">
-                      <span className="text-[12px] text-[#383838] truncate">{data.causes[idx] ?? causeId}</span>
-                      <span className="text-[12px] font-medium text-[#383838] shrink-0">{sym}{amount.toFixed(2)}</span>
-                    </div>
-                  ))}
+                  {distributeAmount(effectiveAmountTier, data.causeSplit ?? {}).map(({ causeId, amount }) => {
+                    const idx = (data.causeIds ?? []).indexOf(causeId);
+                    const label = idx >= 0 ? data.causes[idx] : causeId;
+                    return (
+                      <div key={causeId} className="flex items-center justify-between gap-2">
+                        <span className="text-[12px] text-[#383838] truncate">{label}</span>
+                        <span className="text-[12px] font-medium text-[#383838] shrink-0">{sym}{amount.toFixed(2)}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-1.5">
