@@ -244,7 +244,23 @@ const Step2Payment = () => {
 
         {/* ── Step 1: Donation Amount ── */}
         <div className="flex flex-col gap-3">
-          <SectionStep num={1} title="Donation Amount" />
+          <div className="flex items-center justify-between gap-3">
+            <SectionStep num={1} title="Donation Amount" />
+            <select
+              value={data.currency ?? "USD"}
+              onChange={(e) => update({ currency: e.target.value })}
+              disabled={isEditMode}
+              className={`rounded-lg border px-2.5 py-1.5 text-[12px] font-medium outline-none transition-colors ${
+                isEditMode
+                  ? "border-[#E5E5E5] bg-[#F9FAFB] text-[#9CA3AF] cursor-not-allowed"
+                  : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335] cursor-pointer"
+              }`}
+            >
+              {currencyOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
           <AmountSelector
             suggestedAmounts={suggestedAmounts}
             currenciesWithRates={currenciesWithRates}
@@ -256,9 +272,7 @@ const Step2Payment = () => {
             occurrences={occurrences}
             initialAmount={initAmount}
             onAmountChange={handleAmountChange}
-            onCurrencyChange={(val) => update({ currency: val })}
             overrideTotal={perDateTotal}
-            disableCurrency={isEditMode}
           />
         </div>
 
