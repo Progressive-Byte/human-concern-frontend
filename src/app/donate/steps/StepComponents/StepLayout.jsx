@@ -85,10 +85,13 @@ const StepLayout = ({
             </div>
           </div>
 
-          {/* Desktop: preview floats to the right without shifting the form */}
+          {/* Desktop: preview floats to the right without shifting the form, and
+              stays pinned in view (within the form's height) while scrolling. */}
           {showPreview && (
-            <div className="hidden lg:block absolute top-0 left-[calc(100%+20px)] w-[272px]">
-              <DonationPreview currentStep={step} />
+            <div className="hidden lg:block absolute inset-y-0 left-[calc(100%+20px)] w-[272px]">
+              <div className="sticky top-[110px]">
+                <DonationPreview currentStep={step} />
+              </div>
             </div>
           )}
         </div>
