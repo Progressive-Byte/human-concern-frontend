@@ -1,5 +1,5 @@
 import Field from "@/components/ui/Field";
-import PhoneField from "./PhoneField";
+import PhoneField from "@/components/ui/PhoneField";
 
 const PersonalInfoSection = ({
   isAuthenticated,
