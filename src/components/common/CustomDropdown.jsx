@@ -80,12 +80,17 @@ const CustomDropdown = ({
   const selectedOption = options.find((o) => o.value === value);
   const triggerLabel = selectedOption?.label ?? placeholder;
   const isForm = variant === "form";
+  const isCompact = variant === "compact";
 
   const triggerCls = isForm
     ? `w-full flex items-center justify-between gap-2 px-4 text-[14px] border rounded-xl bg-white transition-colors focus:outline-none ${triggerHeight || "py-3"} ${
         disabled
           ? "border-[#E0E0E0] bg-[#F5F5F5] text-[#888888] cursor-default"
           : "border-[#CCCCCC] text-[#383838] hover:border-[#383838] cursor-pointer"
+      } ${className}`
+    : isCompact
+    ? `flex items-center gap-1.5 px-3 text-[13px] bg-transparent transition-colors focus:outline-none ${triggerHeight || "py-3"} ${
+        disabled ? "text-[#9CA3AF] cursor-not-allowed" : "text-[#383838] hover:bg-[#F9FAFB] cursor-pointer"
       } ${className}`
     : `flex items-center gap-3 px-5 py-2.5 cursor-pointer bg-white border border-[#CCCCCC] rounded-full text-sm transition-colors hover:border-gray-400 ${triggerHeight} ${className}`;
 
@@ -96,16 +101,22 @@ const CustomDropdown = ({
         onClick={handleToggle}
         className={triggerCls}
       >
-        {icon && <span className="shrink-0 text-[#1A1A1A]">{icon}</span>}
-        {showFilterIcon && FilterIcon}
-        <span className={isForm ? (value ? "text-[#383838]" : "text-[#AEAEAE]") : "text-[#1A1A1A] font-medium"}>
-          {triggerLabel}
-        </span>
-        {showDot && (
-          <span className="w-1.5 h-1.5 rounded-full bg-[#EA3335] shrink-0" />
+        {renderTrigger ? (
+          renderTrigger(selectedOption)
+        ) : (
+          <>
+            {icon && <span className="shrink-0 text-[#1A1A1A]">{icon}</span>}
+            {showFilterIcon && FilterIcon}
+            <span className={isForm ? (value ? "text-[#383838]" : "text-[#AEAEAE]") : "text-[#1A1A1A] font-medium"}>
+              {triggerLabel}
+            </span>
+            {showDot && (
+              <span className="w-1.5 h-1.5 rounded-full bg-[#EA3335] shrink-0" />
+            )}
+          </>
         )}
         <span
-          className={`shrink-0 transition-transform duration-200 ${isForm ? "text-[#AEAEAE]" : "text-[#1A1A1A]"} ${
+          className={`shrink-0 transition-transform duration-200 ${isForm || isCompact ? "text-[#AEAEAE]" : "text-[#1A1A1A]"} ${
             open ? "rotate-180" : "rotate-0"
           }`}
         >
@@ -116,7 +127,7 @@ const CustomDropdown = ({
       {open && !disabled && (
         <div
           className={`absolute left-0 z-50 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden ${
-            isForm ? "w-full" : `right-0 ${width}`
+            isForm ? "w-full" : isCompact ? panelWidth : `right-0 ${width}`
           } ${dropUp ? "bottom-full mb-1" : "mt-1"}`}
         >
           {/* Search input */}
