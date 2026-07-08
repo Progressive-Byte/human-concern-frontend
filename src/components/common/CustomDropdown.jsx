@@ -18,6 +18,9 @@ const CustomDropdown = ({
   className = "",
   variant = "pill",
   disabled = false,
+  renderTrigger,
+  renderOption,
+  panelWidth = "w-72",
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
