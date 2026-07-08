@@ -54,13 +54,13 @@ const PhoneField = ({ value, onChange, readOnly }) => {
   };
 
   const handleCountryChange = (isoCode) => {
-    setIso(isoCode);
+    setPhone({ iso: isoCode, number });
     emit(isoCode, number);
   };
 
   const handleNumberChange = (e) => {
     const digits = e.target.value.replace(/\D/g, "");
-    setNumber(digits);
+    setPhone({ iso, number: digits });
     emit(iso, digits);
   };
 
