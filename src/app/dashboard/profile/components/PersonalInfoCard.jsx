@@ -22,7 +22,7 @@ export function PersonalInfoCard({ loading, savingProfile, form, setField, setAd
             </div>
 
             <Field label="Email Address" value={form.email} type="email" readOnly />
-            <Field label="Phone Number"  value={form.phone} type="tel" onChange={setField("phone")} placeholder="+1 555..." />
+            <PhoneField label="Phone Number" value={form.phone} onChange={setField("phone")} />
 
             <div className="pt-2">
               <p className="text-[13px] font-semibold text-[#111827]">Address</p>
