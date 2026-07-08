@@ -391,6 +391,7 @@ const Step3Addons = () => {
         amount:      amountTier,
         currency,
         ...(tipAmount > 0 && { platformTipAmount: tipAmount }),
+        causeAllocations: distributeAmount(amountTier, data.causeSplit ?? {}),
       };
     }
     return body;
