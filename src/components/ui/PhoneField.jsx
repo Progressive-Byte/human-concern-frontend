@@ -81,7 +81,7 @@ const PhoneField = ({ value, onChange, readOnly, label = "Phone (Optional)" }) =
 
   return (
     <div>
-      <label className="text-[13px] font-medium text-[#111827] mb-1.5 block">Phone (Optional)</label>
+      <label className="text-[13px] font-medium text-[#111827] mb-1.5 block">{label}</label>
       <div className={`flex items-stretch rounded-xl border transition-colors ${
         readOnly ? "border-[#E5E7EB] bg-[#F3F4F6]" : "border-dashed border-[#E5E7EB] focus-within:border-[#EA3335]/60"
       }`}>
