@@ -10,6 +10,9 @@ import PersonalInfoSection from "./StepComponents/Step1components/PersonalInfoSe
 import AddressSection      from "./StepComponents/Step1components/AddressSection";
 import CauseSelector       from "./StepComponents/Step1components/CauseSelector";
 import DonorPreferences    from "./StepComponents/Step1components/DonorPreferences";
+import { equalSplit, rebalanceOnEdit } from "@/utils/causeSplit";
+
+const CURRENCY_SYMBOLS = { USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$", SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥" };
 
 const Step1Info = ({ campaignSlug }) => {
   const pathname = usePathname();
