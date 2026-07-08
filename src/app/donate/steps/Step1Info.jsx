@@ -219,6 +219,10 @@ const Step1Info = ({ campaignSlug }) => {
           causes={causes}
           selectedCauseIds={selectedCauseIds}
           toggleCause={toggleCause}
+          causeSplit={causeSplit}
+          totalAmount={totalAmount}
+          sym={sym}
+          onSplitChange={handleSplitChange}
         />
 
         <DonorPreferences
