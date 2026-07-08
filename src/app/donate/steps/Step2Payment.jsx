@@ -352,6 +352,8 @@ const Step2Payment = () => {
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}
                 apiPresets={recurringPresets}
+                causeSplit={causeSplit}
+                causeLabelById={causeLabelById}
                 onChange={handleScheduleChange}
               />
             </div>
