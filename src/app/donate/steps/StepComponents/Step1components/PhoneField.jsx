@@ -16,8 +16,13 @@ const ALL_COUNTRIES = Country.getAllCountries()
   .map((c) => ({ ...c, phonecode: normalizePhonecode(c.phonecode) }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
-// Longest dial code first, so e.g. "+1242" (Bahamas) is matched before "+1" (US).
+// Longest dial code first, so multi-digit codes match before shorter prefixes of them.
 const BY_LONGEST_CODE = [...ALL_COUNTRIES].sort((a, b) => b.phonecode.length - a.phonecode.length);
+
+// Several countries share the same calling code (e.g. "1" spans the US, Canada
+// and NANP territories; "44" spans the UK, Guernsey, Jersey, Isle of Man) — when
+// re-parsing a stored number we can't tell them apart, so prefer the best-known one.
+const PRIMARY_ISO_FOR_CODE = { 1: "US", 44: "GB" };
 
 const DEFAULT_ISO = "US";
 
@@ -27,7 +32,8 @@ function splitPhone(value) {
   const digits = raw.slice(1);
   const match = BY_LONGEST_CODE.find((c) => digits.startsWith(c.phonecode));
   if (!match) return { iso: DEFAULT_ISO, number: digits };
-  return { iso: match.isoCode, number: digits.slice(match.phonecode.length) };
+  const iso = PRIMARY_ISO_FOR_CODE[match.phonecode] ?? match.isoCode;
+  return { iso, number: digits.slice(match.phonecode.length) };
 }
 
 const PhoneField = ({ value, onChange, readOnly }) => {
