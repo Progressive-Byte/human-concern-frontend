@@ -63,6 +63,7 @@ const AmountSelector = ({
   const [selectedBase, setSelectedBase]           = useState(initialBase ?? suggestedAmounts[0] ?? null);
   const [customAmount, setCustomAmount]           = useState(isCustomInit ? String(Math.round(Number(initialAmount) * 100) / 100) : "");
   const [customAmountError, setCustomAmountError] = useState("");
+  const [locked, setLocked]                       = useState(defaultLocked);
 
   const convertedMin = toConverted(minDonation ?? 0);
   const convertedMax = maxDonation != null ? toConverted(maxDonation) : undefined;
