@@ -83,15 +83,19 @@ const AmountSelector = ({
     onAmountChange(toConverted(base), false);
   };
 
-  const handleCurrencyChange = (newCurrency) => {
-    const newRate = rateMap[newCurrency] ?? 1;
-    // Recompute the effective amount in the new currency from the selected base
-    if (selectedBase !== null && !customAmount) {
-      const newConverted = Math.round(selectedBase * newRate * 100) / 100;
-      onAmountChange(newConverted, false);
+  // Currency is now selected by the parent (Step2Payment); recompute the
+  // effective amount from the selected base whenever it changes here.
+  const isFirstCurrencyRender = useRef(true);
+  useEffect(() => {
+    if (isFirstCurrencyRender.current) {
+      isFirstCurrencyRender.current = false;
+      return;
     }
-    onCurrencyChange(newCurrency);
-  };
+    if (selectedBase !== null && !customAmount) {
+      onAmountChange(toConverted(selectedBase), false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency]);
 
   const handleCustomChange = (e) => {
     const val = e.target.value;
