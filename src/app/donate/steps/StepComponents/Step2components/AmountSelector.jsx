@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Select from "@/components/ui/Select";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
