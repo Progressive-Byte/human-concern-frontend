@@ -124,7 +124,7 @@ const Step1Info = ({ campaignSlug }) => {
       update({
         organization: "", firstName: "", lastName: "", email: "", phone: "",
         addressLine1: "", city: "", province: "", zip: "", country: "",
-        causeIds: [], causes: [], objective: null, objectiveLabel: "",
+        causeIds: [], causes: [], causeSplit: {}, objective: null, objectiveLabel: "",
       });
       setEditMode(false);
       setHasEdited(false);
