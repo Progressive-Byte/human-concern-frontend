@@ -1,6 +1,7 @@
 import { UserIcon, SaveIcon } from "@/components/common/SvgIcon";
 import UserSectionHeader from "@/components/ui/UserSectionHeader";
 import Field from "@/components/ui/Field";
+import PhoneField from "@/components/ui/PhoneField";
 import { SkeletonStack } from "@/components/ui/Skeleton";
 
 export function PersonalInfoCard({ loading, savingProfile, form, setField, setAddress, onSave }) {
