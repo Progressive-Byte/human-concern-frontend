@@ -74,6 +74,18 @@ const Step2Payment = () => {
   const _currSymbols = { USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$", SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥" };
   const sym          = _currSymbols[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
+  const currencyOptions = useMemo(() => {
+    if (currenciesWithRates?.length) {
+      return currenciesWithRates.map(({ currency: code }) => ({
+        label: `${code} (${_currSymbols[code] ?? code})`,
+        value: code,
+      }));
+    }
+    const cur = data.currency ?? "USD";
+    return [{ label: `${cur} (${_currSymbols[cur] ?? cur})`, value: cur }];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currenciesWithRates, data.currency]);
+
   const initOccurrences = useMemo(() => {
     const sc = data.scheduleConfig;
     if (!sc || !isRecurring) return 1;
