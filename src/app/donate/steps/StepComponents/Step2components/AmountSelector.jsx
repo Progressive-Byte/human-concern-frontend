@@ -62,7 +62,9 @@ const AmountSelector = ({
   const [selectedBase, setSelectedBase]           = useState(initialBase ?? suggestedAmounts[0] ?? null);
   const [customAmount, setCustomAmount]           = useState(isCustomInit ? String(Math.round(Number(initialAmount) * 100) / 100) : "");
   const [customAmountError, setCustomAmountError] = useState("");
-  const [locked, setLocked]                       = useState(defaultLocked);
+  // Amount starts locked to the pre-selected value; the donor must explicitly
+  // click "Edit change" to modify it, mirroring Step1Info's field lock pattern.
+  const [locked, setLocked] = useState(true);
 
   const convertedMin = toConverted(minDonation ?? 0);
   const convertedMax = maxDonation != null ? toConverted(maxDonation) : undefined;
