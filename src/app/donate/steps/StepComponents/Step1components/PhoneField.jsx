@@ -91,7 +91,6 @@ const PhoneField = ({ value, onChange, readOnly }) => {
           value={iso}
           onChange={handleCountryChange}
           label="Countries"
-          placeholder="Country name"
           panelWidth="w-72"
           maxHeight="240px"
           disabled={readOnly}
