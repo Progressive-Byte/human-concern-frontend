@@ -338,7 +338,6 @@ const Step3Addons = () => {
         streetName:   data.addressLine1 ?? "",
         country:      data.country      ?? "",
       },
-      causeIds: data.causeIds ?? [],
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: gatewayState.gateway,
       ...(data.anonymous && { isAnonymous: true }),
