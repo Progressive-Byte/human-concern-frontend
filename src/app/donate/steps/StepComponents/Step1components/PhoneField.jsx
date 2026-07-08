@@ -4,8 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Country } from "country-state-city";
 import CustomDropdown from "@/components/common/CustomDropdown";
 
+// country-state-city stores some phonecodes as "+1-684" (dependent territories
+// sharing a country code) or "1-809 and 1-829" (multiple area codes) — reduce
+// to just the leading numeric calling code, e.g. "684" territories -> "1".
+function normalizePhonecode(raw) {
+  return String(raw ?? "").replace(/^\+/, "").split(/[\s-]/)[0];
+}
+
 const ALL_COUNTRIES = Country.getAllCountries()
   .filter((c) => c.phonecode)
+  .map((c) => ({ ...c, phonecode: normalizePhonecode(c.phonecode) }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
 // Longest dial code first, so e.g. "+1242" (Bahamas) is matched before "+1" (US).
