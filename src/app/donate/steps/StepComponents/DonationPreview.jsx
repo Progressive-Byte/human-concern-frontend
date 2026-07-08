@@ -125,16 +125,27 @@ const DonationPreview = ({ currentStep }) => {
 
           {data.causes?.length > 0 && (
             <Section label="Causes">
-              <div className="flex flex-wrap gap-1.5">
-                {data.causes.map((cause) => (
-                  <span
-                    key={cause}
-                    className="text-[11px] font-medium text-[#383838] bg-[#F3F4F6] rounded-full px-2.5 py-1 leading-none"
-                  >
-                    {cause}
-                  </span>
-                ))}
-              </div>
+              {data.causes.length > 1 && effectiveAmountTier > 0 ? (
+                <div className="flex flex-col gap-1">
+                  {distributeAmount(effectiveAmountTier, data.causeSplit ?? {}).map(({ causeId, amount }, idx) => (
+                    <div key={causeId} className="flex items-center justify-between gap-2">
+                      <span className="text-[12px] text-[#383838] truncate">{data.causes[idx] ?? causeId}</span>
+                      <span className="text-[12px] font-medium text-[#383838] shrink-0">{sym}{amount.toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {data.causes.map((cause) => (
+                    <span
+                      key={cause}
+                      className="text-[11px] font-medium text-[#383838] bg-[#F3F4F6] rounded-full px-2.5 py-1 leading-none"
+                    >
+                      {cause}
+                    </span>
+                  ))}
+                </div>
+              )}
             </Section>
           )}
 
