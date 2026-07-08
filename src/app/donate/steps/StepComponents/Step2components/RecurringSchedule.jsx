@@ -326,6 +326,8 @@ const RecurringSchedule = ({
           sym={sym}
           onChange={handleDateAmountChange}
           todayStr={todayStr}
+          causeSplit={causeSplit}
+          causeLabelById={causeLabelById}
         />
       )}
 
