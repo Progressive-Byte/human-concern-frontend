@@ -27,7 +27,6 @@ const AmountSelector = ({
   initialAmount,
   onAmountChange,
   overrideTotal,
-  locked = false,
 }) => {
   // Build rate map from campaign data
   const rateMap = useMemo(() => {
