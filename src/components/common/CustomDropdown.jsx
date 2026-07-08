@@ -173,7 +173,7 @@ const CustomDropdown = ({
                           : "text-gray-700"
                       }`}
                     >
-                      <span>{opt.label}</span>
+                      {renderOption ? renderOption(opt, isActive) : <span>{opt.label}</span>}
                       {isActive && IsActiveIcon}
                     </button>
                   </li>
