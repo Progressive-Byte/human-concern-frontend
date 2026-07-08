@@ -26,6 +26,8 @@ const RecurringSchedule = ({
   initialConfig,
   initialActivePreset,
   apiPresets = [],
+  causeSplit,
+  causeLabelById,
   onChange,
 }) => {
   const todayStr = useMemo(getTodayStr, []);
