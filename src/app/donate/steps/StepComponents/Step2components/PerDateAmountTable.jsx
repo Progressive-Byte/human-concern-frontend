@@ -45,6 +45,8 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
             sym={sym}
             onChange={onChange}
             disabled={d < today}
+            causeSplit={causeSplit}
+            causeLabelById={causeLabelById}
           />
         ))}
       </div>
