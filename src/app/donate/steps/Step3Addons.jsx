@@ -278,14 +278,18 @@ const Step3Addons = () => {
   const buildApiScheduleConfig = (scheduleType, scheduleConfig) => {
     const dateAmounts = scheduleConfig.dateAmounts ?? {};
 
+    const causeSplit = data.causeSplit ?? {};
+
     if (scheduleType === "specific_dates") {
       const dates = scheduleConfig.dates ?? [];
       return {
         dates: dates.map((isoDate) => {
-          const key = isoDate.split("T")[0];
+          const key    = isoDate.split("T")[0];
+          const amount = dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier;
           return {
             date:   isoDate,
-            amount: dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier,
+            amount,
+            causeAllocations: distributeAmount(amount, causeSplit),
           };
         }),
       };
@@ -304,10 +308,14 @@ const Step3Addons = () => {
       endDate:   scheduleConfig.endDate   ?? "",
       frequency: apiFreq,
       ...(apiFreq === "interval" && { intervalValue: interval }),
-      dates: allKeys.map((d) => ({
-        date:   new Date(`${d}T00:00:00.000Z`).toISOString(),
-        amount: dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier,
-      })),
+      dates: allKeys.map((d) => {
+        const amount = dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier;
+        return {
+          date:   new Date(`${d}T00:00:00.000Z`).toISOString(),
+          amount,
+          causeAllocations: distributeAmount(amount, causeSplit),
+        };
+      }),
     };
   };
 
