@@ -74,6 +74,11 @@ const Step2Payment = () => {
   const _currSymbols = { USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$", SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥" };
   const sym          = _currSymbols[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
+  const causeSplit = data.causeSplit ?? {};
+  const causeLabelById = Object.fromEntries(
+    (data.causeIds ?? []).map((id, i) => [id, data.causes?.[i] ?? id])
+  );
+
   const currencyOptions = useMemo(() => {
     if (currenciesWithRates?.length) {
       return currenciesWithRates.map(({ currency: code }) => ({
