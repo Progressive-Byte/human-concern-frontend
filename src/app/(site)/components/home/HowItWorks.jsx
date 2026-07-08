@@ -69,7 +69,7 @@ const iconHover =
       id="how-it-works"
       ref={sectionRef}
     >
-      <div className="max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-0">
+      <div className="max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`${revealBase} ${revealIn} text-center mb-10 sm:mb-14`} style={{ transitionDelay: "0ms" }}>
           <h2 className="text-2xl sm:text-3xl lg:text-[40px] font-bold text-white">
             How It Works
