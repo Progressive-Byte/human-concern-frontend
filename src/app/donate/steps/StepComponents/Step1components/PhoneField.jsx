@@ -23,19 +23,16 @@ function splitPhone(value) {
 }
 
 const PhoneField = ({ value, onChange, readOnly }) => {
-  const initial = useMemo(() => splitPhone(value), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const [iso, setIso] = useState(initial.iso);
-  const [number, setNumber] = useState(initial.number);
+  const [phone, setPhone] = useState(() => splitPhone(value));
+  const { iso, number } = phone;
   const lastEmitted = useRef(value ?? "");
 
   // Re-sync if the value changes from outside (auth pre-fill, logout reset, back-nav) —
   // but not when the change originated from this component's own onChange calls.
   useEffect(() => {
     if ((value ?? "") === lastEmitted.current) return;
-    const parsed = splitPhone(value);
-    setIso(parsed.iso);
-    setNumber(parsed.number);
     lastEmitted.current = value ?? "";
+    setPhone(splitPhone(value));
   }, [value]);
 
   const options = useMemo(
