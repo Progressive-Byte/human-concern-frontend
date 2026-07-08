@@ -36,7 +36,7 @@ function splitPhone(value) {
   return { iso, number: digits.slice(match.phonecode.length) };
 }
 
-const PhoneField = ({ value, onChange, readOnly }) => {
+const PhoneField = ({ value, onChange, readOnly, label = "Phone (Optional)" }) => {
   const [phone, setPhone] = useState(() => splitPhone(value));
   const { iso, number } = phone;
   const lastEmitted = useRef(value ?? "");
