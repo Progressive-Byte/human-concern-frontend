@@ -46,14 +46,14 @@ const CauseAmountInput = ({ amount, sym, onChange }) => {
 };
 
 const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, totalAmount, sym, onSplitChange }) => {
-  if (!causes.length) return null;
-
-  const showSplit = selectedCauseIds.length > 1;
-
   const allocations = useMemo(
     () => Object.fromEntries(distributeAmount(totalAmount, causeSplit).map((a) => [a.causeId, a.amount])),
     [totalAmount, causeSplit]
   );
+
+  if (!causes.length) return null;
+
+  const showSplit = selectedCauseIds.length > 1;
 
   return (
     <div className="flex flex-col gap-3">
