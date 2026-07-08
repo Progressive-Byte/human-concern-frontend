@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Section from "@/components/ui/Section";
 import { useDonation } from "@/context/DonationContext";
 import { generateDatesInRange } from "./countOccurrences";
+import { distributeAmount } from "@/utils/causeSplit";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
