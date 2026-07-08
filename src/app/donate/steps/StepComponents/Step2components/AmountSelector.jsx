@@ -26,11 +26,10 @@ const AmountSelector = ({
   occurrences,
   initialAmount,
   onAmountChange,
-  onCurrencyChange,
   overrideTotal,
-  disableCurrency = false,
+  locked = false,
 }) => {
-  // Build rate map and currency options from campaign data
+  // Build rate map from campaign data
   const rateMap = useMemo(() => {
     const map = {};
     (currenciesWithRates ?? []).forEach(({ currency: code, rate }) => {
@@ -38,17 +37,6 @@ const AmountSelector = ({
     });
     return map;
   }, [currenciesWithRates]);
-
-  const currencyOptions = useMemo(() => {
-    if (currenciesWithRates?.length) {
-      return currenciesWithRates.map(({ currency: code }) => ({
-        label: `${code} (${getCurrencySymbol(code)})`,
-        value: code,
-      }));
-    }
-    // fallback: show only the active currency
-    return [{ label: `${currency} (${getCurrencySymbol(currency)})`, value: currency }];
-  }, [currenciesWithRates, currency]);
 
   const sym  = getCurrencySymbol(currency);
   const rate = rateMap[currency] ?? 1;
