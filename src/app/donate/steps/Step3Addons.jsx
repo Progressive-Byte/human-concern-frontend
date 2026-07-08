@@ -8,6 +8,7 @@ import StepLayout from "./StepComponents/StepLayout";
 import { apiRequest } from "@/services/api";
 import { submitScheduleEditForm } from "@/services/donationService";
 import { generateDatesInRange } from "./StepComponents/countOccurrences";
+import { distributeAmount } from "@/utils/causeSplit";
 import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
