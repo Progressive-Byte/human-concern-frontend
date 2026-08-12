@@ -7,3 +7,7 @@ export function getCampaigns() {
 export function getCampaignById(id) {
   return apiRequest(`/campaigns/${id}`);
 }
+
+export function getPublicBranding() {
+  return apiRequest("/settings/branding");
+}

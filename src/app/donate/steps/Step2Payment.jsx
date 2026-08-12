@@ -74,6 +74,23 @@ const Step2Payment = () => {
   const _currSymbols = { USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$", SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥" };
   const sym          = _currSymbols[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
+  const causeSplit = data.causeSplit ?? {};
+  const causeLabelById = Object.fromEntries(
+    (data.causeIds ?? []).map((id, i) => [id, data.causes?.[i] ?? id])
+  );
+
+  const currencyOptions = useMemo(() => {
+    if (currenciesWithRates?.length) {
+      return currenciesWithRates.map(({ currency: code }) => ({
+        label: `${code} (${_currSymbols[code] ?? code})`,
+        value: code,
+      }));
+    }
+    const cur = data.currency ?? "USD";
+    return [{ label: `${cur} (${_currSymbols[cur] ?? cur})`, value: cur }];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currenciesWithRates, data.currency]);
+
   const initOccurrences = useMemo(() => {
     const sc = data.scheduleConfig;
     if (!sc || !isRecurring) return 1;
@@ -232,7 +249,23 @@ const Step2Payment = () => {
 
         {/* ── Step 1: Donation Amount ── */}
         <div className="flex flex-col gap-3">
-          <SectionStep num={1} title="Donation Amount" />
+          <div className="flex items-center justify-between gap-3">
+            <SectionStep num={1} title="Donation Amount" />
+            <select
+              value={data.currency ?? "USD"}
+              onChange={(e) => update({ currency: e.target.value })}
+              disabled={isEditMode}
+              className={`rounded-lg border px-2.5 py-1.5 text-[12px] font-medium outline-none transition-colors ${
+                isEditMode
+                  ? "border-[#E5E5E5] bg-[#F9FAFB] text-[#9CA3AF] cursor-not-allowed"
+                  : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335] cursor-pointer"
+              }`}
+            >
+              {currencyOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
           <AmountSelector
             suggestedAmounts={suggestedAmounts}
             currenciesWithRates={currenciesWithRates}
@@ -244,9 +277,7 @@ const Step2Payment = () => {
             occurrences={occurrences}
             initialAmount={initAmount}
             onAmountChange={handleAmountChange}
-            onCurrencyChange={(val) => update({ currency: val })}
             overrideTotal={perDateTotal}
-            disableCurrency={isEditMode}
           />
         </div>
 
@@ -321,6 +352,8 @@ const Step2Payment = () => {
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}
                 apiPresets={recurringPresets}
+                causeSplit={causeSplit}
+                causeLabelById={causeLabelById}
                 onChange={handleScheduleChange}
               />
             </div>

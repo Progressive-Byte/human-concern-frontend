@@ -1,6 +1,7 @@
 "use client";
 
 import { useDonation } from "@/context/DonationContext";
+import { useBranding } from "@/context/BrandingContext";
 
 const TIP_PERCENTAGES = [0, 5, 10, 15];
 const SLIDER_MAX      = 15;
@@ -14,6 +15,7 @@ const TippingSection = ({
   setCustomTipAmount,
 }) => {
   const { update } = useDonation();
+  const { primaryColor } = useBranding();
 
   const customTipParsed = customTipAmount !== "" ? Math.max(0, Number(customTipAmount) || 0) : null;
   const tipAmount       = customTipParsed !== null
@@ -60,7 +62,7 @@ const TippingSection = ({
           onChange={handleSliderChange}
           className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#EA3335]"
           style={{
-            background: `linear-gradient(to right, #EA3335 ${(tipPct / SLIDER_MAX) * 100}%, #E5E5E5 ${(tipPct / SLIDER_MAX) * 100}%)`,
+            background: `linear-gradient(to right, ${primaryColor} ${(tipPct / SLIDER_MAX) * 100}%, #E5E5E5 ${(tipPct / SLIDER_MAX) * 100}%)`,
           }}
         />
         <div className="flex justify-between mt-2">

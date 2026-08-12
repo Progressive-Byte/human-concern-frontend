@@ -8,6 +8,7 @@ import StepLayout from "./StepComponents/StepLayout";
 import { apiRequest } from "@/services/api";
 import { submitScheduleEditForm } from "@/services/donationService";
 import { generateDatesInRange } from "./StepComponents/countOccurrences";
+import { distributeAmount } from "@/utils/causeSplit";
 import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
@@ -277,14 +278,18 @@ const Step3Addons = () => {
   const buildApiScheduleConfig = (scheduleType, scheduleConfig) => {
     const dateAmounts = scheduleConfig.dateAmounts ?? {};
 
+    const causeSplit = data.causeSplit ?? {};
+
     if (scheduleType === "specific_dates") {
       const dates = scheduleConfig.dates ?? [];
       return {
         dates: dates.map((isoDate) => {
-          const key = isoDate.split("T")[0];
+          const key    = isoDate.split("T")[0];
+          const amount = dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier;
           return {
             date:   isoDate,
-            amount: dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier,
+            amount,
+            causeAllocations: distributeAmount(amount, causeSplit),
           };
         }),
       };
@@ -303,10 +308,14 @@ const Step3Addons = () => {
       endDate:   scheduleConfig.endDate   ?? "",
       frequency: apiFreq,
       ...(apiFreq === "interval" && { intervalValue: interval }),
-      dates: allKeys.map((d) => ({
-        date:   new Date(`${d}T00:00:00.000Z`).toISOString(),
-        amount: dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier,
-      })),
+      dates: allKeys.map((d) => {
+        const amount = dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier;
+        return {
+          date:   new Date(`${d}T00:00:00.000Z`).toISOString(),
+          amount,
+          causeAllocations: distributeAmount(amount, causeSplit),
+        };
+      }),
     };
   };
 
@@ -329,7 +338,6 @@ const Step3Addons = () => {
         streetName:   data.addressLine1 ?? "",
         country:      data.country      ?? "",
       },
-      causeIds: data.causeIds ?? [],
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: gatewayState.gateway,
       ...(data.anonymous && { isAnonymous: true }),
@@ -383,6 +391,7 @@ const Step3Addons = () => {
         amount:      amountTier,
         currency,
         ...(tipAmount > 0 && { platformTipAmount: tipAmount }),
+        causeAllocations: distributeAmount(amountTier, data.causeSplit ?? {}),
       };
     }
     return body;

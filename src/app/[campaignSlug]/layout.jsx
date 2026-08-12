@@ -1,5 +1,10 @@
 import { DonationProvider } from "@/context/DonationContext";
+import { BrandingProvider } from "@/context/BrandingContext";
 
 export default function CampaignDonateLayout({ children }) {
-  return <DonationProvider>{children}</DonationProvider>;
+  return (
+    <BrandingProvider>
+      <DonationProvider>{children}</DonationProvider>
+    </BrandingProvider>
+  );
 }

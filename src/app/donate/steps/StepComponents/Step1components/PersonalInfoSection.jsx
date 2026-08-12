@@ -1,4 +1,5 @@
 import Field from "@/components/ui/Field";
+import PhoneField from "@/components/ui/PhoneField";
 
 const PersonalInfoSection = ({
   isAuthenticated,
@@ -40,8 +41,8 @@ const PersonalInfoSection = ({
     </div>
 
     <div className="grid grid-cols-2 gap-4">
-      <Field label="Email"            required type="email" placeholder="you@example.com" {...personalField("email")} />
-      <Field label="Phone (Optional)" type="tel"            placeholder="1-800-583-5841"  {...personalField("phone")} />
+      <Field label="Email" required type="email" placeholder="you@example.com" {...personalField("email")} />
+      <PhoneField {...personalField("phone")} />
     </div>
   </div>
 );

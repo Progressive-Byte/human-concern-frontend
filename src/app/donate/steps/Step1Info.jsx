@@ -10,6 +10,9 @@ import PersonalInfoSection from "./StepComponents/Step1components/PersonalInfoSe
 import AddressSection      from "./StepComponents/Step1components/AddressSection";
 import CauseSelector       from "./StepComponents/Step1components/CauseSelector";
 import DonorPreferences    from "./StepComponents/Step1components/DonorPreferences";
+import { equalSplit, rebalanceOnEdit } from "@/utils/causeSplit";
+
+const CURRENCY_SYMBOLS = { USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$", SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥" };
 
 const Step1Info = ({ campaignSlug }) => {
   const pathname = usePathname();
@@ -41,18 +44,29 @@ const Step1Info = ({ campaignSlug }) => {
   }, []);
 
   const selectedCauseIds = data.causeIds ?? [];
+  const causeSplit       = data.causeSplit ?? {};
+  const totalAmount      = data.donorAmount || Number(data.amount) || 0;
+  const sym              = CURRENCY_SYMBOLS[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
   const toggleCause = (cause) => {
     const isSelected = selectedCauseIds.includes(cause.id);
+    const nextIds = isSelected
+      ? selectedCauseIds.filter((id) => id !== cause.id)
+      : [...selectedCauseIds, cause.id];
     update({
-      causeIds: isSelected
-        ? selectedCauseIds.filter((id) => id !== cause.id)
-        : [...selectedCauseIds, cause.id],
+      causeIds: nextIds,
       causes: isSelected
         ? (data.causes ?? []).filter((l) => l !== cause.label)
         : [...(data.causes ?? []), cause.label],
+      causeSplit: equalSplit(nextIds),
     });
     setError("");
+  };
+
+  const handleSplitChange = (causeId, amount) => {
+    if (totalAmount <= 0) return;
+    const newRatio = Number(amount) / totalAmount;
+    update({ causeSplit: rebalanceOnEdit(causeSplit, causeId, newRatio) });
   };
 
   useEffect(() => {
@@ -110,7 +124,7 @@ const Step1Info = ({ campaignSlug }) => {
       update({
         organization: "", firstName: "", lastName: "", email: "", phone: "",
         addressLine1: "", city: "", province: "", zip: "", country: "",
-        causeIds: [], causes: [], objective: null, objectiveLabel: "",
+        causeIds: [], causes: [], causeSplit: {}, objective: null, objectiveLabel: "",
       });
       setEditMode(false);
       setHasEdited(false);
@@ -205,6 +219,10 @@ const Step1Info = ({ campaignSlug }) => {
           causes={causes}
           selectedCauseIds={selectedCauseIds}
           toggleCause={toggleCause}
+          causeSplit={causeSplit}
+          totalAmount={totalAmount}
+          sym={sym}
+          onSplitChange={handleSplitChange}
         />
 
         <DonorPreferences

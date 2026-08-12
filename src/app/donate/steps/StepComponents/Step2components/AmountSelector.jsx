@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Select from "@/components/ui/Select";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
@@ -27,11 +26,9 @@ const AmountSelector = ({
   occurrences,
   initialAmount,
   onAmountChange,
-  onCurrencyChange,
   overrideTotal,
-  disableCurrency = false,
 }) => {
-  // Build rate map and currency options from campaign data
+  // Build rate map from campaign data
   const rateMap = useMemo(() => {
     const map = {};
     (currenciesWithRates ?? []).forEach(({ currency: code, rate }) => {
@@ -39,17 +36,6 @@ const AmountSelector = ({
     });
     return map;
   }, [currenciesWithRates]);
-
-  const currencyOptions = useMemo(() => {
-    if (currenciesWithRates?.length) {
-      return currenciesWithRates.map(({ currency: code }) => ({
-        label: `${code} (${getCurrencySymbol(code)})`,
-        value: code,
-      }));
-    }
-    // fallback: show only the active currency
-    return [{ label: `${currency} (${getCurrencySymbol(currency)})`, value: currency }];
-  }, [currenciesWithRates, currency]);
 
   const sym  = getCurrencySymbol(currency);
   const rate = rateMap[currency] ?? 1;
@@ -76,6 +62,9 @@ const AmountSelector = ({
   const [selectedBase, setSelectedBase]           = useState(initialBase ?? suggestedAmounts[0] ?? null);
   const [customAmount, setCustomAmount]           = useState(isCustomInit ? String(Math.round(Number(initialAmount) * 100) / 100) : "");
   const [customAmountError, setCustomAmountError] = useState("");
+  // Amount starts locked to the pre-selected value; the donor must explicitly
+  // click "Edit change" to modify it, mirroring Step1Info's field lock pattern.
+  const [locked, setLocked] = useState(true);
 
   const convertedMin = toConverted(minDonation ?? 0);
   const convertedMax = maxDonation != null ? toConverted(maxDonation) : undefined;
@@ -94,15 +83,19 @@ const AmountSelector = ({
     onAmountChange(toConverted(base), false);
   };
 
-  const handleCurrencyChange = (newCurrency) => {
-    const newRate = rateMap[newCurrency] ?? 1;
-    // Recompute the effective amount in the new currency from the selected base
-    if (selectedBase !== null && !customAmount) {
-      const newConverted = Math.round(selectedBase * newRate * 100) / 100;
-      onAmountChange(newConverted, false);
+  // Currency is now selected by the parent (Step2Payment); recompute the
+  // effective amount from the selected base whenever it changes here.
+  const isFirstCurrencyRender = useRef(true);
+  useEffect(() => {
+    if (isFirstCurrencyRender.current) {
+      isFirstCurrencyRender.current = false;
+      return;
     }
-    onCurrencyChange(newCurrency);
-  };
+    if (selectedBase !== null && !customAmount) {
+      onAmountChange(toConverted(selectedBase), false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency]);
 
   const handleCustomChange = (e) => {
     const val = e.target.value;
@@ -139,30 +132,29 @@ const AmountSelector = ({
     }
   };
 
+  const recurringLabel = isRecurring
+    ? splitMode === "divide"
+      ? "Total Donation Amount"
+      : "Donation Amount (per payment)"
+    : null;
+
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <label className="block text-[13px] font-medium text-[#383838] mb-2">Currency</label>
-        {disableCurrency ? (
-          <div className="w-full bg-[#F9FAFB] border border-[#E5E5E5] rounded-xl px-4 py-3 text-[14px] text-[#9CA3AF] cursor-not-allowed flex items-center justify-between">
-            <span>{currencyOptions.find((o) => o.value === currency)?.label ?? currency}</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#D1D5DB]">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </div>
-        ) : (
-          <Select value={currency} onChange={handleCurrencyChange} options={currencyOptions} />
-        )}
-      </div>
-
-      <div>
-        <label className="block text-[13px] font-medium text-[#383838] mb-3">
-          {isRecurring
-            ? splitMode === "divide"
-              ? "Total Donation Amount"
-              : "Donation Amount (per payment)"
-            : "Donation Amount"}
-        </label>
+        <div className="flex items-center justify-between mb-3">
+          {recurringLabel ? (
+            <label className="block text-[13px] font-medium text-[#383838]">{recurringLabel}</label>
+          ) : <span />}
+          <button
+            type="button"
+            onClick={() => setLocked((prev) => !prev)}
+            className={`text-[12px] font-medium transition-colors cursor-pointer select-none whitespace-nowrap ${
+              locked ? "text-[#AEAEAE] opacity-60" : "text-[#EA3335] hover:underline"
+            }`}
+          >
+            {locked ? "Edit change" : "Save change"}
+          </button>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           {suggestedAmounts.map((base) => {
             const displayAmt = toConverted(base);
@@ -170,9 +162,17 @@ const AmountSelector = ({
             return (
               <button
                 key={base}
-                onClick={() => handleTileClick(base)}
-                className={`flex flex-col items-center justify-center rounded-2xl px-3 py-4 border transition-all duration-200 cursor-pointer ${
-                  active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
+                type="button"
+                onClick={locked ? undefined : () => handleTileClick(base)}
+                disabled={locked}
+                className={`flex flex-col items-center justify-center rounded-2xl px-3 py-4 border transition-all duration-200 ${
+                  locked
+                    ? active
+                      ? "border-[#EA3335]/50 bg-[#FFF5F5] opacity-80 cursor-not-allowed"
+                      : "border-[#E5E5E5] bg-[#F9FAFB] opacity-60 cursor-not-allowed"
+                    : active
+                    ? "border-[#EA3335] bg-[#FFF5F5] cursor-pointer"
+                    : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40 cursor-pointer"
                 }`}
               >
                 <span className={`text-[19px] font-bold leading-none whitespace-nowrap ${active ? "text-[#EA3335]" : "text-[#383838]"}`}>
@@ -187,22 +187,25 @@ const AmountSelector = ({
       <div>
         <label className="block text-[13px] font-medium text-[#383838] mb-2">Custom Amount</label>
         <div className={`flex items-center rounded-xl border transition-colors ${
-          customAmountError
+          locked
+            ? "border-dashed border-[#E5E7EB] bg-[#F3F4F6]"
+            : customAmountError
             ? "border-[#EA3335] bg-[#FFF5F5]"
             : customAmount
             ? "border-[#EA3335] bg-[#FFF5F5]"
             : "border-[#E5E5E5] bg-white focus-within:border-[#EA3335]"
         }`}>
-          <span className="pl-4 pr-1 shrink-0 text-[#737373] font-medium text-[15px]">{sym}</span>
+          <span className={`pl-4 pr-1 shrink-0 font-medium text-[15px] ${locked ? "text-[#9CA3AF]" : "text-[#737373]"}`}>{sym}</span>
           <input
             type="number"
             value={customAmount}
-            onChange={handleCustomChange}
-            onBlur={handleCustomBlur}
+            onChange={locked ? undefined : handleCustomChange}
+            onBlur={locked ? undefined : handleCustomBlur}
+            readOnly={locked}
             placeholder={`Enter amount (min ${formatDisplay(convertedMin)})`}
             min={convertedMin}
             max={convertedMax}
-            className="flex-1 pr-4 py-3 text-[15px] outline-none bg-transparent text-[#383838]"
+            className={`flex-1 pr-4 py-3 text-[15px] outline-none bg-transparent ${locked ? "text-[#9CA3AF] cursor-default" : "text-[#383838]"}`}
           />
         </div>
         {customAmountError && (

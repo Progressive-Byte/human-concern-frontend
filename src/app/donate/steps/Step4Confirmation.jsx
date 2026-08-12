@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useDonation } from "@/context/DonationContext";
+import { useBranding } from "@/context/BrandingContext";
 import StripeCheckoutForm from "./StepComponents/Step4components/StripeCheckoutForm";
 import StepProgress from "./StepComponents/StepProgress";
 import DonationPreview from "./StepComponents/DonationPreview";
@@ -12,6 +13,7 @@ import { NoticeIcon } from "@/components/common/SvgIcon";
 
 const Step4Confirmation = () => {
   const { data }          = useDonation();
+  const { primaryColor }  = useBranding();
   const pathname          = usePathname();
   const router            = useRouter();
   const [ready, setReady] = useState(false);
@@ -47,7 +49,7 @@ const Step4Confirmation = () => {
   const appearance = {
     theme: "stripe",
     variables: {
-      colorPrimary: "#EA3335",
+      colorPrimary: primaryColor,
       colorBackground: "#ffffff",
       borderRadius: "12px",
       fontSizeBase: "14px",
