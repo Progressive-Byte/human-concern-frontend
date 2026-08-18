@@ -105,7 +105,7 @@ const HomePage = () => {
     <>
       <main data-page="home" className="overflow-hidden text-white">
         {/* ── Hero ── */}
-        <section className="relative w-full lg:h-[1200px] md:h-[750px] h-[600px] overflow-hidden">
+        <section className="relative w-full h-[520px] sm:h-[620px] md:h-[750px] lg:h-[950px] xl:h-[1200px] overflow-hidden">
           <div
             ref={heroBgRef}
             className="absolute inset-0 bg-[url('/images/hero.png')] bg-center bg-cover bg-no-repeat"
@@ -121,36 +121,36 @@ const HomePage = () => {
 
           {/* ── Frosted glass card — */}
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full max-w-[1611px] lg:mt-[-200px] mt-[200px] mx-auto px-6 lg:px-8">
-              <div className="w-full lg:max-w-[652px] bg-[#FFFFFFB2] backdrop-blur-[100px] px-[20px] py-[30px] md:px-[77px] md:py-[60px] rounded-3xl">
-                <h1 className="md:text-[56px] text-3xl md:leading-[1.1] font-semibold text-[#383838] [text-shadow:0px_4px_25px_rgba(255,255,255,0.25)]">
+            <div className="w-full max-w-[1611px] mt-4 sm:mt-8 md:mt-0 lg:mt-[-200px] mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="w-full md:max-w-[560px] lg:max-w-[652px] bg-[#FFFFFFB2] backdrop-blur-[100px] px-4 py-5 sm:px-6 sm:py-6 md:px-[77px] md:py-[60px] rounded-3xl">
+                <h1 className="text-2xl sm:text-3xl md:text-[56px] md:leading-[1.1] font-semibold text-[#383838] leading-tight [text-shadow:0px_4px_25px_rgba(255,255,255,0.25)]">
                   Give with <span className="font-bold font-playfair italic">Purpose. Transform</span> lives.
                 </h1>
-                <p className="text-[#383838] font-medium py-5 md:py-7 text-md md:text-2xl [text-shadow:0px_0px_3px_rgba(255,255,255,1)]">
+                <p className="text-[#383838] font-medium py-4 sm:py-5 md:py-7 text-sm sm:text-base md:text-2xl [text-shadow:0px_0px_3px_rgba(255,255,255,1)]">
                   Your trusted platform for Zakat, Sadaqah, and humanitarian giving.
                 </p>
-                <div className="flex items-center gap-3 flex-wrap mb-7">
+                <div className="flex items-center gap-3 flex-wrap mb-5 sm:mb-7">
                   <Link
                     href="/campaigns"
-                    className="px-6 py-3 bg-[#EA3335] hover:bg-red-700 text-white font-normal text-[18px] rounded-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(234,51,53,0.26)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                    className="px-4 sm:px-6 py-2 sm:py-3 bg-[#EA3335] hover:bg-red-700 text-white font-normal text-[15px] sm:text-[18px] rounded-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(234,51,53,0.26)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                   >
                     All campaigns
                   </Link>
                   <Link
                     href="/user/register"
-                    className="px-6 py-3 text-[#383838] font-normal text-[18px] rounded-full border border-[#383838] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#383838]/30"
+                    className="px-4 sm:px-6 py-2 sm:py-3 text-[#383838] font-normal text-[15px] sm:text-[18px] rounded-full border border-[#383838] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#383838]/30"
                   >
                     Get started
                   </Link>
                 </div>
 
                 {/* Trust badges */}
-                <div className="flex items-center gap-5 flex-wrap">
+                <div className="flex items-center gap-2 sm:gap-5 flex-wrap">
                   {trustBadges.map(
                     (label) => (
                       <span
                         key={label}
-                        className="flex items-center gap-1.5 text-[12px] md:text-[14px] text-[#383838] font-medium"
+                        className="flex items-center gap-1.5 text-[11px] sm:text-[12px] md:text-[14px] text-[#383838] font-medium"
                       >
                         <span className="">
                           {CheckIcon}

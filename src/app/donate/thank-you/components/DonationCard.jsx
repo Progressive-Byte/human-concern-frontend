@@ -59,35 +59,56 @@ const DonationCard = ({
         Donation Details
       </p>
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <span className="text-[12px] text-[#737373]">Campaign</span>
-          <span className="text-[13px] font-semibold text-[#383838]">{campaignTitle || "—"}</span>
+        <div className="flex items-start justify-between gap-3">
+          <span className="text-[12px] text-[#737373] shrink-0 pt-0.5">Campaign</span>
+          <span
+            className="text-[13px] font-semibold text-[#383838] text-right min-w-0 truncate"
+            title={campaignTitle || "—"}
+          >
+            {campaignTitle || "—"}
+          </span>
         </div>
 
         {causes.length > 0 && (
-          <div className="flex items-center justify-between">
-            <span className="text-[12px] text-[#737373]">Cause</span>
-            <span className="text-[13px] font-semibold text-[#383838]">{causes.join(", ")}</span>
+          <div className="flex items-start justify-between gap-3">
+            <span className="text-[12px] text-[#737373] shrink-0 pt-0.5">Cause</span>
+            <span
+              className="text-[13px] font-semibold text-[#383838] text-right min-w-0 truncate"
+              title={causes.join(", ")}
+            >
+              {causes.join(", ")}
+            </span>
           </div>
         )}
 
         {isRecurring && frequency && (
-          <div className="flex items-center justify-between">
-            <span className="text-[12px] text-[#737373]">Frequency</span>
-            <span className="text-[13px] font-semibold text-[#383838]">{frequency}</span>
+          <div className="flex items-start justify-between gap-3">
+            <span className="text-[12px] text-[#737373] shrink-0 pt-0.5">Frequency</span>
+            <span
+              className="text-[13px] font-semibold text-[#383838] text-right min-w-0 truncate"
+              title={frequency}
+            >
+              {frequency}
+            </span>
           </div>
         )}
 
         {isRecurring && numberOfDays > 0 && (
-          <div className="flex items-center justify-between">
-            <span className="text-[12px] text-[#737373]">Duration</span>
-            <span className="text-[13px] font-semibold text-[#383838]">{numberOfDays} days</span>
+          <div className="flex items-start justify-between gap-3">
+            <span className="text-[12px] text-[#737373] shrink-0 pt-0.5">Duration</span>
+            <span
+              className="text-[13px] font-semibold text-[#383838] text-right shrink-0 whitespace-nowrap"
+            >
+              {numberOfDays} days
+            </span>
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2 border-t border-[#E5E5E5] mt-1">
-          <span className="text-[12px] text-[#737373]">Total</span>
-          <span className="text-[14px] font-bold text-[#055A46]">
+        <div className="flex items-start justify-between gap-3 pt-2 border-t border-[#E5E5E5] mt-1">
+          <span className="text-[12px] text-[#737373] shrink-0 pt-0.5">Total</span>
+          <span
+            className="text-[14px] font-bold text-[#055A46] text-right shrink-0 whitespace-nowrap"
+          >
             {sym}{donationAmount ? Number(donationAmount).toFixed(2) : "—"}
           </span>
         </div>

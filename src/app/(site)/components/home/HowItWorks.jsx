@@ -82,18 +82,18 @@ const iconHover =
           {steps.map(({ signUpText, title, description, bg }, index) => (
             <div
               key={signUpText}
-              className={`${revealBase} ${revealIn} group relative bg-cover bg-center bg-no-repeat rounded-2xl overflow-hidden h-full px-5 py-6 sm:px-6 sm:py-8 lg:px-[57px] lg:py-[42px] border border-transparent ${cardHover}`}
+              className={`${revealBase} ${revealIn} group relative bg-cover bg-center bg-no-repeat rounded-2xl overflow-hidden h-full px-5 py-6 sm:px-6 sm:py-8 lg:px-[57px] lg:py-[42px] border border-transparent ${cardHover} min-h-[220px] sm:min-h-[240px]`}
               style={{ backgroundImage: `url(${bg})`, transitionDelay: `${180 + index * 200}ms` }}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
 
               <div
-                className={`pointer-events-none absolute top-4 right-4 z-10 h-14 w-14 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md text-white/50 flex items-center justify-center ${index === 0 ? "hc-float-soft" : index === 1 ? "hc-float-soft-2" : "hc-float-soft-3"} ${iconHover}`}
+                className={`pointer-events-none absolute top-2 right-2 sm:top-4 sm:right-4 z-10 h-10 w-10 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md text-white/50 flex items-center justify-center ${index === 0 ? "hc-float-soft" : index === 1 ? "hc-float-soft-2" : "hc-float-soft-3"} ${iconHover}`}
                 style={{ animationDelay: index === 0 ? "0ms" : index === 1 ? "260ms" : "520ms" }}
                 aria-hidden="true"
               >
                 {index === 0 ? (
-                  <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
+                  <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-7 sm:w-7">
                     <path
                       d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"
                       stroke="currentColor"
@@ -103,7 +103,7 @@ const iconHover =
                     />
                   </svg>
                 ) : index === 1 ? (
-                  <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
+                  <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-7 sm:w-7">
                     <path
                       d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z"
                       stroke="currentColor"
@@ -119,7 +119,7 @@ const iconHover =
                     />
                   </svg>
                 ) : (
-                  <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
+                  <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-7 sm:w-7">
                     <path
                       d="M12 12V3a9 9 0 1 1-9 9h9z"
                       stroke="currentColor"
@@ -139,7 +139,7 @@ const iconHover =
               </div>
 
               {/* Content */}
-              <div className="relative z-10">
+              <div className="relative z-10 pt-12 sm:pt-0">
                 <div className="text-xs sm:text-sm text-white mb-1">
                   {signUpText}
                 </div>
@@ -148,7 +148,7 @@ const iconHover =
                   {title}
                 </h3>
 
-                <p className="text-sm text-[#A5A5A5] leading-relaxed pr-[120px] sm:pr-9 lg:pr-[90px]">
+                <p className="text-sm text-[#A5A5A5] leading-relaxed pr-4 sm:pr-9 lg:pr-[90px]">
                   {description}
                 </p>
               </div>

@@ -151,16 +151,16 @@ const DonationWidget = ({ campaign }) => {
           {/* Raised / Goal */}
           {hasProgress ? (
             <>
-              <p className="text-[36px] font-bold text-[#383838] leading-none">
+              <p className="text-[28px] sm:text-[32px] md:text-[36px] font-bold text-[#383838] leading-none whitespace-nowrap overflow-hidden text-ellipsis">
                 ${raised.toLocaleString()}
               </p>
-              <p className="text-[16px] text-[#383838] mt-4">
+              <p className="text-sm sm:text-[16px] text-[#383838] mt-3 sm:mt-4">
                 raised of ${goal.toLocaleString()}
               </p>
               <div className="flex justify-end mt-1">
                 <span className="text-[12px] font-semibold text-[#AEAEAE]">{pct}%</span>
               </div>
-              <div className="relative h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden">
+              <div className="relative h-[12px] sm:h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#055A46] rounded-full transition-all duration-500"
                   style={{ width: `${pct}%` }}
@@ -169,11 +169,11 @@ const DonationWidget = ({ campaign }) => {
             </>
           ) : (
             <>
-              <p className="text-[22px] font-bold text-[#383838]">
+              <p className="text-lg sm:text-[22px] font-bold text-[#383838]">
                 Goal: ${goal.toLocaleString()}
               </p>
               <p className="text-[13px] text-[#737373] mt-1">Fundraising in progress</p>
-              <div className="relative h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden mt-3">
+              <div className="relative h-[12px] sm:h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden mt-3">
                 <div className="h-full bg-[#055A46] rounded-full" style={{ width: "0%" }} />
               </div>
             </>
@@ -181,17 +181,17 @@ const DonationWidget = ({ campaign }) => {
 
           {/* Donors */}
           <div className="grid grid-cols-2 gap-3 mt-4">
-            <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
-              <p className="text-[24px] font-bold text-[#383838]">
+            <div className="bg-[#F6F6F6] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-center">
+              <p className="text-xl sm:text-2xl font-bold text-[#383838]">
                 {donorCount}
               </p>
-              <p className="text-[14px] font-normal text-[#383838] mt-0.5">Donors</p>
+              <p className="text-[12px] sm:text-[14px] font-normal text-[#383838] mt-0.5">Donors</p>
             </div>
-            <div className="bg-[#F6F6F6] rounded-xl px-4 py-3 text-center">
-              <p className="text-[24px] font-bold text-[#383838]">
+            <div className="bg-[#F6F6F6] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-center">
+              <p className="text-xl sm:text-2xl font-bold text-[#383838]">
                 {campaign.daysLeft ?? 0}
               </p>
-              <p className="text-[14px] font-normal text-[#383838] mt-0.5">Days Left</p>
+              <p className="text-[12px] sm:text-[14px] font-normal text-[#383838] mt-0.5">Days Left</p>
             </div>
           </div>
 
@@ -225,8 +225,8 @@ const DonationWidget = ({ campaign }) => {
                           : "bg-[#F5F5F5] border-transparent hover:border-[#055A4666]"
                       }`}
                     >
-                      <div className="shrink-0 bg-white rounded-xl m-2 px-3 py-2.5 min-w-[4.5rem] text-center">
-                        <span className={`text-[17px] font-bold whitespace-nowrap ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
+                      <div className="shrink-0 bg-white rounded-xl m-2 px-2 sm:px-3 py-2 min-w-[3.5rem] sm:min-w-[4.5rem] text-center">
+                        <span className={`text-sm sm:text-[17px] font-bold whitespace-nowrap ${isSelected ? "text-[#055A46]" : "text-[#383838]"}`}>
                           {sym}{formatDisplay(displayAmt)}
                         </span>
                       </div>

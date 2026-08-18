@@ -86,7 +86,7 @@ const CampaignCard = ({ campaign }) => {
   return (
     <div data-campaign-card className="group bg-white rounded-3xl overflow-hidden border border-gray-100 transition duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_22px_46px_rgba(0,0,0,0.12)] hover:border-red-500/20 motion-reduce:transition-none">
       {/* Thumbnail */}
-      <div className="relative h-[303px] overflow-hidden">
+      <div className="relative h-[220px] sm:h-[260px] md:h-[303px] overflow-hidden">
         <Image
           src={thumbnailUrl}
           alt={title}
@@ -94,15 +94,15 @@ const CampaignCard = ({ campaign }) => {
           data-campaign-card-image
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
-        <div className="absolute top-4 left-4 flex gap-2">
-            <div className="flex items-center bg-[#FFF1F1] text-[#FF3636] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm">
+        <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex gap-2 flex-wrap">
+            <div className="flex items-center bg-[#FFF1F1] text-[#FF3636] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm whitespace-nowrap">
               <div className="w-3.5 h-3.5 bg-[#FF3636]/70 rounded-full mr-1.5 flex items-center justify-center">
                 <Image src="/images/emergency.png" alt="alert" width={16} height={16} />
               </div>
               {category}
             </div>
           {campaign.zakatEligible && (
-            <div className="flex items-center bg-[#E6F9F0] text-[#10B981] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm">
+            <div className="flex items-center bg-[#E6F9F0] text-[#10B981] rounded-full px-3 py-1 text-[10px] font-semibold tracking-wide shadow-sm whitespace-nowrap">
               ZAKAT ELIGIBLE
             </div>
           )}
@@ -111,7 +111,7 @@ const CampaignCard = ({ campaign }) => {
 
       {/* Organization */}
       {collabName || collabImageUrl ? (
-        <div className="px-5 py-3 flex items-center gap-2">
+        <div className="px-4 sm:px-5 py-3 flex items-center gap-2">
           <div className="flex items-center gap-2 shrink-0">
             <div className="w-[28px] h-[28px] rounded-full relative overflow-hidden border border-[#E5E7EB] bg-white">
               <Image
@@ -134,16 +134,20 @@ const CampaignCard = ({ campaign }) => {
             ) : null}
           </div>
           {collabName ? (
-            <span className="min-w-0 truncate font-normal text-lg text-[#383838]">{collabName}</span>
+            <span className="min-w-0 truncate font-normal text-base sm:text-lg text-[#383838]">{collabName}</span>
           ) : null}
         </div>
       ) : null}
 
       {/* Content */}
-      <div className="px-5 pt-3">
-        <h3 className="font-semibold text-[26px] text-[#383838]"><span data-campaign-card-title>{title}</span></h3>
+      <div className="px-4 sm:px-5 pt-3">
+        <h3 className="font-semibold text-xl sm:text-2xl md:text-[22px] xl:text-[26px] text-[#383838] leading-tight">
+          <span data-campaign-card-title className="line-clamp-2 block" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            {title}
+          </span>
+        </h3>
 
-        <p className="text-[#383838] pt-2 font-normal text-[15px]">
+        <p className="text-[#383838] pt-2 font-normal text-sm sm:text-[15px] leading-relaxed" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {campaign.description}
         </p>
 
@@ -158,29 +162,29 @@ const CampaignCard = ({ campaign }) => {
         </div>
 
         {/* Donors & Days */}
-        <div className="flex items-center justify-between gap-2 text-[#383838] mt-2">
-          <div className="flex items-center gap-2 text-[13px] font-normal">
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[#383838] mt-2">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] sm:text-[13px] font-normal min-w-0">
             <Image src="/images/donars.png" alt="donor" width={15} height={15} />
-            {campaign.donors ?? 0} donors
+            <span className="shrink-0">{campaign.donors ?? 0} <span className="hidden sm:inline">donors</span><span className="sm:hidden inline">d</span></span>
             <Image src="/images/calander.png" alt="calendar" width={15} height={15} />
-            {daysLeft > 0 && <span>{daysLeft} days left</span>}
+            {daysLeft > 0 && <span className="shrink-0 truncate">{daysLeft}<span className="hidden sm:inline"> days left</span><span className="sm:hidden inline">d</span></span>}
           </div>
-          <div className="text-[#AEAEAE] font-semibold text-[15px]">{pct}%</div>
+          <div className="text-[#AEAEAE] font-semibold text-[13px] sm:text-[15px] shrink-0">{pct}%</div>
         </div>
 
         {/* Raised & CTA */}
-        <div className="flex md:flex-row flex-col justify-between items-center mt-7 mb-[18px]">
-          <div>
-            <div className="font-bold text-[#383838] xl:text-4xl md:text-3xl text-4xl">
+        <div className="flex md:flex-row flex-col justify-between items-start md:items-center gap-3 mt-5 sm:mt-7 mb-4 sm:mb-[18px]">
+          <div className="min-w-0">
+            <div className="font-bold text-[#383838] text-2xl md:text-3xl xl:text-4xl whitespace-nowrap">
               ${goal.toLocaleString()}
             </div>
-            <div className="text-[#383838] pt-2 font-normal text-[15px]">
+            <div className="text-[#383838] pt-1 sm:pt-2 font-normal text-[13px] sm:text-[15px]">
               raised of ${raised.toLocaleString()}
             </div>
           </div>
           <Link
             href={`/campaigns/${campaign.slug}`}
-            className="w-full md:w-auto text-center bg-[#F6F6F6] hover:bg-[#383838] border border-[#00000033] text-[#383838] hover:text-white font-semibold xl:px-6 md:px-3 md:py-3 px-6 py-4 xl:py-5 rounded-[18px] text-[18px] transition-all duration-300 active:scale-95"
+            className="w-full md:w-auto text-center bg-[#F6F6F6] hover:bg-[#383838] border border-[#00000033] text-[#383838] hover:text-white font-semibold xl:px-6 md:px-3 md:py-3 px-6 py-3 sm:py-4 xl:py-5 rounded-[18px] text-[15px] sm:text-[18px] transition-all duration-300 active:scale-95 whitespace-nowrap"
           >
             Donate Now
           </Link>

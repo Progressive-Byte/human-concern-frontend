@@ -16,6 +16,7 @@ const SiteLayout = ({ children }) => {
         <TopNoticeBar />
         <Navbar />
       </div>
+      <div className="h-[100px] sm:h-[110px] md:h-[120px] lg:h-[160px]" aria-hidden="true" />
       {children}
       <Footer />
     </BrandingProvider>

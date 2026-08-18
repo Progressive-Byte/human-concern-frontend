@@ -11,12 +11,12 @@ const CampaignTabs = ({ campaign }) => {
   return (
     <div>
       {/* Tab bar */}
-      <div className="flex gap-6 border-b border-gray-200 mb-6">
+      <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-gray-200 mb-6">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`pb-2.5 text-[14px] font-medium transition-colors cursor-pointer ${
+            className={`pb-2.5 text-[14px] font-medium transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === tab
                 ? "text-[#383838] border-b-2 border-[#383838] -mb-px"
                 : "text-[#AEAEAE] hover:text-[#737373]"
@@ -29,21 +29,21 @@ const CampaignTabs = ({ campaign }) => {
 
       {/* About */}
       {activeTab === "About" && (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           {campaign.description && (
-            <p className="text-[17px] text-[#383838] leading-relaxed">
+            <p className="text-[15px] sm:text-[17px] text-[#383838] leading-relaxed">
               {campaign.description}
             </p>
           )}
 
           {campaign.objectives?.length > 0 && (
             <div>
-              <h3 className="text-[20px] font-bold text-[#383838] mb-4">Campaign Objectives</h3>
+              <h3 className="text-lg sm:text-[20px] font-bold text-[#383838] mb-3 sm:mb-4">Campaign Objectives</h3>
               <ul className="flex flex-col gap-2.5">
                 {campaign.objectives.map((obj, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[16px] text-[#383838]">
-                    {CircleCheckIcon}
-                    {typeof obj === "string" ? obj : obj.name ?? ""}
+                  <li key={i} className="flex items-start gap-2.5 text-sm sm:text-[16px] text-[#383838]">
+                    <span className="shrink-0 mt-0.5">{CircleCheckIcon}</span>
+                    <span className="min-w-0">{typeof obj === "string" ? obj : obj.name ?? ""}</span>
                   </li>
                 ))}
               </ul>
@@ -52,12 +52,12 @@ const CampaignTabs = ({ campaign }) => {
 
           {campaign.causes?.length > 0 && (
             <div>
-              <h3 className="text-[20px] font-bold text-[#383838] mb-4">Supported Causes</h3>
+              <h3 className="text-lg sm:text-[20px] font-bold text-[#383838] mb-3 sm:mb-4">Supported Causes</h3>
               <div className="flex flex-wrap gap-2">
                 {campaign.causes.map((cause) => (
                   <span
                     key={cause.id}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border whitespace-nowrap ${
                       cause.zakatEligible
                         ? "bg-[#E6F9F0] text-[#065F46] border-[#A7F3D0]"
                         : "bg-[#F6F6F6] text-[#383838] border-[#E0E0E0]"
@@ -77,7 +77,7 @@ const CampaignTabs = ({ campaign }) => {
 
       {/* Updates */}
       {activeTab === "Updates" && (
-        <p className="text-[16px] text-[#737373]">No updates yet.</p>
+        <p className="text-sm sm:text-[16px] text-[#737373]">No updates yet.</p>
       )}
 
       {/* Donors */}
@@ -91,21 +91,21 @@ const CampaignTabs = ({ campaign }) => {
           {(campaign.donorItems ?? []).length > 0 ? (
             <ul className="flex flex-col gap-2.5">
               {campaign.donorItems.map((donor, i) => (
-                <li key={i} className="flex items-center justify-between bg-[#F9F9F9] rounded-xl px-4 py-3 border border-[#EBEBEB]">
-                  <div>
-                    <p className="text-[14px] font-semibold text-[#383838]">{donor.name ?? "Anonymous"}</p>
+                <li key={i} className="flex items-center justify-between bg-[#F9F9F9] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-[#EBEBEB] gap-2">
+                  <div className="min-w-0 flex-1 pr-2">
+                    <p className="text-[14px] font-semibold text-[#383838] truncate">{donor.name ?? "Anonymous"}</p>
                     <p className="text-[11px] text-[#737373] mt-0.5">
                       {donor.lastDonatedAt ? new Date(donor.lastDonatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}
                     </p>
                   </div>
-                  <span className="text-[15px] font-bold text-[#383838] tabular-nums">
+                  <span className="text-sm sm:text-[15px] font-bold text-[#383838] tabular-nums shrink-0">
                     {donor.currency ?? "$"}&nbsp;{donor.totalAmount?.toLocaleString() ?? "—"}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-[16px] text-[#737373]">Donor information is not available.</p>
+            <p className="text-sm sm:text-[16px] text-[#737373]">Donor information is not available.</p>
           )}
         </div>
       )}

@@ -72,7 +72,7 @@ export default async function CampaignPage({ params }) {
 
   return (
     <main className="bg-white min-h-screen">
-      <div className="max-w-[1611px] mx-auto px-4 sm:px-6 pt-[120px] lg:pt-[180px] pb-10 lg:pb-16">
+      <div className="max-w-[1611px] mx-auto px-4 sm:px-6 pt-[20px] sm:pt-[30px] md:pt-[50px] lg:pt-[180px] pb-10 lg:pb-16">
 
         {/* Back link */}
         <Link
@@ -82,16 +82,16 @@ export default async function CampaignPage({ params }) {
           ← Back to Campaigns
         </Link>
 
-        <div className="h-[1px] w-full bg-[#CCCCCC] my-7" />
+        <div className="h-[1px] w-full bg-[#CCCCCC] my-5 sm:my-7" />
 
-        <div className="flex flex-col lg:flex-row gap-10">
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-10">
 
           {/* Left */}
           <div className="w-full lg:w-[1000px]">
 
             {/* Thumbnail */}
             {thumbnailUrl && (
-              <div className="relative h-[300px] sm:h-[490px] rounded-3xl overflow-hidden">
+              <div className="relative h-[240px] sm:h-[350px] md:h-[490px] rounded-3xl overflow-hidden">
                 <Image
                   src={thumbnailUrl}
                   alt={campaign.name}
@@ -100,14 +100,14 @@ export default async function CampaignPage({ params }) {
                   priority
                 />
 
-                <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap gap-2">
                   {campaign.zakatEligible && (
-                    <span className="bg-[#E6F9F0] text-[#10B981] rounded-full px-2.5 py-1 text-xs font-medium">
+                    <span className="bg-[#E6F9F0] text-[#10B981] rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap">
                       Zakat Eligible
                     </span>
                   )}
                   {campaign.categories?.length > 0 && campaign.categories.map((cat) => (
-                    <span key={cat.id} className="bg-white/90 text-[#383838] rounded-full px-2.5 py-1 text-xs font-medium capitalize">
+                    <span key={cat.id} className="bg-white/90 text-[#383838] rounded-full px-2.5 py-1 text-xs font-medium capitalize whitespace-nowrap">
                       {cat.name}
                     </span>
                   ))}
@@ -116,8 +116,8 @@ export default async function CampaignPage({ params }) {
             )}
 
             {/* Title */}
-            <div className="pt-[30px]">
-              <h1 className="text-3xl font-bold text-[#383838]">
+            <div className="pt-5 sm:pt-[30px]">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#383838] leading-tight">
                 {campaign.name}
               </h1>
 
@@ -138,13 +138,13 @@ export default async function CampaignPage({ params }) {
                   <span>{campaign.categories.join(", ")}</span>
                 )}
               </div> */}
-              <div className="flex gap-2 text-sm font-normal text-[#383838] mt-4">
-                  <Image src="/images/donars.png" alt="donor" width={15} height={15} className="object-contain" />
-                  <span>{campaign.donors != null ? campaign.donors.toLocaleString() : "0"} donors</span>
-                  <Image src="/images/calander.png" alt="calander" width={15} height={15} className="object-contain" />
-                  <span>{campaign.endAt ? daysLeft(campaign.endAt) : "0"} days left</span>
-                  <Image src="/images/map.png" alt="map" width={15} height={15} className="object-contain" />
-                  <span>Multiple Regions</span>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-normal text-[#383838] mt-4">
+                  <Image src="/images/donars.png" alt="donor" width={15} height={15} className="object-contain shrink-0" />
+                  <span className="shrink-0">{campaign.donors != null ? campaign.donors.toLocaleString() : "0"} donors</span>
+                  <Image src="/images/calander.png" alt="calander" width={15} height={15} className="object-contain shrink-0" />
+                  <span className="shrink-0">{campaign.endAt ? daysLeft(campaign.endAt) : "0"} days left</span>
+                  <Image src="/images/map.png" alt="map" width={15} height={15} className="object-contain shrink-0" />
+                  <span className="truncate max-w-[140px] sm:max-w-none">Multiple Regions</span>
                 </div>
             </div>
 

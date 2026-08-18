@@ -260,7 +260,7 @@ const CampaignsPageInner = () => {
         <div className="absolute inset-0 pointer-events-none opacity-70">
           <div className="absolute inset-0 hc-aurora" aria-hidden="true" />
         </div>
-        <div className="max-w-[1611px] mx-auto pt-[140px] pb-[92px] px-4 sm:px-6">
+        <div className="max-w-[1611px] mx-auto pt-[20px] sm:pt-[30px] md:pt-[50px] lg:pt-[92px] pb-[92px] px-4 sm:px-6">
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
             All Campaigns
           </h1>
@@ -269,10 +269,10 @@ const CampaignsPageInner = () => {
           </p>
 
           {/* Search + Filters + Sort */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-3">
 
             {/* Search input */}
-            <div className="flex-1 relative">
+            <div className="w-full md:flex-1 relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
                 {SearchIcon}
               </span>
@@ -285,40 +285,46 @@ const CampaignsPageInner = () => {
               />
             </div>
 
-            <CustomDropdown
-              options={categories}
-              value={activeCategory}
-              onChange={handleCategoryChange}
-              label="CAMPAIGN CATEGORY"
-              icon={FilterIcon}
-              showDot={!!activeCategory}
-              maxHeight="260px"
-              width="w-64"
-              className="hc-campaigns-filter"
-            />
+            <div className="w-full md:w-auto">
+              <CustomDropdown
+                options={categories}
+                value={activeCategory}
+                onChange={handleCategoryChange}
+                label="CAMPAIGN CATEGORY"
+                icon={FilterIcon}
+                showDot={!!activeCategory}
+                maxHeight="260px"
+                width="w-full md:w-64"
+                className="hc-campaigns-filter"
+              />
+            </div>
 
-            <CustomDropdown
-              options={causes}
-              value={activeCause}
-              onChange={handleCauseChange}
-              label="CAMPAIGN CAUSES"
-              icon={FilterIcon}
-              showDot={!!activeCause}
-              maxHeight="260px"
-              width="w-64"
-              className="hc-campaigns-filter"
-            />
+            <div className="w-full md:w-auto">
+              <CustomDropdown
+                options={causes}
+                value={activeCause}
+                onChange={handleCauseChange}
+                label="CAMPAIGN CAUSES"
+                icon={FilterIcon}
+                showDot={!!activeCause}
+                maxHeight="260px"
+                width="w-full md:w-64"
+                className="hc-campaigns-filter"
+              />
+            </div>
 
             {/* Sort */}
-            <CustomDropdown
-              options={SORT_OPTIONS}
-              value={sortBy}
-              onChange={handleSortChange}
-              label="SORT BY"
-              maxHeight="180px"
-              width="w-52"
-              className="hc-campaigns-filter"
-            />
+            <div className="w-full md:w-auto">
+              <CustomDropdown
+                options={SORT_OPTIONS}
+                value={sortBy}
+                onChange={handleSortChange}
+                label="SORT BY"
+                maxHeight="180px"
+                width="w-full md:w-52"
+                className="hc-campaigns-filter"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -327,7 +333,7 @@ const CampaignsPageInner = () => {
       <div ref={spotlightRef} data-spotlight data-spotlight-active="0" className="relative z-0 max-w-[1611px] mx-auto px-4 sm:px-6 py-8">
 
         {/* Result count bar */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-wrap gap-2 items-start md:items-center justify-between mb-6">
           <p className="text-[13px] text-[#737373]">
             Viewing{" "}
             <span className="font-semibold text-[#383838]">{totalItems}</span>{" "}

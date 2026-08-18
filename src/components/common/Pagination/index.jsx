@@ -24,13 +24,13 @@ const Pagination = ({ current = 1, total = 1, onPageChange }) => {
   }
 
   const btnBase =
-    "flex items-center gap-1 text-[10px] md:text-sm font-normal py-2 px-3 border rounded transition-all cursor-pointer";
+    "flex items-center justify-center gap-1 text-[12px] md:text-sm font-normal py-2 px-2.5 md:px-3 min-h-[40px] min-w-[40px] border rounded transition-all cursor-pointer whitespace-nowrap";
   const active  = "border-[#EA3335] bg-[#EA3335] text-white";
   const idle    = "border-gray-200 text-[#383838] hover:border-[#EA3335] hover:text-[#EA3335]";
   const disabled = "border-gray-100 text-gray-300 cursor-not-allowed";
 
   return (
-    <div className="flex items-center gap-[6px]">
+    <div className="flex flex-wrap items-center justify-center gap-[6px]">
 
       {/* First + Back */}
       <button onClick={() => go(1)}           className={`${btnBase} ${current > 1 ? idle : disabled} hidden md:flex`}>First</button>

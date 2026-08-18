@@ -25,19 +25,19 @@ const Footer = () => {
   const isHome = pathname === "/";
 
   return (
-    <footer className={`${pathname === "/" ? "-mt-[93px]" : ""} relative z-10`}>
-      <div className="bg-white rounded-t-[100px] px-6 sm:px-10 lg:px-20 pt-14 pb-0">
+    <footer className={`${isHome ? "mt-0 md:-mt-[40px] lg:-mt-[93px]" : ""} relative z-10`}>
+      <div className="bg-white rounded-t-[40px] sm:rounded-t-[60px] md:rounded-t-[80px] lg:rounded-t-[100px] px-4 sm:px-6 sm:px-10 lg:px-20 pt-10 sm:pt-14 pb-0">
         <div className="max-w-[1650px] mx-auto">
-          <div className="flex flex-col md:flex-row flex-wrap lg:flex-nowrap lg:gap-10 gap-5 lg:gap-12 pb-12 border-b border-[#EBEBEB]">
+          <div className="flex flex-col md:flex-row flex-wrap lg:flex-nowrap lg:gap-10 gap-5 lg:gap-12 pb-10 sm:pb-12 border-b border-[#EBEBEB]">
              <div className="w-full mx-auto md:w-1/3 lg:w-[30%]">
               <Link href="/" className="flex items-center mb-5 no-underline">
                 <img
                   src="/icons/hcu-icon.png"
                   alt="Human Concern Logo"
-                  className="w-[212px] h-[54px] object-contain"
+                  className="w-[160px] h-[42px] sm:w-[212px] sm:h-[54px] object-contain"
                 />
               </Link>
-              <p className="text-[14px] text-[#383838] font-normal m-0">
+              <p className="text-[13px] sm:text-[14px] text-[#383838] font-normal m-0 leading-relaxed">
                 Fighting poverty for over 40 years.<br />
                 HUMAN CONCERN USA is a<br />
                 501(C)3<br />
@@ -47,30 +47,30 @@ const Footer = () => {
 
             {/* Col 2 — Contact Us */}
             <div className="w-full md:w-1/2 lg:w-[35%]">
-              <h3 className="text-xl md:text-2xl font-bold text-[#383838] mb-5">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#383838] mb-4 sm:mb-5">
                 Contact Us
               </h3>
               <ul className="flex flex-col gap-[6px] list-none p-0 m-0">
                 {contactItems.map(({ icon, text }, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    {icon}
-                    <span className="text-[16px] text-[#383838]">{text}</span>
+                    <span className="w-4 h-4 shrink-0 mt-0.5">{icon}</span>
+                    <span className="text-[14px] sm:text-[16px] text-[#383838] leading-relaxed">{text}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Col 3 — Subscribe + Socials */}
-            <div className="w-full content-center md:w-full lg:w-[35%]">
+            <div className="w-full md:w-full lg:w-[35%]">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="w-full border border-[#DDDDDD] rounded-full px-4 py-3.5 text-[13px] text-[#1A1A1A] placeholder:text-[#BBBBBB] outline-none focus:border-[#CC1F1F] transition-colors duration-200 mb-3"
+                className="w-full border border-[#DDDDDD] rounded-full px-4 py-3 text-sm sm:text-[13px] text-[#1A1A1A] placeholder:text-[#BBBBBB] outline-none focus:border-[#CC1F1F] transition-colors duration-200 mb-3"
               />
-              <button className="w-full bg-[#383838] hover:bg-[#111111] text-white font-semibold text-[16px] rounded-full px-4 py-3.5 transition-colors duration-200 shadow-[0px_6px_18px_0px_#00000047,0px_18px_40px_0px_#00000073] cursor-pointer">
+              <button className="w-full bg-[#383838] hover:bg-[#111111] text-white font-semibold text-sm sm:text-[16px] rounded-full px-4 py-3 sm:py-3.5 transition-colors duration-200 shadow-[0px_6px_18px_0px_#00000047,0px_18px_40px_0px_#00000073] cursor-pointer">
                 Subscribe
               </button>
-              <div className="flex items-center justify-center gap-[11px] mt-6 flex-wrap">
+              <div className="flex items-center justify-center sm:justify-start md:justify-center gap-[11px] mt-6 flex-wrap">
                 {socials.map(({ label, href, svg }) => (
                   <a
                     key={label}

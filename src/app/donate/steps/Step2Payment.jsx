@@ -320,20 +320,20 @@ const Step2Payment = () => {
             {/* ── Step 3: How to split ── */}
             <div className="flex flex-col gap-3">
               <SectionStep num={3} title="How to split?" />
-              <div className="flex gap-2.5">
+              <div className="flex flex-col sm:flex-row gap-2.5">
                 {splitModes.map((mode) => {
                   const active = splitMode === mode.value;
                   return (
                     <button
                       key={mode.value}
                       onClick={() => handleSplitModeChange(mode.value)}
-                      className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 cursor-pointer ${
+                      className={`w-full sm:flex-1 flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-4 border text-left transition-all duration-200 cursor-pointer min-h-[84px] ${
                         active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
                       }`}
                     >
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-[14px] font-semibold text-[#383838] leading-snug">{mode.title}</p>
-                        <p className="text-[12px] text-[#737373] mt-0.5 font-medium tabular-nums">{mode.example}</p>
+                        <p className="text-[12px] text-[#737373] mt-0.5 font-medium tabular-nums break-words">{mode.example}</p>
                       </div>
                     </button>
                   );

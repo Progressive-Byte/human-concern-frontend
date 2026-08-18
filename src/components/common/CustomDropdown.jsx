@@ -126,8 +126,12 @@ const CustomDropdown = ({
 
       {open && !disabled && (
         <div
-          className={`absolute left-0 z-50 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden ${
-            isForm ? "w-full" : isCompact ? panelWidth : `right-0 ${width}`
+          className={`absolute z-50 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden ${
+            isForm
+              ? "left-0 w-full"
+              : isCompact
+              ? `left-2 right-2 sm:left-auto sm:right-0 ${panelWidth}`
+              : `left-2 right-2 sm:left-auto sm:right-0 ${width}`
           } ${dropUp ? "bottom-full mb-1" : "mt-1"}`}
         >
           {/* Search input */}

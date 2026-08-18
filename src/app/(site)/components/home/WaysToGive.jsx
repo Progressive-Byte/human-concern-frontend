@@ -38,8 +38,8 @@ const WaysToGive = () => {
   const cardHover = "group relative";
   const imgHover =
     "transition-transform duration-500 ease-in-out group-hover:scale-105";
-  const zakatImgSize = "w-[120%] sm:w-[128%] lg:w-[255%] max-w-none";
-  const sadaqahImgSize = "w-[78%] sm:w-[84%] lg:w-[165%]";
+  const zakatImgSize = "w-[150%] sm:w-[128%] lg:w-[255%] max-w-none";
+  const sadaqahImgSize = "w-[90%] sm:w-[84%] lg:w-[165%]";
 
   return (
 
@@ -56,7 +56,7 @@ const WaysToGive = () => {
             </div>
 
             {/* Bento Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8 md:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-4 xl:gap-8">
                 <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col sm:row-span-1 lg:row-span-2 ${cardHover}`} style={{ transitionDelay: "160ms" }}>
                     <div className={overlay} />
                     <div className="p-6 mt-4 ml-1">
@@ -66,7 +66,7 @@ const WaysToGive = () => {
                         </p>
                     </div>
                     <div className="flex-1 flex items-center justify-center">
-                        <div className="hc-float-soft-2 motion-reduce:animate-none -ml-55" style={{ animationDelay: "0ms" }}>
+                        <div className="hc-float-soft-2 motion-reduce:animate-none lg:-ml-[220px]" style={{ animationDelay: "0ms" }}>
                           <img src="/images/zakat.png" alt="Zakat" className={`${zakatImgSize} object-contain ${imgHover}`} />
                         </div>
                     </div>
@@ -80,7 +80,7 @@ const WaysToGive = () => {
                     </p>
                     </div>
                     <div className="flex-1 flex items-center justify-center">
-                        <div className="hc-float-soft-2 motion-reduce:animate-none -mt-4" style={{ animationDelay: "180ms" }}>
+                        <div className="hc-float-soft-2 motion-reduce:animate-none lg:-mt-4" style={{ animationDelay: "180ms" }}>
                           <img src="/images/sadaqah.png" alt="Sadaqah" className={`${sadaqahImgSize} object-contain ${imgHover}`} />
                         </div>
                     </div>
@@ -107,7 +107,7 @@ const WaysToGive = () => {
                             Build sustainable wells and systems to provide clean, safe water for entire villages.
                         </p>
                     </div>
-                    <div className="flex-1 flex items-center justify-center mt-[70px]">
+                    <div className="flex-1 flex items-center justify-center mt-0 sm:mt-4 lg:mt-[70px]">
                     <div className="hc-float-soft motion-reduce:animate-none" style={{ animationDelay: "260ms" }}>
                       <img src="/images/water-aid.png" alt="Water Aid" className={`w-3/6 object-contain ${imgHover}`} />
                     </div>
@@ -117,7 +117,7 @@ const WaysToGive = () => {
                     <div className={overlay} />
                     <div className="p-6">
                     <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Food Aid</h4>
-                    <p className="text-[13px] lg:text-[18px] mr-[80px] font-semibold text-[#38383899]">
+                    <p className="text-[13px] lg:text-[18px] mr-0 lg:mr-[80px] font-semibold text-[#38383899]">
                         Deliver life-saving meals and nutrition packs to families facing hunger and crisis.
                     </p>
                     </div>
@@ -127,17 +127,17 @@ const WaysToGive = () => {
                     </div>
                     </div>
                 </div>
-                <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-row items-start sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3 ${cardHover}`} style={{ transitionDelay: "760ms" }}>
+                <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col md:flex-row items-start sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3 ${cardHover}`} style={{ transitionDelay: "760ms" }}>
                     <div className={overlay} />
-                    <div className="p-7 flex-1">
+                    <div className="p-6 sm:p-7 flex-1">
                     <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Child Sponsorship</h4>
                     <p className="text-[13px] lg:text-[18px] font-semibold text-[#38383899]">
                         Provide education, healthcare, and daily essentials to transform an orphan's life.
                     </p>
                     </div>
-                    <div className="flex-1 flex items-end justify-end pt-4 shrink-0">
-                    <div className="hc-float-soft-3 motion-reduce:animate-none" style={{ animationDelay: "420ms" }}>
-                      <img src="/images/child-sponsorship.png" alt="Child Sponsorship" className={`w-full object-contain ${imgHover}`} />
+                    <div className="flex-[0_0_auto] md:flex-1 flex items-end justify-end pt-0 md:pt-4 shrink-0 max-h-[180px] md:max-h-none w-full md:w-auto self-end">
+                    <div className="hc-float-soft-3 motion-reduce:animate-none w-full md:w-auto" style={{ animationDelay: "420ms" }}>
+                      <img src="/images/child-sponsorship.png" alt="Child Sponsorship" className={`w-full md:w-auto md:max-w-[280px] object-contain ${imgHover}`} />
                     </div>
                     </div>
                 </div>

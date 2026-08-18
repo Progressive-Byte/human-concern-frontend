@@ -27,17 +27,17 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed left-0 right-0 z-50 px-5 pt-4 transition-all duration-300 ${
-        isHome ? "top-[100px]" : "top-0"
+      className={`fixed left-0 right-0 z-50 px-4 sm:px-5 pt-3 sm:pt-4 transition-all duration-300 ${
+        isHome ? "top-[80px] sm:top-[100px]" : "top-0"
       }`}
     >
       <div className="max-w-[1611px] mx-auto">
-        <nav className="bg-white/85 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-4 shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
+        <nav className="bg-white/85 backdrop-blur-md rounded-full px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-3 sm:gap-4 shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
           <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-2 no-underline">
             <img
               src="/icons/hcu-icon.png"
               alt="Human Concern Logo"
-              className="w-[212px] h-[54px] object-contain"
+              className="w-[140px] h-[36px] sm:w-[170px] sm:h-[44px] md:w-[212px] md:h-[54px] object-contain"
             />
           </Link>
 
@@ -150,7 +150,7 @@ const Navbar = () => {
                   </div>
                   <button
                     onClick={() => { logout(); setMenuOpen(false); }}
-                    className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-[#EA3335] rounded-full hover:bg-red-700 transition-all cursor-pointer"
+                    className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-[#EA3335] rounded-full hover:bg-red-700 transition-all cursor-pointer min-w-0 whitespace-nowrap"
                   >
                     Log out
                   </button>
@@ -159,7 +159,7 @@ const Navbar = () => {
                 <Link
                   href="/user/login"
                   onClick={() => setMenuOpen(false)}
-                  className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-full hover:bg-gray-800 transition-all no-underline"
+                  className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-full hover:bg-gray-800 transition-all no-underline min-w-0 whitespace-nowrap"
                 >
                   Sign In
                 </Link>
@@ -168,7 +168,7 @@ const Navbar = () => {
               <Link
                 href="/donate"
                 onClick={() => setMenuOpen(false)}
-                className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-red-600 rounded-full hover:bg-red-700 transition-all no-underline"
+                className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-red-600 rounded-full hover:bg-red-700 transition-all no-underline min-w-0 whitespace-nowrap"
               >
                 Donate
               </Link>
