@@ -92,10 +92,10 @@ const CustomDropdown = ({
     ? `flex items-center gap-1.5 px-3 text-[13px] bg-transparent transition-colors focus:outline-none ${triggerHeight || "py-3"} ${
         disabled ? "text-[#9CA3AF] cursor-not-allowed" : "text-[#383838] hover:bg-[#F9FAFB] cursor-pointer"
       } ${className}`
-    : `flex items-center gap-3 px-5 py-2.5 cursor-pointer bg-white border border-[#CCCCCC] rounded-full text-sm transition-colors hover:border-gray-400 ${triggerHeight} ${className}`;
+    : `w-full flex items-center gap-3 px-5 py-2.5 cursor-pointer bg-white border border-[#CCCCCC] rounded-full text-sm transition-colors hover:border-gray-400 ${triggerHeight} ${className}`;
 
   return (
-    <div ref={containerRef} className={`relative${isForm ? " w-full" : ""}`}>
+    <div ref={containerRef} className={`relative ${isForm ? "w-full" : isCompact ? "" : width}`}>
       <button
         type="button"
         onClick={handleToggle}
