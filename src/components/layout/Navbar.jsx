@@ -27,9 +27,7 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed left-0 right-0 z-50 px-4 sm:px-5 pt-3 sm:pt-4 transition-all duration-300 ${
-        isHome ? "top-[80px] sm:top-[100px]" : "top-0"
-      }`}
+      className="w-full px-4 sm:px-5 pt-3 sm:pt-4 transition-all duration-300"
     >
       <div className="max-w-[1611px] mx-auto">
         <nav className="bg-white/85 backdrop-blur-md rounded-full px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-3 sm:gap-4 shadow-[0_4px_24px_rgba(0,0,0,0.12)]">

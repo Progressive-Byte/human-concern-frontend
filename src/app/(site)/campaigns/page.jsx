@@ -260,7 +260,7 @@ const CampaignsPageInner = () => {
         <div className="absolute inset-0 pointer-events-none opacity-70">
           <div className="absolute inset-0 hc-aurora" aria-hidden="true" />
         </div>
-        <div className="max-w-[1611px] mx-auto pt-[20px] sm:pt-[30px] md:pt-[50px] lg:pt-[92px] pb-[92px] px-4 sm:px-6">
+        <div className="max-w-[1611px] mx-auto pt-[140px] pb-[92px] px-4 sm:px-6">
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
             All Campaigns
           </h1>

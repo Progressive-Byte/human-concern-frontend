@@ -121,23 +121,23 @@ const WaysToGive = () => {
                         Deliver life-saving meals and nutrition packs to families facing hunger and crisis.
                     </p>
                     </div>
-                    <div className="flex-1 flex items-center justify-center min-h-[200px] lg:min-h-[260px]">
-                    <div className="hc-float-soft-2 motion-reduce:animate-none" style={{ animationDelay: "120ms" }}>
+                    <div className="flex-1 flex items-end justify-end sm:justify-center lg:justify-center pt-4 pb-0 min-h-[200px] lg:min-h-[260px]">
+                    <div className="hc-float-soft-2 motion-reduce:animate-none ml-[20%] sm:ml-0 lg:ml-0" style={{ animationDelay: "120ms" }}>
                       <img src="/images/food-aid.png" alt="Food Aid" className={`w-full object-contain ${imgHover}`} />
                     </div>
                     </div>
                 </div>
                 <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col md:flex-row items-start sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3 ${cardHover}`} style={{ transitionDelay: "760ms" }}>
                     <div className={overlay} />
-                    <div className="p-6 sm:p-7 flex-1">
+                    <div className="p-6 sm:p-7 flex-1 w-full">
                     <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Child Sponsorship</h4>
                     <p className="text-[13px] lg:text-[18px] font-semibold text-[#38383899]">
                         Provide education, healthcare, and daily essentials to transform an orphan's life.
                     </p>
                     </div>
-                    <div className="flex-[0_0_auto] md:flex-1 flex items-end justify-end pt-0 md:pt-4 shrink-0 max-h-[180px] md:max-h-none w-full md:w-auto self-end">
-                    <div className="hc-float-soft-3 motion-reduce:animate-none w-full md:w-auto" style={{ animationDelay: "420ms" }}>
-                      <img src="/images/child-sponsorship.png" alt="Child Sponsorship" className={`w-full md:w-auto md:max-w-[280px] object-contain ${imgHover}`} />
+                    <div className="flex-[0_0_auto] md:flex-1 flex items-end justify-center md:justify-end pt-2 md:pt-4 shrink-0 max-h-[200px] md:max-h-[260px] w-full md:w-auto self-end">
+                    <div className="hc-float-soft-3 motion-reduce:animate-none w-full md:w-auto flex justify-center md:justify-end" style={{ animationDelay: "420ms" }}>
+                      <img src="/images/child-sponsorship.png" alt="Child Sponsorship" className={`h-full max-h-[200px] md:max-h-[260px] w-auto object-contain ${imgHover}`} />
                     </div>
                     </div>
                 </div>

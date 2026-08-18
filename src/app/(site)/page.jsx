@@ -121,7 +121,7 @@ const HomePage = () => {
 
           {/* ── Frosted glass card — */}
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full max-w-[1611px] mt-4 sm:mt-8 md:mt-0 lg:mt-[-200px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="w-full max-w-[1611px] mt-27 sm:mt-27 md:mt-27 lg:mt-[-108px] mx-auto px-4 sm:px-6 lg:px-8">
               <div className="w-full md:max-w-[560px] lg:max-w-[652px] bg-[#FFFFFFB2] backdrop-blur-[100px] px-4 py-5 sm:px-6 sm:py-6 md:px-[77px] md:py-[60px] rounded-3xl">
                 <h1 className="text-2xl sm:text-3xl md:text-[56px] md:leading-[1.1] font-semibold text-[#383838] leading-tight [text-shadow:0px_4px_25px_rgba(255,255,255,0.25)]">
                   Give with <span className="font-bold font-playfair italic">Purpose. Transform</span> lives.
