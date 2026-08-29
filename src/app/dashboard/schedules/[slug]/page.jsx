@@ -11,6 +11,7 @@ import { ScheduleDetailsCard } from "./components/ScheduleDetailsCard";
 import { AllocatedCausesCard } from "./components/AllocatedCausesCard";
 import { DonationHistoryCard } from "./components/DonationHistoryCard";
 import { ScheduleSidebar } from "./components/ScheduleSidebar";
+import ScheduleOrchestrationStatusCard from "@/components/dashboard/ScheduleOrchestrationStatusCard";
 const frequencyLabel = { Weekly: "week", Monthly: "month", Daily: "day" };
 
 function formatDate(value) {
@@ -185,11 +186,20 @@ const ScheduleDetailPage = () => {
           />
         ) : null}
 
+        <ScheduleOrchestrationStatusCard
+          loading={loading}
+          schedule={schedule}
+          scheduleId={scheduleId}
+          onRefresh={() => refreshRef.current?.()}
+          onCancel={() => refreshRef.current?.()}
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-4 md:gap-5 items-start">
           <div className="min-w-0 space-y-4 md:space-y-5">
             <ScheduleDetailsCard
               loading={loading}
               statusLabel={String(schedule?.status?.label || "").trim() || "—"}
+              statusKey={String(schedule?.status?.key || schedule?.orchestrationStatus || schedule?.metadata?.orchestrationStatus || "").trim().toLowerCase()}
               frequency={frequency}
               nextDonationAmount={Number(schedule?.nextDonation?.amount ?? 0)}
               nextDate={formatDate(schedule?.nextDonation?.date) || "—"}

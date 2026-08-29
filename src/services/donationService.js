@@ -133,3 +133,29 @@ export function cancelUserSchedule(scheduleId, reason = "") {
     body: JSON.stringify({ reason }),
   });
 }
+
+export function postFinalizeSplit(body, idemKey) {
+  const options = {
+    method: "POST",
+    body: JSON.stringify(body || {}),
+  };
+  if (idemKey) options.idempotencyKey = String(idemKey);
+  return apiRequest("/donations/finalize", options);
+}
+
+export async function postFinalizeOneTime(body, idemKey) {
+  const options = {
+    method: "POST",
+    body: JSON.stringify(body || {}),
+  };
+  if (idemKey) options.idempotencyKey = String(idemKey);
+  try {
+    return await apiRequest("/donations/finalize-onetime", options);
+  } catch (err) {
+    const status = err?.statusCode;
+    if (status === 404 || status === 405) {
+      return apiRequest("/donations/finalize", options);
+    }
+    throw err;
+  }
+}

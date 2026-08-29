@@ -201,6 +201,31 @@ function Icon({ name }) {
     );
   }
 
+  if (name === "gateway-health") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M3 12h4l2-6 4 12 2-6h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (name === "reconciliation") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M12 3v18M4 7l8-4 8 4M4 17l8 4 8-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (name === "payments-ops") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <rect x="3" y="4" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" />
+        <path d="M8 20h8M12 16v4M7 9h10M7 12h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
       <path
@@ -236,6 +261,9 @@ const navItems = [
   { href: "/admin/add-ons", label: "Addons", icon: "addons" },
   { href: "/admin/donors", label: "Donors", icon: "donors" },
   { href: "/admin/donations", label: "Transactions", icon: "transactions" },
+  { href: "/admin/gateway-health", label: "Gateway Health", icon: "gateway-health", permission: "settings.read" },
+  { href: "/admin/reconciliation", label: "Reconciliation", icon: "reconciliation", permission: "transactions.read" },
+  { href: null, label: "Payments Ops", icon: "payments-ops", disabled: true },
   { href: "/admin/schedules", label: "Schedules", icon: "schedules" },
   { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
   { href: "/admin/logs", label: "Logs", icon: "logs" },
@@ -244,10 +272,26 @@ const navItems = [
 
 const AdminSidebar = ({ onNavigate }) => {
   const pathname = usePathname();
-  const { logout } = useAdminAuth();
+  const { admin, logout } = useAdminAuth();
   const { brandLogoUrl, organizationName } = useAdminBranding();
 
   const isActive = (href) => (href ? (href === "/admin" ? pathname === href : pathname?.startsWith(href)) : false);
+
+  const hasPermission = (required) => {
+    if (!required) return true;
+    if (!admin) return true;
+    const role = String(admin.role || "").toLowerCase();
+    if (role === "super_admin" || role === "super-admin" || role === "owner") return true;
+    if (role === "admin") return true;
+    if (Array.isArray(admin.permissions)) {
+      if (admin.permissions.includes(required)) return true;
+      const prefix = required.split(".")[0];
+      if (admin.permissions.includes(`${prefix}.*`) || admin.permissions.includes("*")) return true;
+    }
+    return false;
+  };
+
+  const visibleNavItems = navItems.filter((item) => hasPermission(item.permission));
 
   return (
     <aside className="flex h-screen w-65 shrink-0 flex-col text-white" style={{ backgroundColor: "var(--admin-primary-700)" }}>
@@ -262,7 +306,7 @@ const AdminSidebar = ({ onNavigate }) => {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const active = isActive(item.href);
           const base =
             "flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 text-[14px] font-medium transition-colors";

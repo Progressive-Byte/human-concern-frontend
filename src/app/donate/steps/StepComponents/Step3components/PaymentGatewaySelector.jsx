@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { apiRequest } from "@/services/api";
+import {
+  buildDonorReturnParams,
+  buildDonorReturnQueryString,
+  saveDonorReturnParams,
+} from "@/components/payment/UnifiedChallengeDispatcher";
 
 const RecurringNotice = () => (
   <div className="flex items-start gap-2.5 px-1 mt-4">
@@ -38,11 +43,55 @@ const MethodTile = ({ label, sublabel, logo, alt, isSelected, onClick }) => (
   </button>
 );
 
+function buildPayPalReturnUrl({ donorData, currency, amount }) {
+  const returnBase =
+    (typeof window !== "undefined" ? window.location.origin : "") +
+    "/donate/thank-you/return-from-challenge";
+
+  const donorReturnParams = buildDonorReturnParams(
+    {},
+    {
+      firstName: donorData?.firstName,
+      lastName: donorData?.lastName,
+      email: donorData?.email,
+      donorCountryCode: donorData?.donorCountryCode,
+      locale: donorData?.locale,
+      utm_source: donorData?.utm_source,
+      utm_campaign: donorData?.utm_campaign,
+      utm_medium: donorData?.utm_medium,
+      info: donorData?.info || donorData,
+    }
+  );
+  saveDonorReturnParams(donorReturnParams);
+
+  const qs = buildDonorReturnQueryString(donorReturnParams);
+  const params = new URLSearchParams();
+  params.set("provider", "paypal");
+  params.set("orchestration", "redirect");
+  if (currency) params.set("currency", currency);
+  if (amount) params.set("amount", String(amount));
+
+  const combined =
+    returnBase +
+    "?" +
+    params.toString() +
+    (qs ? "&" + qs : "");
+
+  return {
+    returnUrl: returnBase + "?" + params.toString() + (qs ? "&" + qs : ""),
+    donorReturnParams,
+    returnBase,
+  };
+}
+
 const PaymentGatewaySelector = ({
   isRecurring,
   initialGateway,
   paymentMethods = [],   // [{name, publishableKey}] from goalsDates — all Stripe
   onChange,
+  donorData = null,
+  currency,
+  amount,
 }) => {
   const hasCampaignMethods = paymentMethods.length > 0;
 
@@ -116,7 +165,54 @@ const PaymentGatewaySelector = ({
                 onClick={() => {
                   setSelectedGateway(gateway.provider);
                   const stripe = gateways.find((g) => g.provider === "stripe");
-                  onChange({ gateway: gateway.provider, publishableKey: stripe?.publishableKey ?? null });
+
+                  if (gateway.provider === "paypal") {
+                    const orchestration =
+                      gateway.orchestration ??
+                      gateway.orchestrationMode ??
+                      (gateway.redirectSupported ? "redirect" : "sdk");
+                    const isRedirect = orchestration === "redirect";
+
+                    const { returnUrl, donorReturnParams, returnBase } = buildPayPalReturnUrl({
+                      donorData,
+                      currency,
+                      amount,
+                    });
+
+                    const challenge = isRedirect
+                      ? {
+                          provider: "paypal",
+                          interactionType: "redirect",
+                          orchestration: "redirect",
+                          redirectUrl: null,
+                          returnUrl,
+                          donorReturnParams,
+                        }
+                      : null;
+
+                    onChange({
+                      gateway: gateway.provider,
+                      publishableKey: stripe?.publishableKey ?? null,
+                      orchestration: isRedirect ? "redirect" : "sdk",
+                      provider: "paypal",
+                      paypalConfig: {
+                        clientId: gateway.clientId ?? gateway.publishableKey ?? null,
+                        merchantId: gateway.merchantId ?? gateway.merchant_id ?? null,
+                        ...(gateway.config || {}),
+                      },
+                      returnUrl,
+                      returnBase,
+                      donorReturnParams,
+                      challenge,
+                    });
+                  } else {
+                    onChange({
+                      gateway: gateway.provider,
+                      publishableKey: stripe?.publishableKey ?? null,
+                      orchestration: "sdk",
+                      provider: "stripe",
+                    });
+                  }
                 }}
               />
             ))}

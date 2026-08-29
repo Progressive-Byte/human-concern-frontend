@@ -511,11 +511,43 @@ export function updateAdminPaymentGatewayConfiguration(provider, payload) {
   return adminApiRequest(`/admin/settings/payment/gateways/${provider}/configuration`, { method: "PUT", body: JSON.stringify(payload) });
 }
 
-export function setAdminPaymentGatewayEnabled(provider, enabled, configurationId) {
+export function updateAdminPaymentGatewayConfigurationExtended(provider, payload) {
+  const extended = { ...(payload || {}) };
+  if (extended.priority === undefined) extended.priority = 50;
+  if (!Array.isArray(extended.supportedCurrencies)) extended.supportedCurrencies = ["USD"];
+  if (!extended.defaultCurrency && Array.isArray(extended.supportedCurrencies) && extended.supportedCurrencies[0]) {
+    extended.defaultCurrency = extended.supportedCurrencies[0];
+  }
+  if (extended.feeBps === undefined) extended.feeBps = 0;
+  if (!extended.merchantCountry) extended.merchantCountry = "";
+  if (extended.scaThresholdAmountMinor === undefined) extended.scaThresholdAmountMinor = null;
+  if (!extended.scaThresholdCurrency) extended.scaThresholdCurrency = "";
+  if (!extended.environment) extended.environment = "AUTO-INFER";
+  if (!extended.description) extended.description = "";
+  if (!extended.adminNotes) extended.adminNotes = extended.description || "";
+  if (extended.isDefault === undefined) extended.isDefault = false;
+  return updateAdminPaymentGatewayConfiguration(provider, extended);
+}
+
+export function setAdminPaymentGatewayEnabled(provider, enabled, configurationId, extra) {
+  const body = { enabled: Boolean(enabled), configurationId };
+  if (extra && typeof extra === "object") Object.assign(body, extra);
   return adminApiRequest(`/admin/settings/payment/gateways/${provider}/enabled`, {
     method: "PATCH",
-    body: JSON.stringify({ enabled: Boolean(enabled), configurationId }),
+    body: JSON.stringify(body),
   });
+}
+
+export function setAdminPaymentGatewayEnabledExtended(provider, enabled, configurationId, extra) {
+  const extendedExtra = { ...(extra || {}) };
+  if (extendedExtra.isDefault !== undefined) {
+    // allow setting default flag along with enable
+  }
+  return setAdminPaymentGatewayEnabled(provider, enabled, configurationId, extendedExtra);
+}
+
+export function setAdminPaymentGatewayDefault(provider, configurationId) {
+  return setAdminPaymentGatewayEnabledExtended(provider, true, configurationId, { isDefault: true });
 }
 
 export function disconnectAdminPaymentGateway(provider, configurationId) {
@@ -523,6 +555,22 @@ export function disconnectAdminPaymentGateway(provider, configurationId) {
     method: "POST",
     body: JSON.stringify(configurationId ? { configurationId } : {}),
   });
+}
+
+export function runGatewayHealthCanary(provider, configurationId, options = {}) {
+  const body = {
+    amountMinor: options.amountMinor ?? 100,
+    currency: options.currency ?? "USD",
+    testMode: options.testMode ?? true,
+  };
+  return adminApiRequest(`/admin/gateway-health/${provider}/${configurationId}/canary`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function getAdminSettingsPaymentExtended() {
+  return getAdminSettingsPayment();
 }
 
 export function setAdminSavedCardsConfiguration(configurationId) {

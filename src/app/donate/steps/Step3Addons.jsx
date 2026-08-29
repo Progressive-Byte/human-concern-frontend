@@ -12,6 +12,8 @@ import { distributeAmount } from "@/utils/causeSplit";
 import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
+import { buildDonorReturnParams, saveDonorReturnParams } from "@/components/payment/UnifiedChallengeDispatcher";
+import { resetIdempotencyKeyForChangedIntent } from "@/utils/idempotency";
 
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
@@ -337,6 +339,7 @@ const Step3Addons = () => {
         state:        data.province     ?? "",
         streetName:   data.addressLine1 ?? "",
         country:      data.country      ?? "",
+        countryCode:  data.donorCountryCode ?? "",
       },
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: gatewayState.gateway,
@@ -394,6 +397,31 @@ const Step3Addons = () => {
         causeAllocations: distributeAmount(amountTier, data.causeSplit ?? {}),
       };
     }
+
+    if (gatewayState.gateway === "paypal") {
+      const donorReturnParams = buildDonorReturnParams(
+        {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          donorCountryCode: data.donorCountryCode,
+        },
+        {
+          info: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            donorCountryCode: data.donorCountryCode,
+            countryCode: data.donorCountryCode,
+          },
+          ...data,
+        }
+      );
+      saveDonorReturnParams(donorReturnParams);
+      body.donorReturnParams = donorReturnParams;
+      body.orchestrationMode = "redirect";
+    }
+
     return body;
   };
 
@@ -468,7 +496,9 @@ const Step3Addons = () => {
         return;
       }
 
-      const res     = await apiRequest("donations/submit", { method: "POST", body: JSON.stringify(buildSubmitBody()) });
+      const submitOpts = { method: "POST", body: JSON.stringify(buildSubmitBody()) };
+      if (data.idempotencyKey) submitOpts.idempotencyKey = data.idempotencyKey;
+      const res     = await apiRequest("donations/submit", submitOpts);
       const payment = res?.data?.payment ?? {};
       const pendingSessionId =
         res?.data?.pendingSessionId ??
@@ -480,6 +510,21 @@ const Step3Addons = () => {
         payment?.setupIntent?.id ??
         res?.data?.setupIntentId ??
         null;
+      const challenge =
+        payment?.challenge ??
+        res?.data?.challenge ??
+        null;
+      if (challenge && typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem("hc_unified_challenge", JSON.stringify(challenge));
+          if (challenge.authChallengeId) {
+            sessionStorage.setItem("hc_auth_challenge_id", String(challenge.authChallengeId));
+          }
+          if (challenge.frontendReturnPayloadId) {
+            sessionStorage.setItem("hc_frontend_return_payload_id", String(challenge.frontendReturnPayloadId));
+          }
+        } catch {}
+      }
       update({
         donationId:           res?.data?.donationId     ?? null,
         guestSessionId:       res?.data?.guestSessionId ?? null,
@@ -488,12 +533,27 @@ const Step3Addons = () => {
         pendingSessionId,
         setupIntentId,
         submitted:            true,
+        unifiedChallenge:     challenge,
       });
       handleNext(4);
     } catch (err) {
       console.error(err);
       setSubmitError(err.message ?? "Submission failed. Please try again.");
-      setSubmitting(false);
+      const status = Number(err?.statusCode ?? err?.status ?? 0);
+      const is4xxValidation = status >= 400 && status < 500 && status !== 409 && status !== 401 && status !== 403 && status !== 404;
+      if (is4xxValidation) {
+        setSubmitting(false);
+        try {
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("hc_submit_idempotency");
+            sessionStorage.removeItem("hc_idempotency_key_checkout_submit");
+          }
+        } catch (_) {}
+        if (typeof resetIdempotencyKeyForChangedIntent === "function") {
+          try { resetIdempotencyKeyForChangedIntent(); } catch (_) {}
+        }
+        update({ idempotencyKey: "" });
+      }
     }
   };
 
@@ -661,6 +721,21 @@ const Step3Addons = () => {
             initialGateway={["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null}
             paymentMethods={paymentMethods}
             onChange={setGatewayState}
+            donorData={{
+              firstName: data.firstName,
+              lastName: data.lastName,
+              email: data.email,
+              donorCountryCode: data.donorCountryCode,
+              info: {
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                donorCountryCode: data.donorCountryCode,
+                countryCode: data.donorCountryCode,
+              },
+            }}
+            currency={currency}
+            amount={baseDonation}
           />
         ) : null}
 

@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout          from "./StepComponents/StepLayout";
 import PersonalInfoSection from "./StepComponents/Step1components/PersonalInfoSection";
+import DonorCountrySelector from "@/components/payment/DonorCountrySelector";
 import AddressSection      from "./StepComponents/Step1components/AddressSection";
 import CauseSelector       from "./StepComponents/Step1components/CauseSelector";
 import DonorPreferences    from "./StepComponents/Step1components/DonorPreferences";
@@ -111,6 +112,7 @@ const Step1Info = ({ campaignSlug }) => {
         province:     user.address?.state         ?? user.state        ?? "",
         zip:          user.address?.postalCode    ?? user.postalCode   ?? "",
         country:      user.country                ?? user.address?.country ?? "",
+        donorCountryCode: user.countryCode ?? user.donorCountryCode ?? "",
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -154,7 +156,8 @@ const Step1Info = ({ campaignSlug }) => {
       !data.city?.trim()         ||
       !data.province?.trim()     ||
       !data.zip?.trim()          ||
-      !data.country?.trim()
+      !data.country?.trim()      ||
+      !data.donorCountryCode?.trim()
     ) {
       setError("Please fill in all required fields.");
       if (!addressExpanded) setAddressExpanded(true);
@@ -176,6 +179,8 @@ const Step1Info = ({ campaignSlug }) => {
         email:        data.email,
         phone:        data.phone,
         country:      data.country,
+        countryCode:  data.donorCountryCode,
+        donorCountryCode: data.donorCountryCode,
         address: {
           ...(user?.address ?? {}),
           line1:      data.addressLine1,
@@ -208,6 +213,24 @@ const Step1Info = ({ campaignSlug }) => {
           onToggleEditMode={() => setEditMode((prev) => !prev)}
           personalField={personalField}
         />
+
+        <div className="bg-white border border-[#E5E7EB] rounded-2xl px-4 py-4">
+          <DonorCountrySelector
+            value={data.donorCountryCode}
+            onChange={(isoCode, countryName) => {
+              update({ donorCountryCode: isoCode, error: "" });
+              setError("");
+              if (countryName && !data.country?.trim()) {
+                update({ country: countryName });
+              }
+            }}
+            userCountry={user?.country ?? ""}
+            addressCountry={user?.address?.country ?? ""}
+            required
+            label="Donor Country"
+            helpText="Used for payment processing and tax receipt eligibility."
+          />
+        </div>
 
         <AddressSection
           setError={setError}

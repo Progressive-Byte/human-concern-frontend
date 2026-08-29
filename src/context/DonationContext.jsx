@@ -1,10 +1,17 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  generatePaymentIdempotencyKey,
+  loadIdempotencyKey,
+  storeIdempotencyKey,
+  clearIdempotencyKey,
+} from "@/utils/idempotency";
 
 const DonationContext = createContext(null);
 
 const STORAGE_KEY = "hc_donation";
+const IDEM_SESSION_KEY = "hc_payment_idem";
 
 const initialState = {
   campaignId: null,
@@ -26,6 +33,8 @@ const initialState = {
   email: "",
   phone: "",
   country: "",
+  donorCountryCode: "",
+  idempotencyKey: "",
   paymentMethod: "card",
   cardName: "",
   cardNumber: "",
@@ -33,16 +42,57 @@ const initialState = {
   cardCvv: "",
 };
 
+function hashIntentFields(state) {
+  const parts = [
+    String(state.amount ?? ""),
+    String(state.paymentMethod ?? ""),
+    String(state.email ?? ""),
+    String((state.causeIds ?? []).join(",")),
+  ];
+  return parts.join("|");
+}
+
 export function DonationProvider({ children }) {
   const [data, setData] = useState(() => {
     if (typeof window === "undefined") return initialState;
     try {
       const saved = sessionStorage.getItem(STORAGE_KEY);
-      return saved ? { ...initialState, ...JSON.parse(saved) } : initialState;
+      const parsed = saved ? { ...initialState, ...JSON.parse(saved) } : initialState;
+      const existingKey = loadIdempotencyKey(IDEM_SESSION_KEY);
+      if (existingKey && !parsed.idempotencyKey) parsed.idempotencyKey = existingKey;
+      if (!parsed.idempotencyKey) {
+        parsed.idempotencyKey = generatePaymentIdempotencyKey("pay");
+        storeIdempotencyKey(IDEM_SESSION_KEY, parsed.idempotencyKey);
+      }
+      return parsed;
     } catch {
-      return initialState;
+      const fallback = { ...initialState };
+      fallback.idempotencyKey = generatePaymentIdempotencyKey("pay");
+      return fallback;
     }
   });
+
+  const prevHashRef = useRef(hashIntentFields(initialState));
+
+  useEffect(() => {
+    const currentHash = hashIntentFields(data);
+    if (prevHashRef.current && currentHash !== prevHashRef.current) {
+      const newKey = generatePaymentIdempotencyKey("pay");
+      clearIdempotencyKey(IDEM_SESSION_KEY);
+      storeIdempotencyKey(IDEM_SESSION_KEY, newKey);
+      setData((prev) => ({ ...prev, idempotencyKey: newKey }));
+    }
+    prevHashRef.current = currentHash;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.amount, data.paymentMethod, data.email, data.causeIds]);
+
+  const regenerateIdempotencyKey = () => {
+    const newKey = generatePaymentIdempotencyKey("pay");
+    clearIdempotencyKey(IDEM_SESSION_KEY);
+    storeIdempotencyKey(IDEM_SESSION_KEY, newKey);
+    setData((prev) => ({ ...prev, idempotencyKey: newKey }));
+    return newKey;
+  };
 
   const update = (fields) =>
     setData((prev) => {
@@ -55,12 +105,15 @@ export function DonationProvider({ children }) {
     try {
       sessionStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem("hc_donation_done");
+      clearIdempotencyKey(IDEM_SESSION_KEY);
     } catch {}
-    setData(initialState);
+    const fresh = { ...initialState, idempotencyKey: generatePaymentIdempotencyKey("pay") };
+    storeIdempotencyKey(IDEM_SESSION_KEY, fresh.idempotencyKey);
+    setData(fresh);
   };
 
   return (
-    <DonationContext.Provider value={{ data, update, reset }}>
+    <DonationContext.Provider value={{ data, update, reset, regenerateIdempotencyKey }}>
       {children}
     </DonationContext.Provider>
   );

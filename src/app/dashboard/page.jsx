@@ -7,7 +7,8 @@ import StatCard from "./components/StatCard";
 import RecentDonationsCard from "./components/RecentDonationsCard";
 import FundBreakdownCard from "./components/FundBreakdownCard";
 import ActiveSchedulesCard from "./components/ActiveSchedulesCard";
-import { getUserDashboard } from "@/services/donationService";
+import ActionRequiredBanner from "@/components/dashboard/ActionRequiredBanner";
+import { getUserDashboard, getUserSchedules } from "@/services/donationService";
 import { formatCurrency } from "@/utils/helpers";
 
 function formatShortDate(value) {
@@ -25,6 +26,7 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
+  const [allSchedules, setAllSchedules] = useState([]);
 
   useEffect(() => {
     let alive = true;
@@ -32,12 +34,27 @@ const DashboardPage = () => {
       setLoading(true);
       setError("");
       try {
-        const res = await getUserDashboard({ recentLimit: "3", schedulesLimit: "3", distributionLimit: "6" });
+        const [dashRes, schedRes] = await Promise.allSettled([
+          getUserDashboard({ recentLimit: "3", schedulesLimit: "3", distributionLimit: "6" }),
+          getUserSchedules({ page: "1", limit: "100", q: "" }),
+        ]);
         if (!alive) return;
-        setData(res?.data?.data || res?.data || null);
+        if (dashRes.status === "fulfilled") {
+          setData(dashRes.value?.data?.data || dashRes.value?.data || null);
+        } else {
+          setData(null);
+          setError(dashRes.reason?.message || "Failed to load dashboard.");
+        }
+        if (schedRes.status === "fulfilled") {
+          const schedData = schedRes.value?.data?.data || schedRes.value?.data || {};
+          setAllSchedules(Array.isArray(schedData?.items) ? schedData.items : []);
+        } else {
+          setAllSchedules([]);
+        }
       } catch (e) {
         if (!alive) return;
         setData(null);
+        setAllSchedules([]);
         setError(e?.message || "Failed to load dashboard.");
       } finally {
         if (!alive) return;
@@ -101,11 +118,26 @@ const DashboardPage = () => {
     }),
   [schedulesItems, kpis?.currency]);
 
+  const schedulesForBanner = useMemo(() => {
+    const seen = new Set();
+    const merged = [];
+    [...allSchedules, ...schedulesItems].forEach((s) => {
+      const key = String(s?.scheduleId || s?.donationId || s?.id || Math.random());
+      if (!seen.has(key)) {
+        seen.add(key);
+        merged.push(s);
+      }
+    });
+    return merged;
+  }, [allSchedules, schedulesItems]);
+
   return (
     <>
       <DashboardHeader />
 
       <div className="flex-1 p-4 md:p-6 space-y-6 md:space-y-8">
+        {!loading && <ActionRequiredBanner schedules={schedulesForBanner} />}
+
         {error ? (
           <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
             {error}
