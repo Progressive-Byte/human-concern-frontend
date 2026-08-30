@@ -350,7 +350,7 @@ function ScaThresholdCurrencyPicker({ value, onChange, disabled }) {
       <button
         type="button"
         disabled={disabled}
-        onClick={() => !disabled && setOpen((v) => !v}
+        onClick={() => !disabled && setOpen((v) => !v)}
         className={`inline-flex min-w-[130px] items-center justify-between gap-2 rounded-lg border px-3 py-2.5 text-left text-[13px] font-bold transition focus:ring-4 focus:ring-[#111827]/8 ${
           disabled
             ? "cursor-not-allowed border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF]"
