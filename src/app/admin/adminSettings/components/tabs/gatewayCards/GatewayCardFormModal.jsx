@@ -139,7 +139,7 @@ function SectionCard({ title, subtitle, icon, children, tone = "default" }) {
           ? "border-[#E5E7EB]"
           : "border-[#E5E7EB]";
   return (
-    <section className={`isolate overflow-visible rounded-xl border bg-white shadow-sm ${toneCls}`}>
+    <section className={`overflow-visible rounded-xl border bg-white shadow-sm ${toneCls}`}>
       {title && (
         <header className="flex items-start gap-3 rounded-t-xl border-b border-[#F3F4F6] bg-gradient-to-b from-white to-[#FAFAFA] px-4 py-3">
           {icon ? <div className="mt-0.5">{icon}</div> : null}
@@ -366,8 +366,8 @@ function SearchableCountryDropdown({ value, onChange, placeholder = "Select coun
 
       {open ? (
         <>
-          <button type="button" className="fixed inset-0 z-[95]" onClick={() => { setOpen(false); setSearch(""); }} aria-label="Close dropdown" />
-          <div className="absolute left-0 right-0 top-full z-[96] mt-1.5 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
+          <button type="button" className="fixed inset-0 z-[998]" onClick={() => { setOpen(false); setSearch(""); }} aria-label="Close dropdown" />
+          <div className="absolute left-0 right-0 top-full z-[999] mt-1.5 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
             <div className="border-b border-[#F3F4F6] bg-[#FAFAFA] p-2.5">
               <input
                 autoFocus

@@ -116,14 +116,14 @@ const CurrencyDefaultChips = ({
                   <>
                     <button
                       type="button"
-                      className="fixed inset-0 z-[95]"
+                      className="fixed inset-0 z-[998]"
                       onClick={() => {
                         setIsAdding(false);
                         setSearch("");
                       }}
                       aria-label="Close currency dropdown"
                     />
-                    <div className="absolute left-0 top-full z-[96] mt-1.5 w-72 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
+                    <div className="absolute left-0 top-full z-[999] mt-1.5 w-72 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
                       <div className="min-h-[140px] max-h-72 overflow-y-auto">
                         {availableToAdd.length === 0 ? (
                           <div className="px-3 py-8 text-center text-[12px] text-[#6B7280]">No currencies match or all already added.</div>
