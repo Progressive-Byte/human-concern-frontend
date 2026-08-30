@@ -529,50 +529,43 @@ function AddScaThresholdDropdown({ addable, alreadyInMapCount, onPick }) {
 
   const options = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return CURRENCY_LIST
-      .filter((c) => {
-        if (addable.length && !addable.includes(c.code)) return false;
-        if (!q) return true;
-        return (
-          c.code.toLowerCase().includes(q) ||
-          c.name.toLowerCase().includes(q) ||
-          (c.symbol || "").toLowerCase().includes(q)
-        );
-      })
-      .slice(0, 50);
+    const suggestedSet = new Set(addable);
+    const suggested = [];
+    const others = [];
+    for (const c of CURRENCY_LIST) {
+      if (q && !(
+        c.code.toLowerCase().includes(q) ||
+        c.name.toLowerCase().includes(q) ||
+        (c.symbol || "").toLowerCase().includes(q)
+      )) continue;
+      if (suggestedSet.has(c.code)) suggested.push(c);
+      else others.push(c);
+    }
+    return { suggested, others };
   }, [search, addable]);
 
-  const disabled = alreadyInMapCount > 0 && addable.length === 0;
-  const showAddHint = alreadyInMapCount === 0 || addable.length > 0;
+  const hasSuggested = options.suggested.length > 0;
+  const hasOthers = options.others.length > 0;
 
   return (
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        disabled={disabled}
         onClick={() => setOpen((v) => !v)}
-        className={`group inline-flex w-full items-center justify-between gap-2 rounded-lg border px-3.5 py-2.5 text-left text-[12.5px] font-bold transition focus:ring-4 focus:ring-[#111827]/8 ${
-          disabled
-            ? "cursor-not-allowed border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF]"
-            : "border-dashed border-[#D1D5DB] bg-white text-[#111827] hover:border-[#111827] focus:border-[#111827]"
-        }`}
+        className="group inline-flex w-full items-center justify-between gap-2 rounded-lg border-dashed border border-[#D1D5DB] bg-white px-3.5 py-2.5 text-left text-[12.5px] font-bold text-[#111827] transition hover:border-[#111827] focus:border-[#111827] focus:ring-4 focus:ring-[#111827]/8"
       >
         <span className="inline-flex items-center gap-1.5">
-          <svg viewBox="0 0 20 20" className={`h-3.5 w-3.5 ${disabled ? "text-[#9CA3AF]" : "text-[#111827] group-hover:scale-110"} transition`} fill="none">
+          <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 text-[#111827] group-hover:scale-110 transition" fill="none">
             <path d="M10 5v10M5 10h10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
           </svg>
-          {showAddHint
-            ? "Add SCA threshold for a currency…"
-            : "All supported currencies have a threshold set."}
+          Add SCA threshold for a currency…
         </span>
-        {!disabled ? (
-          <svg viewBox="0 0 20 20" className={`h-4 w-4 text-[#6B7280] transition ${open ? "rotate-180" : ""}`} fill="none">
-            <path d="M5 7.5l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        ) : null}
+        <svg viewBox="0 0 20 20" className={`h-4 w-4 text-[#6B7280] transition ${open ? "rotate-180" : ""}`} fill="none">
+          <path d="M5 7.5l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
 
-      {open && !disabled ? (
+      {open ? (
         <div className="absolute left-0 right-0 top-full z-[999] mt-1.5 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
           <div className="border-b border-[#F3F4F6] bg-[#FAFAFA] p-2.5">
             <input
@@ -584,35 +577,54 @@ function AddScaThresholdDropdown({ addable, alreadyInMapCount, onPick }) {
               className="w-full rounded-md border border-[#D1D5DB] bg-white px-3 py-2 text-[12.5px] outline-none focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
             />
           </div>
-          <div className="min-h-[120px] max-h-72 overflow-y-auto">
-            {addable.length === 0 ? (
-              <div className="px-3 py-5 text-center text-[12px] text-[#6B7280]">
-                Tick more currencies in Supported Currencies first, then set SCA thresholds for them here.
-              </div>
-            ) : options.length === 0 ? (
+          <div className="min-h-[160px] max-h-72 overflow-y-auto">
+            {!hasSuggested && !hasOthers ? (
               <div className="px-3 py-5 text-center text-[12px] text-[#6B7280]">No currencies match.</div>
             ) : null}
-            {options.map((c) => (
-              <button
-                key={c.code}
-                type="button"
-                onClick={() => {
-                  onPick(c.code);
-                  setOpen(false);
-                  setSearch("");
-                }}
-                className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] transition hover:bg-[#F3F4F6]"
-              >
-                <span className="text-lg leading-none">{c.flag || "💱"}</span>
-                <span className="w-10 shrink-0 font-bold text-[#111827]">{c.code}</span>
-                <span className="flex-1 truncate text-[#374151]">{c.name}</span>
-                <span className="w-6 shrink-0 text-right text-[11.5px] text-[#6B7280]">{c.symbol || ""}</span>
-              </button>
-            ))}
+            {hasSuggested ? (
+              <>
+                <div className="sticky top-0 z-10 bg-[#FAFAFA] px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-wider text-[#6B7280] border-b border-[#F3F4F6]">
+                  Suggested · from your Supported Currencies
+                </div>
+                {options.suggested.map((c) => (
+                  <ScaCurrencyRow key={`s-${c.code}`} c={c} onPick={(code) => {
+                    onPick(code); setOpen(false); setSearch("");
+                  }} />
+                ))}
+              </>
+            ) : null}
+            {hasSuggested && hasOthers ? <div className="mx-3 my-1 h-px bg-[#F3F4F6]" /> : null}
+            {hasOthers ? (
+              <>
+                <div className="sticky top-0 z-10 bg-[#FAFAFA] px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-wider text-[#9CA3AF] border-b border-[#F3F4F6]">
+                  Other currencies
+                </div>
+                {options.others.slice(0, hasSuggested ? 40 : 60).map((c) => (
+                  <ScaCurrencyRow key={`o-${c.code}`} c={c} onPick={(code) => {
+                    onPick(code); setOpen(false); setSearch("");
+                  }} />
+                ))}
+              </>
+            ) : null}
           </div>
         </div>
       ) : null}
     </div>
+  );
+}
+
+function ScaCurrencyRow({ c, onPick }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onPick(c.code)}
+      className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] transition hover:bg-[#F3F4F6]"
+    >
+      <span className="text-lg leading-none">{c.flag || "💱"}</span>
+      <span className="w-10 shrink-0 font-bold text-[#111827]">{c.code}</span>
+      <span className="flex-1 truncate text-[#374151]">{c.name}</span>
+      <span className="w-6 shrink-0 text-right text-[11.5px] text-[#6B7280]">{c.symbol || ""}</span>
+    </button>
   );
 }
 
