@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CURRENCY_LIST, getCurrencyInfo } from "./constants";
 
 const CurrencyMultiSelect = ({
@@ -12,6 +12,29 @@ const CurrencyMultiSelect = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const rootRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    function onDocMouseDown(e) {
+      if (rootRef.current && !rootRef.current.contains(e.target)) {
+        setOpen(false);
+        setSearch("");
+      }
+    }
+    function onDocKeyDown(e) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setSearch("");
+      }
+    }
+    document.addEventListener("mousedown", onDocMouseDown);
+    document.addEventListener("keydown", onDocKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onDocMouseDown);
+      document.removeEventListener("keydown", onDocKeyDown);
+    };
+  }, [open]);
 
   const currencies = Array.isArray(supportedCurrencies)
     ? supportedCurrencies.filter(Boolean)
@@ -25,17 +48,14 @@ const CurrencyMultiSelect = ({
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const list = CURRENCY_LIST.filter(
+    return CURRENCY_LIST.filter(
       (c) =>
         !q ||
         c.code.toLowerCase().includes(q) ||
         c.name.toLowerCase().includes(q) ||
         (c.symbol || "").toLowerCase().includes(q)
-    );
-    const selected = list.filter((c) => selectedSet.has(c.code));
-    const others = list.filter((c) => !selectedSet.has(c.code));
-    return [...selected, ...others].slice(0, 60);
-  }, [search, selectedSet]);
+    ).slice(0, 60);
+  }, [search]);
 
   function toggle(code) {
     if (disabled) return;
@@ -63,7 +83,7 @@ const CurrencyMultiSelect = ({
     .filter(Boolean);
 
   return (
-    <div className="relative w-full">
+    <div ref={rootRef} className="relative w-full">
       <button
         type="button"
         disabled={disabled}
@@ -105,17 +125,7 @@ const CurrencyMultiSelect = ({
       </button>
 
       {open ? (
-        <>
-          <button
-            type="button"
-            className="fixed inset-0 z-[998]"
-            onClick={() => {
-              setOpen(false);
-              setSearch("");
-            }}
-            aria-label="Close currency dropdown"
-          />
-          <div className="absolute left-0 right-0 top-full z-[999] mt-1.5 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
+        <div className="absolute left-0 right-0 bottom-full z-[999] mb-1.5 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
             <div className="border-b border-[#F3F4F6] bg-[#FAFAFA] p-2.5">
               <input
                 autoFocus
@@ -133,6 +143,7 @@ const CurrencyMultiSelect = ({
               {visible.map((c) => {
                 const checked = selectedSet.has(c.code);
                 const isDef = checked && c.code === defaultCode;
+                const cbId = `ccb-${provider || "p"}-${c.code}`;
                 return (
                   <div
                     key={c.code}
@@ -140,8 +151,9 @@ const CurrencyMultiSelect = ({
                       checked ? "bg-[#F9FAFB]" : "hover:bg-[#F9FAFB]"
                     }`}
                   >
-                    <label className="flex flex-1 cursor-pointer items-center gap-3 text-left">
+                    <label htmlFor={cbId} className="flex flex-1 cursor-pointer select-none items-center gap-3 text-left">
                       <input
+                        id={cbId}
                         type="checkbox"
                         checked={checked}
                         disabled={disabled}
@@ -195,7 +207,6 @@ const CurrencyMultiSelect = ({
               </button>
             </div>
           </div>
-        </>
       ) : null}
     </div>
   );
