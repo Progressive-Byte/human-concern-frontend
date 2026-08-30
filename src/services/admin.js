@@ -520,8 +520,9 @@ export function updateAdminPaymentGatewayConfigurationExtended(provider, payload
   }
   if (extended.feeBps === undefined) extended.feeBps = 0;
   if (!extended.merchantCountry) extended.merchantCountry = "";
-  if (extended.scaThresholdAmountMinor === undefined) extended.scaThresholdAmountMinor = null;
-  if (!extended.scaThresholdCurrency) extended.scaThresholdCurrency = "";
+  if (extended.scaThresholdsByCurrency === undefined || extended.scaThresholdsByCurrency === null || typeof extended.scaThresholdsByCurrency !== "object") {
+    extended.scaThresholdsByCurrency = {};
+  }
   if (!extended.environment) extended.environment = "AUTO-INFER";
   if (!extended.description) extended.description = "";
   if (!extended.adminNotes) extended.adminNotes = extended.description || "";

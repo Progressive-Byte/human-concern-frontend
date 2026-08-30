@@ -10,6 +10,7 @@ import {
   getCountryInfo,
   bpsToPercent,
   getCurrencyInfo,
+  CURRENCY_LIST,
 } from "./constants";
 import CurrencyDefaultChips from "./CurrencyDefaultChips";
 import TestConnectionResult from "./TestConnectionResult";
@@ -188,8 +189,25 @@ const GatewayCard = ({
   const feeBps = Number(config?.feeBps ?? 0);
   const merchantCountry = String(config?.merchantCountry || "").trim();
   const countryInfo = getCountryInfo(merchantCountry);
-  const scaThresholdAmountMinor = config?.scaThresholdAmountMinor != null ? Number(config.scaThresholdAmountMinor) : null;
-  const scaThresholdCurrency = String(config?.scaThresholdCurrency || "").trim();
+  const scaMap = (() => {
+    const map = {};
+    if (config && typeof config.scaThresholdsByCurrency === "object" && config.scaThresholdsByCurrency !== null) {
+      Object.entries(config.scaThresholdsByCurrency).forEach(([k, v]) => {
+        const code = String(k || "").toUpperCase().trim();
+        if (!/^[A-Z]{3}$/.test(code)) return;
+        const n = Number(v);
+        if (!Number.isNaN(n) && Number.isFinite(n) && n >= 0) map[code] = n;
+      });
+    } else if (config?.scaThresholdAmountMinor != null) {
+      const legacyCurrency = String(config?.scaThresholdCurrency || "").toUpperCase().trim();
+      const legacyAmount = Number(config.scaThresholdAmountMinor);
+      if (/^[A-Z]{3}$/.test(legacyCurrency) && !Number.isNaN(legacyAmount) && legacyAmount >= 0) {
+        map[legacyCurrency] = legacyAmount;
+      }
+    }
+    return map;
+  })();
+  const scaEntries = Object.entries(scaMap).sort(([a], [b]) => a.localeCompare(b));
   const supportedCurrencies = Array.isArray(config?.supportedCurrencies) ? config.supportedCurrencies : [];
   const defaultCurrency = String(config?.defaultCurrency || supportedCurrencies[0] || "").trim();
 
@@ -336,11 +354,30 @@ const GatewayCard = ({
                 ) : (
                   <span className="text-[#6B7280]">Not set</span>
                 )}
-                {scaThresholdAmountMinor != null && scaThresholdCurrency ? (
-                  <div className="mt-0.5 text-[11px] text-[#6B7280]">
-                    SCA threshold: <span className="font-semibold text-[#111827]">
-                      {scaThresholdCurrency} {(Number(scaThresholdAmountMinor) / 100).toFixed(2)}
-                    </span>
+                {scaEntries.length > 0 ? (
+                  <div className="mt-1 flex flex-wrap items-center gap-1">
+                    <span className="text-[11px] text-[#6B7280]">SCA:</span>
+                    {scaEntries.slice(0, 4).map(([code, amt]) => {
+                      const symbol = (CURRENCY_LIST.find((c) => c.code === code) || {}).symbol || "";
+                      return (
+                        <span
+                          key={code}
+                          title={`${code} threshold: ${symbol || code} ${(Number(amt) / 100).toFixed(2)} (minor units ${amt})`}
+                          className="inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] bg-white px-1.5 py-0.5 text-[10.5px] font-semibold text-[#111827] shadow-[0_1px_0_rgba(0,0,0,0.02)]"
+                        >
+                          <span className="text-[#6B7280]">{code}</span>
+                          <span className="tabular-nums">{(Number(amt) / 100).toFixed(2)}</span>
+                        </span>
+                      );
+                    })}
+                    {scaEntries.length > 4 ? (
+                      <span
+                        title={scaEntries.slice(4).map(([code, amt]) => `${code} ${(Number(amt) / 100).toFixed(2)}`).join(" · ")}
+                        className="rounded-full border border-[#E5E7EB] bg-white px-1.5 py-0.5 text-[10.5px] font-bold text-[#6B7280]"
+                      >
+                        +{scaEntries.length - 4}
+                      </span>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
