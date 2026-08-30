@@ -19,7 +19,7 @@ const CurrencyMultiSelect = ({
 
   const { selectedSet, defaultCode } = useMemo(() => {
     const s = new Set(currencies);
-    const d = defaultCurrency && s.has(defaultCode) ? defaultCurrency : currencies[0] || "";
+    const d = defaultCurrency && s.has(defaultCurrency) ? defaultCurrency : currencies[0] || "";
     return { selectedSet: s, defaultCode: d };
   }, [currencies, defaultCurrency]);
 
