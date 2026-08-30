@@ -220,6 +220,12 @@ function getInitialForm(provider, config) {
     ? [...config.supportedCurrencies]
     : ["USD"];
   const defaultCurrency = String(config?.defaultCurrency || supportedCurrencies[0] || "").trim();
+  const regionTags = Array.isArray(config?.regionTags)
+    ? config.regionTags
+        .map((t) => String(t || "").trim())
+        .filter(Boolean)
+        .slice(0, 20)
+    : [];
   const feeBps = Number(config?.feeBps ?? 0);
   const merchantCountry = String(config?.merchantCountry || "").trim();
 
@@ -250,6 +256,7 @@ function getInitialForm(provider, config) {
     configurationId,
     name,
     priority: isNaN(priority) || priority < 0 ? 50 : Math.min(100, priority),
+    regionTags,
     supportedCurrencies,
     defaultCurrency,
     feeBps: isNaN(feeBps) || feeBps < 0 ? 0 : Math.min(5000, feeBps),
@@ -298,6 +305,14 @@ function buildConfigurationPayload(provider, form) {
 
   const priority = Number(form?.priority ?? 50);
   payload.priority = isNaN(priority) ? 50 : Math.min(100, Math.max(0, priority));
+
+  const regionTagsRaw = Array.isArray(form?.regionTags) ? form.regionTags : [];
+  const regionTags = regionTagsRaw
+    .map((t) => String(t || "").trim())
+    .filter((t) => t.length > 0 && t.length <= 20)
+    .slice(0, 20);
+  payload.regionTags = regionTags;
+
   payload.supportedCurrencies = Array.isArray(form?.supportedCurrencies)
     ? form.supportedCurrencies.filter(Boolean)
     : [];
@@ -628,6 +643,111 @@ function ScaCurrencyRow({ c, onPick }) {
   );
 }
 
+function TagInput({ value = [], onChange, placeholder, maxItems = 20, maxLen = 20, disabled = false }) {
+  const [draft, setDraft] = useState("");
+  const tags = Array.isArray(value) ? value.filter((t) => String(t || "").trim().length > 0) : [];
+
+  function commitDraft(e) {
+    if (e) e.preventDefault();
+    const t = String(draft || "").trim();
+    if (!t) return;
+    if (t.length > maxLen) return;
+    if (tags.includes(t)) {
+      setDraft("");
+      return;
+    }
+    if (tags.length >= maxItems) return;
+    onChange([...tags, t]);
+    setDraft("");
+  }
+  function removeAt(idx) {
+    const next = [...tags];
+    next.splice(idx, 1);
+    onChange(next);
+  }
+  function onKeyDown(e) {
+    if (e.key === "Enter") {
+      commitDraft(e);
+    } else if (e.key === "," || e.key === "Tab") {
+      if (String(draft || "").trim().length > 0) {
+        commitDraft(e);
+      }
+    } else if (e.key === "Backspace" && draft === "" && tags.length > 0) {
+      removeAt(tags.length - 1);
+    }
+  }
+  function onPaste(e) {
+    const pasted = (e.clipboardData || window.clipboardData || {}).getData("text") || "";
+    if (pasted.length === 0) return;
+    e.preventDefault();
+    const parts = pasted.split(/[,\n\r\t\s]+/).map((s) => s.trim()).filter(Boolean);
+    if (parts.length === 0) return;
+    let next = [...tags];
+    for (const p of parts) {
+      if (next.length >= maxItems) break;
+      const clean = p.length > maxLen ? p.slice(0, maxLen) : p;
+      if (clean && !next.includes(clean)) next.push(clean);
+    }
+    onChange(next);
+  }
+
+  return (
+    <div className="w-full rounded-lg border border-[#D1D5DB] bg-white px-2.5 py-2 text-[13px] transition focus-within:border-[#111827] focus-within:ring-2 focus-within:ring-[#111827]/10 hover:border-[#9CA3AF]">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {tags.map((t, i) => (
+          <span
+            key={`${t}-${i}`}
+            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5E7EB] bg-gradient-to-b from-[#F9FAFB] to-[#F3F4F6] px-2.5 py-1 text-[11.5px] font-semibold text-[#111827] shadow-[0_1px_0_rgba(0,0,0,0.02)]"
+          >
+            <svg viewBox="0 0 20 20" className="h-2.5 w-2.5 text-[#9CA3AF]" fill="none">
+              <path d="M6 12.5L14 7.5M6 7.5l8 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+            </svg>
+            <span className="max-w-[120px] truncate">{t}</span>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => removeAt(i)}
+              className="ml-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[#9CA3AF] transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#9CA3AF]"
+              aria-label={`Remove ${t}`}
+            >
+              <svg viewBox="0 0 20 20" className="h-2.5 w-2.5" fill="none">
+                <path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+              </svg>
+            </button>
+          </span>
+        ))}
+        {!disabled && tags.length < maxItems ? (
+          <input
+            className="min-w-[140px] flex-1 bg-transparent py-1 outline-none placeholder:text-[#9CA3AF]"
+            value={draft}
+            placeholder={tags.length === 0 ? (placeholder || "Type a tag, press Enter or comma to add…") : "Add another…"}
+            onChange={(e) => {
+              let v = e.target.value;
+              if (v.endsWith(",") || v.endsWith("\n")) {
+                const t = v.slice(0, -1).trim();
+                if (t) {
+                  setDraft(t);
+                  setTimeout(() => commitDraft(null), 0);
+                  return;
+                }
+              }
+              if (v.length > maxLen) v = v.slice(0, maxLen);
+              setDraft(v);
+            }}
+            onKeyDown={onKeyDown}
+            onBlur={() => commitDraft(null)}
+            onPaste={onPaste}
+          />
+        ) : null}
+      </div>
+      <div className="mt-1 flex items-center justify-between text-[10.5px] text-[#9CA3AF]">
+        <span>Enter, comma, tab, or paste split by whitespace/comma/newlines.</span>
+        <span className="tabular-nums">{tags.length}/{maxItems}</span>
+      </div>
+    </div>
+  );
+}
+
 function SearchableCountryDropdown({ value, onChange, placeholder = "Select country", required }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -810,6 +930,15 @@ const GatewayCardFormModal = ({
       if (effectiveEnv === "live" && !String(form?.merchantCountry || "").trim()) {
         e.merchantCountry = "Required for LIVE environments.";
       }
+      if (Array.isArray(form?.regionTags) && form.regionTags.length > 20) {
+        e.regionTags = "Maximum 20 region tags allowed.";
+      } else if (Array.isArray(form?.regionTags)) {
+          const bad = form.regionTags.find((t) => {
+            const s = String(t || "").trim();
+            return s.length > 20;
+          });
+          if (bad) e.regionTags = `Each region tag max 20 characters. "${String(bad || "").slice(0, 32)}" is too long.`;
+      }
       if (form && typeof form.scaThresholdsByCurrency === "object" && form.scaThresholdsByCurrency !== null) {
         Object.entries(form.scaThresholdsByCurrency).forEach(([k, v]) => {
           const code = String(k || "").toUpperCase().trim();
@@ -922,20 +1051,46 @@ const GatewayCardFormModal = ({
               </div>
             }
           >
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_200px]">
-              <Field label="Configuration Name" required error={errors?.name}>
-                <TextInput
-                  value={form.name || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), name: e.target.value }))}
-                  placeholder={
-                    provider === "stripe"
-                      ? "Primary Stripe Live"
-                      : provider === "paypal"
-                        ? "Primary PayPal Live"
-                        : "Main Bank Transfer"
-                  }
-                />
-              </Field>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_200px]">
+              <div className="grid grid-cols-1 gap-4">
+                <Field label="Configuration Name" required error={errors?.name}>
+                  <TextInput
+                    value={form.name || ""}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), name: e.target.value }))}
+                    placeholder={
+                      provider === "stripe"
+                        ? "Primary Stripe Live"
+                        : provider === "paypal"
+                          ? "Primary PayPal Live"
+                          : "Main Bank Transfer"
+                    }
+                  />
+                </Field>
+
+                <Field label="Environment" hint="Override or auto-detect from keys">
+                  <SegmentedControl
+                    value={envValue}
+                    onChange={(v) => setForm((p) => ({ ...(p || {}), environment: v }))}
+                    options={[
+                      { value: "TEST", label: "🧪 Test" },
+                      { value: "LIVE", label: "🔴 Live" },
+                      { value: "AUTO-INFER", label: "🧠 Auto" },
+                    ]}
+                  />
+                  <div className="mt-2.5 flex items-center gap-2 text-[12px] text-[#6B7280]">
+                    <span>Detected:</span>
+                    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
+                      effectiveEnv === "live"
+                        ? "border-red-200 bg-red-50 text-red-700"
+                        : effectiveEnv === "test"
+                          ? "border-amber-200 bg-amber-50 text-amber-700"
+                          : "border-gray-200 bg-gray-50 text-gray-600"
+                    }`}>
+                      {effectiveEnv === "live" ? "🔴 LIVE mode" : effectiveEnv === "test" ? "🟡 TEST mode" : "⚪ Not yet detected — add keys on step 2"}
+                    </span>
+                  </div>
+                </Field>
+              </div>
 
               <Field label="Priority" hint="0 lowest, 100 highest" compact>
                 <div className="flex items-center gap-2">
@@ -956,8 +1111,8 @@ const GatewayCardFormModal = ({
           </SectionCard>
 
           <SectionCard
-            title="Jurisdiction & Environment"
-            subtitle="Where is this registered? Which keys are you using?"
+            title="Jurisdiction & SCA Rules"
+            subtitle="Merchant country + per-currency 3DS exemption thresholds"
             icon={
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                 <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
@@ -982,35 +1137,39 @@ const GatewayCardFormModal = ({
                 />
               </Field>
 
-              <Field label="Environment" hint="Override or auto-detect from keys">
-                <SegmentedControl
-                  value={envValue}
-                  onChange={(v) => setForm((p) => ({ ...(p || {}), environment: v }))}
-                  options={[
-                    { value: "TEST", label: "🧪 Test" },
-                    { value: "LIVE", label: "🔴 Live" },
-                    { value: "AUTO-INFER", label: "🧠 Auto" },
-                  ]}
-                />
-                <div className="mt-2.5 flex items-center gap-2 text-[12px] text-[#6B7280]">
-                  <span>Detected:</span>
-                  <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
-                    effectiveEnv === "live"
-                      ? "border-red-200 bg-red-50 text-red-700"
-                      : effectiveEnv === "test"
-                        ? "border-amber-200 bg-amber-50 text-amber-700"
-                        : "border-gray-200 bg-gray-50 text-gray-600"
-                  }`}>
-                    {effectiveEnv === "live" ? "🔴 LIVE mode" : effectiveEnv === "test" ? "🟡 TEST mode" : "⚪ Not yet detected — add keys on step 2"}
-                  </span>
-                </div>
+              <Field
+                label="SCA Thresholds"
+                hint={
+                  provider === "bank_transfer"
+                    ? "Not applicable for bank transfer — thresholds only apply to Stripe / PayPal PSPs."
+                    : "Per-currency Strong Customer Authentication exemption. Currencies not listed here use LENIENT fallback (no 3DS forced, bank decides). Values are MINOR UNITS (no decimals): e.g. EUR 50.00 = 5000."
+                }
+                error={Object.keys(errors || {}).find((k) => k.startsWith("sca_")) ? "See row errors above." : undefined}
+              >
+                {provider === "bank_transfer" ? (
+                  <div className="rounded-lg border border-dashed border-[#D1D5DB] bg-[#FAFAFA] px-4 py-5 text-center text-[12.5px] text-[#6B7280]">
+                    Bank transfer is manual capture only. SCA thresholds do not apply.
+                  </div>
+                ) : (
+                  <ScaThresholdsMapEditor
+                    supportedCurrencies={form.supportedCurrencies || []}
+                    value={form.scaThresholdsByCurrency || {}}
+                    errors={errors || {}}
+                    onChange={(nextMap) =>
+                      setForm((p) => ({
+                        ...(p || {}),
+                        scaThresholdsByCurrency: nextMap,
+                      }))
+                    }
+                  />
+                )}
               </Field>
             </div>
           </SectionCard>
 
           <SectionCard
             title="Pricing & Rules"
-            subtitle="Processing fee, SCA threshold & accepted currencies"
+            subtitle="Processing fee, routing tags & accepted currencies"
             icon={
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                 <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
@@ -1044,31 +1203,15 @@ const GatewayCardFormModal = ({
               </Field>
 
               <Field
-                label="SCA Thresholds"
-                hint={
-                  provider === "bank_transfer"
-                    ? "Not applicable for bank transfer — thresholds only apply to Stripe / PayPal PSPs."
-                    : "Per-currency Strong Customer Authentication exemption. Currencies not listed here use LENIENT fallback (no 3DS forced, bank decides). Values are MINOR UNITS (no decimals): e.g. EUR 50.00 = 5000."
-                }
-                error={Object.keys(errors || {}).find((k) => k.startsWith("sca_")) ? "See row errors above." : undefined}
+                label="Region Tags"
+                hint="Free-form routing labels. Used by order-region rules, fraud-signals, and ops dashboards to slice traffic by jurisdiction."
+                error={errors?.regionTags}
               >
-                {provider === "bank_transfer" ? (
-                  <div className="rounded-lg border border-dashed border-[#D1D5DB] bg-[#FAFAFA] px-4 py-5 text-center text-[12.5px] text-[#6B7280]">
-                    Bank transfer is manual capture only. SCA thresholds do not apply.
-                  </div>
-                ) : (
-                  <ScaThresholdsMapEditor
-                    supportedCurrencies={form.supportedCurrencies || []}
-                    value={form.scaThresholdsByCurrency || {}}
-                    errors={errors || {}}
-                    onChange={(nextMap) =>
-                      setForm((p) => ({
-                        ...(p || {}),
-                        scaThresholdsByCurrency: nextMap,
-                      }))
-                    }
-                  />
-                )}
+                <TagInput
+                  value={form.regionTags || []}
+                  placeholder="e.g. EU, NA, LATAM, MENA, APAC, UK-only"
+                  onChange={(next) => setForm((p) => ({ ...(p || {}), regionTags: next }))}
+                />
               </Field>
             </div>
 

@@ -514,6 +514,14 @@ export function updateAdminPaymentGatewayConfiguration(provider, payload) {
 export function updateAdminPaymentGatewayConfigurationExtended(provider, payload) {
   const extended = { ...(payload || {}) };
   if (extended.priority === undefined) extended.priority = 50;
+  if (!Array.isArray(extended.regionTags)) {
+    extended.regionTags = [];
+  } else {
+    extended.regionTags = extended.regionTags
+      .map((t) => String(t || "").trim())
+      .filter((t) => t.length > 0 && t.length <= 20)
+      .slice(0, 20);
+  }
   if (!Array.isArray(extended.supportedCurrencies)) extended.supportedCurrencies = ["USD"];
   if (!extended.defaultCurrency && Array.isArray(extended.supportedCurrencies) && extended.supportedCurrencies[0]) {
     extended.defaultCurrency = extended.supportedCurrencies[0];

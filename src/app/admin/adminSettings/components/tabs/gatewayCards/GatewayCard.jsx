@@ -208,6 +208,12 @@ const GatewayCard = ({
     return map;
   })();
   const scaEntries = Object.entries(scaMap).sort(([a], [b]) => a.localeCompare(b));
+  const regionTags = Array.isArray(config?.regionTags)
+    ? config.regionTags
+        .map((t) => String(t || "").trim())
+        .filter((t) => t.length > 0 && t.length <= 20)
+        .slice(0, 20)
+    : [];
   const supportedCurrencies = Array.isArray(config?.supportedCurrencies) ? config.supportedCurrencies : [];
   const defaultCurrency = String(config?.defaultCurrency || supportedCurrencies[0] || "").trim();
 
@@ -396,6 +402,31 @@ const GatewayCard = ({
                 <div className="mt-0.5 text-[11px] text-[#6B7280]">
                   Priority: <span className="font-semibold text-[#111827]">{priority}</span> / 100
                 </div>
+                {regionTags.length > 0 ? (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                    <span className="text-[11px] text-[#6B7280]">Regions:</span>
+                    {regionTags.slice(0, 8).map((t, i) => (
+                      <span
+                        key={`${t}-${i}`}
+                        title={`Region tag: ${t}`}
+                        className="inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] bg-gradient-to-b from-white to-[#F7F7F8] px-2 py-0.5 text-[10.5px] font-semibold text-[#111827] shadow-[0_1px_0_rgba(0,0,0,0.02)]"
+                      >
+                        <svg viewBox="0 0 20 20" className="h-2.5 w-2.5 text-[#9CA3AF]" fill="none">
+                          <path d="M6 12.5L14 7.5M6 7.5l8 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                        </svg>
+                        {t}
+                      </span>
+                    ))}
+                    {regionTags.length > 8 ? (
+                      <span
+                        title={regionTags.slice(8).join(" · ")}
+                        className="rounded-full border border-[#E5E7EB] bg-white px-1.5 py-0.5 text-[10.5px] font-bold text-[#6B7280]"
+                      >
+                        +{regionTags.length - 8}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
