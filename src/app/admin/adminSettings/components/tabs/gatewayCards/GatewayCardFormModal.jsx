@@ -223,7 +223,9 @@ function getInitialForm(provider, config) {
   const feeBps = Number(config?.feeBps ?? 0);
   const merchantCountry = String(config?.merchantCountry || "").trim();
   const scaThresholdAmountMinor = config?.scaThresholdAmountMinor != null ? Number(config.scaThresholdAmountMinor) : null;
-  const scaThresholdCurrency = String(config?.scaThresholdCurrency || (merchantCountry === "US" ? "USD" : merchantCountry === "GB" ? "GBP" : merchantCountry === "AE" ? "AED" : merchantCountry === "SA" ? "SAR" : merchantCountry === "IN" ? "INR" : "EUR") || "").trim();
+  const scaThresholdCurrency = config?.scaThresholdCurrency != null && String(config.scaThresholdCurrency).trim() !== ""
+    ? String(config.scaThresholdCurrency).trim()
+    : null;
   const environment = String(config?.environment || "AUTO-INFER").toUpperCase();
   const description = String(config?.description || config?.adminNotes || "").trim();
   const isDefault = Boolean(config?.isDefault ?? config?.default ?? false);
@@ -292,7 +294,9 @@ function buildConfigurationPayload(provider, form) {
   payload.scaThresholdAmountMinor = form?.scaThresholdAmountMinor != null && form.scaThresholdAmountMinor !== ""
     ? Number(form.scaThresholdAmountMinor)
     : null;
-  payload.scaThresholdCurrency = String(form?.scaThresholdCurrency || "").trim();
+  payload.scaThresholdCurrency = form?.scaThresholdCurrency != null && String(form.scaThresholdCurrency).trim() !== ""
+    ? String(form.scaThresholdCurrency).trim()
+    : null;
 
   let env = String(form?.environment || "AUTO-INFER").toUpperCase();
   if (env === "AUTO-INFER") {
@@ -327,6 +331,118 @@ function buildConfigurationPayload(provider, form) {
   }
 
   return payload;
+}
+
+function ScaThresholdCurrencyPicker({ value, onChange, disabled }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const selected = CURRENCY_LIST.find((c) => c.code === value);
+
+  const filtered = CURRENCY_LIST.filter(
+    (c) =>
+      !search.trim() ||
+      c.code.toLowerCase().includes(search.toLowerCase()) ||
+      c.name.toLowerCase().includes(search.toLowerCase())
+  ).slice(0, 50);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => !disabled && setOpen((v) => !v}
+        className={`inline-flex min-w-[130px] items-center justify-between gap-2 rounded-lg border px-3 py-2.5 text-left text-[13px] font-bold transition focus:ring-4 focus:ring-[#111827]/8 ${
+          disabled
+            ? "cursor-not-allowed border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF]"
+            : selected
+              ? "border-[#D1D5DB] bg-white text-[#111827] hover:border-[#9CA3AF] focus:border-[#111827]"
+              : "border-[#D1D5DB] bg-white text-[#9CA3AF] hover:border-[#9CA3AF] focus:border-[#111827]"
+        }`}
+      >
+        {selected ? (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="text-base leading-none">{selected.flag}</span>
+            <span>{selected.code}</span>
+          </span>
+        ) : (
+          <span>{disabled ? "— add amount" : "Currency"}</span>
+        )}
+        <svg viewBox="0 0 20 20" className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`} fill="none">
+          <path d="M5 7.5l5 5 5-5" stroke={disabled ? "#9CA3AF" : "#6B7280"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {open && !disabled ? (
+        <>
+          <button type="button" className="fixed inset-0 z-[998]" onClick={() => { setOpen(false); setSearch(""); }} aria-label="Close currency dropdown" />
+          <div className="absolute right-0 top-full z-[999] mt-1.5 w-64 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
+            <div className="border-b border-[#F3F4F6] bg-[#FAFAFA] p-2.5">
+              <input
+                autoFocus
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search currency, code or name…"
+                className="w-full rounded-md border border-[#D1D5DB] bg-white px-3 py-2 text-[12.5px] outline-none focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
+              />
+            </div>
+            <div className="min-h-[120px] max-h-72 overflow-y-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(null);
+                  setOpen(false);
+                  setSearch("");
+                }}
+                className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] transition hover:bg-[#F3F4F6] ${
+                  value == null ? "bg-[#F3F4F6]" : ""
+                }`}
+              >
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-dashed border-[#D1D5DB] text-[#9CA3AF]">
+                  <svg viewBox="0 0 20 20" className="h-3 w-3" fill="none">
+                    <path d="M5 10h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </span>
+                <span className="flex-1 text-[#6B7280]">No currency (clear)</span>
+                {value == null ? (
+                  <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-emerald-600" fill="none">
+                    <path d="M4 10.5l3.5 3.5 8.5-9" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : null}
+              </button>
+              <div className="mx-3 my-1 h-px bg-[#F3F4F6]" />
+              {filtered.length === 0 ? (
+                <div className="px-3 py-5 text-center text-[12px] text-[#6B7280]">No currencies match.</div>
+              ) : null}
+              {filtered.map((c) => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => {
+                    onChange(c.code);
+                    setOpen(false);
+                    setSearch("");
+                  }}
+                  className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] transition hover:bg-[#F3F4F6] ${
+                    c.code === value ? "bg-[#F3F4F6]" : ""
+                  }`}
+                >
+                  <span className="text-lg leading-none">{c.flag || "💱"}</span>
+                  <span className="w-10 shrink-0 font-bold text-[#111827]">{c.code}</span>
+                  <span className="flex-1 truncate text-[#374151]">{c.name}</span>
+                  {c.code === value ? (
+                    <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-emerald-600" fill="none">
+                      <path d="M4 10.5l3.5 3.5 8.5-9" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
 }
 
 function SearchableCountryDropdown({ value, onChange, placeholder = "Select country", required }) {
@@ -740,7 +856,7 @@ const GatewayCardFormModal = ({
 
               <Field
                 label="SCA Threshold"
-                hint="Optional — exempts small amounts from 3DS"
+                hint="Optional — exempts small amounts from 3DS. Leave both blank to not set a threshold."
                 error={errors?.scaThresholdAmountMinor}
               >
                 <div className="flex items-stretch gap-2">
@@ -755,19 +871,23 @@ const GatewayCardFormModal = ({
                         setForm((p) => ({
                           ...(p || {}),
                           scaThresholdAmountMinor: v === "" ? null : Number(v),
+                          scaThresholdCurrency: v === ""
+                            ? null
+                            : p?.scaThresholdCurrency || null,
                         }));
                       }}
                     />
                   </div>
-                  <select
-                    value={form.scaThresholdCurrency || "USD"}
-                    onChange={(e) => setForm((p) => ({ ...(p || {}), scaThresholdCurrency: e.target.value }))}
-                    className="w-28 rounded-lg border border-[#D1D5DB] bg-white px-3 py-2.5 text-[13px] font-bold outline-none hover:border-[#9CA3AF] focus:border-[#111827] focus:ring-4 focus:ring-[#111827]/8"
-                  >
-                    {CURRENCY_LIST.slice(0, 20).map((c) => (
-                      <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
-                    ))}
-                  </select>
+                  <ScaThresholdCurrencyPicker
+                    value={form.scaThresholdCurrency}
+                    disabled={form.scaThresholdAmountMinor == null || form.scaThresholdAmountMinor === ""}
+                    onChange={(next) =>
+                      setForm((p) => ({
+                        ...(p || {}),
+                        scaThresholdCurrency: next,
+                      }))
+                    }
+                  />
                 </div>
               </Field>
             </div>
@@ -999,7 +1119,11 @@ const GatewayCardFormModal = ({
                 </Row>
                 <Row label="SCA Threshold" ok>
                   {form.scaThresholdAmountMinor != null && form.scaThresholdAmountMinor !== ""
-                    ? <span className="font-bold tabular-nums text-[#111827]">{form.scaThresholdCurrency} {(Number(form.scaThresholdAmountMinor) / 100).toFixed(2)}</span>
+                    ? <span className="font-bold tabular-nums text-[#111827]">
+                        {form.scaThresholdCurrency ? <span className="mr-1">{form.scaThresholdCurrency}</span> : null}
+                        {(Number(form.scaThresholdAmountMinor) / 100).toFixed(2)}
+                        {!form.scaThresholdCurrency ? <span className="ml-1.5 rounded bg-amber-50 px-1.5 py-0.5 text-[10.5px] font-semibold text-amber-700">no currency</span> : null}
+                      </span>
                     : <span className="text-[#9CA3AF]">No threshold</span>}
                 </Row>
                 <Row label="Default card" ok>
