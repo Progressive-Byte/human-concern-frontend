@@ -101,43 +101,56 @@ const CurrencyDefaultChips = ({
         {!disabled ? (
           <div className="relative">
             {isAdding ? (
-              <div className="rounded-full border border-[#E5E7EB] bg-white p-1">
-                <input
-                  autoFocus
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onBlur={() => {
-                    setTimeout(() => {
-                      setIsAdding(false);
-                      setSearch("");
-                    }, 150);
-                  }}
-                  placeholder="Search currency..."
-                  className="w-40 rounded-full border-none bg-transparent px-2 py-1 text-[12px] outline-none"
-                />
-                {availableToAdd.length > 0 ? (
-                  <div className="absolute left-0 top-full z-20 mt-1 max-h-60 w-64 overflow-auto rounded-xl border border-[#E5E7EB] bg-white shadow-lg">
-                    {availableToAdd.slice(0, 20).map((c) => (
-                      <button
-                        key={c.code}
-                        type="button"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          toggleCurrency(c.code);
-                          setSearch("");
-                          setIsAdding(false);
-                        }}
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] hover:bg-[#F9FAFB]"
-                      >
-                        <span>{c.flag}</span>
-                        <span className="font-semibold text-[#111827]">{c.code}</span>
-                        <span className="text-[#6B7280]">{c.name}</span>
-                      </button>
-                    ))}
-                  </div>
+              <>
+                <div className="rounded-full border border-[#E5E7EB] bg-white p-1 shadow-sm">
+                  <input
+                    autoFocus
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search currency, code or name…"
+                    className="w-48 rounded-full border-none bg-transparent px-2 py-1 text-[12px] outline-none"
+                  />
+                </div>
+                {availableToAdd.length >= 0 ? (
+                  <>
+                    <button
+                      type="button"
+                      className="fixed inset-0 z-[95]"
+                      onClick={() => {
+                        setIsAdding(false);
+                        setSearch("");
+                      }}
+                      aria-label="Close currency dropdown"
+                    />
+                    <div className="absolute left-0 top-full z-[96] mt-1.5 w-72 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
+                      <div className="min-h-[140px] max-h-72 overflow-y-auto">
+                        {availableToAdd.length === 0 ? (
+                          <div className="px-3 py-8 text-center text-[12px] text-[#6B7280]">No currencies match or all already added.</div>
+                        ) : null}
+                        {availableToAdd.slice(0, 20).map((c) => (
+                          <button
+                            key={c.code}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              toggleCurrency(c.code);
+                              setSearch("");
+                              setIsAdding(false);
+                            }}
+                            className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] transition hover:bg-[#F3F4F6]"
+                          >
+                            <span className="text-base leading-none">{c.flag || "💱"}</span>
+                            <span className="w-10 shrink-0 font-bold text-[#111827]">{c.code}</span>
+                            <span className="flex-1 truncate text-[#374151]">{c.name}</span>
+                            <span className="text-[11px] text-[#6B7280]">{c.symbol || ""}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
                 ) : null}
-              </div>
+              </>
             ) : (
               <button
                 type="button"

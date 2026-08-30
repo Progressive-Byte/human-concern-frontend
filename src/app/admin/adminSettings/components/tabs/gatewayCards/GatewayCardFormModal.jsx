@@ -12,50 +12,163 @@ import {
 } from "./constants";
 import CurrencyDefaultChips from "./CurrencyDefaultChips";
 
-function ModalShell({ open, title, onClose, children }) {
+const STEPS = [
+  { key: "basics", label: "Basics", desc: "Name, country, fee" },
+  { key: "secrets", label: "Credentials", desc: "Keys & secrets" },
+  { key: "review", label: "Review", desc: "Confirm & save" },
+];
+
+function DrawerShell({ open, title, subtitle, onClose, children, footer, onPrev, onNext, currentStep, totalSteps }) {
   useEffect(() => {
     if (!open) return;
     function onKey(e) {
       if (e.key === "Escape") onClose?.();
     }
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
   }, [open, onClose]);
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto p-4">
-      <button type="button" className="fixed inset-0 bg-black/40" onClick={onClose} aria-label="Close modal overlay" />
-      <div className="hc-animate-dropdown relative my-8 w-full max-w-[720px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white shadow-xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-2xl border-b border-[#F3F4F6] bg-white px-5 py-4">
-          <div className="text-[15px] font-semibold text-[#111827]">{title}</div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#6B7280] transition hover:bg-[#F3F4F6] hover:text-[#111827]"
-            aria-label="Close"
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-0">
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
+        onClick={onClose}
+        aria-label="Close drawer overlay"
+      />
+      <div className="relative z-10 flex w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-2xl animate-[fadeIn_0.2s_ease-out]" style={{ height: "calc(100vh - 32px)" }}>
+        <style>{`@keyframes fadeIn { from { transform: translateY(8px) scale(.985); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }`}</style>
+
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#E5E7EB] bg-[#FAFAFA] px-4 py-2.5">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#111827] text-white shadow-sm">
+              <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                <path d="M4 7h16v10H4V7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                <path d="M4 10h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="truncate text-[14px] font-bold text-[#111827]">{title}</div>
+              {subtitle ? <div className="truncate mt-0.5 text-[11.5px] text-[#6B7280]">{subtitle}</div> : null}
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              {STEPS.map((s, i) => (
+                <div key={s.key} className="flex items-center gap-1.5">
+                  <div
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition ${
+                      i < currentStep
+                        ? "bg-emerald-500 text-white"
+                        : i === currentStep
+                          ? "bg-[#111827] text-white shadow-md"
+                          : "bg-[#F3F4F6] text-[#9CA3AF]"
+                    }`}
+                    title={`${s.label} — ${s.desc}`}
+                  >
+                    {i < currentStep ? (
+                      <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none">
+                        <path d="M4 10.5l3.5 3.5 8.5-9" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    ) : (
+                      i + 1
+                    )}
+                  </div>
+                  {i < totalSteps - 1 ? (
+                    <div className={`h-[2.5px] w-10 shrink-0 rounded-full ${i < currentStep ? "bg-emerald-500" : "bg-[#E5E7EB]"}`} />
+                  ) : null}
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#6B7280] transition hover:bg-[#E5E7EB] hover:text-[#111827]"
+              aria-label="Close"
+            >
+              <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
         </div>
-        <div className="max-h-[70vh] overflow-y-auto p-5">{children}</div>
+
+        <div className="flex-1 overflow-y-auto bg-[#F6F6F6] px-4 py-4">
+          <div className="w-full">{children}</div>
+        </div>
+
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-[#E5E7EB] bg-white px-4 py-2.5 shadow-[0_-2px_10px_-5px_rgba(0,0,0,0.05)]">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#F3F4F6] px-2.5 py-1">
+              <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#6B7280]">
+                Step {currentStep + 1} / {totalSteps}
+              </span>
+            </div>
+            <span className="truncate text-[11.5px] font-semibold text-[#374151]">{STEPS[currentStep]?.label} — {STEPS[currentStep]?.desc}</span>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={onPrev}
+              disabled={currentStep === 0}
+              className="rounded-lg border border-[#D1D5DB] bg-white px-4 py-2 text-[12.5px] font-semibold text-[#374151] transition hover:bg-[#F9FAFB] disabled:opacity-40 disabled:hover:bg-white"
+            >
+              ← Back
+            </button>
+            {footer}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function Field({ label, hint, children, required, error }) {
+function SectionCard({ title, subtitle, icon, children, tone = "default" }) {
+  const toneCls =
+    tone === "stripe"
+      ? "border-[#E5E7EB]"
+      : tone === "paypal"
+        ? "border-[#E5E7EB]"
+        : tone === "bank"
+          ? "border-[#E5E7EB]"
+          : "border-[#E5E7EB]";
+  return (
+    <section className={`isolate overflow-visible rounded-xl border bg-white shadow-sm ${toneCls}`}>
+      {title && (
+        <header className="flex items-start gap-3 rounded-t-xl border-b border-[#F3F4F6] bg-gradient-to-b from-white to-[#FAFAFA] px-4 py-3">
+          {icon ? <div className="mt-0.5">{icon}</div> : null}
+          <div className="flex-1">
+            <h3 className="text-[13.5px] font-bold text-[#111827]">{title}</h3>
+            {subtitle ? <p className="mt-0.5 text-[11.5px] text-[#6B7280]">{subtitle}</p> : null}
+          </div>
+        </header>
+      )}
+      <div className={`p-4 ${title ? "rounded-b-xl" : "rounded-xl"}`}>{children}</div>
+    </section>
+  );
+}
+
+function Field({ label, hint, children, required, error, compact }) {
   return (
     <label className="block">
-      <div className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-[#111827]">
-        <span>{label}</span>
-        {required ? <span className="text-red-600">*</span> : null}
-        {hint ? <span className="text-[11px] font-normal text-[#6B7280]">({hint})</span> : null}
+      <div className={`flex items-baseline gap-1.5 ${compact ? "mb-1" : "mb-1.5"}`}>
+        <span className="text-[12px] font-bold text-[#374151]">{label}</span>
+        {required ? <span className="text-[12px] font-bold text-red-500 leading-none">*</span> : null}
+        {hint ? <span className="text-[10.5px] font-medium text-[#9CA3AF]">· {hint}</span> : null}
       </div>
       {children}
-      {error ? <div className="mt-1 text-[11px] font-semibold text-red-600">{error}</div> : null}
+      {error ? <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-red-600">
+        <svg viewBox="0 0 20 20" className="h-3 w-3 shrink-0" fill="none">
+          <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM10 6v5m0 3h.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+        {error}
+      </div> : null}
     </label>
   );
 }
@@ -64,7 +177,7 @@ function TextInput(props) {
   return (
     <input
       {...props}
-      className={`w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 ${props.className || ""}`.trim()}
+      className={`w-full rounded-lg border border-[#D1D5DB] bg-white px-3.5 py-2 text-[13px] text-[#111827] outline-none transition placeholder:text-[#9CA3AF] hover:border-[#9CA3AF] focus:border-[#111827] focus:ring-4 focus:ring-[#111827]/8 ${props.className || ""}`.trim()}
     />
   );
 }
@@ -73,28 +186,29 @@ function TextArea(props) {
   return (
     <textarea
       {...props}
-      className={`w-full min-h-[90px] rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 ${props.className || ""}`.trim()}
+      className={`w-full min-h-[90px] rounded-lg border border-[#D1D5DB] bg-white px-3.5 py-2 text-[13px] text-[#111827] outline-none transition placeholder:text-[#9CA3AF] hover:border-[#9CA3AF] focus:border-[#111827] focus:ring-4 focus:ring-[#111827]/8 ${props.className || ""}`.trim()}
     />
   );
 }
 
-function ActionButton({ children, onClick, disabled, variant = "light" }) {
-  const cls =
-    variant === "dark"
-      ? "bg-[#111827] text-white hover:bg-black"
-      : variant === "danger"
-        ? "bg-white text-[#111827] hover:bg-red-500/10 hover:text-red-700"
-        : "bg-white text-[#111827] hover:bg-[#F9FAFB]";
-
+function SegmentedControl({ value, onChange, options }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`rounded-xl border border-[#E5E7EB] px-4 py-2.5 text-[13px] font-semibold transition disabled:opacity-60 ${cls}`}
-    >
-      {children}
-    </button>
+    <div className="inline-flex w-full items-stretch gap-0 rounded-xl border border-[#D1D5DB] bg-[#F3F4F6] p-1 shadow-inner">
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          className={`flex-1 rounded-lg px-3 py-2 text-[12.5px] font-bold transition ${
+            value === opt.value
+              ? "bg-white text-[#111827] shadow-sm ring-1 ring-black/5"
+              : "text-[#6B7280] hover:text-[#111827]"
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -109,7 +223,7 @@ function getInitialForm(provider, config) {
   const feeBps = Number(config?.feeBps ?? 0);
   const merchantCountry = String(config?.merchantCountry || "").trim();
   const scaThresholdAmountMinor = config?.scaThresholdAmountMinor != null ? Number(config.scaThresholdAmountMinor) : null;
-  const scaThresholdCurrency = String(config?.scaThresholdCurrency || merchantCountry === "US" ? "USD" : merchantCountry === "GB" ? "GBP" : merchantCountry === "AE" ? "AED" : merchantCountry === "SA" ? "SAR" : merchantCountry === "IN" ? "INR" : "EUR" || "").trim();
+  const scaThresholdCurrency = String(config?.scaThresholdCurrency || (merchantCountry === "US" ? "USD" : merchantCountry === "GB" ? "GBP" : merchantCountry === "AE" ? "AED" : merchantCountry === "SA" ? "SAR" : merchantCountry === "IN" ? "INR" : "EUR") || "").trim();
   const environment = String(config?.environment || "AUTO-INFER").toUpperCase();
   const description = String(config?.description || config?.adminNotes || "").trim();
   const isDefault = Boolean(config?.isDefault ?? config?.default ?? false);
@@ -215,7 +329,7 @@ function buildConfigurationPayload(provider, form) {
   return payload;
 }
 
-function SearchableCountryDropdown({ value, onChange, placeholder = "Search country...", required }) {
+function SearchableCountryDropdown({ value, onChange, placeholder = "Select country", required }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const selected = COUNTRY_LIST.find((c) => c.code === value);
@@ -225,48 +339,48 @@ function SearchableCountryDropdown({ value, onChange, placeholder = "Search coun
       !search.trim() ||
       c.code.toLowerCase().includes(search.toLowerCase()) ||
       c.name.toLowerCase().includes(search.toLowerCase())
-  ).slice(0, 40);
+  ).slice(0, 50);
 
   return (
     <div className="relative">
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`flex w-full items-center justify-between gap-2 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 text-left text-[13px] transition focus:border-[#111827]/30 ${
+        className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3.5 py-2.5 text-left text-[13.5px] transition hover:border-[#9CA3AF] focus:ring-4 focus:ring-[#111827]/8 ${
           !selected ? "text-[#9CA3AF]" : "text-[#111827]"
-        } ${required && !value ? "border-red-300" : ""}`}
+        } ${required && !value ? "border-red-300 focus:ring-red-200" : "border-[#D1D5DB] focus:border-[#111827]"}`}
       >
         {selected ? (
-          <span className="inline-flex items-center gap-2">
-            <span>{selected.flag}</span>
-            <span className="font-semibold">{selected.code}</span>
-            <span className="text-[#6B7280]">{selected.name}</span>
+          <span className="inline-flex items-center gap-2.5">
+            <span className="text-base leading-none">{selected.flag}</span>
+            <span className="font-bold">{selected.code}</span>
+            <span className="text-[#6B7280]">— {selected.name}</span>
           </span>
         ) : (
           <span>{placeholder}</span>
         )}
-        <svg viewBox="0 0 20 20" className="h-4 w-4 text-[#6B7280]" fill="none">
-          <path d="M5 7.5l5 5 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <svg viewBox="0 0 20 20" className={`h-4 w-4 text-[#6B7280] transition ${open ? "rotate-180" : ""}`} fill="none">
+          <path d="M5 7.5l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
 
       {open ? (
         <>
-          <button type="button" className="fixed inset-0 z-10" onClick={() => { setOpen(false); setSearch(""); }} aria-label="Close dropdown" />
-          <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-lg">
-            <div className="border-b border-[#F3F4F6] p-2">
+          <button type="button" className="fixed inset-0 z-[95]" onClick={() => { setOpen(false); setSearch(""); }} aria-label="Close dropdown" />
+          <div className="absolute left-0 right-0 top-full z-[96] mt-1.5 overflow-hidden rounded-xl border border-[#D1D5DB] bg-white shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
+            <div className="border-b border-[#F3F4F6] bg-[#FAFAFA] p-2.5">
               <input
                 autoFocus
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Type country name or ISO code..."
-                className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[12px] outline-none focus:border-[#111827]/30"
+                placeholder="Search country, code or name…"
+                className="w-full rounded-md border border-[#D1D5DB] bg-white px-3 py-2 text-[12.5px] outline-none focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
               />
             </div>
-            <div className="max-h-64 overflow-y-auto">
+            <div className="min-h-[160px] max-h-80 overflow-y-auto">
               {filtered.length === 0 ? (
-                <div className="px-3 py-4 text-center text-[12px] text-[#6B7280]">No countries match.</div>
+                <div className="px-3 py-8 text-center text-[12px] text-[#6B7280]">No countries match.</div>
               ) : null}
               {filtered.map((c) => (
                 <button
@@ -277,16 +391,16 @@ function SearchableCountryDropdown({ value, onChange, placeholder = "Search coun
                     setOpen(false);
                     setSearch("");
                   }}
-                  className={`flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition hover:bg-[#F9FAFB] ${
+                  className={`flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-[13px] transition hover:bg-[#F3F4F6] ${
                     c.code === value ? "bg-[#F3F4F6]" : ""
                   }`}
                 >
-                  <span>{c.flag}</span>
-                  <span className="font-semibold text-[#111827]">{c.code}</span>
-                  <span className="flex-1 text-[#6B7280]">{c.name}</span>
+                  <span className="text-lg leading-none">{c.flag}</span>
+                  <span className="w-10 shrink-0 font-bold text-[#111827]">{c.code}</span>
+                  <span className="flex-1 truncate text-[#374151]">{c.name}</span>
                   {c.code === value ? (
-                    <svg viewBox="0 0 20 20" className="h-4 w-4 text-emerald-600" fill="none">
-                      <path d="M4 10.5l3.5 3.5 8.5-9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-emerald-600" fill="none">
+                      <path d="M4 10.5l3.5 3.5 8.5-9" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   ) : null}
                 </button>
@@ -295,6 +409,21 @@ function SearchableCountryDropdown({ value, onChange, placeholder = "Search coun
           </div>
         </>
       ) : null}
+    </div>
+  );
+}
+
+function Stat({ label, value, tone }) {
+  const toneCls =
+    tone === "good"
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      : tone === "warn"
+        ? "bg-amber-50 text-amber-700 border-amber-200"
+        : "bg-white text-[#111827] border-[#E5E7EB]";
+  return (
+    <div className={`rounded-lg border px-4 py-3 shadow-sm ${toneCls}`}>
+      <div className="text-[10px] font-bold uppercase tracking-wider opacity-75">{label}</div>
+      <div className="mt-0.5 text-[14px] font-bold">{value}</div>
     </div>
   );
 }
@@ -318,7 +447,7 @@ const GatewayCardFormModal = ({
     lastCfgId: getConfigId(existingConfig),
     form: getInitialForm(provider, existingConfig || {}),
     errors: {},
-    showAdvanced: false,
+    step: 0,
   });
 
   const shouldReset =
@@ -333,13 +462,13 @@ const GatewayCardFormModal = ({
       lastCfgId: getConfigId(existingConfig),
       form: getInitialForm(provider, existingConfig || {}),
       errors: {},
-      showAdvanced: false,
+      step: 0,
     });
   }
 
   const form = tracker.form;
   const errors = tracker.errors;
-  const showAdvanced = tracker.showAdvanced;
+  const step = tracker.step;
 
   function setForm(u) {
     setTracker((p) => ({
@@ -353,8 +482,8 @@ const GatewayCardFormModal = ({
       errors: typeof u === "function" ? u(p.errors) : u,
     }));
   }
-  function setShowAdvanced(v) {
-    setTracker((p) => ({ ...p, showAdvanced: typeof v === "function" ? v(p.showAdvanced) : v }));
+  function setStep(v) {
+    setTracker((p) => ({ ...p, step: typeof v === "function" ? v(p.step) : v }));
   }
 
   const sameProviderConfigs = useMemo(() => {
@@ -365,91 +494,146 @@ const GatewayCardFormModal = ({
     );
   }, [allConfigs, provider, existingConfig]);
 
-  function validate() {
-    const e = {};
-    const name = String(form?.name || "").trim();
-    if (!name) e.name = "Configuration name is required.";
-    if (name && sameProviderConfigs.some((c) => String(c?.name || c?.label || "").trim().toLowerCase() === name.toLowerCase())) {
-      e.name = `Name "${name}" already exists for ${getProviderLabel(provider)}. Names must be unique within a provider.`;
-    }
-
-    const env = String(form?.environment || "AUTO-INFER").toUpperCase();
-    const liveEnv = env === "LIVE" || (env === "AUTO-INFER" && inferEnvironmentFromSecrets(form) === "live");
-    if (liveEnv && !String(form?.merchantCountry || "").trim()) {
-      e.merchantCountry = "Merchant country is REQUIRED when using LIVE environment.";
-    }
-
-    const feeBps = Number(form?.feeBps ?? 0);
-    if (liveEnv && String(provider).toLowerCase() !== "bank_transfer" && feeBps === 0) {
-      e.feeBps = "Warning: feeBps is 0 for a LIVE non-BankTransfer card. Verify this is intentional.";
-    }
-
-    const scaAmount = form?.scaThresholdAmountMinor;
-    if (scaAmount != null && scaAmount !== "" && Number(scaAmount) < 0) {
-      e.scaThresholdAmountMinor = "SCA threshold amount cannot be negative.";
-    }
-
-    setErrors(e);
-    return Object.keys(e).length === 0 || Object.keys(e).every((k) => k === "feeBps");
-  }
-
-  async function handleSave() {
-    const ok = validate();
-    if (!ok && errors?.name) return;
-    const payload = buildConfigurationPayload(provider, form);
-    await onSave?.(provider, payload, { isEdit, config: existingConfig });
-  }
-
   const isBank = String(provider).toLowerCase() === "bank_transfer";
   const envValue = String(form?.environment || "AUTO-INFER").toUpperCase();
   const effectiveEnv = envValue === "AUTO-INFER"
     ? inferEnvironmentFromSecrets(form)
     : envValue.toLowerCase();
 
+  function validate(scope) {
+    const e = {};
+    if (scope === "basics" || scope === "all") {
+      const name = String(form?.name || "").trim();
+      if (!name) e.name = "Configuration name is required.";
+      if (name && sameProviderConfigs.some((c) => String(c?.name || c?.label || "").trim().toLowerCase() === name.toLowerCase())) {
+        e.name = `Name "${name}" already exists. Names must be unique within a provider.`;
+      }
+      if (effectiveEnv === "live" && !String(form?.merchantCountry || "").trim()) {
+        e.merchantCountry = "Required for LIVE environments.";
+      }
+      const scaAmount = form?.scaThresholdAmountMinor;
+      if (scaAmount != null && scaAmount !== "" && Number(scaAmount) < 0) {
+        e.scaThresholdAmountMinor = "Cannot be negative.";
+      }
+    }
+    if (scope === "secrets" || scope === "all") {
+      if (provider === "stripe" && !isEdit) {
+        if (!String(form?.apiKey || "").trim()) e.apiKey = "Publishable key required.";
+        if (!String(form?.secretKey || "").trim()) e.secretKey = "Secret key required.";
+      }
+      if (provider === "paypal" && !isEdit) {
+        if (!String(form?.clientId || "").trim()) e.clientId = "Client ID required.";
+        if (!String(form?.clientSecret || "").trim()) e.clientSecret = "Client secret required.";
+      }
+      if (isBank && !String(form?.instructions || "").trim()) {
+        e.instructions = "Payment instructions required.";
+      }
+    }
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  function nextStep() {
+    const scopes = ["basics", "secrets"];
+    if (step < STEPS.length - 1) {
+      const ok = validate(scopes[step]);
+      if (!ok) return;
+      setStep((s) => s + 1);
+    }
+  }
+
+  function prevStep() {
+    setStep((s) => Math.max(0, s - 1));
+  }
+
+  async function handleSave() {
+    const ok = validate("all");
+    if (!ok) {
+      const hasBlocking = Object.keys(errors).some((k) => k !== "feeBps");
+      if (hasBlocking) return;
+    }
+    const payload = buildConfigurationPayload(provider, form);
+    await onSave?.(provider, payload, { isEdit, config: existingConfig });
+  }
+
+  const providerLabel = getProviderLabel(provider);
+  const title = `${isEdit ? "Edit" : "Add"} ${providerLabel} Configuration`;
+
   return (
-    <ModalShell
+    <DrawerShell
       open={open}
       onClose={onClose}
-      title={`${isEdit ? "Edit" : "Add"} ${getProviderLabel(provider)} Gateway Configuration`}
+      title={title}
+      subtitle={isEdit ? "Update settings for this gateway card" : "Configure a new gateway card in 3 steps"}
+      onPrev={prevStep}
+      onNext={nextStep}
+      currentStep={step}
+      totalSteps={STEPS.length}
+      footer={
+        step === STEPS.length - 1 ? (
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={busy}
+            className="rounded-lg bg-[#111827] px-5 py-2 text-[12.5px] font-bold text-white shadow-sm transition hover:bg-black disabled:opacity-50"
+          >
+            {busy ? "Saving…" : isEdit ? "Save Changes" : "Create Configuration"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={nextStep}
+            disabled={busy}
+            className="rounded-lg bg-[#111827] px-5 py-2 text-[12.5px] font-bold text-white shadow-sm transition hover:bg-black disabled:opacity-50"
+          >
+            Continue →
+          </button>
+        )
+      }
     >
-      {isEdit ? (
-        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
-          Saved secrets are masked by the API. Re-enter required secret fields before saving changes.
+      {isEdit && step === 0 ? (
+        <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5">
+          <div className="mt-0.5 shrink-0 text-amber-500">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+              <path d="M12 8v5m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="text-[12.5px] text-amber-800">
+            <span className="font-bold">Note:</span> Saved secrets are masked by the API. Re-enter required secret fields on <span className="font-bold">Step 2</span> before saving changes.
+          </div>
         </div>
       ) : null}
 
-      <div className="space-y-5">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="Configuration Name" required error={errors?.name}>
-            <TextInput
-              value={form.name || ""}
-              onChange={(e) => setForm((p) => ({ ...(p || {}), name: e.target.value }))}
-              placeholder={
-                provider === "stripe"
-                  ? "Primary Stripe Live"
-                  : provider === "paypal"
-                    ? "Primary PayPal Live"
-                    : "Main Bank Transfer"
-              }
-            />
-          </Field>
-
-          <Field
-            label="Priority"
-            hint="0 = lowest, 100 = highest"
+      {step === 0 && (
+        <div className="space-y-4">
+          <SectionCard
+            title="Gateway Identity"
+            subtitle="Basic information about this gateway card"
+            icon={
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#111827]/5 text-[#111827]">
+                <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                  <path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            }
           >
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={Number(form.priority ?? 50)}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), priority: Number(e.target.value) }))}
-                  className="h-2 w-full cursor-pointer rounded-full bg-[#E5E7EB] accent-[#111827]"
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_200px]">
+              <Field label="Configuration Name" required error={errors?.name}>
+                <TextInput
+                  value={form.name || ""}
+                  onChange={(e) => setForm((p) => ({ ...(p || {}), name: e.target.value }))}
+                  placeholder={
+                    provider === "stripe"
+                      ? "Primary Stripe Live"
+                      : provider === "paypal"
+                        ? "Primary PayPal Live"
+                        : "Main Bank Transfer"
+                  }
                 />
-                <div className="w-16 text-right">
+              </Field>
+
+              <Field label="Priority" hint="0 lowest, 100 highest" compact>
+                <div className="flex items-center gap-2">
                   <TextInput
                     type="number"
                     min={0}
@@ -459,278 +643,490 @@ const GatewayCardFormModal = ({
                       const n = Number(e.target.value);
                       setForm((p) => ({ ...(p || {}), priority: isNaN(n) ? 0 : Math.min(100, Math.max(0, n)) }));
                     }}
-                    className="!py-1.5 !text-right"
+                    className="!text-center font-bold tabular-nums"
                   />
                 </div>
+              </Field>
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            title="Jurisdiction & Environment"
+            subtitle="Where is this registered? Which keys are you using?"
+            icon={
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
               </div>
-            </div>
-          </Field>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field
-            label="Merchant Country"
-            required={effectiveEnv === "live"}
-            error={errors?.merchantCountry}
-          >
-            <SearchableCountryDropdown
-              value={form.merchantCountry || ""}
-              onChange={(code) => setForm((p) => ({ ...(p || {}), merchantCountry: code }))}
-              placeholder="Select merchant country..."
-              required={effectiveEnv === "live"}
-            />
-          </Field>
-
-          <Field label="Environment">
-            <div className="flex flex-wrap gap-2 rounded-xl border border-[#E5E7EB] bg-white p-1">
-              {["TEST", "LIVE", "AUTO-INFER"].map((opt) => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => setForm((p) => ({ ...(p || {}), environment: opt }))}
-                  className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition ${
-                    envValue === opt
-                      ? "bg-[#111827] text-white"
-                      : "text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827]"
-                  }`}
-                >
-                  {opt === "AUTO-INFER" ? "🧠 AUTO-INFER" : opt}
-                </button>
-              ))}
-            </div>
-            <div className="mt-1 text-[11px] text-[#6B7280]">
-              AUTO-INFER parses sk_test_/sk_live_ prefixes on secrets.
-              {effectiveEnv ? (
-                <span className="ml-1 font-semibold text-[#111827]">
-                  Effective: {effectiveEnv === "live" ? "🔴 LIVE" : "🟡 TEST"}
-                </span>
-              ) : null}
-            </div>
-          </Field>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field
-            label="Processing Fee (bps)"
-            hint="0-5000 bps"
-            error={errors?.feeBps}
-          >
-            <div className="flex items-center gap-3">
-              <TextInput
-                type="number"
-                min={0}
-                max={5000}
-                value={Number(form.feeBps ?? 0)}
-                onChange={(e) => {
-                  const n = Number(e.target.value);
-                  setForm((p) => ({ ...(p || {}), feeBps: isNaN(n) ? 0 : Math.min(5000, Math.max(0, n)) }));
-                }}
-              />
-              <div className="shrink-0 rounded-xl border border-[#111827]/15 bg-[#F9FAFB] px-3 py-2 text-[12px] font-semibold text-[#111827]">
-                = {bpsToPercent(form.feeBps)} %
-              </div>
-            </div>
-          </Field>
-
-          <Field
-            label="SCA Threshold (minor units + currency)"
-            hint="Nullable — leave amount blank for no threshold"
-            error={errors?.scaThresholdAmountMinor}
-          >
-            <div className="flex items-center gap-2">
-              <TextInput
-                type="number"
-                min={0}
-                placeholder="e.g. 5000 (= 50.00)"
-                value={form.scaThresholdAmountMinor == null || form.scaThresholdAmountMinor === "" ? "" : Number(form.scaThresholdAmountMinor)}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setForm((p) => ({
-                    ...(p || {}),
-                    scaThresholdAmountMinor: v === "" ? null : Number(v),
-                  }));
-                }}
-              />
-              <select
-                value={form.scaThresholdCurrency || "USD"}
-                onChange={(e) => setForm((p) => ({ ...(p || {}), scaThresholdCurrency: e.target.value }))}
-                className="w-28 rounded-xl border border-[#E5E7EB] bg-white px-2 py-2.5 text-[12px] outline-none focus:border-[#111827]/30"
-              >
-                {CURRENCY_LIST.slice(0, 20).map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.flag} {c.code}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="mt-1 text-[11px] text-[#6B7280]">
-              Legal default for EU/UK/EEA: ~EUR 5000 minor (€50.00). Varies by jurisdiction.
-            </div>
-          </Field>
-        </div>
-
-        <Field label="Supported Currencies (click chip to set default)">
-          <CurrencyDefaultChips
-            supportedCurrencies={form.supportedCurrencies || []}
-            defaultCurrency={form.defaultCurrency || ""}
-            provider={getProviderLabel(provider)}
-            onChange={(nextCurrencies, nextDefault) =>
-              setForm((p) => ({
-                ...(p || {}),
-                supportedCurrencies: nextCurrencies,
-                defaultCurrency: nextDefault,
-              }))
             }
-          />
-        </Field>
+          >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field
+                label="Merchant Country"
+                required={effectiveEnv === "live"}
+                hint={effectiveEnv === "live" ? "Required for LIVE" : null}
+                error={errors?.merchantCountry}
+              >
+                <SearchableCountryDropdown
+                  value={form.merchantCountry || ""}
+                  onChange={(code) => setForm((p) => ({ ...(p || {}), merchantCountry: code }))}
+                  placeholder="Select your registered merchant country"
+                  required={effectiveEnv === "live"}
+                />
+              </Field>
 
-        <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#FCFCFD] p-4">
-          <div className="mb-3 text-[13px] font-semibold text-[#111827]">
-            Provider Secrets & Credentials
-          </div>
+              <Field label="Environment" hint="Override or auto-detect from keys">
+                <SegmentedControl
+                  value={envValue}
+                  onChange={(v) => setForm((p) => ({ ...(p || {}), environment: v }))}
+                  options={[
+                    { value: "TEST", label: "🧪 Test" },
+                    { value: "LIVE", label: "🔴 Live" },
+                    { value: "AUTO-INFER", label: "🧠 Auto" },
+                  ]}
+                />
+                <div className="mt-2.5 flex items-center gap-2 text-[12px] text-[#6B7280]">
+                  <span>Detected:</span>
+                  <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
+                    effectiveEnv === "live"
+                      ? "border-red-200 bg-red-50 text-red-700"
+                      : effectiveEnv === "test"
+                        ? "border-amber-200 bg-amber-50 text-amber-700"
+                        : "border-gray-200 bg-gray-50 text-gray-600"
+                  }`}>
+                    {effectiveEnv === "live" ? "🔴 LIVE mode" : effectiveEnv === "test" ? "🟡 TEST mode" : "⚪ Not yet detected — add keys on step 2"}
+                  </span>
+                </div>
+              </Field>
+            </div>
+          </SectionCard>
 
-          {String(provider).toLowerCase() === "stripe" ? (
-            <div className="space-y-4">
-              <Field label="Publishable API Key (pk_...)">
-                <TextInput
-                  value={form.apiKey || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), apiKey: e.target.value }))}
-                  placeholder="pk_live_... or pk_test_..."
-                />
+          <SectionCard
+            title="Pricing & Rules"
+            subtitle="Processing fee, SCA threshold & accepted currencies"
+            icon={
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            }
+          >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field
+                label="Processing Fee"
+                hint="0 to 5000 bps (100 bps = 1%)"
+                error={errors?.feeBps}
+              >
+                <div className="flex items-center gap-3">
+                  <TextInput
+                    type="number"
+                    min={0}
+                    max={5000}
+                    value={Number(form.feeBps ?? 0)}
+                    onChange={(e) => {
+                      const n = Number(e.target.value);
+                      setForm((p) => ({ ...(p || {}), feeBps: isNaN(n) ? 0 : Math.min(5000, Math.max(0, n)) }));
+                    }}
+                    className="!font-bold tabular-nums"
+                  />
+                  <div className="shrink-0 rounded-lg border border-[#D1D5DB] bg-gradient-to-b from-[#F9FAFB] to-[#F3F4F6] px-4 py-2.5 text-[13px] font-bold text-[#111827] tabular-nums shadow-inner">
+                    {bpsToPercent(form.feeBps)}%
+                  </div>
+                </div>
               </Field>
-              <Field label={isEdit ? "Secret Key (sk_... — re-enter to update)" : "Secret Key (sk_...)"}>
-                <TextInput
-                  type="password"
-                  value={form.secretKey || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), secretKey: e.target.value }))}
-                  placeholder="sk_live_... or sk_test_..."
-                />
+
+              <Field
+                label="SCA Threshold"
+                hint="Optional — exempts small amounts from 3DS"
+                error={errors?.scaThresholdAmountMinor}
+              >
+                <div className="flex items-stretch gap-2">
+                  <div className="flex-1">
+                    <TextInput
+                      type="number"
+                      min={0}
+                      placeholder="e.g. 5000 = €50.00"
+                      value={form.scaThresholdAmountMinor == null || form.scaThresholdAmountMinor === "" ? "" : Number(form.scaThresholdAmountMinor)}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setForm((p) => ({
+                          ...(p || {}),
+                          scaThresholdAmountMinor: v === "" ? null : Number(v),
+                        }));
+                      }}
+                    />
+                  </div>
+                  <select
+                    value={form.scaThresholdCurrency || "USD"}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), scaThresholdCurrency: e.target.value }))}
+                    className="w-28 rounded-lg border border-[#D1D5DB] bg-white px-3 py-2.5 text-[13px] font-bold outline-none hover:border-[#9CA3AF] focus:border-[#111827] focus:ring-4 focus:ring-[#111827]/8"
+                  >
+                    {CURRENCY_LIST.slice(0, 20).map((c) => (
+                      <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                    ))}
+                  </select>
+                </div>
               </Field>
-              <Field label="Webhook URL">
-                <TextInput
-                  value={form.webhookUrl || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), webhookUrl: e.target.value }))}
-                  placeholder="https://example.com/webhook/stripe"
-                />
-              </Field>
-              <Field label="Webhook Signing Secret (whsec_...)">
-                <TextInput
-                  type="password"
-                  value={form.webhookSigningSecret || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), webhookSigningSecret: e.target.value }))}
-                  placeholder="whsec_..."
+            </div>
+
+            <div className="mt-6">
+              <Field label="Supported Currencies" hint="Click a chip to set it as the payment default">
+                <CurrencyDefaultChips
+                  supportedCurrencies={form.supportedCurrencies || []}
+                  defaultCurrency={form.defaultCurrency || ""}
+                  provider={providerLabel}
+                  onChange={(nextCurrencies, nextDefault) =>
+                    setForm((p) => ({
+                      ...(p || {}),
+                      supportedCurrencies: nextCurrencies,
+                      defaultCurrency: nextDefault,
+                    }))
+                  }
                 />
               </Field>
             </div>
-          ) : null}
+          </SectionCard>
+        </div>
+      )}
 
-          {String(provider).toLowerCase() === "paypal" ? (
-            <div className="space-y-4">
-              <Field label="Client ID">
-                <TextInput
-                  value={form.clientId || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), clientId: e.target.value }))}
-                  placeholder="Abcd..."
-                />
-              </Field>
-              <Field label={isEdit ? "Client Secret — re-enter to update" : "Client Secret"}>
-                <TextInput
-                  type="password"
-                  value={form.clientSecret || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), clientSecret: e.target.value }))}
-                  placeholder="XyZ..."
-                />
-              </Field>
-              <Field label="Webhook ID (optional)">
-                <TextInput
-                  value={form.webhookId || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), webhookId: e.target.value }))}
-                  placeholder="9AB123..."
-                />
-              </Field>
-            </div>
-          ) : null}
+      {step === 1 && (
+        <div className="space-y-4">
+          {provider === "stripe" && (
+            <SectionCard
+              tone="stripe"
+              title="Stripe API Credentials"
+              subtitle="Copy from Stripe Dashboard → Developers → API keys"
+              icon={
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#635BFF]/10 text-[#635BFF]">
+                  <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="currentColor">
+                    <path d="M13.48 2H4.5a1 1 0 00-.97 1.24L6.98 21a1 1 0 001 .76h2.9a1 1 0 001-.77l.39-2.1a1 1 0 011-.77h1.02c2 0 3.37-1.06 4-3.04L20.5 5c.68-2.07-.5-3-2.99-3h-4.03z" />
+                  </svg>
+                </div>
+              }
+            >
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field label="Publishable Key" hint="starts with pk_..." required={!isEdit} error={errors?.apiKey}>
+                  <TextInput
+                    value={form.apiKey || ""}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), apiKey: e.target.value }))}
+                    placeholder="pk_live_xxxxxxxxxxxxxxxxxxxxxxxx"
+                  />
+                </Field>
+                <Field label="Secret Key" hint="starts with sk_..." required={!isEdit} error={errors?.secretKey}>
+                  <TextInput
+                    type="password"
+                    value={form.secretKey || ""}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), secretKey: e.target.value }))}
+                    placeholder={isEdit ? "•••••••••••• (re-enter to change)" : "Enter Stripe secret key"}
+                  />
+                </Field>
+              </div>
 
-          {String(provider).toLowerCase() === "bank_transfer" ? (
-            <div className="space-y-4">
-              <Field label="Payment Instructions">
+              <div className="mt-6 border-t border-[#F3F4F6] pt-6">
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
+                    🔗 Webhook (optional)
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <Field label="Webhook URL" error={errors?.webhookUrl}>
+                    <TextInput
+                      value={form.webhookUrl || ""}
+                      onChange={(e) => setForm((p) => ({ ...(p || {}), webhookUrl: e.target.value }))}
+                      placeholder="https://your-domain.com/api/webhook/stripe"
+                    />
+                  </Field>
+                  <Field label="Signing Secret" hint="whsec_...">
+                    <TextInput
+                      type="password"
+                      value={form.webhookSigningSecret || ""}
+                      onChange={(e) => setForm((p) => ({ ...(p || {}), webhookSigningSecret: e.target.value }))}
+                      placeholder="whsec_xxxxxxxxxxxxxxxxxxxxxxxx"
+                    />
+                  </Field>
+                </div>
+              </div>
+            </SectionCard>
+          )}
+
+          {provider === "paypal" && (
+            <SectionCard
+              tone="paypal"
+              title="PayPal App Credentials"
+              subtitle="Copy from PayPal Developer → Apps & Credentials"
+              icon={
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#003087]/10 text-[#003087] font-black text-[15px]">
+                  P
+                </div>
+              }
+            >
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field label="Client ID" required={!isEdit} error={errors?.clientId}>
+                  <TextInput
+                    value={form.clientId || ""}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), clientId: e.target.value }))}
+                    placeholder="AbCdEfGhIjKlMnOpQrStUvWxYz0123456789"
+                  />
+                </Field>
+                <Field label="Client Secret" required={!isEdit} error={errors?.clientSecret}>
+                  <TextInput
+                    type="password"
+                    value={form.clientSecret || ""}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), clientSecret: e.target.value }))}
+                    placeholder={isEdit ? "•••••••••••• (re-enter to change)" : "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789"}
+                  />
+                </Field>
+              </div>
+
+              <div className="mt-6 border-t border-[#F3F4F6] pt-6">
+                <Field label="Webhook ID" hint="Optional — ID of your PayPal webhook">
+                  <TextInput
+                    value={form.webhookId || ""}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), webhookId: e.target.value }))}
+                    placeholder="9AB12C3D45E6F7G8H9"
+                  />
+                </Field>
+              </div>
+            </SectionCard>
+          )}
+
+          {isBank && (
+            <SectionCard
+              tone="bank"
+              title="Bank Transfer Instructions"
+              subtitle="These instructions are displayed to donors at checkout"
+              icon={
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                  <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                    <path d="M3 21h18M4 10v7m5-7v7m5-7v7m5-7v7M2 8l10-5 10 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              }
+            >
+              <Field label="Payment Instructions" required error={errors?.instructions}>
                 <TextArea
                   value={form.instructions || ""}
                   onChange={(e) => setForm((p) => ({ ...(p || {}), instructions: e.target.value }))}
-                  placeholder="Please transfer to:\nBank: Example Bank\nAccount: 12345678\nIBAN: ...\nReference: your donation ID"
+                  placeholder={
+                    "Bank Name: Example Bank plc\nAccount Name: Human Concern Org\nAccount Number: 12345678\nSort Code / Routing: 12-34-56\nIBAN: GB00 XXXX XXXX XXXX XXXX XX\nSWIFT/BIC: EXAMGB2L\n\nReference: Please use your Donation ID as reference"
+                  }
                 />
               </Field>
-            </div>
-          ) : null}
+            </SectionCard>
+          )}
+
+          {!isBank && (
+            <SectionCard
+              title="Advanced Options"
+              subtitle="Change only if you know what these do"
+              icon={
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+                  <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+                    <path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3h0a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8v0a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              }
+            >
+              <div className="space-y-5">
+                <div className="flex items-start gap-3 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4">
+                  <input
+                    id="isDefaultGtw"
+                    type="checkbox"
+                    checked={Boolean(form.isDefault)}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), isDefault: e.target.checked }))}
+                    className="mt-0.5 h-4 w-4 accent-[#111827]"
+                  />
+                  <label htmlFor="isDefaultGtw" className="block">
+                    <div className="text-[13px] font-bold text-[#111827]">Default configuration</div>
+                    <div className="mt-0.5 text-[12px] text-[#6B7280]">
+                      This {providerLabel} card will be used when no explicit default is set.
+                    </div>
+                  </label>
+                </div>
+
+                <Field label="Description / Internal Notes" hint="Optional — shown to operators only">
+                  <TextArea
+                    value={form.description || ""}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), description: e.target.value }))}
+                    placeholder="e.g. Owned by Finance team (John). Ops contact: ops@example.com. EU cut-off 4:30pm CET. Does not support India UPI."
+                  />
+                </Field>
+              </div>
+            </SectionCard>
+          )}
         </div>
+      )}
 
-        <Field label="Description / Admin Notes">
-          <TextArea
-            value={form.description || ""}
-            onChange={(e) => setForm((p) => ({ ...(p || {}), description: e.target.value }))}
-            placeholder="Internal notes: business owner, reconciliation contact, cut-off times, known restrictions..."
-          />
-        </Field>
-
-        <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB]">
-          <button
-            type="button"
-            onClick={() => setShowAdvanced((v) => !v)}
-            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+      {step === 2 && (
+        <div className="space-y-4">
+          <SectionCard
+            title="Review & Confirm"
+            subtitle="Double-check everything below. Click Create when ready."
+            icon={
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#111827]/5 text-[#111827]">
+                <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                  <path d="M9 12l2 2 4-4M12 22a10 10 0 100-20 10 10 0 000 20z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            }
           >
-            <div className="text-[12px] font-semibold text-[#111827]">
-              ⚙️ Advanced Settings
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <Stat label="Name" value={form.name || "—"} />
+              <Stat
+                label="Environment"
+                value={effectiveEnv === "live" ? "🔴 Live" : effectiveEnv === "test" ? "🟡 Test" : "🧠 Auto"}
+                tone={effectiveEnv === "live" ? "warn" : "good"}
+              />
+              <Stat label="Priority" value={String(form.priority ?? 50) + " / 100"} />
+              <Stat label="Fee" value={bpsToPercent(form.feeBps) + "%"} />
             </div>
-            <svg viewBox="0 0 20 20" className={`h-4 w-4 text-[#6B7280] transition-transform ${showAdvanced ? "rotate-180" : ""}`} fill="none">
-              <path d="M5 7.5l5 5 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+          </SectionCard>
 
-          {showAdvanced ? (
-            <div className="border-t border-[#E5E7EB] px-4 pb-4 pt-3 space-y-4">
-              <Field label="Configuration ID (advanced)">
-                <TextInput
-                  value={form.configurationId || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), configurationId: e.target.value }))}
-                  placeholder={isEdit ? "(auto-generated)" : "Leave blank for auto-generated ID"}
-                />
-              </Field>
-              <div className="flex items-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2">
-                <input
-                  id="isDefaultGtw"
-                  type="checkbox"
-                  checked={Boolean(form.isDefault)}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), isDefault: e.target.checked }))}
-                  className="h-4 w-4 accent-[#111827]"
-                />
-                <label htmlFor="isDefaultGtw" className="text-[12px] font-semibold text-[#111827]">
-                  Make this the default {getProviderLabel(provider)} configuration
-                </label>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <SectionCard title="Jurisdiction">
+              <dl className="space-y-3">
+                <Row label="Merchant Country" ok={Boolean(form.merchantCountry)}>
+                  {form.merchantCountry ? (
+                    (() => {
+                      const c = COUNTRY_LIST.find((x) => x.code === form.merchantCountry);
+                      return c ? <span className="inline-flex items-center gap-2 font-bold text-[#111827]"><span className="text-base leading-none">{c.flag}</span>{c.name} <span className="text-[#9CA3AF]">({c.code})</span></span> : <span className="font-bold">{form.merchantCountry}</span>;
+                    })()
+                  ) : <span className="text-[#9CA3AF]">Not set</span>}
+                </Row>
+                <Row label="SCA Threshold" ok>
+                  {form.scaThresholdAmountMinor != null && form.scaThresholdAmountMinor !== ""
+                    ? <span className="font-bold tabular-nums text-[#111827]">{form.scaThresholdCurrency} {(Number(form.scaThresholdAmountMinor) / 100).toFixed(2)}</span>
+                    : <span className="text-[#9CA3AF]">No threshold</span>}
+                </Row>
+                <Row label="Default card" ok>
+                  <span className={`font-bold ${form.isDefault ? "text-emerald-600" : "text-[#9CA3AF]"}`}>
+                    {form.isDefault ? "✓ Yes — this will be the default" : "No"}
+                  </span>
+                </Row>
+              </dl>
+            </SectionCard>
+
+            <SectionCard title={`Currencies (${form.supportedCurrencies?.length || 0})`}>
+              <div className="flex flex-wrap gap-2">
+                {(form.supportedCurrencies || []).length === 0 ? (
+                  <span className="text-[12px] text-[#9CA3AF]">No currencies added yet</span>
+                ) : (
+                  (form.supportedCurrencies || []).map((cc) => {
+                    const cur = CURRENCY_LIST.find((c) => c.code === cc);
+                    const isDefault = cc === form.defaultCurrency;
+                    return (
+                      <span
+                        key={cc}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-bold ${
+                          isDefault
+                            ? "bg-[#111827] text-white border-[#111827]"
+                            : "bg-[#F9FAFB] text-[#374151] border-[#D1D5DB]"
+                        }`}
+                      >
+                        <span className="text-sm leading-none">{cur?.flag || "🏳️"}</span>
+                        {cc}
+                        {isDefault ? <span className="opacity-75">· DEFAULT</span> : ""}
+                      </span>
+                    );
+                  })
+                )}
+              </div>
+            </SectionCard>
+          </div>
+
+          <SectionCard title="Credentials Summary">
+            <dl className="space-y-3.5">
+              {provider === "stripe" && (
+                <>
+                  <Row label="Publishable Key" ok={Boolean(form.apiKey)}>
+                    {form.apiKey ? <span className="font-mono text-[12px] font-bold text-[#111827]">{mask(form.apiKey, 8)}</span> : <span className="text-red-500 font-bold">Missing</span>}
+                  </Row>
+                  <Row label="Secret Key" ok={Boolean(form.secretKey) || isEdit}>
+                    {form.secretKey || isEdit ? (
+                      <span className="font-bold text-emerald-700">
+                        {form.secretKey ? <span className="font-mono text-[12px]">{mask(form.secretKey, 6)}</span> : isEdit ? "✓ Will preserve existing value" : ""}
+                      </span>
+                    ) : <span className="text-red-500 font-bold">Missing</span>}
+                  </Row>
+                  {form.webhookUrl ? (
+                    <Row label="Webhook URL" ok>
+                      <span className="font-mono text-[12px] font-bold text-[#374151] truncate">{mask(form.webhookUrl, 12)}</span>
+                    </Row>
+                  ) : null}
+                </>
+              )}
+              {provider === "paypal" && (
+                <>
+                  <Row label="Client ID" ok={Boolean(form.clientId)}>
+                    {form.clientId ? <span className="font-mono text-[12px] font-bold text-[#111827]">{mask(form.clientId, 6)}</span> : <span className="text-red-500 font-bold">Missing</span>}
+                  </Row>
+                  <Row label="Client Secret" ok={Boolean(form.clientSecret) || isEdit}>
+                    {form.clientSecret || isEdit ? (
+                      <span className="font-bold text-emerald-700">
+                        {form.clientSecret ? <span className="font-mono text-[12px]">{mask(form.clientSecret, 6)}</span> : "✓ Will preserve existing value"}
+                      </span>
+                    ) : <span className="text-red-500 font-bold">Missing</span>}
+                  </Row>
+                </>
+              )}
+              {isBank && (
+                <Row label="Instructions" ok={Boolean(form.instructions)}>
+                  {form.instructions
+                    ? <span className="font-bold text-[#111827]">{String(form.instructions).split("\n").length} lines</span>
+                    : <span className="text-red-500 font-bold">Missing</span>}
+                </Row>
+              )}
+            </dl>
+          </SectionCard>
+
+          {!isBank && form.description ? (
+            <SectionCard title="Operator Notes">
+              <div className="whitespace-pre-wrap rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 text-[13px] text-[#374151]">
+                {form.description}
+              </div>
+            </SectionCard>
+          ) : null}
+
+          {effectiveEnv === "live" && !isBank && Number(form.feeBps) === 0 ? (
+            <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5">
+              <svg viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" fill="none">
+                <path d="M12 8v5m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <div className="text-[12.5px] text-amber-800">
+                <span className="font-bold">⚠ LIVE mode with 0% processing fee —</span> confirm this is intentional before saving.
               </div>
             </div>
           ) : null}
         </div>
-      </div>
-
-      <div className="mt-6 flex items-center justify-between gap-2">
-        <div className="text-[11px] text-[#6B7280]">
-          {isBank && effectiveEnv === "live" && Number(form.feeBps) === 0
-            ? "ℹ️ Bank Transfer 0% fee is typical. No warning."
-            : effectiveEnv === "live" && Number(form.feeBps) === 0
-              ? "⚠️ Verify 0% fee on LIVE non-BankTransfer cards."
-              : ""}
-        </div>
-        <div className="flex items-center justify-end gap-2">
-          <ActionButton onClick={onClose} disabled={busy} variant="light">
-            Cancel
-          </ActionButton>
-          <ActionButton onClick={handleSave} disabled={busy} variant="dark">
-            {busy ? "Saving..." : isEdit ? "Save Changes" : "Create Configuration"}
-          </ActionButton>
-        </div>
-      </div>
-    </ModalShell>
+      )}
+    </DrawerShell>
   );
 };
+
+function Row({ label, value, children, ok }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-[#F3F4F6] pb-3 last:border-0 last:pb-0">
+      <dt className="text-[12.5px] font-semibold text-[#6B7280]">{label}</dt>
+      <dd className="text-right">
+        {children ?? (
+          <span className={`font-bold ${ok ? "text-[#111827]" : "text-[#9CA3AF]"}`}>
+            {value}
+          </span>
+        )}
+      </dd>
+    </div>
+  );
+}
+
+function mask(str, keepStart = 6) {
+  if (!str) return "";
+  const s = String(str);
+  if (s.length <= keepStart + 4) return s.slice(0, keepStart) + "•".repeat(Math.max(0, s.length - keepStart));
+  return s.slice(0, keepStart) + "••••••" + s.slice(-4);
+}
 
 export default GatewayCardFormModal;
