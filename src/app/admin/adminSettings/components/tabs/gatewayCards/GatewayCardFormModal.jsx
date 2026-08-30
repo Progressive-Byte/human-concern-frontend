@@ -10,7 +10,7 @@ import {
   bpsToPercent,
   inferEnvironmentFromSecrets,
 } from "./constants";
-import CurrencyDefaultChips from "./CurrencyDefaultChips";
+import CurrencyMultiSelect from "./CurrencyDefaultChips";
 
 const STEPS = [
   { key: "basics", label: "Basics", desc: "Name, country, fee" },
@@ -773,8 +773,8 @@ const GatewayCardFormModal = ({
             </div>
 
             <div className="mt-6">
-              <Field label="Supported Currencies" hint="Click a chip to set it as the payment default">
-                <CurrencyDefaultChips
+              <Field label="Supported Currencies" hint="Tick to include, click Make Default to set the settlement default">
+                <CurrencyMultiSelect
                   supportedCurrencies={form.supportedCurrencies || []}
                   defaultCurrency={form.defaultCurrency || ""}
                   provider={providerLabel}
