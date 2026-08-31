@@ -192,18 +192,23 @@ function TextArea(props) {
   );
 }
 
-function SegmentedControl({ value, onChange, options }) {
+function SegmentedControl({ value, onChange, options, disabled = false }) {
   return (
-    <div className="inline-flex w-full items-stretch gap-0 rounded-xl border border-[#D1D5DB] bg-[#F3F4F6] p-1 shadow-inner">
+    <div className={`inline-flex w-full items-stretch gap-0 rounded-xl border p-1 shadow-inner ${disabled ? "border-[#E5E7EB] bg-[#F9FAFB]" : "border-[#D1D5DB] bg-[#F3F4F6]"}`}>
       {options.map((opt) => (
         <button
           key={opt.value}
           type="button"
+          disabled={disabled}
           onClick={() => onChange(opt.value)}
           className={`flex-1 rounded-lg px-3 py-2 text-[12.5px] font-bold transition ${
-            value === opt.value
-              ? "bg-white text-[#111827] shadow-sm ring-1 ring-black/5"
-              : "text-[#6B7280] hover:text-[#111827]"
+            disabled
+              ? value === opt.value
+                ? "bg-white text-[#374151] shadow-sm ring-1 ring-black/5 cursor-not-allowed"
+                : "text-[#9CA3AF] cursor-not-allowed"
+              : value === opt.value
+                ? "bg-white text-[#111827] shadow-sm ring-1 ring-black/5"
+                : "text-[#6B7280] hover:text-[#111827]"
           }`}
         >
           {opt.label}
@@ -227,7 +232,10 @@ function getInitialForm(provider, config) {
         .filter(Boolean)
         .slice(0, 20)
     : [];
-  const feeBps = Number(config?.feeBps ?? 0);
+  const p = String(provider || "").toLowerCase();
+  const defaultFee =
+    p === "stripe" ? 290 : p === "paypal" ? 349 : 0;
+  const feeBps = Number(config?.feeBps ?? defaultFee);
   const merchantCountry = String(config?.merchantCountry || "").trim();
 
   let scaThresholdsByCurrency = {};
@@ -250,7 +258,8 @@ function getInitialForm(provider, config) {
   }
 
   const environment = String(config?.environment || "AUTO-INFER").toUpperCase();
-  const description = String(config?.description || config?.adminNotes || "").trim();
+  const description = String(config?.description || "").trim();
+  const adminNotes = String(config?.adminNotes || "").trim();
   const isDefault = Boolean(config?.isDefault ?? config?.default ?? false);
 
   const base = {
@@ -265,6 +274,7 @@ function getInitialForm(provider, config) {
     scaThresholdsByCurrency,
     environment: environment === "TEST" || environment === "LIVE" || environment === "AUTO-INFER" ? environment : "AUTO-INFER",
     description,
+    adminNotes,
     isDefault,
   };
 
@@ -343,7 +353,7 @@ function buildConfigurationPayload(provider, form) {
   }
   payload.environment = env.toLowerCase();
   payload.description = String(form?.description || "").trim();
-  payload.adminNotes = String(form?.description || "").trim();
+  payload.adminNotes = String(form?.adminNotes || form?.description || "").trim();
   payload.isDefault = Boolean(form?.isDefault);
 
   if (provider === "stripe") {
@@ -858,29 +868,35 @@ const GatewayCardFormModal = ({
   initialProvider = "stripe",
 }) => {
   const existingConfig = editing?.config;
-  const provider = editing?.provider || initialProvider;
   const isEdit = Boolean(existingConfig && getConfigId(existingConfig));
+  const providerLocked = isEdit;
+  const lockedProvider = editing?.provider || initialProvider;
 
   const [tracker, setTracker] = useState({
     lastOpen: false,
-    lastProvider: provider,
+    lastProvider: lockedProvider,
     lastCfgId: getConfigId(existingConfig),
-    form: getInitialForm(provider, existingConfig || {}),
+    selectedProvider: lockedProvider,
+    form: getInitialForm(lockedProvider, existingConfig || {}),
     errors: {},
     step: 0,
   });
 
+  const selectedProvider = providerLocked ? lockedProvider : tracker.selectedProvider;
+  const provider = selectedProvider;
+
   const shouldReset =
     open !== tracker.lastOpen ||
-    provider !== tracker.lastProvider ||
+    lockedProvider !== tracker.lastProvider ||
     getConfigId(existingConfig) !== tracker.lastCfgId;
 
   if (shouldReset) {
     setTracker({
       lastOpen: open,
-      lastProvider: provider,
+      lastProvider: lockedProvider,
       lastCfgId: getConfigId(existingConfig),
-      form: getInitialForm(provider, existingConfig || {}),
+      selectedProvider: lockedProvider,
+      form: getInitialForm(lockedProvider, existingConfig || {}),
       errors: {},
       step: 0,
     });
@@ -904,6 +920,17 @@ const GatewayCardFormModal = ({
   }
   function setStep(v) {
     setTracker((p) => ({ ...p, step: typeof v === "function" ? v(p.step) : v }));
+  }
+  function switchProvider(nextProvider) {
+    if (providerLocked) return;
+    const p = String(nextProvider || "").toLowerCase();
+    if (!PROVIDERS.includes(p)) return;
+    setTracker((prev) => ({
+      ...prev,
+      selectedProvider: p,
+      form: getInitialForm(p, {}),
+      errors: {},
+    }));
   }
 
   const sameProviderConfigs = useMemo(() => {
@@ -1035,6 +1062,51 @@ const GatewayCardFormModal = ({
 
       {step === 0 && (
         <div className="space-y-4">
+          <SectionCard
+            title="Payment Provider"
+            subtitle={providerLocked ? "Provider is locked when editing. Create a new card to switch." : "Choose which payment network this card connects to."}
+            icon={
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#111827]/5 text-[#111827]">
+                {provider === "stripe" ? (
+                  <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="currentColor">
+                    <path d="M13.48 2H4.5a1 1 0 00-.97 1.24L6.98 21a1 1 0 001 .76h2.9a1 1 0 001-.77l.39-2.1a1 1 0 011-.77h1.02c2 0 3.37-1.06 4-3.04L20.5 5c.68-2.07-.5-3-2.99-3h-4.03z" />
+                  </svg>
+                ) : provider === "paypal" ? (
+                  <span className="font-black text-[15px]">P</span>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                    <path d="M3 21h18M4 10v7m5-7v7m5-7v7m5-7v7M2 8l10-5 10 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+            }
+          >
+            <SegmentedControl
+              value={provider}
+              onChange={switchProvider}
+              disabled={providerLocked}
+              options={[
+                { value: "stripe", label: "⚡ Stripe" },
+                { value: "paypal", label: "🅿️ PayPal" },
+                { value: "bank_transfer", label: "🏦 Bank Transfer" },
+              ]}
+            />
+            <div className="mt-3 grid grid-cols-1 gap-3 text-[11.5px] md:grid-cols-3">
+              <div className={`rounded-lg border p-2.5 ${provider === "stripe" ? "border-[#635BFF]/40 bg-[#635BFF]/5" : "border-[#E5E7EB] bg-[#FAFAFA]"}`}>
+                <div className={`font-bold ${provider === "stripe" ? "text-[#635BFF]" : "text-[#6B7280]"}`}>⚡ Stripe</div>
+                <div className="mt-0.5 text-[#9CA3AF]">Card + Apple Pay / Google Pay. Default fee: <span className="font-bold tabular-nums text-[#111827]">2.90%</span></div>
+              </div>
+              <div className={`rounded-lg border p-2.5 ${provider === "paypal" ? "border-[#003087]/40 bg-[#003087]/5" : "border-[#E5E7EB] bg-[#FAFAFA]"}`}>
+                <div className={`font-bold ${provider === "paypal" ? "text-[#003087]" : "text-[#6B7280]"}`}>🅿️ PayPal</div>
+                <div className="mt-0.5 text-[#9CA3AF]">Wallet + Card. Default fee: <span className="font-bold tabular-nums text-[#111827]">3.49%</span></div>
+              </div>
+              <div className={`rounded-lg border p-2.5 ${provider === "bank_transfer" ? "border-emerald-400/60 bg-emerald-50" : "border-[#E5E7EB] bg-[#FAFAFA]"}`}>
+                <div className={`font-bold ${provider === "bank_transfer" ? "text-emerald-700" : "text-[#6B7280]"}`}>🏦 Bank Transfer</div>
+                <div className="mt-0.5 text-[#9CA3AF]">Manual wire capture. Default fee: <span className="font-bold tabular-nums text-[#111827]">0.00%</span></div>
+              </div>
+            </div>
+          </SectionCard>
+
           <SectionCard
             title="Gateway Identity"
             subtitle="Basic information about this gateway card"
@@ -1355,46 +1427,72 @@ const GatewayCardFormModal = ({
             </SectionCard>
           )}
 
-          {!isBank && (
-            <SectionCard
-              title="Advanced Options"
-              subtitle="Change only if you know what these do"
-              icon={
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
-                  <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
-                    <path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3h0a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8v0a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-                  </svg>
-                </div>
-              }
-            >
-              <div className="space-y-5">
-                <div className="flex items-start gap-3 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4">
-                  <input
-                    id="isDefaultGtw"
-                    type="checkbox"
-                    checked={Boolean(form.isDefault)}
-                    onChange={(e) => setForm((p) => ({ ...(p || {}), isDefault: e.target.checked }))}
-                    className="mt-0.5 h-4 w-4 accent-[#111827]"
-                  />
-                  <label htmlFor="isDefaultGtw" className="block">
-                    <div className="text-[13px] font-bold text-[#111827]">Default configuration</div>
-                    <div className="mt-0.5 text-[12px] text-[#6B7280]">
-                      This {providerLabel} card will be used when no explicit default is set.
-                    </div>
-                  </label>
-                </div>
+          <SectionCard
+            title="Advanced Options"
+            subtitle="Defaults + operator notes (never exposed public)"
+            icon={
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+                <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3h0a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8v0a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                </svg>
+              </div>
+            }
+          >
+            <div className="space-y-5">
+              <div className="flex items-start gap-3 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4">
+                <input
+                  id="isDefaultGtw"
+                  type="checkbox"
+                  checked={Boolean(form.isDefault)}
+                  onChange={(e) => setForm((p) => ({ ...(p || {}), isDefault: e.target.checked }))}
+                  className="mt-0.5 h-4 w-4 accent-[#111827]"
+                />
+                <label htmlFor="isDefaultGtw" className="block">
+                  <div className="text-[13px] font-bold text-[#111827]">Default configuration</div>
+                  <div className="mt-0.5 text-[12px] text-[#6B7280]">
+                    This {providerLabel} card will be used when no explicit default is set.
+                  </div>
+                </label>
+              </div>
 
-                <Field label="Description / Internal Notes" hint="Optional — shown to operators only">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field label="Description (donor-facing)" hint="Optional. Max 500 chars. May appear on donor receipts.">
                   <TextArea
                     value={form.description || ""}
-                    onChange={(e) => setForm((p) => ({ ...(p || {}), description: e.target.value }))}
-                    placeholder="e.g. Owned by Finance team (John). Ops contact: ops@example.com. EU cut-off 4:30pm CET. Does not support India UPI."
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setForm((p) => ({
+                        ...(p || {}),
+                        description: v.length > 500 ? v.slice(0, 500) : v,
+                      }));
+                    }}
+                    placeholder="e.g. Primary card for EU donors via Stripe Payments Europe GmbH"
                   />
+                  <div className="mt-1 text-[10.5px] text-right text-[#9CA3AF] tabular-nums">
+                    {String(form.description || "").length} / 500
+                  </div>
+                </Field>
+
+                <Field label="Admin Notes (internal only)" hint="Optional. Max 5,000 chars. Never shown public.">
+                  <TextArea
+                    value={form.adminNotes || ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setForm((p) => ({
+                        ...(p || {}),
+                        adminNotes: v.length > 5000 ? v.slice(0, 5000) : v,
+                      }));
+                    }}
+                    placeholder="e.g. Owned by Finance team (John). Ops contact: ops@example.com. EU cut-off 4:30pm CET. SLA for refunds is T+1."
+                  />
+                  <div className="mt-1 text-[10.5px] text-right text-[#9CA3AF] tabular-nums">
+                    {String(form.adminNotes || "").length} / 5000
+                  </div>
                 </Field>
               </div>
-            </SectionCard>
-          )}
+            </div>
+          </SectionCard>
         </div>
       )}
 
