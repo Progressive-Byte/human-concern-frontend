@@ -11,6 +11,7 @@ import {
   inferEnvironmentFromSecrets,
 } from "./constants";
 import CurrencyMultiSelect from "./CurrencyDefaultChips";
+import RegionMultiSelect from "./RegionMultiSelect";
 
 const STEPS = [
   { key: "basics", label: "Basics", desc: "Name, country, fee" },
@@ -932,12 +933,6 @@ const GatewayCardFormModal = ({
       }
       if (Array.isArray(form?.regionTags) && form.regionTags.length > 20) {
         e.regionTags = "Maximum 20 region tags allowed.";
-      } else if (Array.isArray(form?.regionTags)) {
-          const bad = form.regionTags.find((t) => {
-            const s = String(t || "").trim();
-            return s.length > 20;
-          });
-          if (bad) e.regionTags = `Each region tag max 20 characters. "${String(bad || "").slice(0, 32)}" is too long.`;
       }
       if (form && typeof form.scaThresholdsByCurrency === "object" && form.scaThresholdsByCurrency !== null) {
         Object.entries(form.scaThresholdsByCurrency).forEach(([k, v]) => {
@@ -1204,12 +1199,11 @@ const GatewayCardFormModal = ({
 
               <Field
                 label="Region Tags"
-                hint="Free-form routing labels. Used by order-region rules, fraud-signals, and ops dashboards to slice traffic by jurisdiction."
+                hint="Fixed routing labels from a standard region list. Used by order-region rules, fraud-signals, and ops dashboards to slice traffic by jurisdiction."
                 error={errors?.regionTags}
               >
-                <TagInput
+                <RegionMultiSelect
                   value={form.regionTags || []}
-                  placeholder="e.g. EU, NA, LATAM, MENA, APAC, UK-only"
                   onChange={(next) => setForm((p) => ({ ...(p || {}), regionTags: next }))}
                 />
               </Field>

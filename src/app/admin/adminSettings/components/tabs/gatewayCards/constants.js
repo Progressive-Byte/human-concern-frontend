@@ -184,8 +184,39 @@ export function getCurrencyInfo(code) {
   return CURRENCY_LIST.find((c) => c.code === String(code || "").toUpperCase());
 }
 
+export const REGION_LIST = [
+  { code: "NA", name: "North America", flag: "🌎" },
+  { code: "US-only", name: "United States Only", flag: "🇺🇸" },
+  { code: "CA-only", name: "Canada Only", flag: "🇨🇦" },
+  { code: "LATAM", name: "Latin America", flag: "🌎" },
+  { code: "BR-only", name: "Brazil Only", flag: "🇧🇷" },
+  { code: "MX-only", name: "Mexico Only", flag: "🇲🇽" },
+  { code: "EU", name: "European Union", flag: "🇪🇺" },
+  { code: "EEA", name: "European Economic Area", flag: "🇪🇺" },
+  { code: "UK-only", name: "United Kingdom Only", flag: "🇬🇧" },
+  { code: "CH-only", name: "Switzerland Only", flag: "🇨🇭" },
+  { code: "NO-only", name: "Norway Only", flag: "🇳🇴" },
+  { code: "MENA", name: "Middle East & North Africa", flag: "🌍" },
+  { code: "GCC", name: "Gulf Cooperation Council", flag: "🏜️" },
+  { code: "APAC", name: "Asia-Pacific", flag: "🌏" },
+  { code: "AU-only", name: "Australia Only", flag: "🇦🇺" },
+  { code: "NZ-only", name: "New Zealand Only", flag: "🇳🇿" },
+  { code: "JP-only", name: "Japan Only", flag: "🇯🇵" },
+  { code: "SG-only", name: "Singapore Only", flag: "🇸🇬" },
+  { code: "IN-only", name: "India Only", flag: "🇮🇳" },
+  { code: "SEA", name: "Southeast Asia", flag: "🌏" },
+  { code: "AFRICA", name: "Sub-Saharan Africa", flag: "🌍" },
+  { code: "ZA-only", name: "South Africa Only", flag: "🇿🇦" },
+  { code: "NG-only", name: "Nigeria Only", flag: "🇳🇬" },
+  { code: "KE-only", name: "Kenya Only", flag: "🇰🇪" },
+];
+
 export function getCountryInfo(code) {
   return COUNTRY_LIST.find((c) => c.code === String(code || "").toUpperCase());
+}
+
+export function getRegionInfo(code) {
+  return REGION_LIST.find((r) => r.code === String(code || ""));
 }
 
 export function bpsToPercent(bps) {
