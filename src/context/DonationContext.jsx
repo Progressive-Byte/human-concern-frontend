@@ -36,6 +36,8 @@ const initialState = {
   donorCountryCode: "",
   idempotencyKey: "",
   paymentMethod: "card",
+  configurationId: null,
+  gwConfId: null,
   cardName: "",
   cardNumber: "",
   cardExpiry: "",
@@ -48,6 +50,7 @@ function hashIntentFields(state) {
     String(state.paymentMethod ?? ""),
     String(state.email ?? ""),
     String((state.causeIds ?? []).join(",")),
+    String(state.configurationId ?? state.gwConfId ?? ""),
   ];
   return parts.join("|");
 }
@@ -84,7 +87,7 @@ export function DonationProvider({ children }) {
     }
     prevHashRef.current = currentHash;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.amount, data.paymentMethod, data.email, data.causeIds]);
+  }, [data.amount, data.paymentMethod, data.email, data.causeIds, data.configurationId, data.gwConfId]);
 
   const regenerateIdempotencyKey = () => {
     const newKey = generatePaymentIdempotencyKey("pay");
