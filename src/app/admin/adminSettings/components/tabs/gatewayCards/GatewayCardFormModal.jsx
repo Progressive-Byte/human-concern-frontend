@@ -354,9 +354,13 @@ function buildConfigurationPayload(provider, form) {
   let env = cleanInput(form?.environment || "AUTO-INFER").toUpperCase();
   if (env === "AUTO-INFER") {
     const inferred = inferEnvironmentFromSecrets(form);
-    if (inferred) env = inferred;
+    env = (inferred === "live" || inferred === "test")
+      ? inferred.toUpperCase()
+      : "TEST";
   }
-  payload.environment = env.toLowerCase();
+  env = env.toLowerCase();
+  if (env !== "live" && env !== "test") env = "test";
+  payload.environment = env;
   payload.description = cleanInput(form?.description, { allowNewlines: true }).slice(0, 500);
   const adminNotesRaw = cleanInput(form?.adminNotes, { allowNewlines: true });
   payload.adminNotes = adminNotesRaw.slice(0, 5000);
@@ -943,9 +947,11 @@ const GatewayCardFormModal = ({
   }, [allConfigs, provider, existingConfig]);
 
   const envValue = String(form?.environment || "AUTO-INFER").toUpperCase();
-  const effectiveEnv = envValue === "AUTO-INFER"
-    ? inferEnvironmentFromSecrets(form)
+  const inferredEnv = inferEnvironmentFromSecrets(form);
+  let effectiveEnv = envValue === "AUTO-INFER"
+    ? (inferredEnv === "live" || inferredEnv === "test" ? inferredEnv : "test")
     : envValue.toLowerCase();
+  if (effectiveEnv !== "live" && effectiveEnv !== "test") effectiveEnv = "test";
 
   function validate(scope) {
     const e = {};
@@ -1503,7 +1509,7 @@ const GatewayCardFormModal = ({
               <Stat label="Name" value={form.name || "—"} />
               <Stat
                 label="Environment"
-                value={effectiveEnv === "live" ? "🔴 Live" : effectiveEnv === "test" ? "🟡 Test" : "🧠 Auto"}
+                value={effectiveEnv === "live" ? (envValue === "AUTO-INFER" ? "🧠 Auto → 🔴 Live" : "🔴 Live") : envValue === "AUTO-INFER" ? "🧠 Auto → 🟡 Test" : "🟡 Test"}
                 tone={effectiveEnv === "live" ? "warn" : "good"}
               />
               <Stat label="Priority" value={String(form.priority ?? 50) + " / 100"} />
