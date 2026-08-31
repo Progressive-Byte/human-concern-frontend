@@ -479,7 +479,6 @@ const Step3Addons = () => {
           submitted: true,
         });
         handleNext(4);
-        setSubmitting(false);
         return;
       }
 
@@ -523,7 +522,9 @@ const Step3Addons = () => {
           if (challenge.frontendReturnPayloadId) {
             sessionStorage.setItem("hc_frontend_return_payload_id", String(challenge.frontendReturnPayloadId));
           }
-        } catch {}
+        } catch {
+          // noop
+        }
       }
       update({
         donationId:           res?.data?.donationId     ?? null,
@@ -540,20 +541,29 @@ const Step3Addons = () => {
       console.error(err);
       setSubmitError(err.message ?? "Submission failed. Please try again.");
       const status = Number(err?.statusCode ?? err?.status ?? 0);
-      const is4xxValidation = status >= 400 && status < 500 && status !== 409 && status !== 401 && status !== 403 && status !== 404;
-      if (is4xxValidation) {
-        setSubmitting(false);
+      if (status === 409) {
+        setSubmitError(err.message ?? "We detected a duplicate submit and kept the first result — no double charge occurred.");
+      }
+      const needsIdempotencyReset =
+        (status >= 400 && status < 500 && status !== 401 && status !== 403 && status !== 404);
+      if (needsIdempotencyReset) {
         try {
           if (typeof window !== "undefined") {
             sessionStorage.removeItem("hc_submit_idempotency");
             sessionStorage.removeItem("hc_idempotency_key_checkout_submit");
           }
-        } catch (_) {}
+        } catch (_) {
+          // noop
+        }
         if (typeof resetIdempotencyKeyForChangedIntent === "function") {
-          try { resetIdempotencyKeyForChangedIntent(); } catch (_) {}
+          try { resetIdempotencyKeyForChangedIntent(); } catch (_) {
+            // noop
+          }
         }
         update({ idempotencyKey: "" });
       }
+    } finally {
+      setSubmitting((prev) => (prev ? false : prev));
     }
   };
 
