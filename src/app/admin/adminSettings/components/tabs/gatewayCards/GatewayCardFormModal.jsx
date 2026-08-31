@@ -299,10 +299,21 @@ function getInitialForm(provider, config) {
   return base;
 }
 
+function cleanInput(raw, { allowNewlines = false } = {}) {
+  let s = String(raw ?? "");
+  if (allowNewlines) {
+    s = s.replace(/[\u200B-\u200D\uFEFF]/g, "");
+  } else {
+    s = s.replace(/[\u200B-\u200D\uFEFF\s]/g, " ");
+  }
+  s = s.replace(/^[`\s]+|[`\s]+$/g, "");
+  return s;
+}
+
 function buildConfigurationPayload(provider, form) {
   const payload = {};
-  const configurationId = String(form?.configurationId || "").trim();
-  const name = String(form?.name || "");
+  const configurationId = cleanInput(form?.configurationId);
+  const name = cleanInput(form?.name);
   if (configurationId) payload.configurationId = configurationId;
   payload.name = name;
 
@@ -311,24 +322,26 @@ function buildConfigurationPayload(provider, form) {
 
   const regionTagsRaw = Array.isArray(form?.regionTags) ? form.regionTags : [];
   const regionTags = regionTagsRaw
-    .map((t) => String(t || "").trim())
+    .map((t) => cleanInput(t))
     .filter((t) => t.length > 0 && t.length <= 20)
     .slice(0, 20);
   payload.regionTags = regionTags;
 
   payload.supportedCurrencies = Array.isArray(form?.supportedCurrencies)
-    ? form.supportedCurrencies.filter(Boolean)
+    ? form.supportedCurrencies
+        .map((c) => cleanInput(c).toUpperCase())
+        .filter((c) => /^[A-Z]{3}$/.test(c))
     : [];
-  payload.defaultCurrency = String(form?.defaultCurrency || "").trim();
+  payload.defaultCurrency = cleanInput(form?.defaultCurrency).toUpperCase();
 
   const feeBps = Number(form?.feeBps ?? 0);
   payload.feeBps = isNaN(feeBps) ? 0 : Math.min(5000, Math.max(0, feeBps));
-  payload.merchantCountry = String(form?.merchantCountry || "").trim();
+  payload.merchantCountry = cleanInput(form?.merchantCountry).toUpperCase();
 
   const scaMap = {};
   if (form && typeof form.scaThresholdsByCurrency === "object" && form.scaThresholdsByCurrency !== null) {
     Object.entries(form.scaThresholdsByCurrency).forEach(([k, v]) => {
-      const code = String(k || "").toUpperCase().trim();
+      const code = cleanInput(k).toUpperCase();
       if (!/^[A-Z]{3}$/.test(code)) return;
       const n = Number(v);
       if (n === "" || n == null || Number.isNaN(n)) return;
@@ -338,30 +351,44 @@ function buildConfigurationPayload(provider, form) {
   }
   payload.scaThresholdsByCurrency = scaMap;
 
-  let env = String(form?.environment || "AUTO-INFER").toUpperCase();
+  let env = cleanInput(form?.environment || "AUTO-INFER").toUpperCase();
   if (env === "AUTO-INFER") {
     const inferred = inferEnvironmentFromSecrets(form);
     if (inferred) env = inferred;
   }
   payload.environment = env.toLowerCase();
-  payload.description = String(form?.description || "").trim();
-  payload.adminNotes = String(form?.adminNotes || form?.description || "").trim();
+  payload.description = cleanInput(form?.description, { allowNewlines: true }).slice(0, 500);
+  const adminNotesRaw = cleanInput(form?.adminNotes, { allowNewlines: true });
+  payload.adminNotes = adminNotesRaw.slice(0, 5000);
   payload.isDefault = Boolean(form?.isDefault);
 
   if (provider === "stripe") {
-    payload.apiKey = String(form?.apiKey || "");
-    payload.secretKey = String(form?.secretKey || "");
-    payload.webhookUrl = String(form?.webhookUrl || "");
-    const webhookSigningSecret = String(form?.webhookSigningSecret || "");
-    if (webhookSigningSecret.trim()) payload.webhookSigningSecret = webhookSigningSecret;
+    payload.apiKey = cleanInput(form?.apiKey);
+    payload.secretKey = cleanInput(form?.secretKey);
+    payload.webhookUrl = cleanInput(form?.webhookUrl);
+    const webhookSigningSecret = cleanInput(form?.webhookSigningSecret);
+    if (webhookSigningSecret) payload.webhookSigningSecret = webhookSigningSecret;
     return payload;
   }
 
   if (provider === "paypal") {
-    payload.clientId = String(form?.clientId || "");
-    payload.clientSecret = String(form?.clientSecret || "");
-    const webhookId = String(form?.webhookId || "");
-    if (webhookId.trim()) payload.webhookId = webhookId;
+    payload.clientId = cleanInput(form?.clientId);
+    payload.clientSecret = cleanInput(form?.clientSecret);
+    let webhookId = cleanInput(form?.webhookId);
+    if (/^https?:\/\//i.test(webhookId)) {
+      try {
+        const url = new URL(webhookId);
+        const tail = (url.pathname || "").split("/").filter(Boolean).pop();
+        if (tail && !/^(paypal|webhook|api|v\d|donations|hooks)$/i.test(tail)) {
+          webhookId = tail;
+        } else {
+          webhookId = "";
+        }
+      } catch (_) {
+        webhookId = "";
+      }
+    }
+    if (webhookId) payload.webhookId = webhookId;
     return payload;
   }
 
@@ -960,12 +987,28 @@ const GatewayCardFormModal = ({
     }
     if (scope === "secrets" || scope === "all") {
       if (provider === "stripe" && !isEdit) {
-        if (!String(form?.apiKey || "").trim()) e.apiKey = "Publishable key required.";
-        if (!String(form?.secretKey || "").trim()) e.secretKey = "Secret key required.";
+        if (!cleanInput(form?.apiKey)) e.apiKey = "Publishable key required.";
+        if (!cleanInput(form?.secretKey)) e.secretKey = "Secret key required.";
+      }
+      if (provider === "stripe") {
+        const wss = cleanInput(form?.webhookSigningSecret);
+        if (wss && !wss.startsWith("whsec_")) {
+          e.webhookSigningSecret = 'Stripe webhook signing secrets must start with "whsec_".';
+        }
       }
       if (provider === "paypal" && !isEdit) {
-        if (!String(form?.clientId || "").trim()) e.clientId = "Client ID required.";
-        if (!String(form?.clientSecret || "").trim()) e.clientSecret = "Client secret required.";
+        if (!cleanInput(form?.clientId)) e.clientId = "Client ID required.";
+        if (!cleanInput(form?.clientSecret)) e.clientSecret = "Client secret required.";
+      }
+      if (provider === "paypal") {
+        const rawWebhookId = cleanInput(form?.webhookId);
+        if (rawWebhookId) {
+          if (/^https?:\/\//i.test(rawWebhookId)) {
+            e.webhookId = "This looks like a webhook URL — paste just the short alphanumeric Webhook ID from PayPal Developer → Webhooks (not a URL).";
+          } else if (rawWebhookId.length > 80) {
+            e.webhookId = "Webhook ID is suspiciously long. Should be a short ID, not a URL or full JSON payload.";
+          }
+        }
       }
     }
     setErrors(e);
@@ -1314,7 +1357,7 @@ const GatewayCardFormModal = ({
                       placeholder="https://your-domain.com/api/webhook/stripe"
                     />
                   </Field>
-                  <Field label="Signing Secret" hint="whsec_...">
+                  <Field label="Signing Secret" hint="Must start with whsec_" error={errors?.webhookSigningSecret}>
                     <TextInput
                       type="password"
                       value={form.webhookSigningSecret || ""}
@@ -1357,7 +1400,11 @@ const GatewayCardFormModal = ({
               </div>
 
               <div className="mt-6 border-t border-[#F3F4F6] pt-6">
-                <Field label="Webhook ID" hint="Optional — ID of your PayPal webhook">
+                <Field
+                  label="Webhook ID"
+                  error={errors?.webhookId}
+                  hint="Optional — paste only the short ID from PayPal Developer → Webhooks (e.g. 9AB12C3D). This is NOT a URL."
+                >
                   <TextInput
                     value={form.webhookId || ""}
                     onChange={(e) => setForm((p) => ({ ...(p || {}), webhookId: e.target.value }))}
