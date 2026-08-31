@@ -1,6 +1,6 @@
 "use client";
 
-export const PROVIDERS = ["stripe", "paypal", "bank_transfer"];
+export const PROVIDERS = ["stripe", "paypal"];
 
 export const CURRENCY_LIST = [
   { code: "USD", name: "US Dollar", flag: "🇺🇸", symbol: "$" },
@@ -139,7 +139,6 @@ export const COUNTRY_LIST = [
 
 export function getProviderLabel(provider) {
   const p = String(provider || "").toLowerCase();
-  if (p === "bank_transfer") return "Bank Transfer";
   return p ? p[0].toUpperCase() + p.slice(1) : "Provider";
 }
 
@@ -147,7 +146,6 @@ export function getProviderIcon(provider) {
   const p = String(provider || "").toLowerCase();
   if (p === "stripe") return "⚡";
   if (p === "paypal") return "🅿️";
-  if (p === "bank_transfer") return "🏦";
   return "💳";
 }
 

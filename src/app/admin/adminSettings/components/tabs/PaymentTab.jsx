@@ -521,7 +521,7 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
           <div className="text-[14px] font-semibold text-[#111827]">No gateway cards match the current filters</div>
           <div className="mt-1 text-[12px] text-[#6B7280]">
             {allConfigs.length === 0
-              ? "Add your first Stripe, PayPal, or Bank Transfer gateway card to get started."
+              ? "Add your first Stripe or PayPal gateway card to get started."
               : "Try changing the Provider, Enabled, or Environment filter."}
           </div>
           {allConfigs.length === 0 ? (
@@ -539,13 +539,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
                 className="inline-flex items-center gap-1.5 rounded-xl border border-[#E5E7EB] bg-white px-3.5 py-2 text-[12px] font-semibold text-[#111827] hover:bg-[#F9FAFB]"
               >
                 🅿️ + PayPal
-              </button>
-              <button
-                type="button"
-                onClick={() => openAdd("bank_transfer")}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-[#E5E7EB] bg-white px-3.5 py-2 text-[12px] font-semibold text-[#111827] hover:bg-[#F9FAFB]"
-              >
-                🏦 + Bank Transfer
               </button>
             </div>
           ) : null}

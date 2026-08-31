@@ -177,7 +177,7 @@ const LegacyMigrationWizard = ({
         defaults: {
           priority: cfg.priority ?? 50,
           merchantCountry: cfg.merchantCountry ?? "",
-          feeBps: cfg.feeBps ?? (String(cfg.provider) === "bank_transfer" ? 0 : 290),
+          feeBps: cfg.feeBps ?? (String(cfg.provider).toLowerCase() === "paypal" ? 349 : 290),
           supportedCurrencies: Array.isArray(cfg.supportedCurrencies) && cfg.supportedCurrencies.length
             ? [...cfg.supportedCurrencies]
             : ["USD"],

@@ -233,8 +233,7 @@ function getInitialForm(provider, config) {
         .slice(0, 20)
     : [];
   const p = String(provider || "").toLowerCase();
-  const defaultFee =
-    p === "stripe" ? 290 : p === "paypal" ? 349 : 0;
+  const defaultFee = p === "paypal" ? 349 : 290;
   const feeBps = Number(config?.feeBps ?? defaultFee);
   const merchantCountry = String(config?.merchantCountry || "").trim();
 
@@ -294,13 +293,6 @@ function getInitialForm(provider, config) {
       clientId: String(config?.clientId || "").trim(),
       clientSecret: "",
       webhookId: String(config?.webhookId || "").trim(),
-    };
-  }
-
-  if (provider === "bank_transfer") {
-    return {
-      ...base,
-      instructions: String(config?.instructions || "").trim(),
     };
   }
 
@@ -370,11 +362,6 @@ function buildConfigurationPayload(provider, form) {
     payload.clientSecret = String(form?.clientSecret || "");
     const webhookId = String(form?.webhookId || "");
     if (webhookId.trim()) payload.webhookId = webhookId;
-    return payload;
-  }
-
-  if (provider === "bank_transfer") {
-    payload.instructions = String(form?.instructions || "");
     return payload;
   }
 
@@ -941,7 +928,6 @@ const GatewayCardFormModal = ({
     );
   }, [allConfigs, provider, existingConfig]);
 
-  const isBank = String(provider).toLowerCase() === "bank_transfer";
   const envValue = String(form?.environment || "AUTO-INFER").toUpperCase();
   const effectiveEnv = envValue === "AUTO-INFER"
     ? inferEnvironmentFromSecrets(form)
@@ -980,9 +966,6 @@ const GatewayCardFormModal = ({
       if (provider === "paypal" && !isEdit) {
         if (!String(form?.clientId || "").trim()) e.clientId = "Client ID required.";
         if (!String(form?.clientSecret || "").trim()) e.clientSecret = "Client secret required.";
-      }
-      if (isBank && !String(form?.instructions || "").trim()) {
-        e.instructions = "Payment instructions required.";
       }
     }
     setErrors(e);
@@ -1088,10 +1071,9 @@ const GatewayCardFormModal = ({
               options={[
                 { value: "stripe", label: "⚡ Stripe" },
                 { value: "paypal", label: "🅿️ PayPal" },
-                { value: "bank_transfer", label: "🏦 Bank Transfer" },
               ]}
             />
-            <div className="mt-3 grid grid-cols-1 gap-3 text-[11.5px] md:grid-cols-3">
+            <div className="mt-3 grid grid-cols-1 gap-3 text-[11.5px] md:grid-cols-2">
               <div className={`rounded-lg border p-2.5 ${provider === "stripe" ? "border-[#635BFF]/40 bg-[#635BFF]/5" : "border-[#E5E7EB] bg-[#FAFAFA]"}`}>
                 <div className={`font-bold ${provider === "stripe" ? "text-[#635BFF]" : "text-[#6B7280]"}`}>⚡ Stripe</div>
                 <div className="mt-0.5 text-[#9CA3AF]">Card + Apple Pay / Google Pay. Default fee: <span className="font-bold tabular-nums text-[#111827]">2.90%</span></div>
@@ -1099,10 +1081,6 @@ const GatewayCardFormModal = ({
               <div className={`rounded-lg border p-2.5 ${provider === "paypal" ? "border-[#003087]/40 bg-[#003087]/5" : "border-[#E5E7EB] bg-[#FAFAFA]"}`}>
                 <div className={`font-bold ${provider === "paypal" ? "text-[#003087]" : "text-[#6B7280]"}`}>🅿️ PayPal</div>
                 <div className="mt-0.5 text-[#9CA3AF]">Wallet + Card. Default fee: <span className="font-bold tabular-nums text-[#111827]">3.49%</span></div>
-              </div>
-              <div className={`rounded-lg border p-2.5 ${provider === "bank_transfer" ? "border-emerald-400/60 bg-emerald-50" : "border-[#E5E7EB] bg-[#FAFAFA]"}`}>
-                <div className={`font-bold ${provider === "bank_transfer" ? "text-emerald-700" : "text-[#6B7280]"}`}>🏦 Bank Transfer</div>
-                <div className="mt-0.5 text-[#9CA3AF]">Manual wire capture. Default fee: <span className="font-bold tabular-nums text-[#111827]">0.00%</span></div>
               </div>
             </div>
           </SectionCard>
@@ -1127,9 +1105,7 @@ const GatewayCardFormModal = ({
                     placeholder={
                       provider === "stripe"
                         ? "Primary Stripe Live"
-                        : provider === "paypal"
-                          ? "Primary PayPal Live"
-                          : "Main Bank Transfer"
+                        : "Primary PayPal Live"
                     }
                   />
                 </Field>
@@ -1206,30 +1182,20 @@ const GatewayCardFormModal = ({
 
               <Field
                 label="SCA Thresholds"
-                hint={
-                  provider === "bank_transfer"
-                    ? "Not applicable for bank transfer — thresholds only apply to Stripe / PayPal PSPs."
-                    : "Per-currency Strong Customer Authentication exemption. Currencies not listed here use LENIENT fallback (no 3DS forced, bank decides). Values are MINOR UNITS (no decimals): e.g. EUR 50.00 = 5000."
-                }
+                hint="Per-currency Strong Customer Authentication exemption. Currencies not listed here use LENIENT fallback (no 3DS forced, bank decides). Values are MINOR UNITS (no decimals): e.g. EUR 50.00 = 5000."
                 error={Object.keys(errors || {}).find((k) => k.startsWith("sca_")) ? "See row errors above." : undefined}
               >
-                {provider === "bank_transfer" ? (
-                  <div className="rounded-lg border border-dashed border-[#D1D5DB] bg-[#FAFAFA] px-4 py-5 text-center text-[12.5px] text-[#6B7280]">
-                    Bank transfer is manual capture only. SCA thresholds do not apply.
-                  </div>
-                ) : (
-                  <ScaThresholdsMapEditor
-                    supportedCurrencies={form.supportedCurrencies || []}
-                    value={form.scaThresholdsByCurrency || {}}
-                    errors={errors || {}}
-                    onChange={(nextMap) =>
-                      setForm((p) => ({
-                        ...(p || {}),
-                        scaThresholdsByCurrency: nextMap,
-                      }))
-                    }
-                  />
-                )}
+                <ScaThresholdsMapEditor
+                  supportedCurrencies={form.supportedCurrencies || []}
+                  value={form.scaThresholdsByCurrency || {}}
+                  errors={errors || {}}
+                  onChange={(nextMap) =>
+                    setForm((p) => ({
+                      ...(p || {}),
+                      scaThresholdsByCurrency: nextMap,
+                    }))
+                  }
+                />
               </Field>
             </div>
           </SectionCard>
@@ -1399,31 +1365,6 @@ const GatewayCardFormModal = ({
                   />
                 </Field>
               </div>
-            </SectionCard>
-          )}
-
-          {isBank && (
-            <SectionCard
-              tone="bank"
-              title="Bank Transfer Instructions"
-              subtitle="These instructions are displayed to donors at checkout"
-              icon={
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                  <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none">
-                    <path d="M3 21h18M4 10v7m5-7v7m5-7v7m5-7v7M2 8l10-5 10 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-              }
-            >
-              <Field label="Payment Instructions" required error={errors?.instructions}>
-                <TextArea
-                  value={form.instructions || ""}
-                  onChange={(e) => setForm((p) => ({ ...(p || {}), instructions: e.target.value }))}
-                  placeholder={
-                    "Bank Name: Example Bank plc\nAccount Name: Human Concern Org\nAccount Number: 12345678\nSort Code / Routing: 12-34-56\nIBAN: GB00 XXXX XXXX XXXX XXXX XX\nSWIFT/BIC: EXAMGB2L\n\nReference: Please use your Donation ID as reference"
-                  }
-                />
-              </Field>
             </SectionCard>
           )}
 
@@ -1604,7 +1545,7 @@ const GatewayCardFormModal = ({
                     {form.clientId ? <span className="font-mono text-[12px] font-bold text-[#111827]">{mask(form.clientId, 6)}</span> : <span className="text-red-500 font-bold">Missing</span>}
                   </Row>
                   <Row label="Client Secret" ok={Boolean(form.clientSecret) || isEdit}>
-                    {form.clientSecret || isEdit ? (
+                  {form.clientSecret || isEdit ? (
                       <span className="font-bold text-emerald-700">
                         {form.clientSecret ? <span className="font-mono text-[12px]">{mask(form.clientSecret, 6)}</span> : "✓ Will preserve existing value"}
                       </span>
@@ -1612,25 +1553,26 @@ const GatewayCardFormModal = ({
                   </Row>
                 </>
               )}
-              {isBank && (
-                <Row label="Instructions" ok={Boolean(form.instructions)}>
-                  {form.instructions
-                    ? <span className="font-bold text-[#111827]">{String(form.instructions).split("\n").length} lines</span>
-                    : <span className="text-red-500 font-bold">Missing</span>}
-                </Row>
-              )}
             </dl>
           </SectionCard>
 
-          {!isBank && form.description ? (
-            <SectionCard title="Operator Notes">
+          {form.description ? (
+            <SectionCard title="Donor-Facing Description">
               <div className="whitespace-pre-wrap rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 text-[13px] text-[#374151]">
                 {form.description}
               </div>
             </SectionCard>
           ) : null}
 
-          {effectiveEnv === "live" && !isBank && Number(form.feeBps) === 0 ? (
+          {form.adminNotes ? (
+            <SectionCard title="Internal Admin Notes">
+              <div className="whitespace-pre-wrap rounded-xl border border-amber-200 bg-amber-50 p-4 text-[13px] text-amber-900">
+                {form.adminNotes}
+              </div>
+            </SectionCard>
+          ) : null}
+
+          {effectiveEnv === "live" && Number(form.feeBps) === 0 ? (
             <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5">
               <svg viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" fill="none">
                 <path d="M12 8v5m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
