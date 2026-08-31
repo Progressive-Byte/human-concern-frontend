@@ -126,12 +126,6 @@ const Step3Addons = () => {
   const [gatewayState, setGatewayState] = useState({
     gateway: isPreview ? "stripe" : (["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null),
     publishableKey: null,
-    configurationId:
-      data?.configurationId ??
-      data?.paymentGatewayConfigId ??
-      data?.gwConfId ??
-      null,
-    gwConfId: data?.gwConfId ?? data?.paymentGatewayConfigId ?? data?.configurationId ?? null,
   });
   const [customNoteValues, setCustomNoteValues] = useState(() =>
     Object.fromEntries(customNoteFields.map((f) => {
@@ -330,13 +324,6 @@ const Step3Addons = () => {
   const buildSubmitBody = () => {
     const scheduleType   = data.scheduleType   ?? "date_range";
     const scheduleConfig = data.scheduleConfig ?? {};
-    const gwCfgId =
-      gatewayState?.configurationId ??
-      gatewayState?.gwConfId ??
-      data?.configurationId ??
-      data?.gwConfId ??
-      data?.paymentGatewayConfigId ??
-      null;
 
     const body = {
       ...(data.campaignId ? { formId: data.campaignId } : { formSlug: data.campaign }),
@@ -356,7 +343,6 @@ const Step3Addons = () => {
       },
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: gatewayState.gateway,
-      ...(gwCfgId ? { configurationId: gwCfgId, gwConfId: gwCfgId } : {}),
       ...(data.anonymous && { isAnonymous: true }),
       ...(customNoteFields.length > 0 && {
         customNotes: Object.fromEntries(
@@ -394,7 +380,6 @@ const Step3Addons = () => {
         amount:      baseDonation,
         currency,
         howToSplit,
-        ...(gwCfgId ? { configurationId: gwCfgId, gwConfId: gwCfgId } : {}),
         ...(tipAmount > 0
           ? customTipParsed !== null
             ? { platformTipAmount: tipAmount }
@@ -408,7 +393,6 @@ const Step3Addons = () => {
         paymentMode: "one_time",
         amount:      amountTier,
         currency,
-        ...(gwCfgId ? { configurationId: gwCfgId, gwConfId: gwCfgId } : {}),
         ...(tipAmount > 0 && { platformTipAmount: tipAmount }),
         causeAllocations: distributeAmount(amountTier, data.causeSplit ?? {}),
       };
