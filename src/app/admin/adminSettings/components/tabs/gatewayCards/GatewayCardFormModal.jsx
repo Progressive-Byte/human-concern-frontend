@@ -8,7 +8,6 @@ import {
   getProviderLabel,
   getConfigId,
   bpsToPercent,
-  inferEnvironmentFromSecrets,
 } from "./constants";
 import CurrencyMultiSelect from "./CurrencyDefaultChips";
 import RegionMultiSelect from "./RegionMultiSelect";
@@ -256,7 +255,7 @@ function getInitialForm(provider, config) {
     }
   }
 
-  const environment = String(config?.environment || "AUTO-INFER").toUpperCase();
+  const environment = String(config?.environment || "LIVE").toUpperCase();
   const description = String(config?.description || "").trim();
   const adminNotes = String(config?.adminNotes || "").trim();
   const isDefault = Boolean(config?.isDefault ?? config?.default ?? false);
@@ -271,7 +270,7 @@ function getInitialForm(provider, config) {
     feeBps: isNaN(feeBps) || feeBps < 0 ? 0 : Math.min(5000, feeBps),
     merchantCountry,
     scaThresholdsByCurrency,
-    environment: environment === "TEST" || environment === "LIVE" || environment === "AUTO-INFER" ? environment : "AUTO-INFER",
+    environment: environment === "LIVE" ? "LIVE" : "TEST",
     description,
     adminNotes,
     isDefault,
@@ -351,13 +350,7 @@ function buildConfigurationPayload(provider, form) {
   }
   payload.scaThresholdsByCurrency = scaMap;
 
-  let env = cleanInput(form?.environment || "AUTO-INFER").toUpperCase();
-  if (env === "AUTO-INFER") {
-    const inferred = inferEnvironmentFromSecrets(form);
-    env = (inferred === "live" || inferred === "test")
-      ? inferred.toUpperCase()
-      : "TEST";
-  }
+  let env = cleanInput(form?.environment || "LIVE").toUpperCase();
   env = env.toLowerCase();
   if (env !== "live" && env !== "test") env = "test";
   payload.environment = env;
@@ -946,11 +939,8 @@ const GatewayCardFormModal = ({
     );
   }, [allConfigs, provider, existingConfig]);
 
-  const envValue = String(form?.environment || "AUTO-INFER").toUpperCase();
-  const inferredEnv = inferEnvironmentFromSecrets(form);
-  let effectiveEnv = envValue === "AUTO-INFER"
-    ? (inferredEnv === "live" || inferredEnv === "test" ? inferredEnv : "test")
-    : envValue.toLowerCase();
+  const envValue = String(form?.environment || "LIVE").toUpperCase();
+  let effectiveEnv = envValue.toLowerCase();
   if (effectiveEnv !== "live" && effectiveEnv !== "test") effectiveEnv = "test";
 
   function validate(scope) {
@@ -1155,28 +1145,15 @@ const GatewayCardFormModal = ({
                   />
                 </Field>
 
-                <Field label="Environment" hint="Override or auto-detect from keys">
+                <Field label="Environment" hint="Choose Test (sandbox) for trial/dev credentials or Live for real payments" required>
                   <SegmentedControl
                     value={envValue}
                     onChange={(v) => setForm((p) => ({ ...(p || {}), environment: v }))}
                     options={[
                       { value: "TEST", label: "🧪 Test" },
                       { value: "LIVE", label: "🔴 Live" },
-                      { value: "AUTO-INFER", label: "🧠 Auto" },
                     ]}
                   />
-                  <div className="mt-2.5 flex items-center gap-2 text-[12px] text-[#6B7280]">
-                    <span>Detected:</span>
-                    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
-                      effectiveEnv === "live"
-                        ? "border-red-200 bg-red-50 text-red-700"
-                        : effectiveEnv === "test"
-                          ? "border-amber-200 bg-amber-50 text-amber-700"
-                          : "border-gray-200 bg-gray-50 text-gray-600"
-                    }`}>
-                      {effectiveEnv === "live" ? "🔴 LIVE mode" : effectiveEnv === "test" ? "🟡 TEST mode" : "⚪ Not yet detected — add keys on step 2"}
-                    </span>
-                  </div>
                 </Field>
               </div>
 
@@ -1509,7 +1486,7 @@ const GatewayCardFormModal = ({
               <Stat label="Name" value={form.name || "—"} />
               <Stat
                 label="Environment"
-                value={effectiveEnv === "live" ? (envValue === "AUTO-INFER" ? "🧠 Auto → 🔴 Live" : "🔴 Live") : envValue === "AUTO-INFER" ? "🧠 Auto → 🟡 Test" : "🟡 Test"}
+                value={effectiveEnv === "live" ? "🔴 Live" : "🟡 Test"}
                 tone={effectiveEnv === "live" ? "warn" : "good"}
               />
               <Stat label="Priority" value={String(form.priority ?? 50) + " / 100"} />

@@ -162,30 +162,8 @@ export function shortId(value) {
 
 export function getEnvironment(config) {
   const env = String(config?.environment || "").toLowerCase();
-  if (env === "live" || env === "test") return env;
-  const sk = String(
-    config?.secretKey || config?.clientSecret || config?.apiKey || config?.clientId || ""
-  ).toLowerCase();
-  if (sk.startsWith("sk_live_") || sk.startsWith("pk_live_") || sk.includes("_live_")) return "live";
-  if (sk.startsWith("sk_test_") || sk.startsWith("pk_test_") || sk.includes("_test_")) return "test";
-  if (/sandbox\.paypal\.com/.test(String(config?.webhookUrl || "").toLowerCase())) return "test";
-  if (/^sb[-_]|^a21|^ay[-_]/.test(sk)) return "test";
-  if (/^baa|^bau|^av[-_]|^at[-_]|^act[-_]/.test(sk)) return "live";
-  return env || "test";
-}
-
-export function inferEnvironmentFromSecrets(form) {
-  const sk = String(form?.secretKey || form?.clientSecret || form?.apiKey || form?.clientId || "").toLowerCase();
-  if (sk.startsWith("sk_live_") || sk.startsWith("pk_live_") || sk.includes("_live_")) return "live";
-  if (sk.startsWith("sk_test_") || sk.startsWith("pk_test_") || sk.includes("_test_")) return "test";
-  if (/^sb[-_]|^a21|^ay[-_]/.test(sk)) return "test";
-  if (/^baa|^bau|^av[-_]|^at[-_]|^act[-_]/.test(sk)) return "live";
-  const webhookUrl = String(form?.webhookUrl || form?.webhookId || "").toLowerCase();
-  if (webhookUrl) {
-    if (/sandbox\.paypal\.com/.test(webhookUrl)) return "test";
-    if (/api\.paypal\.com/.test(webhookUrl) || /donation\.(api|app)/i.test(webhookUrl)) return "live";
-  }
-  return null;
+  if (env === "live") return "live";
+  return "test";
 }
 
 export function getCurrencyInfo(code) {
