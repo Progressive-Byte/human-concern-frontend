@@ -87,83 +87,174 @@ function buildPayPalReturnUrl({ donorData, currency, amount }) {
 const PaymentGatewaySelector = ({
   isRecurring,
   initialGateway,
-  paymentMethods = [],   // [{name, publishableKey}] from goalsDates — all Stripe
+  paymentMethods = [],   // [{name, publishableKey, configurationId, provider}] from goalsDates
   onChange,
   donorData = null,
   currency,
   amount,
 }) => {
-  const hasCampaignMethods = paymentMethods.length > 0;
-
-  // ── State for campaign-specific methods ──
-  const [selectedIdx, setSelectedIdx] = useState(0);
-
-  // ── State for global-settings fallback ──
+  // Always load the live settings so Enable/Disable toggles in admin are respected immediately.
+  // The campaign's embedded `paymentMethods` is only used for ordering & selection hints.
   const [gateways,        setGateways]        = useState([]);
-  const [gatewaysLoading, setGatewaysLoading] = useState(!hasCampaignMethods);
-  const [selectedGateway, setSelectedGateway] = useState(initialGateway ?? null);
+  const [gatewaysLoading, setGatewaysLoading] = useState(true);
+  const [selectedConfigId, setSelectedConfigId] = useState(
+    initialGateway?.configurationId ??
+    (String(initialGateway || "").includes("_cfg_") ? String(initialGateway) : null)
+  );
 
   useEffect(() => {
-    if (hasCampaignMethods) {
-      // Initialize with first campaign method
-      onChange({ gateway: "stripe", publishableKey: paymentMethods[0].publishableKey ?? null });
-      return;
-    }
-
-    // Fallback: fetch global payment settings
+    let alive = true;
+    setGatewaysLoading(true);
     apiRequest("payment/settings")
       .then((res) => {
-        const raw       = res?.data?.gateways ?? {};
-        const available = Object.values(raw).filter((g) => g.enabled && g.configured);
-        setGateways(available);
-        const stripe  = available.find((g) => g.provider === "stripe");
-        const initial = initialGateway ?? (available.length > 0 ? available[0].provider : null);
-        setSelectedGateway(initial);
-        onChange({ gateway: initial, publishableKey: stripe?.publishableKey ?? null });
-      })
-      .catch(() => {})
-      .finally(() => setGatewaysLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+        if (!alive) return;
+        const providersByKey = res?.data?.gateways ?? {};
+        const flattened = [];
+        const SUPPORTED = new Set(["stripe", "paypal"]);
+        Object.values(providersByKey).forEach((providerBucket) => {
+          if (!providerBucket || typeof providerBucket !== "object") return;
+          const provider = String(providerBucket.provider || "").toLowerCase();
+          if (!SUPPORTED.has(provider)) return;
+          const cfgs = Array.isArray(providerBucket.configurations)
+            ? providerBucket.configurations
+            : [];
+          if (cfgs.length > 0) {
+            cfgs.forEach((cfg, idx) => {
+              if (!cfg || typeof cfg !== "object") return;
+              const enabled = cfg.enabled !== false && providerBucket.enabled !== false;
+              const configured = Boolean(cfg.configured ?? providerBucket.configured);
+              if (!enabled || !configured) return;
+              flattened.push({
+                ...cfg,
+                provider,
+                configurationId:
+                  cfg.configurationId ??
+                  cfg.configId ??
+                  `${provider}_idx_${idx}`,
+                publishableKey:
+                  cfg.publishableKey ??
+                  providerBucket.publishableKey ??
+                  cfg.apiKey ??
+                  providerBucket.apiKey ??
+                  null,
+                clientId:
+                  cfg.clientId ??
+                  providerBucket.clientId ??
+                  cfg.publishableKey ??
+                  providerBucket.publishableKey ??
+                  null,
+              });
+            });
+          } else if (
+            providerBucket.enabled !== false &&
+            Boolean(providerBucket.configured)
+          ) {
+            flattened.push({
+              ...providerBucket,
+              provider,
+              configurationId:
+                providerBucket.configurationId ?? `${provider}_default`,
+              publishableKey:
+                providerBucket.publishableKey ?? providerBucket.apiKey ?? null,
+              clientId:
+                providerBucket.clientId ?? providerBucket.publishableKey ?? null,
+            });
+          }
+        });
 
-  if (!hasCampaignMethods && gatewaysLoading) return null;
+        let ordered = flattened;
+        // If campaign embedded methods exist → re-order / prefer campaign-selected methods first
+        // (while still filtering out anything the admin disabled).
+        if (Array.isArray(paymentMethods) && paymentMethods.length > 0) {
+          const order = new Map();
+          paymentMethods.forEach((m, idx) => {
+            if (!m) return;
+            const cfgId = String(m.configurationId ?? m.configId ?? m.id ?? "").trim();
+            if (cfgId) order.set(cfgId, idx);
+          });
+          ordered = [...flattened].sort((a, b) => {
+            const ra = order.has(a.configurationId) ? order.get(a.configurationId) : 9999;
+            const rb = order.has(b.configurationId) ? order.get(b.configurationId) : 9999;
+            if (ra !== rb) return ra - rb;
+            if (Boolean(a.isDefault) !== Boolean(b.isDefault)) return a.isDefault ? -1 : 1;
+            const pa = Number(a.priority ?? 50);
+            const pb = Number(b.priority ?? 50);
+            if (pb !== pa) return pb - pa;
+            return String(a.name || "").localeCompare(String(b.name || ""));
+          });
+        } else {
+          ordered = flattened.sort((a, b) => {
+            if (Boolean(a.isDefault) !== Boolean(b.isDefault)) return a.isDefault ? -1 : 1;
+            const pa = Number(a.priority ?? 50);
+            const pb = Number(b.priority ?? 50);
+            if (pb !== pa) return pb - pa;
+            return String(a.name || "").localeCompare(String(b.name || ""));
+          });
+        }
+
+        setGateways(ordered);
+        const initialCfg = ordered[0] ?? null;
+        const initialId = initialCfg?.configurationId ?? null;
+        setSelectedConfigId(initialId);
+        const stripeCfg = ordered.find((g) => g.provider === "stripe") ?? null;
+        if (initialCfg) {
+          onChange({
+            gateway: initialCfg.provider,
+            configurationId: initialId,
+            publishableKey: stripeCfg?.publishableKey ?? initialCfg.publishableKey ?? null,
+          });
+        } else {
+          onChange({ gateway: null, configurationId: null, publishableKey: null });
+        }
+      })
+      .catch(() => {
+        if (!alive) return;
+        setGateways([]);
+      })
+      .finally(() => {
+        if (!alive) return;
+        setGatewaysLoading(false);
+      });
+
+    return () => { alive = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(paymentMethods.map((m) => m && ({ configurationId: m.configurationId, name: m.name, publishableKey: m.publishableKey, provider: m.provider })))]);
+
+  if (gatewaysLoading) return null;
+
+  const hasAny = gateways.length > 0;
 
   return (
     <div className="pt-1">
       <p className="text-[14px] font-semibold text-[#383838] mb-3">Payment Method</p>
 
-      {hasCampaignMethods ? (
-        // Campaign-specific Stripe configurations
-        <div className="grid grid-cols-2 gap-3">
-          {paymentMethods.map((method, idx) => (
-            <MethodTile
-              key={idx}
-              label="Stripe"
-              sublabel={method.name || undefined}
-              logo="/images/stripe.jpg"
-              alt="Stripe"
-              isSelected={selectedIdx === idx}
-              onClick={() => {
-                setSelectedIdx(idx);
-                onChange({ gateway: "stripe", publishableKey: method.publishableKey ?? null });
-              }}
-            />
-          ))}
+      {!hasAny ? (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#E5E5E5] bg-[#FAFAFA] px-5 py-8 text-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F3F4F6] text-[#6B7280]">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+              <path d="M12 6v6l4 2M22 12a10 10 0 11-20 0 10 10 0 0120 0z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <p className="text-[14px] font-semibold text-[#383838]">No payment methods available yet</p>
+          <p className="max-w-[380px] text-[12px] leading-relaxed text-[#737373]">
+            The admin has not enabled any payment gateways for this site. Donations cannot be processed right now.
+          </p>
         </div>
       ) : (
-        // Global settings: Stripe + PayPal
-        <div className="grid grid-cols-3 gap-3">
-          {gateways
-            .filter((g) => g.provider === "stripe" || g.provider === "paypal")
-            .map((gateway) => (
+        // Unified tile grid (1-3 cards): campaign order is preserved ONLY for enabled+configured gateways.
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {gateways.map((gateway) => {
+            const isSelected = selectedConfigId === gateway.configurationId;
+            return (
               <MethodTile
-                key={gateway.provider}
+                key={gateway.configurationId}
                 label={gateway.provider === "stripe" ? "Stripe" : "PayPal"}
+                sublabel={gateway.name || (gateway.isDefault ? "Default" : undefined)}
                 logo={gateway.provider === "stripe" ? "/images/stripe.jpg" : "/images/paypal.png"}
                 alt={gateway.provider}
-                isSelected={selectedGateway === gateway.provider}
+                isSelected={isSelected}
                 onClick={() => {
-                  setSelectedGateway(gateway.provider);
+                  setSelectedConfigId(gateway.configurationId);
                   const stripe = gateways.find((g) => g.provider === "stripe");
 
                   if (gateway.provider === "paypal") {
@@ -192,7 +283,8 @@ const PaymentGatewaySelector = ({
 
                     onChange({
                       gateway: gateway.provider,
-                      publishableKey: stripe?.publishableKey ?? null,
+                      configurationId: gateway.configurationId,
+                      publishableKey: stripe?.publishableKey ?? gateway.publishableKey ?? null,
                       orchestration: isRedirect ? "redirect" : "sdk",
                       provider: "paypal",
                       paypalConfig: {
@@ -208,14 +300,16 @@ const PaymentGatewaySelector = ({
                   } else {
                     onChange({
                       gateway: gateway.provider,
-                      publishableKey: stripe?.publishableKey ?? null,
+                      configurationId: gateway.configurationId,
+                      publishableKey: gateway.publishableKey ?? null,
                       orchestration: "sdk",
                       provider: "stripe",
                     });
                   }
                 }}
               />
-            ))}
+            );
+          })}
         </div>
       )}
 
