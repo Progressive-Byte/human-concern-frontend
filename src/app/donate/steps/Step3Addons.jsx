@@ -526,11 +526,19 @@ const Step3Addons = () => {
           // noop
         }
       }
+      const resolvedPublishableKey =
+        res?.data?.stripePublishableKey ??
+        res?.data?.payment?.stripePublishableKey ??
+        res?.data?.payment?.publishableKey ??
+        payment?.stripePublishableKey ??
+        payment?.publishableKey ??
+        gatewayState.publishableKey;
+
       update({
         donationId:           res?.data?.donationId     ?? null,
         guestSessionId:       res?.data?.guestSessionId ?? null,
         stripeClientSecret:   payment.clientSecret       ?? null,
-        stripePublishableKey: gatewayState.publishableKey,
+        stripePublishableKey: resolvedPublishableKey,
         pendingSessionId,
         setupIntentId,
         submitted:            true,
