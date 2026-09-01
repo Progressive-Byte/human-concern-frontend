@@ -48,11 +48,50 @@ function useHasPermission(perm) {
   }
 }
 
+function remapOverviewRow(rawRow) {
+  const r = rawRow && typeof rawRow === "object" ? rawRow : {};
+  return {
+    provider: String(r.provider ?? r.gatewayProvider ?? ""),
+    confId: String(r.confId ?? r.gatewayConfigurationId ?? r.configurationId ?? ""),
+    gatewayConfigurationId: String(r.gatewayConfigurationId ?? r.confId ?? r.configurationId ?? ""),
+    mode: r.mode ?? (String(r.gatewayConfigurationId || r.confId || "").toLowerCase().includes("test") ? "test" : "live"),
+    merchantCountry: r.merchantCountry ?? r.country ?? r.jurisdiction ?? "",
+    scaThresholdMinor: r.scaThresholdMinor ?? r.scaThreshold ?? null,
+    feesBps: r.feesBps ?? r.feeBps ?? r.processingFeeBps ?? null,
+    currencies: Array.isArray(r.currencies) ? r.currencies : Array.isArray(r.supportedCurrencies) ? r.supportedCurrencies : [],
+    circuitStatus: String(r.circuitStatus ?? r.state ?? "TRACKING").toUpperCase(),
+    healthScore: Number(r.healthScore ?? r.score ?? 0),
+    successes: Number(r.successes ?? r.successCount ?? r.totalSuccesses ?? 0),
+    successCount: Number(r.successCount ?? r.successes ?? r.totalSuccesses ?? 0),
+    failures: Number(r.failures ?? r.failureCount ?? r.totalFailures ?? 0),
+    failureCount: Number(r.failureCount ?? r.failures ?? r.totalFailures ?? 0),
+    lastSuccessAt: r.lastSuccessAt ?? r.lastSuccess ?? null,
+    lastFailureAt: r.lastFailureAt ?? r.lastFailure ?? null,
+    tripReason: String(r.tripReason ?? r.lastTripReason ?? r.reason ?? ""),
+    lastTripReason: String(r.lastTripReason ?? r.tripReason ?? r.reason ?? ""),
+    lastTripAt: r.lastTripAt ?? r.trippedAt ?? r.lastEventAt ?? r.tripTimestamp ?? null,
+    forceOpenExpiresAt: r.forceOpenExpiresAt ?? r.forceOpenUntil ?? r.openExpiresAt ?? null,
+    overrideMeta: r.overrideMeta && typeof r.overrideMeta === "object"
+      ? r.overrideMeta
+      : (r.manualOverride ? {
+          trippedBy: r.manualOverride.admin ?? r.manualOverride.actor ?? null,
+          adminNotes: r.manualOverride.adminNotes ?? r.manualOverride.notes ?? null,
+          trippedAt: r.manualOverride.appliedAt ?? r.manualOverride.trippedAt ?? r.manualOverride.timestamp ?? null,
+          source: r.manualOverride.source ?? "manual",
+        } : null),
+    rollingSuccessRate: r.rollingSuccessRate ?? null,
+    p50Latency: r.p50Latency ?? r.metrics?.p50 ?? null,
+    p95Latency: r.p95Latency ?? r.metrics?.p95 ?? null,
+    p99Latency: r.p99Latency ?? r.metrics?.p99 ?? null,
+    tripCount: r.tripCount ?? r.openEvents ?? Number(r.failureCount ?? r.failures ?? 0) > 0 ? 3 : 0,
+  };
+}
+
 function normalizeOverviewItems(res) {
   const r = res || {};
   let raw = r?.data?.items ?? r?.data?.data?.items ?? r?.items ?? r?.data ?? null;
   if (!Array.isArray(raw)) raw = [];
-  return raw;
+  return raw.map((row) => remapOverviewRow(row));
 }
 
 function normalizeSuccessSeries(res, items) {
@@ -88,7 +127,7 @@ function normalizeLatencyPoints(res) {
 
 function normalizeProviders(res, items) {
   const r = res || {};
-  const fromMeta = r?.data?.providers ?? r?.providers ?? null;
+  const fromMeta = r?.data?.providers ?? r?.providers ?? r?.meta?.providers ?? null;
   if (Array.isArray(fromMeta) && fromMeta.length > 0) return fromMeta;
   const set = new Set();
   for (const row of Array.isArray(items) ? items : []) {
@@ -98,11 +137,20 @@ function normalizeProviders(res, items) {
   return Array.from(set);
 }
 
+function normalizeMeta(res) {
+  const r = res || {};
+  const meta = r?.data?.meta ?? r?.meta ?? r?.data?.data?.meta ?? null;
+  if (meta && typeof meta === "object") return meta;
+  return { count: null, providers: null, sinceMinutes: null, generatedAt: null };
+}
+
 function mockEmptyOverview() {
+  const now = Date.now();
   return [
     {
       provider: "Stripe",
       confId: "conf_stripe_us_abc123XYZ789",
+      gatewayConfigurationId: "conf_stripe_us_abc123XYZ789",
       mode: "live",
       merchantCountry: "US",
       scaThresholdMinor: 5000,
@@ -111,14 +159,19 @@ function mockEmptyOverview() {
       circuitStatus: "TRACKING",
       healthScore: 98.2,
       successes: 12847,
+      successCount: 12847,
       failures: 134,
-      lastSuccessAt: new Date(Date.now() - 42 * 1000).toISOString(),
-      lastFailureAt: new Date(Date.now() - 11 * 60 * 1000).toISOString(),
+      failureCount: 134,
+      lastSuccessAt: new Date(now - 42 * 1000).toISOString(),
+      lastFailureAt: new Date(now - 11 * 60 * 1000).toISOString(),
       tripReason: "",
+      forceOpenExpiresAt: null,
+      overrideMeta: null,
     },
     {
       provider: "Stripe",
       confId: "conf_stripe_eu_def456UVW012",
+      gatewayConfigurationId: "conf_stripe_eu_def456UVW012",
       mode: "live",
       merchantCountry: "IE",
       scaThresholdMinor: 5000,
@@ -127,14 +180,20 @@ function mockEmptyOverview() {
       circuitStatus: "HALF_OPEN",
       healthScore: 74.1,
       successes: 3201,
+      successCount: 3201,
       failures: 589,
-      lastSuccessAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-      lastFailureAt: new Date(Date.now() - 30 * 1000).toISOString(),
+      failureCount: 589,
+      lastSuccessAt: new Date(now - 2 * 60 * 1000).toISOString(),
+      lastFailureAt: new Date(now - 30 * 1000).toISOString(),
       tripReason: "consecutive_5xx",
+      lastTripAt: new Date(now - 30 * 1000).toISOString(),
+      forceOpenExpiresAt: null,
+      overrideMeta: null,
     },
     {
       provider: "PayPal",
       confId: "conf_paypal_global_g_hij789RST345",
+      gatewayConfigurationId: "conf_paypal_global_g_hij789RST345",
       mode: "live",
       merchantCountry: "US",
       scaThresholdMinor: 0,
@@ -143,14 +202,24 @@ function mockEmptyOverview() {
       circuitStatus: "FORCE_OPEN",
       healthScore: 86.5,
       successes: 874,
+      successCount: 874,
       failures: 112,
-      lastSuccessAt: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
-      lastFailureAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-      tripReason: "latency_spike",
+      failureCount: 112,
+      lastSuccessAt: new Date(now - 8 * 60 * 1000).toISOString(),
+      lastFailureAt: new Date(now - 3 * 60 * 60 * 1000).toISOString(),
+      tripReason: "manual_force_open",
+      forceOpenExpiresAt: new Date(now + 52 * 60 * 1000).toISOString(),
+      overrideMeta: {
+        trippedBy: "ops-admin@humanity.org",
+        adminNotes: "Investigating 5xx spike; temporarily allowing traffic.",
+        trippedAt: new Date(now - 8 * 60 * 1000).toISOString(),
+        source: "manual_force_open",
+      },
     },
     {
       provider: "Adyen",
       confId: "conf_adyen_nl_klm012OPQ678",
+      gatewayConfigurationId: "conf_adyen_nl_klm012OPQ678",
       mode: "live",
       merchantCountry: "NL",
       scaThresholdMinor: 5000,
@@ -159,14 +228,19 @@ function mockEmptyOverview() {
       circuitStatus: "TRACKING",
       healthScore: 99.6,
       successes: 21035,
+      successCount: 21035,
       failures: 42,
-      lastSuccessAt: new Date(Date.now() - 10 * 1000).toISOString(),
-      lastFailureAt: new Date(Date.now() - 28 * 60 * 60 * 1000).toISOString(),
+      failureCount: 42,
+      lastSuccessAt: new Date(now - 10 * 1000).toISOString(),
+      lastFailureAt: new Date(now - 28 * 60 * 60 * 1000).toISOString(),
       tripReason: "",
+      forceOpenExpiresAt: null,
+      overrideMeta: null,
     },
     {
       provider: "Square",
       confId: "conf_square_us_nop345QRS901",
+      gatewayConfigurationId: "conf_square_us_nop345QRS901",
       mode: "live",
       merchantCountry: "US",
       scaThresholdMinor: 0,
@@ -175,14 +249,25 @@ function mockEmptyOverview() {
       circuitStatus: "FORCE_CLOSED",
       healthScore: 12.0,
       successes: 188,
+      successCount: 188,
       failures: 954,
-      lastSuccessAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-      lastFailureAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+      failureCount: 954,
+      lastSuccessAt: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
+      lastFailureAt: new Date(now - 5 * 60 * 1000).toISOString(),
       tripReason: "manual_force_close",
+      lastTripAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+      forceOpenExpiresAt: null,
+      overrideMeta: {
+        trippedBy: "security@humanity.org",
+        adminNotes: "Emergency maintenance — suspicious auth patterns.",
+        trippedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+        source: "manual_force_close",
+      },
     },
     {
       provider: "Stripe",
       confId: "conf_stripe_test_ghj678TUV234",
+      gatewayConfigurationId: "conf_stripe_test_ghj678TUV234",
       mode: "test",
       merchantCountry: "US",
       scaThresholdMinor: 0,
@@ -191,10 +276,14 @@ function mockEmptyOverview() {
       circuitStatus: "TRACKING",
       healthScore: 100,
       successes: 512,
+      successCount: 512,
       failures: 0,
-      lastSuccessAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
+      failureCount: 0,
+      lastSuccessAt: new Date(now - 3 * 60 * 1000).toISOString(),
       lastFailureAt: null,
       tripReason: "",
+      forceOpenExpiresAt: null,
+      overrideMeta: null,
     },
   ];
 }
@@ -219,6 +308,7 @@ const AdminGatewayHealthPage = () => {
   const [latencyPoints, setLatencyPoints] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [rawResponse, setRawResponse] = useState(null);
+  const [responseMeta, setResponseMeta] = useState({ count: null, providers: null, sinceMinutes: null, generatedAt: null });
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -261,6 +351,7 @@ const AdminGatewayHealthPage = () => {
         setProviders(normalizeProviders(res, rows));
         setSuccessSeries(normalizeSuccessSeries(res, rows));
         setLatencyPoints(normalizeLatencyPoints(res));
+        setResponseMeta(normalizeMeta(res));
       } catch (e) {
         if (!alive) return;
         setError(e?.message || "Failed to load gateway health overview.");
@@ -269,6 +360,7 @@ const AdminGatewayHealthPage = () => {
         setProviders(normalizeProviders(null, rows));
         setSuccessSeries(normalizeSuccessSeries(null, rows));
         setLatencyPoints([]);
+        setResponseMeta({ count: null, providers: null, sinceMinutes: null, generatedAt: null });
       } finally {
         if (alive) setLoading(false);
       }
@@ -543,7 +635,7 @@ const AdminGatewayHealthPage = () => {
         </div>
       ) : null}
 
-      <GatewayHealthSummaryCards items={items} loading={loading} />
+      <GatewayHealthSummaryCards items={items} loading={loading} meta={responseMeta} windowMinutes={Number(filters.sinceMinutes) || 15} />
 
       <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
         <GatewayHealthFilters

@@ -12,39 +12,60 @@ function formatRelative(ts) {
     const d = new Date(ts).getTime();
     const diffMs = now - d;
     if (!Number.isFinite(diffMs)) return "—";
-    const diffSec = Math.max(0, Math.floor(diffMs / 1000));
-    if (diffSec < 60) return `${diffSec}s ago`;
-    const diffMin = Math.floor(diffSec / 60);
-    if (diffMin < 60) return `${diffMin}m ago`;
-    const diffHr = Math.floor(diffMin / 60);
-    if (diffHr < 24) return `${diffHr}h ago`;
-    const diffDays = Math.floor(diffHr / 24);
-    return `${diffDays}d ago`;
+    const future = diffMs < 0;
+    const diffSec = Math.max(0, Math.floor(Math.abs(diffMs) / 1000));
+    let str;
+    if (diffSec < 60) str = `${diffSec}s`;
+    else {
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) str = `${diffMin}m`;
+      else {
+        const diffHr = Math.floor(diffMin / 60);
+        if (diffHr < 24) str = `${diffHr}h`;
+        else {
+          const diffDays = Math.floor(diffHr / 24);
+          str = `${diffDays}d`;
+        }
+      }
+    }
+    return future ? `in ${str}` : `${str} ago`;
   } catch {
     return "—";
   }
 }
 
-function tripReasonLabel(reason) {
+function tripReasonLabel(reason, forceOpenExpiresAt) {
   const r = String(reason || "");
   const key = r.toLowerCase();
-  if (!key) return <span className="text-[#9CA3AF]">—</span>;
-  if (key.includes("error_rate")) {
-    return <span className="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-700">High Error Rate</span>;
-  }
-  if (key.includes("latency")) {
-    return <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800">Latency Spike</span>;
-  }
-  if (key.includes("consecutive_5xx") || key.includes("5xx")) {
-    return <span className="inline-flex rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-semibold text-orange-800">Consecutive 5xx</span>;
-  }
-  if (key.includes("manual") || key.includes("force_close")) {
-    return <span className="inline-flex rounded-full bg-purple-50 px-2.5 py-1 text-[11px] font-semibold text-purple-700">Manual Close</span>;
-  }
-  if (key.includes("bulk_pause") || key.includes("bulk")) {
-    return <span className="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">Bulk Pause</span>;
-  }
-  return <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-700">{r}</span>;
+  let pill;
+  if (!key) pill = <span className="text-[#9CA3AF]">—</span>;
+  else if (key.includes("error_rate"))
+    pill = <span className="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-700">High Error Rate</span>;
+  else if (key.includes("latency"))
+    pill = <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800">Latency Spike</span>;
+  else if (key.includes("consecutive_5xx") || key.includes("5xx"))
+    pill = <span className="inline-flex rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-semibold text-orange-800">Consecutive 5xx</span>;
+  else if (key.includes("manual") && key.includes("force_open"))
+    pill = <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold text-sky-800">Manual Open</span>;
+  else if (key.includes("manual") || key.includes("force_close"))
+    pill = <span className="inline-flex rounded-full bg-purple-50 px-2.5 py-1 text-[11px] font-semibold text-purple-700">Manual Close</span>;
+  else if (key.includes("bulk_pause") || key.includes("bulk"))
+    pill = <span className="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">Bulk Pause</span>;
+  else pill = <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-700">{r}</span>;
+
+  if (!forceOpenExpiresAt) return pill;
+  return (
+    <div className="space-y-1">
+      {pill}
+      <div className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700" title={`Force-open expires at ${String(forceOpenExpiresAt)}`}>
+        <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+          <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+        Expires {formatRelative(forceOpenExpiresAt)}
+      </div>
+    </div>
+  );
 }
 
 function shortConfId(id) {
@@ -140,6 +161,8 @@ const GatewayHealthTable = ({
                 const lastSuccess = row?.lastSuccessAt;
                 const lastFailure = row?.lastFailureAt;
                 const tripReason = row?.tripReason || "";
+                const forceOpenExpiresAt = row?.forceOpenExpiresAt || null;
+                const lastTripAt = row?.lastTripAt || row?.overrideMeta?.trippedAt || null;
 
                 return (
                   <tr
@@ -210,7 +233,27 @@ const GatewayHealthTable = ({
                       </div>
                     </td>
                     <td className="py-4 pr-4">
-                      <OrchestrationStatusBadge type="circuit" value={circuitStatus} />
+                      <div className="space-y-1">
+                        <OrchestrationStatusBadge type="circuit" value={circuitStatus} />
+                        {circuitStatus === "FORCE_OPEN" && forceOpenExpiresAt ? (
+                          <div className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700" title={`Force-open expires at ${String(forceOpenExpiresAt)}`}>
+                            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none">
+                              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                              <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                            {formatRelative(forceOpenExpiresAt)}
+                          </div>
+                        ) : null}
+                        {circuitStatus === "FORCE_CLOSED" && row?.overrideMeta?.trippedAt ? (
+                          <div className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-700" title={`Force-closed at ${String(row.overrideMeta.trippedAt)}`}>
+                            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none">
+                              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                              <path d="M8.5 8.5l7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                            {formatRelative(row.overrideMeta.trippedAt)}
+                          </div>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="py-4 pr-4">
                       <HealthScoreGauge value={healthScore} />
@@ -248,7 +291,7 @@ const GatewayHealthTable = ({
                       </div>
                     </td>
                     <td className="py-4 pr-4">
-                      {tripReasonLabel(tripReason)}
+                      {tripReasonLabel(tripReason, circuitStatus === "FORCE_OPEN" ? forceOpenExpiresAt : null)}
                     </td>
                     <td className="py-4 pr-5 text-right" onClick={(e) => e.stopPropagation()}>
                       <GatewayRowActions

@@ -67,8 +67,8 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
   const provider = String(data?.provider || "Unknown");
   const confId = String(data?.confId || "");
   const circuitStatus = String(data?.circuitStatus || "TRACKING");
-  const successCount = Number(data?.successes ?? 0);
-  const failureCount = Number(data?.failures ?? 0);
+  const successCount = Number(data?.successes ?? data?.successCount ?? 0);
+  const failureCount = Number(data?.failures ?? data?.failureCount ?? 0);
   const total = successCount + failureCount;
   const successPct = total > 0 ? (successCount / total) * 100 : 0;
   const healthScore = Number(data?.healthScore ?? 0);
@@ -77,6 +77,18 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
   const p99 = Number(data?.metrics?.p99 ?? data?.p99Latency ?? 0);
   const recentErrors = Array.isArray(data?.recentErrors) ? data.recentErrors : [];
   const diagnostics = data?.diagnostics && typeof data.diagnostics === "object" ? data.diagnostics : null;
+  const forceOpenExpiresAt = data?.forceOpenExpiresAt ?? data?.forceOpenUntil ?? data?.openExpiresAt ?? null;
+  const overrideMeta = data?.overrideMeta && typeof data.overrideMeta === "object"
+    ? data.overrideMeta
+    : (data?.manualOverride ? {
+        trippedBy: data.manualOverride.admin ?? data.manualOverride.actor ?? null,
+        adminNotes: data.manualOverride.adminNotes ?? data.manualOverride.notes ?? null,
+        trippedAt: data.manualOverride.appliedAt ?? data.manualOverride.trippedAt ?? data.manualOverride.timestamp ?? null,
+        source: data.manualOverride.source ?? "manual",
+      } : null);
+  const windowMeta = data?.window && typeof data.window === "object"
+    ? data.window
+    : (data?.sinceMinutes || data?.bucketCount ? { sinceMinutes: data.sinceMinutes, bucketCount: data.bucketCount } : null);
 
   return (
     <div className="fixed inset-0 z-50">
@@ -170,8 +182,64 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
                 <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Last Failure</dt>
                 <dd className="mt-1 font-medium text-red-700 text-[12px]">{formatFullDate(data?.lastFailureAt)}</dd>
               </div>
+              {forceOpenExpiresAt ? (
+                <div className="col-span-2">
+                  <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Force-Open Expires</dt>
+                  <dd className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-[12px] font-semibold text-sky-800">
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none">
+                      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                      <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    {formatFullDate(forceOpenExpiresAt)}
+                  </dd>
+                </div>
+              ) : null}
+              {windowMeta?.sinceMinutes || windowMeta?.bucketCount ? (
+                <div className="col-span-2">
+                  <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Rolling Window</dt>
+                  <dd className="mt-1 text-[12px] font-medium text-[#111827] tabular-nums">
+                    {windowMeta.sinceMinutes ? `${windowMeta.sinceMinutes} minutes` : ""}
+                    {windowMeta.sinceMinutes && windowMeta.bucketCount ? " · " : ""}
+                    {windowMeta.bucketCount ? `${windowMeta.bucketCount} buckets` : ""}
+                  </dd>
+                </div>
+              ) : null}
             </dl>
           </section>
+
+          {overrideMeta ? (
+            <section className={`rounded-2xl border border-dashed p-4 ${circuitStatus === "FORCE_CLOSED" ? "border-red-200 bg-red-50" : "border-sky-200 bg-sky-50"}`}>
+              <h3 className={`mb-3 text-[14px] font-semibold ${circuitStatus === "FORCE_CLOSED" ? "text-red-900" : "text-sky-900"}`}>Manual Override</h3>
+              <dl className="grid grid-cols-1 gap-y-2 gap-x-4 text-[13px]">
+                {overrideMeta.source ? (
+                  <div>
+                    <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Source</dt>
+                    <dd className="mt-0.5 font-medium text-[#111827] capitalize">{String(overrideMeta.source).replace(/_/g, " ")}</dd>
+                  </div>
+                ) : null}
+                {overrideMeta.trippedBy ? (
+                  <div>
+                    <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Tripped By</dt>
+                    <dd className="mt-0.5 font-mono text-[12px] font-medium text-[#111827] truncate" title={String(overrideMeta.trippedBy)}>{String(overrideMeta.trippedBy)}</dd>
+                  </div>
+                ) : null}
+                {overrideMeta.trippedAt ? (
+                  <div>
+                    <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Applied At</dt>
+                    <dd className="mt-0.5 font-medium text-[#111827] text-[12px]">{formatFullDate(overrideMeta.trippedAt)}</dd>
+                  </div>
+                ) : null}
+                {overrideMeta.adminNotes ? (
+                  <div className="col-span-2">
+                    <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Admin Notes</dt>
+                    <dd className={`mt-1 rounded-xl border border-dashed p-2.5 text-[12px] leading-relaxed whitespace-pre-wrap ${circuitStatus === "FORCE_CLOSED" ? "border-red-200 bg-white text-red-900" : "border-sky-200 bg-white text-sky-900"}`}>
+                      {String(overrideMeta.adminNotes)}
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+            </section>
+          ) : null}
 
           <section className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
             <h3 className="mb-3 text-[14px] font-semibold text-[#111827]">Rolling Metrics</h3>
