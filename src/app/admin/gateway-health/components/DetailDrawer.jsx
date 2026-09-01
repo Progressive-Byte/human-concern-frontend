@@ -87,21 +87,36 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
 
   const data = detail || row || {};
   const provider = String(data?.provider || "Unknown");
-  const confId = String(data?.confId || "");
-  const circuitStatus = String(data?.circuitStatus || "TRACKING");
-  const successCount = Number(data?.successes ?? data?.successCount ?? 0);
-  const failureCount = Number(data?.failures ?? data?.failureCount ?? 0);
-  const total = successCount + failureCount;
-  const successPct = total > 0 ? (successCount / total) * 100 : 0;
+  const confId = String(data?.confId || data?.gatewayConfigurationId || "");
+  const displayName = String(data?.name || (provider && confId ? `${provider} · ${confId}` : provider));
+  const environment = String(data?.environment || data?.mode || "live").toLowerCase();
+  const isLiveMode = typeof data?.isLiveMode === "boolean" ? data.isLiveMode : (environment === "live");
+  const circuitStatus = String(data?.circuitStatus || "CLOSED");
+  const successLifetime = Number(data?.successLifetime ?? data?.successes ?? data?.successCount ?? 0);
+  const totalCallsLifetime = Number(data?.totalCallsLifetime ?? (successLifetime + Number(data?.failures ?? data?.failureCount ?? 0)) ?? 0);
+  const successPct = totalCallsLifetime > 0 ? (successLifetime / totalCallsLifetime) * 100 : 0;
   const healthScore = Number(data?.healthScore ?? 0);
-  const p50 = Number(data?.metrics?.p50 ?? data?.p50Latency ?? 0);
-  const p95 = Number(data?.metrics?.p95 ?? data?.p95Latency ?? 0);
-  const p99 = Number(data?.metrics?.p99 ?? data?.p99Latency ?? 0);
+  const p50 = Number(data?.metrics?.p50 ?? data?.p50Latency ?? data?.rolling?.p50 ?? 0);
+  const p95 = Number(data?.metrics?.p95 ?? data?.p95Latency ?? data?.rolling?.p95 ?? 0);
+  const p99 = Number(data?.metrics?.p99 ?? data?.p99Latency ?? data?.rolling?.p99 ?? 0);
   const recentErrors = Array.isArray(data?.recentErrors) ? data.recentErrors : [];
   const diagnostics = data?.diagnostics && typeof data.diagnostics === "object" ? data.diagnostics : null;
-  const forceOpenExpiresAt = data?.forceOpenExpiresAt ?? data?.forceOpenUntil ?? data?.openExpiresAt ?? null;
+  const forceOpenExpiresAt = data?.forceOpenExpiresAt ?? data?.forceOpenUntil ?? data?.openUntil ?? data?.openExpiresAt ?? null;
   const lastTripAt = data?.lastTripAt ?? data?.overrideMeta?.trippedAt ?? data?.trippedAt ?? data?.tripTimestamp ?? null;
+  const lastSuccessfulCanaryAt = data?.lastSuccessfulCanaryAt ?? null;
+  const threeDsEnforcedRate = typeof data?.threeDsEnforcedRate === "number" ? data.threeDsEnforcedRate : null;
+  const fromDbOnly = data?.fromDbOnly === true;
   const operationalStatus = String(data?.status ?? data?.operationalStatus ?? data?.connectionStatus ?? "").toUpperCase();
+  const statusBadgeLabel = data?.statusBadge?.label ?? data?.statusBadgeLabel ?? null;
+  const statusBadgeTone = data?.statusBadge?.tone ?? data?.statusBadgeTone ?? "default";
+  const countryCode = String(data?.jurisdiction?.country ?? data?.merchantCountry ?? "");
+  const regionTags = Array.isArray(data?.jurisdiction?.regionTags) ? data.jurisdiction.regionTags : (Array.isArray(data?.regionTags) ? data.regionTags : []);
+  const jurisdiction = data?.jurisdiction && typeof data.jurisdiction === "object" ? data.jurisdiction : null;
+  const feesDisplay = String(data?.feesDisplay ?? data?.fees?.display ?? (Number(data?.feesBps ?? data?.fees?.feeBps ?? 0) > 0 ? `${(Number(data?.feesBps ?? data?.fees?.feeBps ?? 0) / 100).toFixed(2)}% (${Number(data?.feesBps ?? data?.fees?.feeBps ?? 0)} bps)` : "")).trim();
+  const fees = data?.fees && typeof data.fees === "object" ? data.fees : null;
+  const scaThresholds = data?.scaThresholds && typeof data.scaThresholds === "object" ? data.scaThresholds : null;
+  const scaDisplay = String(data?.scaThresholds?.display ?? "").trim();
+  const scaRaw = data?.scaThresholds?.raw && typeof data.scaThresholds.raw === "object" ? data.scaThresholds.raw : null;
   const overrideMeta = data?.overrideMeta && typeof data.overrideMeta === "object"
     ? data.overrideMeta
     : (data?.manualOverride ? {
@@ -122,11 +137,27 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
           <div className="flex items-start gap-3 min-w-0">
             <ProviderIcon name={provider} />
             <div className="min-w-0">
-              <h2 className="text-[18px] font-semibold text-[#111827] truncate">{provider}</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-[18px] font-semibold text-[#111827] truncate">{displayName}</h2>
+                {fromDbOnly ? (
+                  <span className="inline-flex items-center rounded-full bg-[#F3F4F6] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#6B7280]" title="Record exists in DB but no live in-memory tracker yet">
+                    DB-only
+                  </span>
+                ) : null}
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                    isLiveMode
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                  }`}
+                >
+                  {isLiveMode ? "Live" : "Test"}
+                </span>
+              </div>
               <button
                 type="button"
                 onClick={() => copyText(confId)}
-                className="mt-0.5 font-mono text-[12px] text-[#6B7280] hover:text-[#111827] underline-offset-2 hover:underline truncate max-w-[280px]"
+                className="mt-0.5 font-mono text-[12px] text-[#6B7280] hover:text-[#111827] underline-offset-2 hover:underline truncate max-w-[360px] text-left"
                 title={confId}
               >
                 {confId || "No confId"}
@@ -167,40 +198,85 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
             <dl className="grid grid-cols-2 gap-y-2 gap-x-4 text-[13px]">
               <div>
                 <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Operational Status</dt>
-                <dd className="mt-1">{statusBadge(operationalStatus)}</dd>
+                <dd className="mt-1">{statusBadge(operationalStatus, statusBadgeTone, statusBadgeLabel)}</dd>
               </div>
               <div>
                 <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Circuit Status</dt>
                 <dd className="mt-1"><OrchestrationStatusBadge type="circuit" value={circuitStatus} /></dd>
               </div>
               <div>
-                <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Mode</dt>
-                <dd className="mt-1 capitalize font-medium text-[#111827]">{String(data?.mode || "live")}</dd>
+                <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Environment</dt>
+                <dd className="mt-1 capitalize font-medium text-[#111827]">{environment}</dd>
               </div>
               <div>
                 <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Jurisdiction</dt>
-                <dd className="mt-1 flex items-center gap-1.5 font-medium text-[#111827]">
-                  <span className="text-base leading-none">{countryFlag(data?.merchantCountry)}</span>
-                  {String(data?.merchantCountry || "Global")}
+                <dd className="mt-1">
+                  <div className="flex items-center gap-1.5 font-medium text-[#111827]">
+                    <span className="text-base leading-none">{countryFlag(countryCode) || "🌍"}</span>
+                    {countryCode || "Global"}
+                  </div>
+                  {regionTags.length > 0 ? (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {regionTags.slice(0, 4).map((tag) => (
+                        <span key={tag} className="inline-flex rounded-md bg-[#111827]/5 px-1.5 py-0.5 text-[10px] font-semibold text-[#6B7280]">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                 </dd>
               </div>
               <div>
-                <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">SCA Threshold</dt>
-                <dd className="mt-1 font-medium text-[#111827] tabular-nums">
-                  {data?.scaThresholdMinor ? `€${(Number(data.scaThresholdMinor) / 100).toFixed(2)}` : "—"}
+                <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">SCA Thresholds</dt>
+                <dd className="mt-1 text-[12px] font-medium text-[#111827] leading-snug">
+                  {scaDisplay ? scaDisplay : "—"}
+                  {scaRaw && Object.keys(scaRaw).length > 0 ? (
+                    <details className="mt-1">
+                      <summary className="text-[10px] uppercase tracking-wide text-[#6B7280] cursor-pointer select-none">Raw ({Object.keys(scaRaw).length})</summary>
+                      <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] tabular-nums text-[#4B5563]">
+                        {Object.entries(scaRaw).slice(0, 20).map(([k, v]) => (
+                          <div key={k} className="flex justify-between border-b border-dashed border-[#E5E7EB] py-0.5">
+                            <span>{k}</span>
+                            <span className="font-mono">{v != null ? Number(v).toLocaleString() : "—"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  ) : null}
                 </dd>
               </div>
               <div>
                 <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Fees</dt>
-                <dd className="mt-1 font-medium text-[#111827] tabular-nums">
-                  {data?.feesBps ? `${(Number(data.feesBps) / 100).toFixed(2)}% (${data.feesBps} bps)` : "—"}
+                <dd className="mt-1 font-medium text-[#111827] tabular-nums text-[12px]">
+                  {feesDisplay ? feesDisplay : "—"}
+                  {fees?.feeBps ? (
+                    <div className="mt-0.5 text-[11px] text-[#6B7280]">{Number(fees.feeBps).toLocaleString()} bps</div>
+                  ) : null}
                 </dd>
               </div>
               <div>
                 <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Currencies</dt>
-                <dd className="mt-1 font-medium text-[#111827]">
+                <dd className="mt-1 font-medium text-[#111827] text-[12px]">
                   {Array.isArray(data?.currencies) ? data.currencies.join(", ") : "—"}
                 </dd>
+              </div>
+              <div>
+                <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">3DS Enforcement</dt>
+                <dd className="mt-1 font-medium text-[#111827] tabular-nums text-[12px]">
+                  {typeof threeDsEnforcedRate === "number" ? `${(threeDsEnforcedRate * 100).toFixed(1)}%` : "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Lifetime Calls</dt>
+                <dd className="mt-1 font-medium text-[#111827] tabular-nums text-[12px]">
+                  <span className="text-emerald-700">{successLifetime.toLocaleString()}</span>
+                  <span className="text-[#9CA3AF] mx-1">/</span>
+                  <span>{totalCallsLifetime.toLocaleString()}</span>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Last Canary</dt>
+                <dd className="mt-1 font-medium text-[#111827] text-[12px]">{formatFullDate(lastSuccessfulCanaryAt)}</dd>
               </div>
               <div>
                 <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Last Success</dt>

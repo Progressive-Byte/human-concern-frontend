@@ -81,10 +81,27 @@ function countryFlag(code) {
   return flag;
 }
 
-function statusBadge(status) {
+function statusBadge(status, toneOverride, labelOverride) {
+  const label = labelOverride && String(labelOverride).trim() ? String(labelOverride) : null;
+  const tone = String(toneOverride || "default").toLowerCase();
+  const toneMap = {
+    success: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Online"],
+    warning: ["bg-amber-50 text-amber-800 border-amber-200", "● Degraded"],
+    error: ["bg-red-50 text-red-700 border-red-200", "● Offline"],
+    default: ["bg-gray-100 text-gray-700 border-gray-200", "● Unknown"],
+  };
+  const fallback = toneMap[tone] || toneMap.default;
+  if (label) {
+    const cls = fallback[0];
+    return (
+      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold tracking-wide ${cls}`}>
+        ● {label}
+      </span>
+    );
+  }
   const s = String(status || "").toUpperCase();
   if (!s) return <span className="text-[#9CA3AF]">—</span>;
-  const map = {
+  const rawMap = {
     ONLINE: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Online"],
     HEALTHY: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Healthy"],
     OPERATIONAL: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Operational"],
@@ -95,7 +112,7 @@ function statusBadge(status) {
     MAINTENANCE: ["bg-sky-50 text-sky-700 border-sky-200", "● Maintenance"],
     MAINTENANCE_MODE: ["bg-sky-50 text-sky-700 border-sky-200", "● Maintenance"],
   };
-  const entry = map[s] || ["bg-gray-100 text-gray-700 border-gray-200", `● ${s.toLowerCase().replace(/_/g, " ")}`];
+  const entry = rawMap[s] || ["bg-gray-100 text-gray-700 border-gray-200", `● ${s.toLowerCase().replace(/_/g, " ")}`];
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold tracking-wide ${entry[0]}`}>
       {entry[1]}
@@ -150,6 +167,7 @@ const GatewayHealthTable = ({
               <th className="py-3 pr-4">Config ID</th>
               <th className="py-3 pr-4">Jurisdiction</th>
               <th className="py-3 pr-4">Fees</th>
+              <th className="py-3 pr-4">SCA Thresholds</th>
               <th className="py-3 pr-4">Currencies</th>
               <th className="py-3 pr-4">Status</th>
               <th className="py-3 pr-4">Circuit</th>
@@ -163,30 +181,38 @@ const GatewayHealthTable = ({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={12} className="px-5 py-10 text-center text-sm text-[#6B7280]">
+                <td colSpan={13} className="px-5 py-10 text-center text-sm text-[#6B7280]">
                   No gateway configurations found.
                 </td>
               </tr>
             ) : (
               rows.map((row, idx) => {
-                const key = String(row?.confId || row?.id || `row-${idx}`);
+                const key = String(row?.confId || row?.gatewayConfigurationId || row?.id || `row-${idx}`);
                 const provider = String(row?.provider || "Unknown");
-                const confId = String(row?.confId || "");
-                const countryCode = String(row?.merchantCountry || "");
-                const scaThreshold = row?.scaThresholdMinor;
-                const feesBps = Number(row?.feesBps ?? 290);
-                const feesPct = (feesBps / 100).toFixed(2);
+                const confId = String(row?.confId || row?.gatewayConfigurationId || "");
+                const displayName = String(row?.name || row?.displayName || (provider && confId ? `${provider} · ${confId}` : provider));
+                const environment = String(row?.environment || row?.mode || "live").toLowerCase();
+                const isLive = typeof row?.isLiveMode === "boolean" ? row.isLiveMode : (environment === "live");
+                const countryCode = String(row?.merchantCountry || row?.jurisdiction?.country || "");
+                const regionTags = Array.isArray(row?.regionTags) ? row.regionTags : (Array.isArray(row?.jurisdiction?.regionTags) ? row.jurisdiction.regionTags : []);
+                const feesDisplay = String(row?.feesDisplay || row?.fees?.display || (Number(row?.feesBps ?? row?.fees?.feeBps ?? 0) > 0 ? `${(Number(row?.feesBps ?? row?.fees?.feeBps ?? 0) / 100).toFixed(2)}% (${Number(row?.feesBps ?? row?.fees?.feeBps ?? 0)} bps)` : "")).trim();
+                const scaDisplay = String(row?.scaThresholds?.display || "").trim();
                 const currencies = Array.isArray(row?.currencies) ? row.currencies : [];
-                const circuitStatus = String(row?.circuitStatus || "TRACKING");
+                const circuitStatus = String(row?.circuitStatus || "CLOSED");
                 const healthScore = Number(row?.healthScore ?? 0);
-                const successes = Number(row?.successes ?? 0);
-                const failures = Number(row?.failures ?? 0);
+                const successLifetime = Number(row?.successLifetime ?? row?.successes ?? row?.successCount ?? 0);
+                const totalCallsLifetime = Number(row?.totalCallsLifetime ?? (successLifetime + Number(row?.failures ?? row?.failureCount ?? 0)) ?? 0);
+                const rollingSuccessRate = Number(row?.rollingSuccessRate ?? (totalCallsLifetime > 0 ? (successLifetime / totalCallsLifetime) * 100 : null));
                 const lastSuccess = row?.lastSuccessAt;
                 const lastFailure = row?.lastFailureAt;
-                const tripReason = row?.tripReason || "";
-                const forceOpenExpiresAt = row?.forceOpenExpiresAt || null;
+                const tripReason = row?.tripReason || row?.lastTripReason || "";
+                const forceOpenExpiresAt = row?.forceOpenExpiresAt || row?.openUntil || null;
                 const lastTripAt = row?.lastTripAt || row?.overrideMeta?.trippedAt || null;
                 const operationalStatus = row?.status || "";
+                const statusBadgeLabel = row?.statusBadgeLabel || row?.statusBadge?.label || "";
+                const statusBadgeTone = row?.statusBadgeTone || row?.statusBadge?.tone || "";
+                const fromDbOnly = row?.fromDbOnly === true;
+                const lastSuccessfulCanaryAt = row?.lastSuccessfulCanaryAt ?? null;
 
                 return (
                   <tr
@@ -197,10 +223,31 @@ const GatewayHealthTable = ({
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2.5">
                         <ProviderIcon name={provider} />
-                        <div className="min-w-0">
-                          <div className="truncate text-[13px] font-semibold text-[#111827]">{provider}</div>
-                          <div className="truncate text-[11px] text-[#6B7280]">
-                            {String(row?.mode || "live")} mode
+                        <div className="min-w-0 max-w-[260px]">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <div className="truncate text-[13px] font-semibold text-[#111827]">{displayName}</div>
+                            {fromDbOnly ? (
+                              <span className="inline-flex items-center rounded-full bg-[#F3F4F6] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#6B7280]" title="Record exists in DB but no live in-memory tracker yet">
+                                DB-only
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                                isLive
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                  : "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                              }`}
+                            >
+                              {isLive ? "Live" : "Test"}
+                            </span>
+                            {lastSuccessfulCanaryAt ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F4F6] px-2 py-0.5 text-[10px] font-medium text-[#6B7280]" title={`Last canary at ${String(lastSuccessfulCanaryAt)}`}>
+                                <svg viewBox="0 0 24 24" className="h-2.5 w-2.5 text-emerald-600" fill="currentColor"><circle cx="12" cy="12" r="4" /></svg>
+                                Canary {formatRelative(lastSuccessfulCanaryAt)}
+                              </span>
+                            ) : null}
                           </div>
                         </div>
                       </div>
@@ -221,17 +268,39 @@ const GatewayHealthTable = ({
                             {countryCode || "Global"}
                           </span>
                         </div>
-                        {scaThreshold !== undefined && scaThreshold !== null ? (
-                          <div className="mt-0.5 text-[11px] text-[#6B7280]">
-                            SCA €{(Number(scaThreshold) / 100).toFixed(2)}
+                        {regionTags.length > 0 ? (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {regionTags.slice(0, 3).map((tag) => (
+                              <span key={tag} className="inline-flex rounded-md bg-[#111827]/5 px-1.5 py-0.5 text-[10px] font-semibold text-[#6B7280]">
+                                {tag}
+                              </span>
+                            ))}
+                            {regionTags.length > 3 ? (
+                              <span className="inline-flex rounded-md bg-[#111827]/5 px-1.5 py-0.5 text-[10px] font-semibold text-[#6B7280]">
+                                +{regionTags.length - 3}
+                              </span>
+                            ) : null}
                           </div>
                         ) : null}
                       </div>
                     </td>
                     <td className="py-4 pr-4">
-                      <span className="inline-flex rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-semibold text-[#111827] tabular-nums">
-                        {feesPct}% ({feesBps} bps)
-                      </span>
+                      {feesDisplay ? (
+                        <span className="inline-flex rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-semibold text-[#111827] tabular-nums" title={feesDisplay}>
+                          {feesDisplay}
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-[#9CA3AF]">—</span>
+                      )}
+                    </td>
+                    <td className="py-4 pr-4 max-w-[240px]">
+                      {scaDisplay ? (
+                        <div className="text-[11px] font-medium text-[#111827] leading-snug truncate" title={scaDisplay}>
+                          {scaDisplay}
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-[#9CA3AF]">None</span>
+                      )}
                     </td>
                     <td className="py-4 pr-4">
                       <div className="flex flex-wrap gap-1">
@@ -257,7 +326,7 @@ const GatewayHealthTable = ({
                       </div>
                     </td>
                     <td className="py-4 pr-4">
-                      {statusBadge(operationalStatus)}
+                      {statusBadge(operationalStatus, statusBadgeTone, statusBadgeLabel)}
                     </td>
                     <td className="py-4 pr-4">
                       <div className="space-y-1">
@@ -286,16 +355,18 @@ const GatewayHealthTable = ({
                       <HealthScoreGauge value={healthScore} />
                     </td>
                     <td className="py-4 pr-4">
-                      <div className="min-w-[90px]">
+                      <div className="min-w-[120px]">
                         <div className="flex items-center gap-2 text-[12px] tabular-nums">
-                          <span className="font-semibold text-emerald-700">{successes.toLocaleString()}</span>
+                          <span className="font-semibold text-emerald-700">{successLifetime.toLocaleString()}</span>
                           <span className="text-[#9CA3AF]">/</span>
-                          <span className="font-semibold text-red-700">{failures.toLocaleString()}</span>
+                          <span className="font-semibold text-[#111827]">{totalCallsLifetime.toLocaleString()}</span>
                         </div>
                         <div className="text-[10px] text-[#6B7280]">
-                          {failures + successes > 0
-                            ? `${(((successes / (failures + successes)) * 100)).toFixed(1)}% success`
-                            : "No data"}
+                          {typeof rollingSuccessRate === "number" && totalCallsLifetime > 0
+                            ? `${rollingSuccessRate.toFixed(1)}% success`
+                            : totalCallsLifetime > 0
+                              ? `0.0% success`
+                              : "No data"}
                         </div>
                       </div>
                     </td>

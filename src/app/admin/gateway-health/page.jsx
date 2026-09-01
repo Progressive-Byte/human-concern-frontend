@@ -50,28 +50,93 @@ function useHasPermission(perm) {
 
 function remapOverviewRow(rawRow) {
   const r = rawRow && typeof rawRow === "object" ? rawRow : {};
+
+  const rawCircuit = String(r.circuitStatus ?? r.state ?? "").toUpperCase();
+  const docsClosedSet = new Set(["CLOSED", "TRACKING", "CLOSED_NORMAL", "NORMAL"]);
+  const docsHalfOpenSet = new Set(["HALF_OPEN"]);
+  const docsOpenSet = new Set(["OPEN", "FORCE_OPEN", "FORCE_CLOSED"]);
+  const hasManualOverride = Boolean(
+    r.manualOverride || r.overrideMeta ||
+    ["MANUAL_FORCE_OPEN", "MANUAL_FORCE_CLOSE", "FORCE_OPEN", "FORCE_CLOSED", "BULK_PAUSE", "BULK_RESUME"].includes(rawCircuit) ||
+    ["manual_force_open", "manual_force_close", "bulk_pause", "bulk_resume"].includes(String(r.lastTripReason ?? r.tripReason ?? "").toLowerCase())
+  );
+
+  let circuitStatus;
+  if (docsClosedSet.has(rawCircuit)) circuitStatus = "CLOSED";
+  else if (docsHalfOpenSet.has(rawCircuit)) circuitStatus = "HALF_OPEN";
+  else if (docsOpenSet.has(rawCircuit)) {
+    if (["FORCE_CLOSED", "MANUAL_FORCE_CLOSE", "BULK_PAUSE"].includes(rawCircuit) ||
+        ["manual_force_close", "bulk_pause"].includes(String(r.lastTripReason ?? r.tripReason ?? "").toLowerCase())) {
+      circuitStatus = hasManualOverride ? "FORCE_CLOSED" : "CLOSED";
+    } else if (["FORCE_OPEN", "MANUAL_FORCE_OPEN", "BULK_RESUME"].includes(rawCircuit) ||
+               ["manual_force_open", "bulk_resume"].includes(String(r.lastTripReason ?? r.tripReason ?? "").toLowerCase())) {
+      circuitStatus = hasManualOverride ? "FORCE_OPEN" : "OPEN";
+    } else {
+      circuitStatus = "OPEN";
+    }
+  } else circuitStatus = rawCircuit || "CLOSED";
+
+  const successLifetime = Number(r.successLifetime ?? r.successCount ?? r.successes ?? r.totalSuccesses ?? 0);
+  const totalCallsLifetime = Number(r.totalCallsLifetime ?? ((r.successCount ?? r.successes ?? 0) + (r.failureCount ?? r.failures ?? 0)) ?? 0);
+  const failureLifetime = Number(r.failureCount ?? r.failures ?? r.totalFailures ?? (totalCallsLifetime - successLifetime) ?? 0);
+
+  const jurisdiction = r.jurisdiction && typeof r.jurisdiction === "object" ? r.jurisdiction : {};
+  const fees = r.fees && typeof r.fees === "object" ? r.fees : {};
+  const scaThresholds = r.scaThresholds && typeof r.scaThresholds === "object" ? r.scaThresholds : {};
+  const statusBadge = r.statusBadge && typeof r.statusBadge === "object" ? r.statusBadge : {};
+  const rolling = r.rolling && typeof r.rolling === "object" ? r.rolling : null;
+
   return {
     provider: String(r.provider ?? r.gatewayProvider ?? ""),
     confId: String(r.confId ?? r.gatewayConfigurationId ?? r.configurationId ?? ""),
-    gatewayConfigurationId: String(r.gatewayConfigurationId ?? r.confId ?? r.configurationId ?? ""),
-    mode: r.mode ?? (String(r.gatewayConfigurationId || r.confId || "").toLowerCase().includes("test") ? "test" : "live"),
-    merchantCountry: r.merchantCountry ?? r.country ?? r.jurisdiction ?? "",
-    scaThresholdMinor: r.scaThresholdMinor ?? r.scaThreshold ?? null,
-    feesBps: r.feesBps ?? r.feeBps ?? r.processingFeeBps ?? null,
+    gatewayConfigurationId: String(r.gatewayConfigurationId ?? r.configurationId ?? r.confId ?? ""),
+    name: String(r.name ?? (r.provider && r.gatewayConfigurationId ? `${r.provider} · ${r.gatewayConfigurationId}` : "")),
+    environment: String(r.environment ?? r.mode ?? "").toLowerCase() || "live",
+    mode: String(r.mode ?? r.environment ?? "live").toLowerCase(),
+    isLiveMode: typeof r.isLiveMode === "boolean" ? r.isLiveMode : (String(r.mode ?? r.environment ?? "live").toLowerCase() === "live"),
+
+    merchantCountry: String(jurisdiction.country ?? r.merchantCountry ?? r.country ?? r.jurisdiction ?? ""),
+    regionTags: Array.isArray(jurisdiction.regionTags) ? jurisdiction.regionTags : Array.isArray(r.regionTags) ? r.regionTags : [],
+    jurisdiction,
+
+    scaThresholdMinor: r.scaThresholdMinor ?? (scaThresholds.raw && Object.keys(scaThresholds.raw).length > 0 ? Object.values(scaThresholds.raw)[0] : r.scaThreshold ?? null),
+    scaThresholds,
+    feesBps: Number(fees.feeBps ?? r.feesBps ?? r.feeBps ?? r.processingFeeBps ?? 0),
+    feesDisplay: String(fees.display ?? (Number(fees.feeBps ?? r.feesBps ?? 0) > 0 ? `${(Number(fees.feeBps ?? r.feesBps ?? 0) / 100).toFixed(2)}% (${Number(fees.feeBps ?? r.feesBps ?? 0)} bps)` : "")),
+    fees,
+
     currencies: Array.isArray(r.currencies) ? r.currencies : Array.isArray(r.supportedCurrencies) ? r.supportedCurrencies : [],
-    circuitStatus: String(r.circuitStatus ?? r.state ?? "TRACKING").toUpperCase(),
-    status: String(r.status ?? r.operationalStatus ?? r.connectionStatus ?? r.healthStatus ?? "").toUpperCase(),
+
+    circuitStatus,
+    status: String(r.status ?? statusBadge.label ?? r.operationalStatus ?? r.connectionStatus ?? "").toUpperCase(),
+    statusBadgeLabel: String(statusBadge.label ?? ""),
+    statusBadgeTone: String(statusBadge.tone ?? "default").toLowerCase(),
+    statusBadge,
+
     healthScore: Number(r.healthScore ?? r.score ?? 0),
-    successes: Number(r.successes ?? r.successCount ?? r.totalSuccesses ?? 0),
-    successCount: Number(r.successCount ?? r.successes ?? r.totalSuccesses ?? 0),
-    failures: Number(r.failures ?? r.failureCount ?? r.totalFailures ?? 0),
-    failureCount: Number(r.failureCount ?? r.failures ?? r.totalFailures ?? 0),
+
+    successes: successLifetime,
+    successCount: successLifetime,
+    successLifetime,
+    failures: failureLifetime,
+    failureCount: failureLifetime,
+    totalCallsLifetime,
+
     lastSuccessAt: r.lastSuccessAt ?? r.lastSuccess ?? null,
     lastFailureAt: r.lastFailureAt ?? r.lastFailure ?? null,
+
     tripReason: String(r.tripReason ?? r.lastTripReason ?? r.reason ?? ""),
     lastTripReason: String(r.lastTripReason ?? r.tripReason ?? r.reason ?? ""),
     lastTripAt: r.lastTripAt ?? r.trippedAt ?? r.lastEventAt ?? r.tripTimestamp ?? null,
-    forceOpenExpiresAt: r.forceOpenExpiresAt ?? r.forceOpenUntil ?? r.openExpiresAt ?? null,
+
+    forceOpenExpiresAt: r.forceOpenExpiresAt ?? r.forceOpenUntil ?? r.openUntil ?? r.circuitOpenUntil ?? r.openExpiresAt ?? null,
+    openUntil: r.openUntil ?? r.circuitOpenUntil ?? r.forceOpenUntil ?? null,
+
+    lastSuccessfulCanaryAt: r.lastSuccessfulCanaryAt ?? null,
+    threeDsEnforcedRate: typeof r.threeDsEnforcedRate === "number" ? r.threeDsEnforcedRate : null,
+    fromDbOnly: r.fromDbOnly === true,
+    rolling,
+
     overrideMeta: r.overrideMeta && typeof r.overrideMeta === "object"
       ? r.overrideMeta
       : (r.manualOverride ? {
@@ -80,11 +145,12 @@ function remapOverviewRow(rawRow) {
           trippedAt: r.manualOverride.appliedAt ?? r.manualOverride.trippedAt ?? r.manualOverride.timestamp ?? null,
           source: r.manualOverride.source ?? "manual",
         } : null),
-    rollingSuccessRate: r.rollingSuccessRate ?? null,
-    p50Latency: r.p50Latency ?? r.metrics?.p50 ?? null,
-    p95Latency: r.p95Latency ?? r.metrics?.p95 ?? null,
-    p99Latency: r.p99Latency ?? r.metrics?.p99 ?? null,
-    tripCount: r.tripCount ?? r.openEvents ?? Number(r.failureCount ?? r.failures ?? 0) > 0 ? 3 : 0,
+
+    rollingSuccessRate: Number(r.rollingSuccessRate ?? (totalCallsLifetime > 0 ? (successLifetime / totalCallsLifetime) * 100 : null)) || null,
+    p50Latency: r.p50Latency ?? r.metrics?.p50 ?? rolling?.p50 ?? null,
+    p95Latency: r.p95Latency ?? r.metrics?.p95 ?? rolling?.p95 ?? null,
+    p99Latency: r.p99Latency ?? r.metrics?.p99 ?? rolling?.p99 ?? null,
+    tripCount: r.tripCount ?? r.openEvents ?? (Number(r.failureCount ?? r.failures ?? 0) > 0 ? 3 : 0),
   };
 }
 
@@ -97,7 +163,7 @@ function normalizeOverviewItems(res) {
 
 function normalizeSuccessSeries(res, items) {
   const r = res || {};
-  const series = r?.data?.successRateSeries ?? r?.successRateSeries ?? r?.series ?? null;
+  const series = r?.data?.series ?? r?.series ?? r?.data?.successRateSeries ?? r?.successRateSeries ?? null;
   if (Array.isArray(series) && series.length > 0) return series;
   const seen = new Set();
   const rows = Array.isArray(items) ? items : [];
@@ -128,7 +194,7 @@ function normalizeLatencyPoints(res) {
 
 function normalizeProviders(res, items) {
   const r = res || {};
-  const fromMeta = r?.data?.providers ?? r?.providers ?? r?.meta?.providers ?? null;
+  const fromMeta = r?.data?.meta?.providers ?? r?.meta?.providers ?? r?.data?.providers ?? r?.providers ?? null;
   if (Array.isArray(fromMeta) && fromMeta.length > 0) return fromMeta;
   const set = new Set();
   for (const row of Array.isArray(items) ? items : []) {
@@ -141,7 +207,14 @@ function normalizeProviders(res, items) {
 function normalizeMeta(res) {
   const r = res || {};
   const meta = r?.data?.meta ?? r?.meta ?? r?.data?.data?.meta ?? null;
-  if (meta && typeof meta === "object") return meta;
+  if (meta && typeof meta === "object") {
+    return {
+      count: typeof meta.count === "number" ? meta.count : (Array.isArray(r?.data?.items) ? r.data.items.length : null),
+      providers: Array.isArray(meta.providers) ? meta.providers : null,
+      sinceMinutes: typeof meta.sinceMinutes === "number" ? meta.sinceMinutes : (typeof r?.sinceMinutes === "number" ? r.sinceMinutes : null),
+      generatedAt: meta.generatedAt ?? null,
+    };
+  }
   return { count: null, providers: null, sinceMinutes: null, generatedAt: null };
 }
 
@@ -150,147 +223,257 @@ function mockEmptyOverview() {
   return [
     {
       provider: "Stripe",
-      confId: "conf_stripe_us_abc123XYZ789",
       gatewayConfigurationId: "conf_stripe_us_abc123XYZ789",
-      mode: "live",
-      merchantCountry: "US",
-      scaThresholdMinor: 5000,
-      feesBps: 290,
+      configurationId: "conf_stripe_us_abc123XYZ789",
+      name: "Stripe · US Primary (hc-org-1a)",
+      environment: "live",
+      isLiveMode: true,
+      jurisdiction: {
+        country: "US",
+        regionTags: ["NA", "US-East"],
+      },
+      scaThresholds: {
+        raw: { USD: 5000, EUR: 5000, GBP: 5000, CAD: 5000, AUD: 5000 },
+        display: "USD $50.00, EUR €50.00, GBP £50.00, CAD $50.00, AUD $50.00",
+      },
+      fees: {
+        feeBps: 290,
+        display: "2.90% (290 bps)",
+      },
       currencies: ["USD", "EUR", "GBP", "CAD", "AUD"],
-      circuitStatus: "TRACKING",
-      status: "ONLINE",
+      circuitStatus: "CLOSED",
+      statusBadge: { label: "Online", tone: "success" },
       healthScore: 98.2,
-      successes: 12847,
       successCount: 12847,
-      failures: 134,
       failureCount: 134,
+      successLifetime: 12847,
+      totalCallsLifetime: 12981,
       lastSuccessAt: new Date(now - 42 * 1000).toISOString(),
       lastFailureAt: new Date(now - 11 * 60 * 1000).toISOString(),
-      tripReason: "",
-      forceOpenExpiresAt: null,
-      overrideMeta: null,
+      lastTripReason: "",
+      openUntil: null,
+      lastSuccessfulCanaryAt: new Date(now - 3 * 60 * 60 * 1000).toISOString(),
+      threeDsEnforcedRate: 0.342,
+      fromDbOnly: false,
+      rolling: {
+        p50: 212,
+        p95: 540,
+        p99: 910,
+      },
     },
     {
       provider: "Stripe",
-      confId: "conf_stripe_eu_def456UVW012",
       gatewayConfigurationId: "conf_stripe_eu_def456UVW012",
-      mode: "live",
-      merchantCountry: "IE",
-      scaThresholdMinor: 5000,
-      feesBps: 290,
+      configurationId: "conf_stripe_eu_def456UVW012",
+      name: "Stripe · EU Ireland (hc-org-2b)",
+      environment: "live",
+      isLiveMode: true,
+      jurisdiction: {
+        country: "IE",
+        regionTags: ["EU", "EMEA"],
+      },
+      scaThresholds: {
+        raw: { EUR: 5000, GBP: 5000, CHF: 5000, DKK: 5000, NOK: 5000, SEK: 5000 },
+        display: "EUR €50.00, GBP £50.00, CHF CHF50.00, DKK kr500, NOK kr500, SEK kr500",
+      },
+      fees: {
+        feeBps: 290,
+        display: "2.90% (290 bps)",
+      },
       currencies: ["EUR", "GBP", "CHF", "DKK", "NOK", "SEK"],
       circuitStatus: "HALF_OPEN",
-      status: "DEGRADED",
+      statusBadge: { label: "Degraded", tone: "warning" },
       healthScore: 74.1,
-      successes: 3201,
       successCount: 3201,
-      failures: 589,
       failureCount: 589,
+      successLifetime: 3201,
+      totalCallsLifetime: 3790,
       lastSuccessAt: new Date(now - 2 * 60 * 1000).toISOString(),
       lastFailureAt: new Date(now - 30 * 1000).toISOString(),
-      tripReason: "consecutive_5xx",
+      lastTripReason: "consecutive_5xx",
       lastTripAt: new Date(now - 30 * 1000).toISOString(),
-      forceOpenExpiresAt: null,
-      overrideMeta: null,
+      openUntil: null,
+      lastSuccessfulCanaryAt: null,
+      threeDsEnforcedRate: 0.781,
+      fromDbOnly: false,
+      rolling: {
+        p50: 680,
+        p95: 1850,
+        p99: 3100,
+      },
     },
     {
       provider: "PayPal",
-      confId: "conf_paypal_global_g_hij789RST345",
       gatewayConfigurationId: "conf_paypal_global_g_hij789RST345",
-      mode: "live",
-      merchantCountry: "US",
-      scaThresholdMinor: 0,
-      feesBps: 349,
+      configurationId: "conf_paypal_global_g_hij789RST345",
+      name: "PayPal · Global (hc-org-3c)",
+      environment: "live",
+      isLiveMode: true,
+      jurisdiction: {
+        country: "US",
+        regionTags: ["GLOBAL"],
+      },
+      scaThresholds: {
+        raw: {},
+        display: "No SCA threshold (PayPal handles risk)",
+      },
+      fees: {
+        feeBps: 349,
+        display: "3.49% (349 bps)",
+      },
       currencies: ["USD", "EUR", "GBP", "JPY"],
       circuitStatus: "FORCE_OPEN",
-      status: "DEGRADED",
+      statusBadge: { label: "Degraded", tone: "warning" },
       healthScore: 86.5,
-      successes: 874,
       successCount: 874,
-      failures: 112,
       failureCount: 112,
+      successLifetime: 874,
+      totalCallsLifetime: 986,
       lastSuccessAt: new Date(now - 8 * 60 * 1000).toISOString(),
       lastFailureAt: new Date(now - 3 * 60 * 60 * 1000).toISOString(),
-      tripReason: "manual_force_open",
-      forceOpenExpiresAt: new Date(now + 52 * 60 * 1000).toISOString(),
-      overrideMeta: {
-        trippedBy: "ops-admin@humanity.org",
+      lastTripReason: "manual_force_open",
+      openUntil: new Date(now + 52 * 60 * 1000).toISOString(),
+      manualOverride: {
+        admin: "ops-admin@humanity.org",
         adminNotes: "Investigating 5xx spike; temporarily allowing traffic.",
-        trippedAt: new Date(now - 8 * 60 * 1000).toISOString(),
+        appliedAt: new Date(now - 8 * 60 * 1000).toISOString(),
         source: "manual_force_open",
+      },
+      lastSuccessfulCanaryAt: new Date(now - 45 * 60 * 1000).toISOString(),
+      threeDsEnforcedRate: 0.054,
+      fromDbOnly: false,
+      rolling: {
+        p50: 410,
+        p95: 1220,
+        p99: 2200,
       },
     },
     {
       provider: "Adyen",
-      confId: "conf_adyen_nl_klm012OPQ678",
       gatewayConfigurationId: "conf_adyen_nl_klm012OPQ678",
-      mode: "live",
-      merchantCountry: "NL",
-      scaThresholdMinor: 5000,
-      feesBps: 195,
+      configurationId: "conf_adyen_nl_klm012OPQ678",
+      name: "Adyen · NL Amsterdam (hc-org-4d)",
+      environment: "live",
+      isLiveMode: true,
+      jurisdiction: {
+        country: "NL",
+        regionTags: ["EU", "BENELUX"],
+      },
+      scaThresholds: {
+        raw: { EUR: 5000, GBP: 5000, USD: 5000 },
+        display: "EUR €50.00, GBP £50.00, USD $50.00",
+      },
+      fees: {
+        feeBps: 195,
+        display: "1.95% (195 bps)",
+      },
       currencies: ["EUR", "GBP", "USD"],
-      circuitStatus: "TRACKING",
-      status: "ONLINE",
+      circuitStatus: "CLOSED",
+      statusBadge: { label: "Online", tone: "success" },
       healthScore: 99.6,
-      successes: 21035,
       successCount: 21035,
-      failures: 42,
       failureCount: 42,
+      successLifetime: 21035,
+      totalCallsLifetime: 21077,
       lastSuccessAt: new Date(now - 10 * 1000).toISOString(),
       lastFailureAt: new Date(now - 28 * 60 * 60 * 1000).toISOString(),
-      tripReason: "",
-      forceOpenExpiresAt: null,
-      overrideMeta: null,
+      lastTripReason: "",
+      openUntil: null,
+      lastSuccessfulCanaryAt: new Date(now - 15 * 60 * 1000).toISOString(),
+      threeDsEnforcedRate: 0.912,
+      fromDbOnly: false,
+      rolling: {
+        p50: 180,
+        p95: 420,
+        p99: 720,
+      },
     },
     {
       provider: "Square",
-      confId: "conf_square_us_nop345QRS901",
       gatewayConfigurationId: "conf_square_us_nop345QRS901",
-      mode: "live",
-      merchantCountry: "US",
-      scaThresholdMinor: 0,
-      feesBps: 290,
+      configurationId: "conf_square_us_nop345QRS901",
+      name: "Square · US Standalone (hc-org-5e)",
+      environment: "live",
+      isLiveMode: true,
+      jurisdiction: {
+        country: "US",
+        regionTags: ["NA", "US-West"],
+      },
+      scaThresholds: {
+        raw: {},
+        display: "No SCA threshold",
+      },
+      fees: {
+        feeBps: 290,
+        display: "2.90% (290 bps)",
+      },
       currencies: ["USD", "CAD"],
       circuitStatus: "FORCE_CLOSED",
-      status: "OFFLINE",
+      statusBadge: { label: "Offline", tone: "error" },
       healthScore: 12.0,
-      successes: 188,
       successCount: 188,
-      failures: 954,
       failureCount: 954,
+      successLifetime: 188,
+      totalCallsLifetime: 1142,
       lastSuccessAt: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
       lastFailureAt: new Date(now - 5 * 60 * 1000).toISOString(),
-      tripReason: "manual_force_close",
+      lastTripReason: "manual_force_close",
       lastTripAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
-      forceOpenExpiresAt: null,
-      overrideMeta: {
-        trippedBy: "security@humanity.org",
+      openUntil: null,
+      manualOverride: {
+        admin: "security@humanity.org",
         adminNotes: "Emergency maintenance — suspicious auth patterns.",
-        trippedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+        appliedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
         source: "manual_force_close",
+      },
+      lastSuccessfulCanaryAt: null,
+      threeDsEnforcedRate: 0.0,
+      fromDbOnly: false,
+      rolling: {
+        p50: 0,
+        p95: 0,
+        p99: 0,
       },
     },
     {
       provider: "Stripe",
-      confId: "conf_stripe_test_ghj678TUV234",
       gatewayConfigurationId: "conf_stripe_test_ghj678TUV234",
-      mode: "test",
-      merchantCountry: "US",
-      scaThresholdMinor: 0,
-      feesBps: 0,
+      configurationId: "conf_stripe_test_ghj678TUV234",
+      name: "Stripe · Test Sandbox (hc-org-t1)",
+      environment: "test",
+      isLiveMode: false,
+      jurisdiction: {
+        country: "US",
+        regionTags: ["TEST", "SANDBOX"],
+      },
+      scaThresholds: {
+        raw: {},
+        display: "Test mode — no SCA threshold",
+      },
+      fees: {
+        feeBps: 0,
+        display: "No fees (Sandbox)",
+      },
       currencies: ["USD"],
-      circuitStatus: "TRACKING",
-      status: "ONLINE",
+      circuitStatus: "CLOSED",
+      statusBadge: { label: "Online", tone: "success" },
       healthScore: 100,
-      successes: 512,
       successCount: 512,
-      failures: 0,
       failureCount: 0,
+      successLifetime: 512,
+      totalCallsLifetime: 512,
       lastSuccessAt: new Date(now - 3 * 60 * 1000).toISOString(),
       lastFailureAt: null,
-      tripReason: "",
-      forceOpenExpiresAt: null,
-      overrideMeta: null,
+      lastTripReason: "",
+      openUntil: null,
+      lastSuccessfulCanaryAt: new Date(now - 6 * 60 * 1000).toISOString(),
+      threeDsEnforcedRate: 0.0,
+      fromDbOnly: true,
+      rolling: {
+        p50: 120,
+        p95: 210,
+        p99: 320,
+      },
     },
   ];
 }
