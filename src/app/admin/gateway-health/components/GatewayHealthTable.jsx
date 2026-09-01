@@ -81,6 +81,28 @@ function countryFlag(code) {
   return flag;
 }
 
+function statusBadge(status) {
+  const s = String(status || "").toUpperCase();
+  if (!s) return <span className="text-[#9CA3AF]">—</span>;
+  const map = {
+    ONLINE: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Online"],
+    HEALTHY: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Healthy"],
+    OPERATIONAL: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Operational"],
+    DEGRADED: ["bg-amber-50 text-amber-800 border-amber-200", "● Degraded"],
+    WARNING: ["bg-amber-50 text-amber-800 border-amber-200", "● Warning"],
+    OFFLINE: ["bg-red-50 text-red-700 border-red-200", "● Offline"],
+    ERROR: ["bg-red-50 text-red-700 border-red-200", "● Error"],
+    MAINTENANCE: ["bg-sky-50 text-sky-700 border-sky-200", "● Maintenance"],
+    MAINTENANCE_MODE: ["bg-sky-50 text-sky-700 border-sky-200", "● Maintenance"],
+  };
+  const entry = map[s] || ["bg-gray-100 text-gray-700 border-gray-200", `● ${s.toLowerCase().replace(/_/g, " ")}`];
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold tracking-wide ${entry[0]}`}>
+      {entry[1]}
+    </span>
+  );
+}
+
 function Skeleton() {
   return (
     <div className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
@@ -130,6 +152,7 @@ const GatewayHealthTable = ({
               <th className="py-3 pr-4">Fees</th>
               <th className="py-3 pr-4">Currencies</th>
               <th className="py-3 pr-4">Status</th>
+              <th className="py-3 pr-4">Circuit</th>
               <th className="py-3 pr-4">Health Score</th>
               <th className="py-3 pr-4">Results</th>
               <th className="py-3 pr-4">Last Success / Failure</th>
@@ -140,7 +163,7 @@ const GatewayHealthTable = ({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-5 py-10 text-center text-sm text-[#6B7280]">
+                <td colSpan={12} className="px-5 py-10 text-center text-sm text-[#6B7280]">
                   No gateway configurations found.
                 </td>
               </tr>
@@ -163,6 +186,7 @@ const GatewayHealthTable = ({
                 const tripReason = row?.tripReason || "";
                 const forceOpenExpiresAt = row?.forceOpenExpiresAt || null;
                 const lastTripAt = row?.lastTripAt || row?.overrideMeta?.trippedAt || null;
+                const operationalStatus = row?.status || "";
 
                 return (
                   <tr
@@ -233,6 +257,9 @@ const GatewayHealthTable = ({
                       </div>
                     </td>
                     <td className="py-4 pr-4">
+                      {statusBadge(operationalStatus)}
+                    </td>
+                    <td className="py-4 pr-4">
                       <div className="space-y-1">
                         <OrchestrationStatusBadge type="circuit" value={circuitStatus} />
                         {circuitStatus === "FORCE_OPEN" && forceOpenExpiresAt ? (
@@ -291,7 +318,17 @@ const GatewayHealthTable = ({
                       </div>
                     </td>
                     <td className="py-4 pr-4">
-                      {tripReasonLabel(tripReason, circuitStatus === "FORCE_OPEN" ? forceOpenExpiresAt : null)}
+                      <div className="space-y-1">
+                        {tripReasonLabel(tripReason, circuitStatus === "FORCE_OPEN" ? forceOpenExpiresAt : null)}
+                        {tripReason && lastTripAt ? (
+                          <div className="inline-flex items-center gap-1 rounded-full bg-[#F3F4F6] px-2 py-0.5 text-[10px] font-medium text-[#6B7280]" title={`Last trip at ${String(lastTripAt)}`}>
+                            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none">
+                              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            Tripped {formatRelative(lastTripAt)}
+                          </div>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="py-4 pr-5 text-right" onClick={(e) => e.stopPropagation()}>
                       <GatewayRowActions

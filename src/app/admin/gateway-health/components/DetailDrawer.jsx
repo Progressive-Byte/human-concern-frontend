@@ -47,6 +47,28 @@ function SkeletonKpi() {
   );
 }
 
+function statusBadge(status) {
+  const s = String(status || "").toUpperCase();
+  if (!s) return <span className="text-[#9CA3AF]">—</span>;
+  const map = {
+    ONLINE: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Online"],
+    HEALTHY: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Healthy"],
+    OPERATIONAL: ["bg-emerald-50 text-emerald-700 border-emerald-200", "● Operational"],
+    DEGRADED: ["bg-amber-50 text-amber-800 border-amber-200", "● Degraded"],
+    WARNING: ["bg-amber-50 text-amber-800 border-amber-200", "● Warning"],
+    OFFLINE: ["bg-red-50 text-red-700 border-red-200", "● Offline"],
+    ERROR: ["bg-red-50 text-red-700 border-red-200", "● Error"],
+    MAINTENANCE: ["bg-sky-50 text-sky-700 border-sky-200", "● Maintenance"],
+    MAINTENANCE_MODE: ["bg-sky-50 text-sky-700 border-sky-200", "● Maintenance"],
+  };
+  const entry = map[s] || ["bg-gray-100 text-gray-700 border-gray-200", `● ${s.toLowerCase().replace(/_/g, " ")}`];
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold tracking-wide ${entry[0]}`}>
+      {entry[1]}
+    </span>
+  );
+}
+
 const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = null }) => {
   useEffect(() => {
     if (!open) return;
@@ -78,6 +100,8 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
   const recentErrors = Array.isArray(data?.recentErrors) ? data.recentErrors : [];
   const diagnostics = data?.diagnostics && typeof data.diagnostics === "object" ? data.diagnostics : null;
   const forceOpenExpiresAt = data?.forceOpenExpiresAt ?? data?.forceOpenUntil ?? data?.openExpiresAt ?? null;
+  const lastTripAt = data?.lastTripAt ?? data?.overrideMeta?.trippedAt ?? data?.trippedAt ?? data?.tripTimestamp ?? null;
+  const operationalStatus = String(data?.status ?? data?.operationalStatus ?? data?.connectionStatus ?? "").toUpperCase();
   const overrideMeta = data?.overrideMeta && typeof data.overrideMeta === "object"
     ? data.overrideMeta
     : (data?.manualOverride ? {
@@ -142,6 +166,10 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
             <h3 className="mb-3 text-[14px] font-semibold text-[#111827]">Overview</h3>
             <dl className="grid grid-cols-2 gap-y-2 gap-x-4 text-[13px]">
               <div>
+                <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Operational Status</dt>
+                <dd className="mt-1">{statusBadge(operationalStatus)}</dd>
+              </div>
+              <div>
                 <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Circuit Status</dt>
                 <dd className="mt-1"><OrchestrationStatusBadge type="circuit" value={circuitStatus} /></dd>
               </div>
@@ -182,6 +210,12 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
                 <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Last Failure</dt>
                 <dd className="mt-1 font-medium text-red-700 text-[12px]">{formatFullDate(data?.lastFailureAt)}</dd>
               </div>
+              {lastTripAt ? (
+                <div>
+                  <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Last Trip</dt>
+                  <dd className="mt-1 font-medium text-[#111827] text-[12px]">{formatFullDate(lastTripAt)}</dd>
+                </div>
+              ) : null}
               {forceOpenExpiresAt ? (
                 <div className="col-span-2">
                   <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Force-Open Expires</dt>
