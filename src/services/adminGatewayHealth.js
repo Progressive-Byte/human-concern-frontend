@@ -3,40 +3,30 @@ import { adminApiRequest } from "./api";
 export function listGatewayHealthOverview({ provider, sinceMinutes } = {}) {
   const params = new URLSearchParams();
 
-  if (typeof provider === "string" && provider.trim()) {
-    params.set("provider", provider.trim());
-  }
-
   if (sinceMinutes !== undefined && sinceMinutes !== null && String(sinceMinutes).trim()) {
     params.set("sinceMinutes", String(sinceMinutes).trim());
   }
 
   const query = params.toString();
-  const endpoint = query ? `/admin/gateway-health/overview?${query}` : "/admin/gateway-health/overview";
+  const base = typeof provider === "string" && provider.trim()
+    ? `/admin/gateway-health/${encodeURIComponent(provider.trim())}`
+    : "/admin/gateway-health";
+  const endpoint = query ? `${base}?${query}` : base;
 
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
 export function getGatewayHealthDetail(provider, confId) {
-  const params = new URLSearchParams();
-  if (typeof confId === "string" && confId.trim()) {
-    params.set("confId", confId.trim());
-  }
-  const query = params.toString();
-  const endpoint = query
-    ? `/admin/gateway-health/${encodeURIComponent(provider)}?${query}`
-    : `/admin/gateway-health/${encodeURIComponent(provider)}`;
-
+  const endpoint = `/admin/gateway-health/${encodeURIComponent(provider)}/${encodeURIComponent(confId)}`;
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
 export function forceCloseCircuit(payload = {}) {
   const body = {
-    provider: payload?.provider,
-    confId: payload?.confId,
     adminNotes: payload?.adminNotes || "",
   };
-  return adminApiRequest("/admin/gateway-health/force-close", {
+  const endpoint = `/admin/gateway-health/${encodeURIComponent(payload.provider)}/${encodeURIComponent(payload.confId)}/force-close`;
+  return adminApiRequest(endpoint, {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -44,12 +34,11 @@ export function forceCloseCircuit(payload = {}) {
 
 export function forceOpenCircuit(payload = {}) {
   const body = {
-    provider: payload?.provider,
-    confId: payload?.confId,
     openDurationMs: payload?.openDurationMs,
     adminNotes: payload?.adminNotes || "",
   };
-  return adminApiRequest("/admin/gateway-health/force-open", {
+  const endpoint = `/admin/gateway-health/${encodeURIComponent(payload.provider)}/${encodeURIComponent(payload.confId)}/force-open`;
+  return adminApiRequest(endpoint, {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -57,14 +46,13 @@ export function forceOpenCircuit(payload = {}) {
 
 export function runCanaryProbe(payload = {}) {
   const body = {
-    provider: payload?.provider,
-    confId: payload?.confId,
     amountMinor: payload?.amountMinor ?? 100,
     currency: payload?.currency || "USD",
     testMode: payload?.testMode ?? true,
     adminNotes: payload?.adminNotes || "",
   };
-  return adminApiRequest("/admin/gateway-health/canary", {
+  const endpoint = `/admin/gateway-health/${encodeURIComponent(payload.provider)}/${encodeURIComponent(payload.confId)}/canary`;
+  return adminApiRequest(endpoint, {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -78,11 +66,10 @@ export function getCanaryProbeResult(probeId) {
 
 export function resetGatewayCounters(payload = {}) {
   const body = {
-    provider: payload?.provider,
-    confId: payload?.confId,
     adminNotes: payload?.adminNotes || "",
   };
-  return adminApiRequest("/admin/gateway-health/reset", {
+  const endpoint = `/admin/gateway-health/${encodeURIComponent(payload.provider)}/${encodeURIComponent(payload.confId)}/reset`;
+  return adminApiRequest(endpoint, {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -91,6 +78,7 @@ export function resetGatewayCounters(payload = {}) {
 export function sweepOpenExpiredCircuits(payload = {}) {
   const body = {
     adminNotes: payload?.adminNotes || "",
+    upToLimit: payload?.upToLimit,
   };
   return adminApiRequest("/admin/gateway-health/sweep-open-expired", {
     method: "POST",
