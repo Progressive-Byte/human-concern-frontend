@@ -161,10 +161,82 @@ function normalizeOverviewItems(res) {
   return raw.map((row) => remapOverviewRow(row));
 }
 
+function reshapeSeriesToProviderGroups(raw) {
+  if (!Array.isArray(raw) || raw.length === 0) return null;
+  const first = raw[0];
+  if (!first || typeof first !== "object") return null;
+  if (Array.isArray(first.points) || (typeof first.provider === "string" && typeof first.points !== "undefined")) {
+    return raw;
+  }
+  if (typeof first.time !== "string" && typeof first.ts !== "string" && typeof first.timestamp !== "string" && typeof first.bucket !== "string") {
+    return null;
+  }
+  const providerToPoints = new Map();
+  for (const bucket of raw) {
+    if (!bucket || typeof bucket !== "object") continue;
+    const t = String(bucket.time || bucket.ts || bucket.timestamp || bucket.bucket || "");
+    if (!t) continue;
+    if (typeof bucket.provider === "string" && bucket.provider) {
+      const rate = Number(bucket.successRate ?? bucket.rate ?? bucket.value ?? bucket.successPercentage ?? NaN);
+      const provider = bucket.provider;
+      if (!Number.isFinite(rate) && typeof bucket.successCount === "number") {
+        const tot = Number(bucket.totalCalls ?? bucket.totalCount ?? (Number(bucket.successCount) + Number(bucket.failureCount ?? 0)));
+        const nextRate = tot > 0 ? (Number(bucket.successCount) / tot) * 100 : NaN;
+        if (Number.isFinite(nextRate)) {
+          if (!providerToPoints.has(provider)) providerToPoints.set(provider, []);
+          providerToPoints.get(provider).push({ time: t, successRate: nextRate });
+        }
+      } else if (Number.isFinite(rate)) {
+        if (!providerToPoints.has(provider)) providerToPoints.set(provider, []);
+        providerToPoints.get(provider).push({ time: t, successRate: rate });
+      }
+      continue;
+    }
+    for (const key of Object.keys(bucket)) {
+      const prefix = "provider_";
+      if (!key.startsWith(prefix)) continue;
+      const idxPart = key.slice(prefix.length);
+      if (!/^\d+$/.test(idxPart)) continue;
+      const labelKey = `label_${idxPart}`;
+      const provider = bucket[labelKey] && String(bucket[labelKey]).trim() ? String(bucket[labelKey]) : `provider_${idxPart}`;
+      const rate = Number(bucket[key]);
+      if (!Number.isFinite(rate)) continue;
+      if (!providerToPoints.has(provider)) providerToPoints.set(provider, []);
+      providerToPoints.get(provider).push({ time: t, successRate: rate });
+    }
+    for (const key of Object.keys(bucket)) {
+      if (["time", "ts", "timestamp", "bucket", "provider", "successRate", "rate", "value", "successCount", "failureCount", "totalCalls", "totalCount"].includes(key)) continue;
+      if (/^(provider_|label_)\d+$/.test(key)) continue;
+      const val = bucket[key];
+      if (typeof val !== "object" || val === null) continue;
+      if (typeof val.successRate === "number" || typeof val.rate === "number" || typeof val.successCount === "number") {
+        const t2 = t;
+        const rate = typeof val.successRate === "number" ? Number(val.successRate)
+          : typeof val.rate === "number" ? Number(val.rate)
+            : (Number(val.successCount) / Math.max(1, Number(val.totalCalls ?? Number(val.successCount) + Number(val.failureCount ?? 0)))) * 100;
+        if (!Number.isFinite(rate)) continue;
+        if (!providerToPoints.has(key)) providerToPoints.set(key, []);
+        providerToPoints.get(key).push({ time: t2, successRate: rate });
+      }
+    }
+  }
+  if (providerToPoints.size === 0) return null;
+  return Array.from(providerToPoints.entries()).map(([provider, points]) => ({
+    provider,
+    points: points.slice().sort((a, b) => String(a.time).localeCompare(String(b.time))),
+  }));
+}
+
 function normalizeSuccessSeries(res, items) {
   const r = res || {};
-  const series = r?.data?.series ?? r?.series ?? r?.data?.successRateSeries ?? r?.successRateSeries ?? null;
-  if (Array.isArray(series) && series.length > 0) return series;
+  const candidate = r?.data?.series ?? r?.series ?? r?.data?.successRateSeries ?? r?.successRateSeries ?? null;
+  const reshaped = reshapeSeriesToProviderGroups(candidate);
+  if (Array.isArray(reshaped) && reshaped.length > 0) {
+    return reshaped;
+  }
+  if (Array.isArray(candidate) && candidate.length > 0 && Array.isArray(candidate[0]?.points) && candidate[0]?.provider) {
+    return candidate;
+  }
   const seen = new Set();
   const rows = Array.isArray(items) ? items : [];
   const generated = [];
@@ -897,7 +969,7 @@ const AdminGatewayHealthPage = () => {
       />
 
       <ForceCloseDialog
-        key={actionDialogs.forceClose.key}
+        key={`fc_${actionDialogs.forceClose.key}`}
         open={actionDialogs.forceClose.open}
         row={actionDialogs.forceClose.row}
         onClose={() => setActionDialogs((s) => ({ ...s, forceClose: { ...s.forceClose, open: false, row: null } }))}
@@ -907,7 +979,7 @@ const AdminGatewayHealthPage = () => {
       />
 
       <ForceOpenDialog
-        key={actionDialogs.forceOpen.key}
+        key={`fo_${actionDialogs.forceOpen.key}`}
         open={actionDialogs.forceOpen.open}
         row={actionDialogs.forceOpen.row}
         onClose={() => setActionDialogs((s) => ({ ...s, forceOpen: { ...s.forceOpen, open: false, row: null } }))}
@@ -917,7 +989,7 @@ const AdminGatewayHealthPage = () => {
       />
 
       <CanaryDialog
-        key={actionDialogs.canary.key}
+        key={`canary_${actionDialogs.canary.key}`}
         open={actionDialogs.canary.open}
         row={actionDialogs.canary.row}
         onClose={() => setActionDialogs((s) => ({ ...s, canary: { ...s.canary, open: false, row: null, loading: false, error: "", result: null } }))}
@@ -928,7 +1000,7 @@ const AdminGatewayHealthPage = () => {
       />
 
       <ResetCountersDialog
-        key={actionDialogs.reset.key}
+        key={`rst_${actionDialogs.reset.key}`}
         open={actionDialogs.reset.open}
         row={actionDialogs.reset.row}
         onClose={() => setActionDialogs((s) => ({ ...s, reset: { ...s.reset, open: false, row: null } }))}
@@ -938,7 +1010,7 @@ const AdminGatewayHealthPage = () => {
       />
 
       <BulkPauseDialog
-        key={actionDialogs.bulkPause.key}
+        key={`bp_${actionDialogs.bulkPause.key}`}
         open={actionDialogs.bulkPause.open}
         provider={actionDialogs.bulkPause.provider}
         onClose={() => setActionDialogs((s) => ({ ...s, bulkPause: { ...s.bulkPause, open: false, provider: "" } }))}
@@ -948,7 +1020,7 @@ const AdminGatewayHealthPage = () => {
       />
 
       <BulkResumeDialog
-        key={actionDialogs.bulkResume.key}
+        key={`br_${actionDialogs.bulkResume.key}`}
         open={actionDialogs.bulkResume.open}
         provider={actionDialogs.bulkResume.provider}
         onClose={() => setActionDialogs((s) => ({ ...s, bulkResume: { ...s.bulkResume, open: false, provider: "" } }))}
@@ -958,7 +1030,7 @@ const AdminGatewayHealthPage = () => {
       />
 
       <SweepConfirmDialog
-        key={actionDialogs.sweep.key}
+        key={`sweep_${actionDialogs.sweep.key}`}
         open={actionDialogs.sweep.open}
         onClose={() => setActionDialogs((s) => ({ ...s, sweep: { ...s.sweep, open: false } }))}
         onConfirm={handleSweep}

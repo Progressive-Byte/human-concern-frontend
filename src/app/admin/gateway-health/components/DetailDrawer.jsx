@@ -94,6 +94,8 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
   const circuitStatus = String(data?.circuitStatus || "CLOSED");
   const successLifetime = Number(data?.successLifetime ?? data?.successes ?? data?.successCount ?? 0);
   const totalCallsLifetime = Number(data?.totalCallsLifetime ?? (successLifetime + Number(data?.failures ?? data?.failureCount ?? 0)) ?? 0);
+  const successCount = Number(data?.successCount ?? data?.rolling?.successCount ?? data?.rollingSuccesses ?? data?.successes ?? data?.successLifetime ?? 0);
+  const failureCount = Number(data?.failureCount ?? data?.rolling?.failureCount ?? data?.rollingFailures ?? data?.failures ?? Math.max(0, totalCallsLifetime - successLifetime) ?? 0);
   const successPct = totalCallsLifetime > 0 ? (successLifetime / totalCallsLifetime) * 100 : 0;
   const healthScore = Number(data?.healthScore ?? 0);
   const p50 = Number(data?.metrics?.p50 ?? data?.p50Latency ?? data?.rolling?.p50 ?? 0);

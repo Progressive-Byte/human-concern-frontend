@@ -3,8 +3,8 @@
 import { CIRCUIT_STATUS, CHALLENGE_STATUS, RECON_STATUS, categoryDisplay } from "@/utils/errorMaps";
 import DonationStatusPill from "@/app/admin/donations/components/DonationStatusPill";
 
-function LookupBadge({ map, key, fallback }) {
-  const lookup = String(key || "").trim();
+function LookupBadge({ map, lookupKey, fallback }) {
+  const lookup = String(lookupKey || "").trim();
   const entry = map?.[lookup];
   if (!entry) return fallback ?? <DonationStatusPill status={lookup} />;
   return (
@@ -15,19 +15,19 @@ function LookupBadge({ map, key, fallback }) {
 }
 
 const CircuitStatusBadge = ({ status, ...rest }) => (
-  <LookupBadge map={CIRCUIT_STATUS} key={status} {...rest} />
+  <LookupBadge map={CIRCUIT_STATUS} lookupKey={status} {...rest} />
 );
 
 const ChallengeStatusBadge = ({ status, ...rest }) => (
-  <LookupBadge map={CHALLENGE_STATUS} key={status} {...rest} />
+  <LookupBadge map={CHALLENGE_STATUS} lookupKey={status} {...rest} />
 );
 
 const ReconStatusBadge = ({ status, ...rest }) => (
-  <LookupBadge map={RECON_STATUS} key={status} {...rest} />
+  <LookupBadge map={RECON_STATUS} lookupKey={status} {...rest} />
 );
 
 const DiscrepancyCategoryBadge = ({ category, ...rest }) => (
-  <LookupBadge map={categoryDisplay} key={category} {...rest} />
+  <LookupBadge map={categoryDisplay} lookupKey={category} {...rest} />
 );
 
 export function OrchestrationStatusBadge({ type, value, ...rest }) {

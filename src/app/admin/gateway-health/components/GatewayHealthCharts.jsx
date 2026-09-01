@@ -14,7 +14,7 @@ import {
   ReferenceLine,
 } from "recharts";
 
-function providerColor(idx) {
+function providerColor(provider, idx) {
   const palette = [
     { stroke: "#635BFF", fill: "#635BFF33" },
     { stroke: "#003087", fill: "#00308733" },
@@ -23,7 +23,12 @@ function providerColor(idx) {
     { stroke: "#EA3335", fill: "#EA333533" },
     { stroke: "#F59E0B", fill: "#F59E0B33" },
   ];
-  return palette[idx % palette.length];
+  const key = typeof provider === "string" && provider.trim() ? provider : String(idx);
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+  }
+  return palette[hash % palette.length];
 }
 
 function normalizeTimeLabel(t) {
@@ -107,22 +112,29 @@ const SuccessRateChart = ({ series = [] }) => {
             />
             <Legend wrapperStyle={{ fontSize: 12 }} />
             <ReferenceLine y={95} stroke="#F59E0B" strokeDasharray="4 4" strokeWidth={1.2} label={{ value: "95% SLO", fontSize: 10, fill: "#F59E0B", position: "right" }} />
-            {seriesArr.map((s, idx) => {
-              const color = providerColor(idx);
-              return (
-                <Line
-                  key={String(s.provider || idx)}
-                  type="monotone"
-                  dataKey={`provider_${idx}`}
-                  name={s.provider}
-                  stroke={color.stroke}
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4 }}
-                  isAnimationActive={false}
-                />
-              );
-            })}
+            {(() => {
+              const nameCounts = new Map();
+              return seriesArr.map((s, idx) => {
+                const rawName = typeof s.provider === "string" && s.provider.trim() ? s.provider : `provider_${idx}`;
+                const prior = nameCounts.get(rawName) || 0;
+                nameCounts.set(rawName, prior + 1);
+                const finalName = prior > 0 ? `${rawName} (${prior + 1})` : rawName;
+                const color = providerColor(rawName, idx);
+                return (
+                  <Line
+                    key={`${idx}_${rawName}_${s.points?.length || 0}`}
+                    type="monotone"
+                    dataKey={`provider_${idx}`}
+                    name={finalName}
+                    stroke={color.stroke}
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                    isAnimationActive={false}
+                  />
+                );
+              });
+            })()}
           </LineChart>
         </ResponsiveContainer>
       </div>

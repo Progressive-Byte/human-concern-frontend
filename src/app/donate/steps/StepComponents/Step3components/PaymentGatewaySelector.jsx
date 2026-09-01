@@ -87,20 +87,21 @@ function buildPayPalReturnUrl({ donorData, currency, amount }) {
 const PaymentGatewaySelector = ({
   isRecurring,
   initialGateway,
-  paymentMethods = [],   // [{name, publishableKey, configurationId, provider}] from goalsDates
+  paymentMethods = [],
   onChange,
   donorData = null,
   currency,
   amount,
 }) => {
-  // Always load the live settings so Enable/Disable toggles in admin are respected immediately.
-  // The campaign's embedded `paymentMethods` is only used for ordering & selection hints.
-  const [gateways,        setGateways]        = useState([]);
+  // Orchestration mode: expose ONLY provider-level method types (stripe / paypal).
+  // The backend orchestrator picks the best specific configuration internally.
+  const [providers,       setProviders]       = useState([]); // [{ provider, publishableKey, clientId, merchantId, orchestration }]
   const [gatewaysLoading, setGatewaysLoading] = useState(true);
-  const [selectedConfigId, setSelectedConfigId] = useState(
-    initialGateway?.configurationId ??
-    (String(initialGateway || "").includes("_cfg_") ? String(initialGateway) : null)
-  );
+  const initialProviderStr =
+    (typeof initialGateway === "string" && ["stripe", "paypal"].includes(initialGateway))
+      ? initialGateway
+      : initialGateway?.provider ?? initialGateway?.gateway ?? null;
+  const [selectedProvider, setSelectedProvider] = useState(initialProviderStr);
 
   useEffect(() => {
     let alive = true;
@@ -109,47 +110,74 @@ const PaymentGatewaySelector = ({
       .then((res) => {
         if (!alive) return;
         const providersByKey = res?.data?.gateways ?? {};
-        const flattened = [];
         const SUPPORTED = new Set(["stripe", "paypal"]);
+
+        // Campaign-level ordering preference (if any) applies to provider priority.
+        const campaignProviderOrder = new Map();
+        if (Array.isArray(paymentMethods) && paymentMethods.length > 0) {
+          paymentMethods.forEach((m, idx) => {
+            if (!m) return;
+            const p = String(m.provider || "").toLowerCase();
+            if (p && SUPPORTED.has(p) && !campaignProviderOrder.has(p)) {
+              campaignProviderOrder.set(p, idx);
+            }
+          });
+        }
+
+        // Aggregate all enabled+configured configs per provider.
+        // Keep the best one (by campaign order, then isDefault, then priority, then name)
+        // as the representative for frontend settings (publishableKey / clientId / merchantId).
+        // The backend orchestrator picks the ACTUAL config — we just need a valid frontend key.
+        const aggregated = [];
         Object.values(providersByKey).forEach((providerBucket) => {
           if (!providerBucket || typeof providerBucket !== "object") return;
           const provider = String(providerBucket.provider || "").toLowerCase();
           if (!SUPPORTED.has(provider)) return;
+
           const cfgs = Array.isArray(providerBucket.configurations)
             ? providerBucket.configurations
             : [];
-          if (cfgs.length > 0) {
-            cfgs.forEach((cfg, idx) => {
-              if (!cfg || typeof cfg !== "object") return;
-              const enabled = cfg.enabled !== false && providerBucket.enabled !== false;
-              const configured = Boolean(cfg.configured ?? providerBucket.configured);
-              if (!enabled || !configured) return;
-              flattened.push({
-                ...cfg,
-                provider,
-                configurationId:
-                  cfg.configurationId ??
-                  cfg.configId ??
-                  `${provider}_idx_${idx}`,
-                publishableKey:
-                  cfg.publishableKey ??
-                  providerBucket.publishableKey ??
-                  cfg.apiKey ??
-                  providerBucket.apiKey ??
-                  null,
-                clientId:
-                  cfg.clientId ??
-                  providerBucket.clientId ??
-                  cfg.publishableKey ??
-                  providerBucket.publishableKey ??
-                  null,
-              });
+          const allCandidates = [];
+
+          cfgs.forEach((cfg, idx) => {
+            if (!cfg || typeof cfg !== "object") return;
+            const enabled = cfg.enabled !== false && providerBucket.enabled !== false;
+            const configured = Boolean(cfg.configured ?? providerBucket.configured);
+            if (!enabled || !configured) return;
+            allCandidates.push({
+              ...cfg,
+              provider,
+              configurationId:
+                cfg.configurationId ??
+                cfg.configId ??
+                `${provider}_idx_${idx}`,
+              publishableKey:
+                cfg.publishableKey ??
+                providerBucket.publishableKey ??
+                cfg.apiKey ??
+                providerBucket.apiKey ??
+                null,
+              clientId:
+                cfg.clientId ??
+                providerBucket.clientId ??
+                cfg.publishableKey ??
+                providerBucket.publishableKey ??
+                null,
+              merchantId:
+                cfg.merchantId ??
+                cfg.merchant_id ??
+                providerBucket.merchantId ??
+                providerBucket.merchant_id ??
+                null,
             });
-          } else if (
+          });
+
+          if (
+            allCandidates.length === 0 &&
             providerBucket.enabled !== false &&
             Boolean(providerBucket.configured)
           ) {
-            flattened.push({
+            allCandidates.push({
               ...providerBucket,
               provider,
               configurationId:
@@ -158,58 +186,69 @@ const PaymentGatewaySelector = ({
                 providerBucket.publishableKey ?? providerBucket.apiKey ?? null,
               clientId:
                 providerBucket.clientId ?? providerBucket.publishableKey ?? null,
+              merchantId:
+                providerBucket.merchantId ?? providerBucket.merchant_id ?? null,
             });
           }
+
+          if (allCandidates.length === 0) return;
+
+          // Pick the best representative config within this provider bucket.
+          const best = [...allCandidates].sort((a, b) => {
+            if (Boolean(a.isDefault) !== Boolean(b.isDefault)) return a.isDefault ? -1 : 1;
+            const pa = Number(a.priority ?? 50);
+            const pb = Number(b.priority ?? 50);
+            if (pb !== pa) return pb - pa;
+            return String(a.name || "").localeCompare(String(b.name || ""));
+          })[0];
+
+          const orchestration =
+            best.orchestration ??
+            best.orchestrationMode ??
+            (provider === "paypal"
+              ? (best.redirectSupported ? "redirect" : "sdk")
+              : "sdk");
+
+          aggregated.push({
+            provider,
+            publishableKey: best.publishableKey,
+            clientId: best.clientId,
+            merchantId: best.merchantId,
+            orchestration,
+            config: best.config || {},
+            configCount: allCandidates.length,
+          });
         });
 
-        let ordered = flattened;
-        // If campaign embedded methods exist → re-order / prefer campaign-selected methods first
-        // (while still filtering out anything the admin disabled).
-        if (Array.isArray(paymentMethods) && paymentMethods.length > 0) {
-          const order = new Map();
-          paymentMethods.forEach((m, idx) => {
-            if (!m) return;
-            const cfgId = String(m.configurationId ?? m.configId ?? m.id ?? "").trim();
-            if (cfgId) order.set(cfgId, idx);
-          });
-          ordered = [...flattened].sort((a, b) => {
-            const ra = order.has(a.configurationId) ? order.get(a.configurationId) : 9999;
-            const rb = order.has(b.configurationId) ? order.get(b.configurationId) : 9999;
-            if (ra !== rb) return ra - rb;
-            if (Boolean(a.isDefault) !== Boolean(b.isDefault)) return a.isDefault ? -1 : 1;
-            const pa = Number(a.priority ?? 50);
-            const pb = Number(b.priority ?? 50);
-            if (pb !== pa) return pb - pa;
-            return String(a.name || "").localeCompare(String(b.name || ""));
-          });
-        } else {
-          ordered = flattened.sort((a, b) => {
-            if (Boolean(a.isDefault) !== Boolean(b.isDefault)) return a.isDefault ? -1 : 1;
-            const pa = Number(a.priority ?? 50);
-            const pb = Number(b.priority ?? 50);
-            if (pb !== pa) return pb - pa;
-            return String(a.name || "").localeCompare(String(b.name || ""));
-          });
-        }
+        // Sort provider-level tiles by campaign preference (if any), then: Stripe before PayPal.
+        aggregated.sort((a, b) => {
+          const ra = campaignProviderOrder.has(a.provider) ? campaignProviderOrder.get(a.provider) : 9999;
+          const rb = campaignProviderOrder.has(b.provider) ? campaignProviderOrder.get(b.provider) : 9999;
+          if (ra !== rb) return ra - rb;
+          // Prefer card (stripe) first as the default option for most donors.
+          if (a.provider !== b.provider) return a.provider === "stripe" ? -1 : 1;
+          return 0;
+        });
 
-        setGateways(ordered);
-        const initialCfg = ordered[0] ?? null;
-        const initialId = initialCfg?.configurationId ?? null;
-        setSelectedConfigId(initialId);
-        const stripeCfg = ordered.find((g) => g.provider === "stripe") ?? null;
-        if (initialCfg) {
-          onChange({
-            gateway: initialCfg.provider,
-            configurationId: initialId,
-            publishableKey: stripeCfg?.publishableKey ?? initialCfg.publishableKey ?? null,
-          });
+        setProviders(aggregated);
+        const defaultProvider = aggregated[0]?.provider ?? null;
+        const selected =
+          (initialProviderStr && aggregated.some((p) => p.provider === initialProviderStr))
+            ? initialProviderStr
+            : defaultProvider;
+        setSelectedProvider(selected);
+
+        if (selected) {
+          const picked = aggregated.find((p) => p.provider === selected);
+          const stripe = aggregated.find((p) => p.provider === "stripe");
+          emitSelection({ picked, stripe, aggregated, donorData, currency, amount, onChange });
         } else {
-          onChange({ gateway: null, configurationId: null, publishableKey: null });
+          onChange({ gateway: null, publishableKey: null });
         }
       })
       .catch(() => {
         if (!alive) return;
-        setGateways([]);
+        setProviders([]);
       })
       .finally(() => {
         if (!alive) return;
@@ -218,11 +257,11 @@ const PaymentGatewaySelector = ({
 
     return () => { alive = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(paymentMethods.map((m) => m && ({ configurationId: m.configurationId, name: m.name, publishableKey: m.publishableKey, provider: m.provider })))]);
+  }, [JSON.stringify(paymentMethods.map((m) => m && ({ name: m.name, provider: m.provider })))]);
 
   if (gatewaysLoading) return null;
 
-  const hasAny = gateways.length > 0;
+  const hasAny = providers.length > 0;
 
   return (
     <div className="pt-1">
@@ -241,71 +280,31 @@ const PaymentGatewaySelector = ({
           </p>
         </div>
       ) : (
-        // Unified tile grid (1-3 cards): campaign order is preserved ONLY for enabled+configured gateways.
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {gateways.map((gateway) => {
-            const isSelected = selectedConfigId === gateway.configurationId;
+        // Orchestration: 1 tile per provider type — donors pick method category only.
+        // The orchestrator internally selects the best specific gateway configuration.
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+          {providers.map((row) => {
+            const isSelected = selectedProvider === row.provider;
             return (
               <MethodTile
-                key={gateway.configurationId}
-                label={gateway.provider === "stripe" ? "Stripe" : "PayPal"}
-                sublabel={gateway.name || (gateway.isDefault ? "Default" : undefined)}
-                logo={gateway.provider === "stripe" ? "/images/stripe.jpg" : "/images/paypal.png"}
-                alt={gateway.provider}
+                key={row.provider}
+                label={row.provider === "stripe" ? "Stripe" : "PayPal"}
+                sublabel={null}
+                logo={row.provider === "stripe" ? "/images/stripe.jpg" : "/images/paypal.png"}
+                alt={row.provider}
                 isSelected={isSelected}
                 onClick={() => {
-                  setSelectedConfigId(gateway.configurationId);
-                  const stripe = gateways.find((g) => g.provider === "stripe");
-
-                  if (gateway.provider === "paypal") {
-                    const orchestration =
-                      gateway.orchestration ??
-                      gateway.orchestrationMode ??
-                      (gateway.redirectSupported ? "redirect" : "sdk");
-                    const isRedirect = orchestration === "redirect";
-
-                    const { returnUrl, donorReturnParams, returnBase } = buildPayPalReturnUrl({
-                      donorData,
-                      currency,
-                      amount,
-                    });
-
-                    const challenge = isRedirect
-                      ? {
-                          provider: "paypal",
-                          interactionType: "redirect",
-                          orchestration: "redirect",
-                          redirectUrl: null,
-                          returnUrl,
-                          donorReturnParams,
-                        }
-                      : null;
-
-                    onChange({
-                      gateway: gateway.provider,
-                      configurationId: gateway.configurationId,
-                      publishableKey: stripe?.publishableKey ?? gateway.publishableKey ?? null,
-                      orchestration: isRedirect ? "redirect" : "sdk",
-                      provider: "paypal",
-                      paypalConfig: {
-                        clientId: gateway.clientId ?? gateway.publishableKey ?? null,
-                        merchantId: gateway.merchantId ?? gateway.merchant_id ?? null,
-                        ...(gateway.config || {}),
-                      },
-                      returnUrl,
-                      returnBase,
-                      donorReturnParams,
-                      challenge,
-                    });
-                  } else {
-                    onChange({
-                      gateway: gateway.provider,
-                      configurationId: gateway.configurationId,
-                      publishableKey: gateway.publishableKey ?? null,
-                      orchestration: "sdk",
-                      provider: "stripe",
-                    });
-                  }
+                  setSelectedProvider(row.provider);
+                  const stripe = providers.find((p) => p.provider === "stripe");
+                  emitSelection({
+                    picked: row,
+                    stripe,
+                    aggregated: providers,
+                    donorData,
+                    currency,
+                    amount,
+                    onChange,
+                  });
                 }}
               />
             );
@@ -317,5 +316,50 @@ const PaymentGatewaySelector = ({
     </div>
   );
 };
+
+function emitSelection({ picked, stripe, aggregated, donorData, currency, amount, onChange }) {
+  if (!picked) return;
+  if (picked.provider === "paypal") {
+    const isRedirect = picked.orchestration === "redirect";
+    const { returnUrl, donorReturnParams, returnBase } = buildPayPalReturnUrl({
+      donorData,
+      currency,
+      amount,
+    });
+    const challenge = isRedirect
+      ? {
+          provider: "paypal",
+          interactionType: "redirect",
+          orchestration: "redirect",
+          redirectUrl: null,
+          returnUrl,
+          donorReturnParams,
+        }
+      : null;
+
+    onChange({
+      gateway: "paypal",
+      publishableKey: stripe?.publishableKey ?? picked.publishableKey ?? null,
+      orchestration: isRedirect ? "redirect" : "sdk",
+      provider: "paypal",
+      paypalConfig: {
+        clientId: picked.clientId ?? picked.publishableKey ?? null,
+        merchantId: picked.merchantId ?? null,
+        ...(picked.config || {}),
+      },
+      returnUrl,
+      returnBase,
+      donorReturnParams,
+      challenge,
+    });
+  } else {
+    onChange({
+      gateway: "stripe",
+      publishableKey: picked.publishableKey ?? null,
+      orchestration: "sdk",
+      provider: "stripe",
+    });
+  }
+}
 
 export default PaymentGatewaySelector;
