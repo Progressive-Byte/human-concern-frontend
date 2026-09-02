@@ -671,6 +671,7 @@ const Step3Addons = () => {
       update(updatePayload);
       handleNext(4);
     } catch (err) {
+      console.log("[raw-body-debug] Step3 submit error — raw response body:", (err && err.body && typeof err.body === 'object') ? JSON.stringify(err.body, null, 2) : String(err && err.body ? err.body : err));
       const specificCode =
         (err.body && err.body.error && err.body.error.code) ||
         err.code ||
