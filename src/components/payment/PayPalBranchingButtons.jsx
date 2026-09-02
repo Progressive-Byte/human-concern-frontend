@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import { apiRequest } from "@/services/api";
 import {
@@ -8,6 +8,7 @@ import {
   saveDonorReturnParams,
   saveUnifiedChallengeToSession,
 } from "@/components/payment/UnifiedChallengeDispatcher";
+import { resolvePaymentSdkConfig } from "@/app/donate/steps/StepComponents/Step4components/usePaymentProviderInstance";
 
 const PAYPAL_SDK_STATES = {
   IDLE: "idle",
@@ -92,6 +93,7 @@ function loadPayPalScript({ clientId, merchantId, currency, intent, vault }) {
     script.async = true;
     script.defer = true;
     script.setAttribute("data-paypal-sdk", "true");
+    script.setAttribute("data-client-id", String(clientId || ""));
     script.setAttribute("data-client-token", "paypal-sdk");
     script.onload = () => resolve(window.paypal);
     script.onerror = () => reject(new Error("PayPal SDK load failed"));
@@ -99,11 +101,19 @@ function loadPayPalScript({ clientId, merchantId, currency, intent, vault }) {
   });
 }
 
+function unloadPayPalScript() {
+  if (typeof window === "undefined") return;
+  const existing = document.querySelector('script[data-paypal-sdk="true"]');
+  if (existing) existing.remove();
+  try { delete window.paypal; } catch { window.paypal = undefined; }
+}
+
 const PayPalBranchingButtons = ({
   amount,
   currency = "USD",
   isRecurring = false,
   paymentGatewayConfig = null,
+  responsePayment = null,
   donationData = {},
   submitBody = null,
   onSubmitting = () => {},
@@ -119,6 +129,21 @@ const PayPalBranchingButtons = ({
   const [activeBranch, setActiveBranch] = useState(null);
   const [branchLoading, setBranchLoading] = useState(false);
   const [fetchedSettings, setFetchedSettings] = useState(false);
+
+  const cachedClientIdRef = useRef(null);
+  const cachedMerchantIdRef = useRef(null);
+
+  const sdkConfig = useMemo(() => {
+    const publicSettings = {
+      provider: "paypal",
+      paypalClientId: payPalConfig?.clientId ?? payPalConfig?.publishableKey ?? payPalConfig?.client_id ?? null,
+      paypalOrderId: payPalConfig?.orderId ?? null,
+      gatewayConfigurationId: payPalConfig?.configurationId ?? null,
+      isRecurring,
+    };
+    const resolved = resolvePaymentSdkConfig(responsePayment || {}, publicSettings);
+    return resolved;
+  }, [payPalConfig, responsePayment, isRecurring]);
 
   const sym =
     { USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$", SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥" }[
@@ -149,11 +174,32 @@ const PayPalBranchingButtons = ({
 
   useEffect(() => {
     if (!payPalConfig) return;
+
+    const clientId = sdkConfig.isPayPal
+      ? sdkConfig.sdkKey
+      : (payPalConfig.clientId ?? payPalConfig.publishableKey ?? payPalConfig.client_id ?? "");
+    const merchantId = payPalConfig.merchantId ?? payPalConfig.merchant_id ?? "";
+
+    const clientChanged =
+      cachedClientIdRef.current !== null &&
+      cachedClientIdRef.current !== clientId;
+    const merchantChanged =
+      cachedMerchantIdRef.current !== null &&
+      cachedMerchantIdRef.current !== merchantId;
+
+    if (clientChanged || merchantChanged) {
+      unloadPayPalScript();
+      setSdkState(PAYPAL_SDK_STATES.IDLE);
+      setSdkError(null);
+    }
+
+    cachedClientIdRef.current = clientId;
+    cachedMerchantIdRef.current = merchantId;
+
     if (sdkState !== PAYPAL_SDK_STATES.IDLE) return;
+    if (!clientId) return;
 
     setSdkState(PAYPAL_SDK_STATES.LOADING);
-    const clientId = payPalConfig.clientId ?? payPalConfig.publishableKey ?? payPalConfig.client_id ?? "";
-    const merchantId = payPalConfig.merchantId ?? payPalConfig.merchant_id ?? "";
 
     loadPayPalScript({
       clientId,
@@ -167,7 +213,15 @@ const PayPalBranchingButtons = ({
         setSdkState(PAYPAL_SDK_STATES.ERROR);
         setSdkError(err?.message ?? "Unable to load PayPal");
       });
-  }, [payPalConfig, sdkState, currency, isRecurring]);
+  }, [
+    payPalConfig,
+    sdkState,
+    currency,
+    isRecurring,
+    sdkConfig.isPayPal,
+    sdkConfig.sdkKey,
+    sdkConfig.gatewayConfigurationId,
+  ]);
 
   const donorReturnParams = useCallback(() => {
     const ctx = {

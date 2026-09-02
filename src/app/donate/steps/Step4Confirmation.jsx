@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useDonation } from "@/context/DonationContext";
 import { useBranding } from "@/context/BrandingContext";
@@ -10,6 +9,7 @@ import StripeCheckoutForm from "./StepComponents/Step4components/StripeCheckoutF
 import StepProgress from "./StepComponents/StepProgress";
 import DonationPreview from "./StepComponents/DonationPreview";
 import { NoticeIcon } from "@/components/common/SvgIcon";
+import { usePaymentProviderInstance } from "./StepComponents/Step4components/usePaymentProviderInstance";
 
 const Step4Confirmation = () => {
   const { data }          = useDonation();
@@ -19,32 +19,76 @@ const Step4Confirmation = () => {
   const [ready, setReady] = useState(false);
   const isPreview = pathname.startsWith("/admin/forms/preview");
 
+  const publicSettings = useMemo(() => ({
+    provider: data.paymentMethod ?? null,
+    stripePublishableKey: data.stripePublishableKey ?? null,
+    paypalClientId: data.paypalClientId ?? null,
+    stripeClientSecret: data.stripeClientSecret ?? null,
+    setupIntentId: data.setupIntentId ?? null,
+    paypalOrderId: data.paypalOrderId ?? null,
+    gatewayConfigurationId: data.gatewayConfigurationId ?? null,
+    isRecurring: data.paymentType === "recurring",
+  }), [
+    data.paymentMethod,
+    data.stripePublishableKey,
+    data.paypalClientId,
+    data.stripeClientSecret,
+    data.setupIntentId,
+    data.paypalOrderId,
+    data.gatewayConfigurationId,
+    data.paymentType,
+  ]);
+
+  const responsePayment = useMemo(() => {
+    if (!data.submitted) return {};
+    return {
+      provider: data.paymentMethod ?? null,
+      publishableKey: data.stripePublishableKey ?? null,
+      clientId: data.paypalClientId ?? null,
+      clientSecret: data.stripeClientSecret ?? null,
+      setupIntentId: data.setupIntentId ?? null,
+      orderId: data.paypalOrderId ?? null,
+      gatewayConfigurationId: data.gatewayConfigurationId ?? null,
+      paymentMode: data.paymentType === "recurring" ? "split" : "one_time",
+    };
+  }, [
+    data.submitted,
+    data.paymentMethod,
+    data.stripePublishableKey,
+    data.paypalClientId,
+    data.stripeClientSecret,
+    data.setupIntentId,
+    data.paypalOrderId,
+    data.gatewayConfigurationId,
+    data.paymentType,
+  ]);
+
+  const {
+    config: sdkConfig,
+    stripePromise,
+    elementsKey,
+    sdkReInitCounter,
+  } = usePaymentProviderInstance(responsePayment, publicSettings);
+
   useEffect(() => {
     if (isPreview) {
       setReady(true);
       return;
     }
-    // If payment was already completed, send back to thank-you.
     if (sessionStorage.getItem("hc_donation_done") === "1") {
       router.replace("/donate/thank-you");
       return;
     }
 
-    // No valid payment session — redirect to campaigns listing.
-    if (!data.stripeClientSecret) {
+    const hasStripeSession = sdkConfig.isStripe && Boolean(sdkConfig.clientSecret);
+    if (!hasStripeSession) {
       router.replace("/campaigns");
       return;
     }
 
-    // Session is valid — allow rendering.
     setReady(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const stripePromise = useMemo(
-    () => (isPreview ? null : (data.stripePublishableKey ? loadStripe(data.stripePublishableKey) : null)),
-    [data.stripePublishableKey, isPreview]
-  );
+  }, [sdkConfig.isStripe, sdkConfig.clientSecret, isPreview]);
 
   const appearance = {
     theme: "stripe",
@@ -56,11 +100,15 @@ const Step4Confirmation = () => {
     },
   };
 
-  const isStripe    = data.paymentMethod === "stripe";
-  const isRecurring = data.paymentType   === "recurring";
+  const isRecurring = sdkConfig.isRecurring;
+  const isStripe = sdkConfig.isStripe;
 
-  // Suppress any flash while the redirect is in flight.
   if (!ready) return null;
+
+  const elementsOptions = {
+    clientSecret: sdkConfig.clientSecret,
+    appearance,
+  };
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-30 lg:pt-40 pb-16 px-4">
@@ -95,8 +143,16 @@ const Step4Confirmation = () => {
                 </button>
               </div>
             ) : isStripe ? (
-              <Elements stripe={stripePromise} options={{ clientSecret: data.stripeClientSecret, appearance }}>
-                <StripeCheckoutForm grandTotal={data.grandTotal} currency={data.currency} isRecurring={isRecurring} />
+              <Elements
+                key={elementsKey}
+                stripe={stripePromise}
+                options={elementsOptions}
+              >
+                <StripeCheckoutForm
+                  grandTotal={data.grandTotal}
+                  currency={data.currency}
+                  isRecurring={isRecurring}
+                />
               </Elements>
             ) : (
               <div className="flex flex-col items-center gap-3 py-8 text-center">

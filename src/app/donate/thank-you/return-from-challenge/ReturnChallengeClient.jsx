@@ -30,7 +30,7 @@ function collectReturnQueryParams(rawSearchParams) {
       }
     } catch {}
   });
-  const extras = ["donationId", "pendingSessionId", "authChallengeId", "frontendReturnPayloadId", "setup_intent", "setupIntentId", "payment_intent", "paymentIntentId", "donorEmail"];
+  const extras = ["donationId", "pendingSessionId", "authChallengeId", "frontendReturnPayloadId", "setup_intent", "setupIntentId", "payment_intent", "paymentIntentId", "donorEmail", "orderId", "gatewayConfigurationId"];
   extras.forEach((key) => {
     try {
       const value = rawSearchParams.get(key);
@@ -159,6 +159,14 @@ const ReturnChallengeClient = () => {
       if (queryReturnParams.token) body.paypalToken = queryReturnParams.token;
       if (queryReturnParams.paymentId) body.paymentId = queryReturnParams.paymentId;
       if (queryReturnParams.customId) body.customId = queryReturnParams.customId;
+      const resolvedOrderId =
+        queryReturnParams.orderId ??
+        data.paypalOrderId ??
+        queryReturnParams.paymentId ??
+        sessionChallenge?.orderId ??
+        returnSession?.orderId ??
+        null;
+      if (resolvedOrderId) body.orderId = resolvedOrderId;
       body.paymentProvider = "paypal";
     }
 
@@ -191,6 +199,12 @@ const ReturnChallengeClient = () => {
       sessionChallenge?.paymentIntentId ??
       returnSession?.paymentIntentId ??
       null;
+    const gatewayConfigurationId =
+      queryReturnParams.gatewayConfigurationId ??
+      data.gatewayConfigurationId ??
+      sessionChallenge?.gatewayConfigurationId ??
+      returnSession?.gatewayConfigurationId ??
+      null;
 
     if (authChallengeId) body.authChallengeId = authChallengeId;
     if (frontendReturnPayloadId) body.frontendReturnPayloadId = frontendReturnPayloadId;
@@ -198,6 +212,7 @@ const ReturnChallengeClient = () => {
     if (donationId) body.donationId = donationId;
     if (setupIntentId) body.setupIntentId = setupIntentId;
     if (paymentIntentId) body.paymentIntentId = paymentIntentId;
+    if (gatewayConfigurationId) body.gatewayConfigurationId = gatewayConfigurationId;
 
     const hasDonorParams =
       mergedDonorReturnParams && Object.keys(mergedDonorReturnParams).length > 0;

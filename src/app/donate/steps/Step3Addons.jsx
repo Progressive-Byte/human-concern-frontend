@@ -533,14 +533,30 @@ const Step3Addons = () => {
         payment?.stripePublishableKey ??
         payment?.publishableKey ??
         gatewayState.publishableKey;
+      const resolvedClientId =
+        res?.data?.payment?.clientId ??
+        payment?.clientId ??
+        gatewayState.paypalConfig?.clientId ??
+        null;
+      const gatewayConfigurationId =
+        payment?.gatewayConfigurationId ??
+        res?.data?.gatewayConfigurationId ??
+        null;
+      const orderId =
+        payment?.orderId ??
+        res?.data?.orderId ??
+        null;
 
       update({
         donationId:           res?.data?.donationId     ?? null,
         guestSessionId:       res?.data?.guestSessionId ?? null,
-        stripeClientSecret:   payment.clientSecret       ?? null,
+        stripeClientSecret:   payment.clientSecret ?? payment.setupIntent?.client_secret ?? null,
         stripePublishableKey: resolvedPublishableKey,
+        paypalClientId:       resolvedClientId,
+        paypalOrderId:        orderId,
         pendingSessionId,
         setupIntentId,
+        gatewayConfigurationId,
         submitted:            true,
         unifiedChallenge:     challenge,
       });

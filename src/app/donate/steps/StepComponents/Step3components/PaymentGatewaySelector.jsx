@@ -241,6 +241,7 @@ const PaymentGatewaySelector = ({
         if (selected) {
           const picked = aggregated.find((p) => p.provider === selected);
           const stripe = aggregated.find((p) => p.provider === "stripe");
+          const paypal = aggregated.find((p) => p.provider === "paypal");
           emitSelection({ picked, stripe, aggregated, donorData, currency, amount, onChange });
         } else {
           onChange({ gateway: null, publishableKey: null });
@@ -339,10 +340,12 @@ function emitSelection({ picked, stripe, aggregated, donorData, currency, amount
 
     onChange({
       gateway: "paypal",
+      configurationId: picked.configurationId ?? null,
       publishableKey: stripe?.publishableKey ?? picked.publishableKey ?? null,
       orchestration: isRedirect ? "redirect" : "sdk",
       provider: "paypal",
       paypalConfig: {
+        configurationId: picked.configurationId ?? null,
         clientId: picked.clientId ?? picked.publishableKey ?? null,
         merchantId: picked.merchantId ?? null,
         ...(picked.config || {}),
@@ -355,6 +358,7 @@ function emitSelection({ picked, stripe, aggregated, donorData, currency, amount
   } else {
     onChange({
       gateway: "stripe",
+      configurationId: picked.configurationId ?? null,
       publishableKey: picked.publishableKey ?? null,
       orchestration: "sdk",
       provider: "stripe",
