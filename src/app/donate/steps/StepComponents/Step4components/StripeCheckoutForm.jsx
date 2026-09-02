@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
@@ -36,6 +36,20 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
   const [challengeExpired, setChallengeExpired] = useState(false);
+
+  // --- [sdk-fix-verify] TEMP observation logs. Remove after fix confirmed ---
+  useEffect(() => {
+    console.debug("[sdk-fix-verify] stripe-child-mount", {
+      stripeIsAvailable: Boolean(stripe),
+      elementsIsAvailable: Boolean(elements),
+      grandTotal,
+      currency,
+      isRecurring,
+    });
+    if (!stripe) {
+      console.warn("[sdk-fix-verify] stripe-child-mount: useStripe() returned null. PaymentElement will not render inputs. Likely cause: Stripe SDK promise resolved to null (bad key/network) OR Elements clientSecret/publishableKey mismatch.");
+    }
+  }, [stripe, elements, grandTotal, currency, isRecurring]);
 
   const sym = CURRENCY_SYMBOLS[currency] ?? "$";
 

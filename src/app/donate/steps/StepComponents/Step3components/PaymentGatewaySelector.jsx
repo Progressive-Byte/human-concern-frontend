@@ -211,6 +211,7 @@ const PaymentGatewaySelector = ({
 
           aggregated.push({
             provider,
+            configurationId: best.configurationId ?? null,
             publishableKey: best.publishableKey,
             clientId: best.clientId,
             merchantId: best.merchantId,

@@ -70,6 +70,35 @@ const Step4Confirmation = () => {
     sdkReInitCounter,
   } = usePaymentProviderInstance(responsePayment, publicSettings);
 
+  // --- [sdk-fix-verify] TEMP observation logs. Remove after fix confirmed ---
+  useEffect(() => {
+    const mk = (k) => (typeof k === "string" && k.length > 8 ? k.slice(0, 8) + "..." : k ?? null);
+    console.debug("[sdk-fix-verify] step4-mount", {
+      submitted: data.submitted,
+      paymentMethod: data.paymentMethod,
+      stripePublishableKey_ctx: mk(data.stripePublishableKey),
+      stripeClientSecret_ctx: mk(data.stripeClientSecret),
+      gatewayConfigurationId_ctx: data.gatewayConfigurationId,
+      sdkKey_hook: mk(sdkConfig.sdkKey),
+      clientSecret_hook: mk(sdkConfig.clientSecret),
+      clientSecretPrefix: (sdkConfig.clientSecret || "").slice(0, 5),
+      provider_hook: sdkConfig.provider,
+      gatewayConfigurationId_hook: sdkConfig.gatewayConfigurationId,
+      elementsKey,
+      elementsMode: (() => {
+        const secret = sdkConfig.clientSecret ?? "";
+        if (secret.startsWith("seti_")) return "setup";
+        if (secret.startsWith("pi_"))   return "payment";
+        return sdkConfig.isRecurring ? "setup" : "payment";
+      })(),
+      elementsClientSecretSet: Boolean(sdkConfig.clientSecret),
+      sdkReInitCounter,
+      stripePromiseType: stripePromise ? (stripePromise.then ? "promise" : typeof stripePromise) : "null",
+    });
+    // One-shot log on first mount + whenever sdkConfig changes in a way that could fix things
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sdkConfig.sdkKey, sdkConfig.clientSecret, sdkConfig.gatewayConfigurationId, sdkReInitCounter, elementsKey, stripePromise, data.submitted]);
+
   useEffect(() => {
     if (isPreview) {
       setReady(true);
@@ -104,6 +133,41 @@ const Step4Confirmation = () => {
   const isStripe = sdkConfig.isStripe;
 
   if (!ready) return null;
+
+  const pkPrefix = typeof sdkConfig.sdkKey === "string"
+    ? (sdkConfig.sdkKey.startsWith("pk_live_") ? "live" :
+       sdkConfig.sdkKey.startsWith("pk_test_") ? "test" : "unknown")
+    : "missing";
+  const csPrefix = typeof sdkConfig.clientSecret === "string"
+    ? (sdkConfig.clientSecret.startsWith("pi_") || sdkConfig.clientSecret.startsWith("seti_")
+        ? (sdkConfig.clientSecret.includes("_live_") ? "live" :
+           sdkConfig.clientSecret.includes("_test_") ? "test" : "unknown")
+        : "malformed")
+    : "missing";
+  const hasEnvMismatch = sdkConfig.isStripe && pkPrefix !== "missing" && pkPrefix !== "unknown"
+    && csPrefix !== "missing" && csPrefix !== "unknown" && csPrefix !== "malformed"
+    && pkPrefix !== csPrefix;
+  const hasSdkKeyMissing = sdkConfig.isStripe && !sdkConfig.sdkKey;
+  const hasClientSecretMissing = sdkConfig.isStripe && !sdkConfig.clientSecret;
+  const defaultSdkKey = typeof publicSettings.stripePublishableKey === "string" ? publicSettings.stripePublishableKey : null;
+  const currentSdkKey = typeof sdkConfig.sdkKey === "string" ? sdkConfig.sdkKey : null;
+  const defaultGatewayId = publicSettings.gatewayConfigurationId ?? null;
+  const currentGatewayId = sdkConfig.gatewayConfigurationId ?? null;
+  const hasGatewayCrossMatch = sdkConfig.isStripe
+    && !hasSdkKeyMissing
+    && currentSdkKey
+    && defaultSdkKey
+    && currentSdkKey === defaultSdkKey
+    && currentGatewayId
+    && defaultGatewayId
+    && String(currentGatewayId) !== String(defaultGatewayId);
+  const hasMalformedClientSecret = sdkConfig.isStripe
+    && !hasClientSecretMissing
+    && typeof sdkConfig.clientSecret === "string"
+    && !sdkConfig.clientSecret.startsWith("pi_")
+    && !sdkConfig.clientSecret.startsWith("seti_");
+  const showStripeDiagnostic = sdkConfig.isStripe
+    && (hasEnvMismatch || hasSdkKeyMissing || hasClientSecretMissing || hasGatewayCrossMatch || hasMalformedClientSecret);
 
   const elementsOptions = {
     clientSecret: sdkConfig.clientSecret,
@@ -143,17 +207,57 @@ const Step4Confirmation = () => {
                 </button>
               </div>
             ) : isStripe ? (
-              <Elements
-                key={elementsKey}
-                stripe={stripePromise}
-                options={elementsOptions}
-              >
-                <StripeCheckoutForm
-                  grandTotal={data.grandTotal}
-                  currency={data.currency}
-                  isRecurring={isRecurring}
-                />
-              </Elements>
+              <>
+                {showStripeDiagnostic && (
+                  <div className="mb-5 rounded-xl border border-[#FFB4B4] bg-[#FFF5F5] px-4 py-3">
+                    <p className="text-[13px] font-semibold text-[#B91C1C] mb-1">Payment configuration issue (backend)</p>
+                    <ul className="text-[12px] text-[#9B1C1C] space-y-1 list-disc pl-5">
+                      {hasSdkKeyMissing && (
+                        <li><strong>Stripe publishable key</strong> is missing. Backend returned no <code>publishableKey</code> / <code>stripePublishableKey</code> in submit response, and no gateway pre-selection was saved. Possible causes: GET /payment/settings default Stripe configuration not marked <code>configured=true</code>, or POST /donations/submit is not echoing back the orchestration <code>payment.publishableKey</code>.</li>
+                      )}
+                      {hasClientSecretMissing && (
+                        <li><strong>Stripe clientSecret</strong> is missing. Backend returned no <code>clientSecret</code> / <code>stripeClientSecret</code> / <code>setupIntent.client_secret</code> in submit response. The server must create a PaymentIntent (one-time) or SetupIntent (split/recurring) on submit and pass its secret back to the frontend.</li>
+                      )}
+                      {hasEnvMismatch && (
+                        <li><strong>Live / Test environment mismatch.</strong> The publishable key is <code>{pkPrefix}</code> (<code>{String(sdkConfig.sdkKey ?? "").slice(0, 14)}…</code>) but the clientSecret is <code>{csPrefix}</code> (secret starts with <code>{String(sdkConfig.clientSecret ?? "").slice(0, 14)}…</code>). These must be the same environment. Backend orchestration bug: the gateway used for submit used different Stripe account credentials than the one used to create the intent.</li>
+                      )}
+                      {hasGatewayCrossMatch && (
+                        <li><strong>Cross-account gateway mismatch detected.</strong> The orchestrator switched to gateway <code>{String(currentGatewayId)}</code> (the failover winner), but the publishable key is still the default gateway <code>{String(defaultGatewayId)}</code> key. This means the backend <code>POST /donations/submit</code> response omitted the winning gateway&apos;s <code>payment.publishableKey</code>. The two credential families belong to DIFFERENT Stripe accounts → <code>&lt;PaymentElement&gt;</code> renders no card inputs. Check backend server logs for <code>GATEWAY_CONFIG_NOT_FOUND_IN_SETTINGS</code> or <code>SETTINGS_GATEWAY_CREDENTIAL_MISSING</code> / <code>SETTINGS_GATEWAY_CREDENTIAL_INVALID</code>.</li>
+                      )}
+                      {hasMalformedClientSecret && (
+                        <li><strong>Stripe clientSecret is malformed.</strong> The secret value starts with <code>{String(sdkConfig.clientSecret ?? "").slice(0, 10)}…</code> but must begin with <code>pi_</code> (one-time) or <code>seti_</code> (split/recurring). This usually means the backend returned a placeholder (failover-engine disabled: look for env var <code>PAYMENT_FAILOVER_ENGINE_DISABLED=true</code>) or StripeAdapter is running in <code>env=&apos;test&apos;</code> mock bypass mode without calling real Stripe. PaymentElement will NOT render inputs for this value.</li>
+                      )}
+                    </ul>
+                    <p className="text-[11px] text-[#9B1C1C] mt-2 opacity-80">
+                      If you are the developer: paste ALL lines labeled <code>[sdk-fix-verify]</code> from the browser DevTools console into the bug report.
+                    </p>
+                  </div>
+                )}
+                {stripePromise && sdkConfig.clientSecret ? (
+                  <Elements
+                    key={elementsKey}
+                    stripe={stripePromise}
+                    options={elementsOptions}
+                  >
+                    <StripeCheckoutForm
+                      grandTotal={data.grandTotal}
+                      currency={data.currency}
+                      isRecurring={isRecurring}
+                    />
+                  </Elements>
+                ) : (
+                  <div className="flex flex-col items-center gap-3 py-14">
+                    <svg className="animate-spin h-7 w-7 text-[#1A1A1A]" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <p className="text-[13px] text-[#737373]">Loading payment form…</p>
+                    {!sdkConfig.clientSecret && !showStripeDiagnostic && (
+                      <p className="text-[12px] text-[#B45309]">Waiting for server payment session…</p>
+                    )}
+                  </div>
+                )}
+              </>
             ) : (
               <div className="flex flex-col items-center gap-3 py-8 text-center">
                 <p className="text-[14px] text-[#737373]">

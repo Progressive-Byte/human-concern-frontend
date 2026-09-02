@@ -35,11 +35,19 @@ const initialState = {
   country: "",
   donorCountryCode: "",
   idempotencyKey: "",
-  paymentMethod: "card",
+  paymentMethod: null,
   cardName: "",
   cardNumber: "",
   cardExpiry: "",
   cardCvv: "",
+  stripeClientSecret: null,
+  stripePublishableKey: null,
+  paypalClientId: null,
+  paypalOrderId: null,
+  gatewayConfigurationId: null,
+  paymentType: "one-time",
+  grandTotal: 0,
+  unifiedChallenge: null,
 };
 
 function hashIntentFields(state) {

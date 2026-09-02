@@ -123,10 +123,29 @@ const Step3Addons = () => {
 
   const [tipPct,          setTipPct]          = useState(data.tipPct ?? 10);
   const [customTipAmount, setCustomTipAmount] = useState(data.customTipAmount ?? "");
-  const [gatewayState, setGatewayState] = useState({
+  const [gatewayState, setGatewayStateInternal] = useState({
     gateway: isPreview ? "stripe" : (["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null),
-    publishableKey: null,
+    configurationId: data.gatewayConfigurationId ?? null,
+    publishableKey: data.stripePublishableKey ?? null,
+    clientId: data.paypalClientId ?? null,
   });
+
+  const setGatewayState = (next) => {
+    const merged = typeof next === "function" ? next(gatewayState) : { ...gatewayState, ...(next || {}) };
+    setGatewayStateInternal(merged);
+    const provider = merged.gateway ?? merged.provider ?? null;
+    const patch = { paymentMethod: provider };
+    if (provider === "stripe") {
+      if (merged.publishableKey) patch.stripePublishableKey = merged.publishableKey;
+      if (merged.configurationId) patch.gatewayConfigurationId = merged.configurationId;
+    } else if (provider === "paypal") {
+      if (merged.clientId ?? merged.paypalConfig?.clientId) {
+        patch.paypalClientId = merged.clientId ?? merged.paypalConfig?.clientId;
+      }
+      if (merged.configurationId) patch.gatewayConfigurationId = merged.configurationId;
+    }
+    update(patch);
+  };
   const [customNoteValues, setCustomNoteValues] = useState(() =>
     Object.fromEntries(customNoteFields.map((f) => {
       if (f.type === "checkbox") {
@@ -498,20 +517,39 @@ const Step3Addons = () => {
       const submitOpts = { method: "POST", body: JSON.stringify(buildSubmitBody()) };
       if (data.idempotencyKey) submitOpts.idempotencyKey = data.idempotencyKey;
       const res     = await apiRequest("donations/submit", submitOpts);
-      const payment = res?.data?.payment ?? {};
+      const payment =
+        res?.payment ??
+        res?.data?.payment ??
+        res?.data?.data?.payment ??
+        res?.payments?.[0] ??
+        {};
       const pendingSessionId =
-        res?.data?.pendingSessionId ??
         payment?.pendingSessionId ??
+        payment?.pending_session_id ??
+        res?.data?.pendingSessionId ??
+        res?.data?.pending_session_id ??
         res?.pendingSessionId ??
         null;
       const setupIntentId =
         payment?.setupIntentId ??
+        payment?.setup_intent_id ??
         payment?.setupIntent?.id ??
+        payment?.setup_intent?.id ??
         res?.data?.setupIntentId ??
+        res?.data?.setup_intent_id ??
+        null;
+      const paymentIntentId =
+        payment?.paymentIntentId ??
+        payment?.payment_intent_id ??
+        payment?.paymentIntent?.id ??
+        payment?.payment_intent?.id ??
+        res?.data?.paymentIntentId ??
+        res?.data?.payment_intent_id ??
         null;
       const challenge =
         payment?.challenge ??
         res?.data?.challenge ??
+        res?.challenge ??
         null;
       if (challenge && typeof window !== "undefined") {
         try {
@@ -527,39 +565,110 @@ const Step3Addons = () => {
         }
       }
       const resolvedPublishableKey =
+        res?.stripePublishableKey ??
+        res?.stripe_publishable_key ??
+        res?.publishableKey ??
         res?.data?.stripePublishableKey ??
-        res?.data?.payment?.stripePublishableKey ??
-        res?.data?.payment?.publishableKey ??
+        res?.data?.stripe_publishable_key ??
+        res?.data?.publishableKey ??
         payment?.stripePublishableKey ??
+        payment?.stripe_publishable_key ??
         payment?.publishableKey ??
-        gatewayState.publishableKey;
+        payment?.publishable_key ??
+        null;
       const resolvedClientId =
+        res?.clientId ??
+        res?.client_id ??
+        res?.data?.clientId ??
+        res?.data?.client_id ??
         res?.data?.payment?.clientId ??
+        res?.data?.payment?.client_id ??
         payment?.clientId ??
-        gatewayState.paypalConfig?.clientId ??
+        payment?.client_id ??
         null;
       const gatewayConfigurationId =
         payment?.gatewayConfigurationId ??
+        payment?.gateway_configuration_id ??
         res?.data?.gatewayConfigurationId ??
+        res?.data?.gateway_configuration_id ??
+        res?.gatewayConfigurationId ??
+        gatewayState.configurationId ??
+        data.gatewayConfigurationId ??
         null;
       const orderId =
         payment?.orderId ??
+        payment?.order_id ??
         res?.data?.orderId ??
+        res?.data?.order_id ??
+        res?.orderId ??
+        null;
+      const stripeClientSecret =
+        payment?.clientSecret ??
+        payment?.client_secret ??
+        payment?.stripeClientSecret ??
+        payment?.stripe_client_secret ??
+        payment?.setupIntent?.clientSecret ??
+        payment?.setupIntent?.client_secret ??
+        payment?.setup_intent?.client_secret ??
+        payment?.setup_intent?.clientSecret ??
+        payment?.paymentIntent?.clientSecret ??
+        payment?.paymentIntent?.client_secret ??
+        payment?.payment_intent?.client_secret ??
+        payment?.payment_intent?.clientSecret ??
+        res?.data?.clientSecret ??
+        res?.data?.client_secret ??
+        res?.data?.stripeClientSecret ??
+        res?.data?.stripe_client_secret ??
+        res?.clientSecret ??
+        res?.client_secret ??
+        null;
+      const resolvedPaymentType =
+        (payment?.paymentMode && (payment.paymentMode === "split" || payment.paymentMode === "recurring")) ? "recurring" :
+        (payment?.paymentMode === "one_time" || payment?.paymentMode === "onetime") ? "one-time" :
+        (setupIntentId && !paymentIntentId) ? "recurring" :
+        data.paymentType;
+      const resolvedProvider =
+        payment?.provider ??
+        res?.data?.provider ??
+        res?.provider ??
+        gatewayState.gateway ??
+        data.paymentMethod ??
         null;
 
-      update({
-        donationId:           res?.data?.donationId     ?? null,
-        guestSessionId:       res?.data?.guestSessionId ?? null,
-        stripeClientSecret:   payment.clientSecret ?? payment.setupIntent?.client_secret ?? null,
+      const updatePayload = {
+        donationId:           res?.donationId ?? res?.data?.donationId ?? res?.id ?? null,
+        guestSessionId:       res?.guestSessionId ?? res?.data?.guestSessionId ?? res?.guest_session_id ?? res?.data?.guest_session_id ?? null,
+        stripeClientSecret,
         stripePublishableKey: resolvedPublishableKey,
         paypalClientId:       resolvedClientId,
         paypalOrderId:        orderId,
         pendingSessionId,
         setupIntentId,
         gatewayConfigurationId,
+        paymentMethod:        resolvedProvider,
+        paymentType:          resolvedPaymentType,
+        grandTotal:           grandTotal ?? data.grandTotal ?? 0,
         submitted:            true,
         unifiedChallenge:     challenge,
-      });
+      };
+      // --- [sdk-fix-verify] TEMP observation log. Remove after fix confirmed ---
+      try {
+        const mk = (k) => (typeof k === "string" && k.length > 8 ? k.slice(0, 8) + "..." : k ?? null);
+        console.debug("[sdk-fix-verify] submit-response-context", {
+          payment_provider: payment?.provider ?? null,
+          publishableKey_response: mk(payment?.publishableKey ?? res?.data?.payment?.publishableKey),
+          clientId_response: mk(payment?.clientId ?? res?.data?.payment?.clientId),
+          clientSecret_response: mk(payment?.clientSecret ?? payment?.setupIntent?.client_secret),
+          gatewayConfigurationId_response: payment?.gatewayConfigurationId ?? res?.data?.gatewayConfigurationId ?? null,
+          resolvedPublishableKey_written: mk(updatePayload.stripePublishableKey),
+          resolvedClientId_written: mk(updatePayload.paypalClientId),
+          gatewayConfigurationId_written: updatePayload.gatewayConfigurationId,
+          paymentMode: (payment?.paymentMode ?? (setupIntentId ? "split" : "one_time")),
+          setupIntentId,
+          orderId,
+        });
+      } catch { /* noop */ }
+      update(updatePayload);
       handleNext(4);
     } catch (err) {
       console.error(err);
