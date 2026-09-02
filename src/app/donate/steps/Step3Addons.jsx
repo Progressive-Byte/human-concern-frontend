@@ -671,8 +671,44 @@ const Step3Addons = () => {
       update(updatePayload);
       handleNext(4);
     } catch (err) {
-      console.error(err);
-      setSubmitError(err.message ?? "Submission failed. Please try again.");
+      const specificCode =
+        (err.body && err.body.error && err.body.error.code) ||
+        err.code ||
+        'NO_CODE';
+      const specificMsg =
+        (err.body && err.body.error && err.body.error.message) ||
+        err.technical ||
+        err.message ||
+        'An unexpected error occurred. Please try again.';
+      const reqId =
+        (err.body && err.body.error && err.body.error.requestId) ||
+        '';
+
+      console.error("[submitDonation] FAILURE", {
+        specificCode,
+        specificMsg,
+        requestId: reqId,
+        status: err.statusCode,
+        fullBody: err.body,
+        stack: err && err.stack,
+      });
+
+      const codeToHuman = {
+        GATEWAY_CONFIG_NOT_FOUND_IN_SETTINGS:
+          'The payment system switched to a backup card (Stripe 2) but that card is not fully saved in Admin &rarr; Settings &rarr; Payment. Open that card, ensure Enabled = ON, and click Save.',
+        SETTINGS_GATEWAY_CREDENTIAL_MISSING:
+          'A payment card&apos;s publishable key is not saved. Re-save both Stripe cards in Admin &rarr; Settings &rarr; Payment to re-encrypt the keys.',
+        SETTINGS_ENCRYPTION_KEY_MISSING:
+          'Server environment SETTINGS_ENCRYPTION_KEY is missing or changed. Set it then re-save both Stripe cards from the Admin UI to re-encrypt.',
+        SETTINGS_GATEWAY_CREDENTIAL_DECRYPT_EMPTY:
+          'A payment card&apos;s encrypted key could not be decrypted (empty result). Re-paste the correct publishable key into the Stripe 2 card and save it.',
+        SETTINGS_GATEWAY_CREDENTIAL_INVALID:
+          'A payment card&apos;s publishable key decrypted but is not valid. The most common cause is pasting the SECRET key (sk_&hellip;) into the publishable key field. Re-paste the correct PK starting with pk_.',
+      };
+      const humanMsg = codeToHuman[specificCode] || specificMsg;
+      const displayMsg = `${humanMsg}${reqId ? ` (Ref: ${reqId})` : ''}`;
+      setSubmitError(displayMsg);
+
       const status = Number(err?.statusCode ?? err?.status ?? 0);
       if (status === 409) {
         setSubmitError(err.message ?? "We detected a duplicate submit and kept the first result — no double charge occurred.");
