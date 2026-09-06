@@ -27,19 +27,33 @@ export function getReconciliationReports({
   dateTo,
 } = {}) {
   const params = {};
-  if (page !== undefined && page !== null && String(page).trim()) params.page = String(page).trim();
-  if (limit !== undefined && limit !== null && String(limit).trim()) params.limit = String(limit).trim();
+  const limitNum =
+    limit !== undefined && limit !== null && String(limit).trim()
+      ? Number(String(limit).trim())
+      : 20;
+  if (Number.isFinite(limitNum) && limitNum >= 1) params.limit = String(limitNum);
+  if (page !== undefined && page !== null && String(page).trim()) {
+    const p = Number(String(page).trim());
+    if (Number.isFinite(p) && p >= 1) {
+      params.offset = String((p - 1) * limitNum);
+      params.page = String(p);
+    }
+  }
   if (typeof sort === "string" && sort.trim()) params.sort = sort.trim();
   if (typeof order === "string" && order.trim()) params.order = order.trim();
   if (typeof provider === "string" && provider.trim()) params.provider = provider.trim();
-  if (Array.isArray(statuses) && statuses.length > 0) params.statuses = statuses.join(",");
+  if (Array.isArray(statuses) && statuses.length > 0) {
+    const first = statuses.find((s) => typeof s === "string" && s.trim());
+    if (first) params.status = first.trim();
+    params.statuses = statuses.join(",");
+  }
   if (typeof dateFrom === "string" && dateFrom.trim()) params.dateFrom = dateFrom.trim();
   if (typeof dateTo === "string" && dateTo.trim()) params.dateTo = dateTo.trim();
 
   const query = buildQuery(params);
   const endpoint = query
-    ? `/admin/payments/reconciliation/reports?${query}`
-    : `/admin/payments/reconciliation/reports`;
+    ? `/admin/reconciliation?${query}`
+    : `/admin/reconciliation`;
 
   return adminApiRequest(endpoint, { method: "GET" });
 }
@@ -50,16 +64,26 @@ export function getReconciliationReportDetail(reportId, {
   category,
 } = {}) {
   const params = {};
-  if (page !== undefined && page !== null && String(page).trim()) params.page = String(page).trim();
-  if (limit !== undefined && limit !== null && String(limit).trim()) params.limit = String(limit).trim();
+  const limitNum =
+    limit !== undefined && limit !== null && String(limit).trim()
+      ? Number(String(limit).trim())
+      : 50;
+  if (Number.isFinite(limitNum) && limitNum >= 1) params.limit = String(limitNum);
+  if (page !== undefined && page !== null && String(page).trim()) {
+    const p = Number(String(page).trim());
+    if (Number.isFinite(p) && p >= 1) {
+      params.offset = String((p - 1) * limitNum);
+      params.page = String(p);
+    }
+  }
   if (typeof category === "string" && category.trim() && category.toUpperCase() !== "ALL") {
     params.category = category.trim();
   }
 
   const query = buildQuery(params);
   const endpoint = query
-    ? `/admin/payments/reconciliation/reports/${reportId}?${query}`
-    : `/admin/payments/reconciliation/reports/${reportId}`;
+    ? `/admin/reconciliation/${reportId}?${query}`
+    : `/admin/reconciliation/${reportId}`;
 
   return adminApiRequest(endpoint, { method: "GET" });
 }
@@ -67,7 +91,7 @@ export function getReconciliationReportDetail(reportId, {
 export function downloadReconciliationReportCsv(reportId) {
   const token = typeof getCookieValue === "function" ? getCookieValue("token") : null;
   const base = typeof apiBase === "string" ? apiBase : "";
-  const url = `${base}/admin/payments/reconciliation/reports/${reportId}/csv`;
+  const url = `${base}/admin/reconciliation/${reportId}/csv`;
 
   if (token) {
     return fetch(url, {
@@ -111,14 +135,14 @@ export function postManualReconciliationRun({
   const hours = Number(upToHoursOverride);
   if (Number.isFinite(hours) && hours >= 1 && hours <= 720) payload.upToHoursOverride = hours;
 
-  return adminApiRequest("/admin/payments/reconciliation/manual-run", {
+  return adminApiRequest("/admin/reconciliation/manual-run", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
 export function postExpireStaleChallenges({ force = false } = {}) {
-  return adminApiRequest("/admin/payments/reconciliation/expire-stale-challenges", {
+  return adminApiRequest("/admin/reconciliation/expire-stale-challenges-now", {
     method: "POST",
     body: JSON.stringify({ force: Boolean(force) }),
   });
@@ -133,7 +157,7 @@ export function postResolveDiscrepancy(reportId, discrepancyId, {
   if (typeof reason === "string" && reason.trim()) payload.reason = reason.trim();
 
   return adminApiRequest(
-    `/admin/payments/reconciliation/reports/${reportId}/discrepancies/${discrepancyId}/resolve`,
+    `/admin/reconciliation/${reportId}/discrepancies/${discrepancyId}/resolve`,
     {
       method: "POST",
       body: JSON.stringify(payload),
@@ -142,7 +166,7 @@ export function postResolveDiscrepancy(reportId, discrepancyId, {
 }
 
 export function postRerunReconciliationReport(reportId) {
-  return adminApiRequest(`/admin/payments/reconciliation/reports/${reportId}/rerun`, {
+  return adminApiRequest(`/admin/reconciliation/${reportId}/rerun`, {
     method: "POST",
   });
 }
