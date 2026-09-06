@@ -109,15 +109,40 @@ const Step4Confirmation = () => {
       return;
     }
 
+    const paypalProvider =
+      (responsePayment && responsePayment.provider === "paypal") ||
+      (publicSettings && publicSettings.provider === "paypal") ||
+      (data.paymentMethod && String(data.paymentMethod).toLowerCase() === "paypal") ||
+      Boolean(sdkConfig.isPayPal);
+    const hasPaypalIdentifiers = Boolean(
+      sdkConfig.orderId ||
+      sdkConfig.setupIntentId ||
+      (responsePayment && (responsePayment.orderId || responsePayment.setupIntentId)) ||
+      data.paypalOrderId ||
+      data.setupIntentId
+    );
     const hasStripeSession = sdkConfig.isStripe && Boolean(sdkConfig.clientSecret);
-    if (!hasStripeSession) {
+    const hasPaypalSession = data.submitted === true && paypalProvider && hasPaypalIdentifiers;
+
+    if (!hasStripeSession && !hasPaypalSession) {
       router.replace("/campaigns");
       return;
     }
 
     setReady(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sdkConfig.isStripe, sdkConfig.clientSecret, isPreview]);
+  }, [
+    sdkConfig.isStripe,
+    sdkConfig.clientSecret,
+    sdkConfig.isPayPal,
+    sdkConfig.orderId,
+    sdkConfig.setupIntentId,
+    data.submitted,
+    data.paymentMethod,
+    data.paypalOrderId,
+    data.setupIntentId,
+    isPreview,
+  ]);
 
   const appearance = {
     theme: "stripe",
@@ -131,6 +156,18 @@ const Step4Confirmation = () => {
 
   const isRecurring = sdkConfig.isRecurring;
   const isStripe = sdkConfig.isStripe;
+  const isPayPal =
+    Boolean(sdkConfig.isPayPal) ||
+    (responsePayment && responsePayment.provider === "paypal") ||
+    (data.paymentMethod && String(data.paymentMethod).toLowerCase() === "paypal");
+  const isPayPalRedirect =
+    isPayPal &&
+    data.submitted === true &&
+    Boolean(
+      sdkConfig.setupIntentId ||
+      (responsePayment && responsePayment.setupIntentId) ||
+      data.setupIntentId
+    );
 
   if (!ready) return null;
 
@@ -204,6 +241,44 @@ const Step4Confirmation = () => {
                   className="w-fit cursor-pointer rounded-full bg-[#1A1A1A] px-6 py-2.5 text-[14px] font-semibold text-white transition-all hover:bg-[#333333] active:scale-95"
                 >
                   Start Over
+                </button>
+              </div>
+            ) : isPayPalRedirect ? (
+              <div className="flex flex-col items-center gap-4 py-14 text-center">
+                <svg className="animate-spin h-8 w-8 text-[#1A1A1A]" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <p className="text-[15px] font-semibold text-[#383838]">Redirecting to PayPal…</p>
+                <p className="text-[13px] text-[#737373]">
+                  You will be sent to PayPal to approve your recurring donation. Once approved, you&apos;ll be returned here.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const stored =
+                      sessionStorage.getItem("hc_unified_challenge") ||
+                      sessionStorage.getItem("hc_last_challenge") ||
+                      "";
+                    let redirectUrl = "";
+                    try {
+                      if (stored) {
+                        const parsed = JSON.parse(stored);
+                        redirectUrl = parsed.redirectUrl || parsed.challenge?.redirectUrl || "";
+                      }
+                    } catch (_) {}
+                    const responseRedirect =
+                      (responsePayment && (responsePayment.redirectUrl || responsePayment.approvalUrl)) ||
+                      data.redirectUrl ||
+                      "";
+                    const target = redirectUrl || responseRedirect;
+                    if (target && typeof window !== "undefined") {
+                      window.location.assign(target);
+                    }
+                  }}
+                  className="mt-2 cursor-pointer rounded-full bg-[#1A1A1A] px-6 py-2.5 text-[14px] font-semibold text-white transition-all hover:bg-[#333333] active:scale-95"
+                >
+                  Go to PayPal now
                 </button>
               </div>
             ) : isStripe ? (
