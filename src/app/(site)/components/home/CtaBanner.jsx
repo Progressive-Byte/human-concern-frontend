@@ -11,7 +11,7 @@ const CtaBanner = () => {
               Ready to Make a Difference?
             </h2>
             <p className="text-sm sm:text-[15px] text-[#FFFFFFCC] leading-relaxed mt-3 max-w-md">
-              Join thousands of donors who trust GiveHope to deliver their
+              Join thousands of donors who trust Human Concern USA to deliver their
               contributions to those in need.
             </p>
           </div>
