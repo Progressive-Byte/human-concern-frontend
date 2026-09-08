@@ -376,3 +376,4 @@ const PayPalBranchingButtons = ({
 };
 
 export default PayPalBranchingButtons;
+export { loadPayPalScript, unloadPayPalScript };

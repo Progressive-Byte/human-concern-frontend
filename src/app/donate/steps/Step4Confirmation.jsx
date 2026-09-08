@@ -6,6 +6,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { useDonation } from "@/context/DonationContext";
 import { useBranding } from "@/context/BrandingContext";
 import StripeCheckoutForm from "./StepComponents/Step4components/StripeCheckoutForm";
+import PayPalCheckoutForm from "./StepComponents/Step4components/PayPalCheckoutForm";
 import StepProgress from "./StepComponents/StepProgress";
 import DonationPreview from "./StepComponents/DonationPreview";
 import { NoticeIcon } from "@/components/common/SvgIcon";
@@ -50,6 +51,9 @@ const Step4Confirmation = () => {
       orderId: data.paypalOrderId ?? null,
       gatewayConfigurationId: data.gatewayConfigurationId ?? null,
       paymentMode: data.paymentType === "recurring" ? "split" : "one_time",
+      approvalUrl: data.approvalUrl ?? data.paypalApprovalUrl ?? null,
+      redirectUrl: data.redirectUrl ?? data.paypalRedirectUrl ?? data.approvalUrl ?? data.paypalApprovalUrl ?? null,
+      billingAgreementToken: data.billingAgreementToken ?? data.paypalBillingAgreementToken ?? data.baToken ?? null,
     };
   }, [
     data.submitted,
@@ -61,6 +65,13 @@ const Step4Confirmation = () => {
     data.paypalOrderId,
     data.gatewayConfigurationId,
     data.paymentType,
+    data.approvalUrl,
+    data.paypalApprovalUrl,
+    data.redirectUrl,
+    data.paypalRedirectUrl,
+    data.billingAgreementToken,
+    data.paypalBillingAgreementToken,
+    data.baToken,
   ]);
 
   const {
@@ -69,35 +80,6 @@ const Step4Confirmation = () => {
     elementsKey,
     sdkReInitCounter,
   } = usePaymentProviderInstance(responsePayment, publicSettings);
-
-  // --- [sdk-fix-verify] TEMP observation logs. Remove after fix confirmed ---
-  useEffect(() => {
-    const mk = (k) => (typeof k === "string" && k.length > 8 ? k.slice(0, 8) + "..." : k ?? null);
-    console.debug("[sdk-fix-verify] step4-mount", {
-      submitted: data.submitted,
-      paymentMethod: data.paymentMethod,
-      stripePublishableKey_ctx: mk(data.stripePublishableKey),
-      stripeClientSecret_ctx: mk(data.stripeClientSecret),
-      gatewayConfigurationId_ctx: data.gatewayConfigurationId,
-      sdkKey_hook: mk(sdkConfig.sdkKey),
-      clientSecret_hook: mk(sdkConfig.clientSecret),
-      clientSecretPrefix: (sdkConfig.clientSecret || "").slice(0, 5),
-      provider_hook: sdkConfig.provider,
-      gatewayConfigurationId_hook: sdkConfig.gatewayConfigurationId,
-      elementsKey,
-      elementsMode: (() => {
-        const secret = sdkConfig.clientSecret ?? "";
-        if (secret.startsWith("seti_")) return "setup";
-        if (secret.startsWith("pi_"))   return "payment";
-        return sdkConfig.isRecurring ? "setup" : "payment";
-      })(),
-      elementsClientSecretSet: Boolean(sdkConfig.clientSecret),
-      sdkReInitCounter,
-      stripePromiseType: stripePromise ? (stripePromise.then ? "promise" : typeof stripePromise) : "null",
-    });
-    // One-shot log on first mount + whenever sdkConfig changes in a way that could fix things
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sdkConfig.sdkKey, sdkConfig.clientSecret, sdkConfig.gatewayConfigurationId, sdkReInitCounter, elementsKey, stripePromise, data.submitted]);
 
   useEffect(() => {
     if (isPreview) {
@@ -304,7 +286,7 @@ const Step4Confirmation = () => {
                       )}
                     </ul>
                     <p className="text-[11px] text-[#9B1C1C] mt-2 opacity-80">
-                      If you are the developer: paste ALL lines labeled <code>[sdk-fix-verify]</code> from the browser DevTools console into the bug report.
+                      If you are the developer: check backend server logs for <code>GATEWAY_CONFIG_NOT_FOUND_IN_SETTINGS</code>, <code>SETTINGS_GATEWAY_CREDENTIAL_MISSING</code>, or <code>SETTINGS_GATEWAY_CREDENTIAL_INVALID</code>.
                     </p>
                   </div>
                 )}
@@ -333,6 +315,12 @@ const Step4Confirmation = () => {
                   </div>
                 )}
               </>
+            ) : isPayPal && !isPayPalRedirect ? (
+              <PayPalCheckoutForm
+                grandTotal={data.grandTotal}
+                currency={data.currency}
+                isRecurring={isRecurring}
+              />
             ) : (
               <div className="flex flex-col items-center gap-3 py-8 text-center">
                 <p className="text-[14px] text-[#737373]">

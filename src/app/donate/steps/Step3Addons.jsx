@@ -651,23 +651,6 @@ const Step3Addons = () => {
         submitted:            true,
         unifiedChallenge:     challenge,
       };
-      // --- [sdk-fix-verify] TEMP observation log. Remove after fix confirmed ---
-      try {
-        const mk = (k) => (typeof k === "string" && k.length > 8 ? k.slice(0, 8) + "..." : k ?? null);
-        console.debug("[sdk-fix-verify] submit-response-context", {
-          payment_provider: payment?.provider ?? null,
-          publishableKey_response: mk(payment?.publishableKey ?? res?.data?.payment?.publishableKey),
-          clientId_response: mk(payment?.clientId ?? res?.data?.payment?.clientId),
-          clientSecret_response: mk(payment?.clientSecret ?? payment?.setupIntent?.client_secret),
-          gatewayConfigurationId_response: payment?.gatewayConfigurationId ?? res?.data?.gatewayConfigurationId ?? null,
-          resolvedPublishableKey_written: mk(updatePayload.stripePublishableKey),
-          resolvedClientId_written: mk(updatePayload.paypalClientId),
-          gatewayConfigurationId_written: updatePayload.gatewayConfigurationId,
-          paymentMode: (payment?.paymentMode ?? (setupIntentId ? "split" : "one_time")),
-          setupIntentId,
-          orderId,
-        });
-      } catch { /* noop */ }
       update(updatePayload);
       handleNext(4);
     } catch (err) {

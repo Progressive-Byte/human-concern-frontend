@@ -37,20 +37,6 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   const [error,   setError]   = useState(null);
   const [challengeExpired, setChallengeExpired] = useState(false);
 
-  // --- [sdk-fix-verify] TEMP observation logs. Remove after fix confirmed ---
-  useEffect(() => {
-    console.debug("[sdk-fix-verify] stripe-child-mount", {
-      stripeIsAvailable: Boolean(stripe),
-      elementsIsAvailable: Boolean(elements),
-      grandTotal,
-      currency,
-      isRecurring,
-    });
-    if (!stripe) {
-      console.warn("[sdk-fix-verify] stripe-child-mount: useStripe() returned null. PaymentElement will not render inputs. Likely cause: Stripe SDK promise resolved to null (bad key/network) OR Elements clientSecret/publishableKey mismatch.");
-    }
-  }, [stripe, elements, grandTotal, currency, isRecurring]);
-
   const sym = CURRENCY_SYMBOLS[currency] ?? "$";
 
   const finalizeSplitDonation = useCallback(async ({

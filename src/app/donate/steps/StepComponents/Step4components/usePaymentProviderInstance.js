@@ -144,6 +144,26 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
       null;
   }
 
+  const approvalUrl =
+    responsePayment?.approvalUrl ??
+    responsePayment?.approval_url ??
+    null;
+
+  const redirectUrl =
+    responsePayment?.redirectUrl ??
+    responsePayment?.redirect_url ??
+    publicSettings?.redirectUrl ??
+    approvalUrl ??
+    null;
+
+  const billingAgreementToken =
+    responsePayment?.billingAgreementToken ??
+    responsePayment?.billing_agreement_token ??
+    responsePayment?.baToken ??
+    responsePayment?.ba_token ??
+    publicSettings?.billingAgreementToken ??
+    null;
+
   return {
     provider: resolvedProvider,
     sdkKey,
@@ -155,6 +175,9 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
     isRecurring,
     isStripe,
     isPayPal,
+    approvalUrl,
+    redirectUrl,
+    billingAgreementToken,
   };
 }
 
@@ -172,25 +195,6 @@ export function usePaymentProviderInstance(responsePayment, publicSettings) {
     prevSdkKey !== null && prevSdkKey !== config.sdkKey && config.sdkKey
   );
 
-  // --- [sdk-fix-verify] TEMP observation logs. Remove after fix confirmed ---
-  useEffect(() => {
-    const mk = (k) => (typeof k === "string" && k.length > 8 ? k.slice(0, 8) + "..." : k ?? null);
-    console.debug("[sdk-fix-verify] hook-snapshot", {
-      responsePayment_provider: responsePayment?.provider ?? null,
-      responsePayment_sdkKey: mk(responsePayment?.publishableKey ?? responsePayment?.clientId),
-      publicSettings_provider: publicSettings?.provider ?? null,
-      publicSettings_sdkKey: mk(publicSettings?.stripePublishableKey ?? publicSettings?.paypalClientId),
-      resolved_sdkKey: mk(config.sdkKey),
-      resolved_provider: config.provider,
-      resolved_gatewayConfigurationId: config.gatewayConfigurationId,
-      prevSdkKey: mk(prevSdkKey),
-      sdkKeyChanged,
-      stripePromiseCached: Boolean(stripePromiseCache),
-      sdkReInitCounter,
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.sdkKey, config.provider, config.gatewayConfigurationId, prevSdkKey, sdkKeyChanged, stripePromiseCache, sdkReInitCounter, responsePayment?.provider, publicSettings?.provider]);
-
   useEffect(() => {
     if (!config.sdkKey) return;
 
@@ -202,16 +206,6 @@ export function usePaymentProviderInstance(responsePayment, publicSettings) {
       if (scheduled) return;
       scheduled = true;
       queueMicrotask(() => {
-        // --- [sdk-fix-verify] TEMP observation log. Remove after fix confirmed ---
-        const mk = (k) => (typeof k === "string" && k.length > 8 ? k.slice(0, 8) + "..." : k ?? null);
-        console.debug("[sdk-fix-verify] hook-effect-fire", {
-          isFirstInit,
-          keyChanged,
-          prevSdkKey: mk(prevSdkKey),
-          newSdkKey: mk(config.sdkKey),
-          provider: config.provider,
-          gatewayConfigurationId: config.gatewayConfigurationId,
-        });
         if (keyChanged) {
           setSdkReInitCounter((n) => n + 1);
           setStripePromiseCache(null);
