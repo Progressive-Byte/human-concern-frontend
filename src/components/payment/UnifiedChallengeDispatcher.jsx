@@ -125,6 +125,18 @@ export function buildDonorReturnParams(formData = {}, context = {}) {
     return "";
   };
 
+  let baseOrigin = "";
+  try {
+    if (typeof window !== "undefined" && window.location && window.location.origin) {
+      baseOrigin = window.location.origin.replace(/\/$/, "");
+    }
+  } catch {}
+  const contextBase = String(context.baseUrl ?? context.origin ?? context.siteUrl ?? "").trim().replace(/\/$/, "");
+  const formBase = String(formData.baseUrl ?? formData.origin ?? "").trim().replace(/\/$/, "");
+  const effectiveBase = formBase || contextBase || baseOrigin || "";
+  const constructedReturn = effectiveBase ? `${effectiveBase}/donate/thank-you/return-from-challenge` : "";
+  const constructedCancel = effectiveBase ? `${effectiveBase}/donate/thank-you/return-from-challenge?canceled=1` : "";
+
   const params = {
     email: formData.email ?? context.email ?? context.info?.email ?? "",
     firstName,
@@ -140,6 +152,9 @@ export function buildDonorReturnParams(formData = {}, context = {}) {
     utm_source: getUtm("utm_source"),
     utm_campaign: getUtm("utm_campaign"),
     utm_medium: getUtm("utm_medium"),
+    ...(effectiveBase ? { baseUrl: effectiveBase } : {}),
+    ...(constructedReturn ? { returnUrl: formData.returnUrl ?? context.returnUrl ?? constructedReturn } : {}),
+    ...(constructedCancel ? { cancelUrl: formData.cancelUrl ?? context.cancelUrl ?? constructedCancel } : {}),
   };
 
   Object.keys(params).forEach((k) => {
@@ -151,11 +166,12 @@ export function buildDonorReturnParams(formData = {}, context = {}) {
 
 export function buildDonorReturnQueryString(donorReturnParams) {
   if (!donorReturnParams || typeof donorReturnParams !== "object") return "";
+  const SANITIZE_PCT = (s) => String(s ?? '').replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
   const parts = [];
   Object.entries(donorReturnParams).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
       parts.push(
-        `donorReturnParams.${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`
+        `donorReturnParams.${encodeURIComponent(key)}=${encodeURIComponent(SANITIZE_PCT(String(value)))}`
       );
     }
   });
@@ -285,10 +301,35 @@ const UnifiedChallengeDispatcher = ({
       saveUnifiedChallengeToSession(activeChallenge);
 
       if (typeof window !== "undefined") {
+        const SANITIZE_PCT = (s) => String(s ?? '').replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
+        let safeRedirect = redirectUrl;
         try {
-          window.location.assign(redirectUrl);
+          safeRedirect = new URL(redirectUrl).toString();
+        } catch (_firstErr) {
+          try {
+            const repaired = SANITIZE_PCT(redirectUrl);
+            safeRedirect = new URL(repaired).toString();
+          } catch (_secondErr) {
+            try {
+              sessionStorage.setItem(
+                "hc_paypal_redirect_error",
+                JSON.stringify({ reason: "URL parse failed", ts: Date.now(), sample: String(redirectUrl).slice(0, 80) })
+              );
+            } catch {}
+            try {
+              const current = new URL(window.location.href);
+              current.searchParams.set("paypal_redirect_error", "1");
+              window.location.href = current.toString();
+            } catch {
+              window.location.reload();
+            }
+            return;
+          }
+        }
+        try {
+          window.location.assign(safeRedirect);
         } catch {
-          window.location.href = redirectUrl;
+          window.location.href = safeRedirect;
         }
       }
       return;

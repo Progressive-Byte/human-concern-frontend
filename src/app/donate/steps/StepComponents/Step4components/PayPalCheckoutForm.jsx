@@ -59,18 +59,19 @@ const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   const responsePayment = useMemo(() => {
     if (!data.submitted) return {};
     return {
-      provider: data.paymentMethod ?? null,
-      clientId: data.paypalClientId ?? null,
-      setupIntentId: data.setupIntentId ?? null,
-      orderId: data.paypalOrderId ?? null,
-      gatewayConfigurationId: data.gatewayConfigurationId ?? null,
+      provider: data.payment?.provider ?? data.paymentMethod ?? null,
+      clientId: data.payment?.clientId ?? data.paypalClientId ?? null,
+      setupIntentId: data.payment?.setupIntentId ?? data.setupIntentId ?? null,
+      orderId: data.payment?.orderId ?? data.paypalOrderId ?? null,
+      gatewayConfigurationId: data.payment?.gatewayConfigurationId ?? data.gatewayConfigurationId ?? null,
       paymentMode: isRecurring ? "split" : "one_time",
-      approvalUrl: data.approvalUrl ?? data.paypalApprovalUrl ?? null,
-      redirectUrl: data.redirectUrl ?? data.paypalRedirectUrl ?? data.approvalUrl ?? data.paypalApprovalUrl ?? null,
-      billingAgreementToken: data.billingAgreementToken ?? data.paypalBillingAgreementToken ?? data.baToken ?? null,
+      approvalUrl: data.payment?.approvalUrl ?? data.approvalUrl ?? data.paypalApprovalUrl ?? null,
+      redirectUrl: data.payment?.redirectUrl ?? data.redirectUrl ?? data.paypalRedirectUrl ?? data.approvalUrl ?? data.paypalApprovalUrl ?? null,
+      billingAgreementToken: data.payment?.billingAgreementToken ?? data.billingAgreementToken ?? data.paypalBillingAgreementToken ?? data.baToken ?? null,
     };
   }, [
     data.submitted,
+    data.payment,
     data.paymentMethod,
     data.paypalClientId,
     data.setupIntentId,
@@ -87,8 +88,8 @@ const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   ]);
 
   const sdkConfig = useMemo(
-    () => resolvePaymentSdkConfig(responsePayment, publicSettings),
-    [responsePayment, publicSettings]
+    () => resolvePaymentSdkConfig(responsePayment, publicSettings, data.payment ?? null),
+    [responsePayment, publicSettings, data.payment]
   );
 
   const sym = CURRENCY_SYMBOLS[currency] ?? "$";
@@ -384,6 +385,17 @@ const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   }, []);
 
   const splitRedirectTarget = sdkConfig.redirectUrl || sdkConfig.approvalUrl || "";
+
+  if (!sdkConfig.sdkKey || typeof sdkConfig.sdkKey !== 'string' || sdkConfig.sdkKey.length < 8) {
+    return (
+      <div className="w-full border border-[#FECACA] rounded-xl bg-[#FEF2F2] px-4 py-6 text-center">
+        <p className="text-[13px] font-semibold text-[#991B1B]">PayPal configuration is missing.</p>
+        <p className="text-[12px] text-[#7F1D1D] mt-1">
+          Please notify the site administrator. Reference: missing clientId ({String(sdkConfig.sdkKey || 'empty').slice(0, 8)}…)
+        </p>
+      </div>
+    );
+  }
 
   return (
     <UnifiedChallengeDispatcher

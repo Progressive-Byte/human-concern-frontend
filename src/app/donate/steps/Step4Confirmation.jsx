@@ -43,20 +43,21 @@ const Step4Confirmation = () => {
   const responsePayment = useMemo(() => {
     if (!data.submitted) return {};
     return {
-      provider: data.paymentMethod ?? null,
-      publishableKey: data.stripePublishableKey ?? null,
-      clientId: data.paypalClientId ?? null,
-      clientSecret: data.stripeClientSecret ?? null,
-      setupIntentId: data.setupIntentId ?? null,
-      orderId: data.paypalOrderId ?? null,
-      gatewayConfigurationId: data.gatewayConfigurationId ?? null,
-      paymentMode: data.paymentType === "recurring" ? "split" : "one_time",
-      approvalUrl: data.approvalUrl ?? data.paypalApprovalUrl ?? null,
-      redirectUrl: data.redirectUrl ?? data.paypalRedirectUrl ?? data.approvalUrl ?? data.paypalApprovalUrl ?? null,
-      billingAgreementToken: data.billingAgreementToken ?? data.paypalBillingAgreementToken ?? data.baToken ?? null,
+      provider: data.payment?.provider ?? data.paymentMethod ?? null,
+      publishableKey: data.payment?.publishableKey ?? data.stripePublishableKey ?? null,
+      clientId: data.payment?.clientId ?? data.paypalClientId ?? null,
+      clientSecret: data.payment?.clientSecret ?? data.stripeClientSecret ?? null,
+      setupIntentId: data.payment?.setupIntentId ?? data.setupIntentId ?? null,
+      orderId: data.payment?.orderId ?? data.paypalOrderId ?? null,
+      gatewayConfigurationId: data.payment?.gatewayConfigurationId ?? data.gatewayConfigurationId ?? null,
+      paymentMode: data.payment?.paymentMode ?? (data.paymentType === "recurring" ? "split" : "one_time"),
+      approvalUrl: data.payment?.approvalUrl ?? data.approvalUrl ?? data.paypalApprovalUrl ?? null,
+      redirectUrl: data.payment?.redirectUrl ?? data.redirectUrl ?? data.paypalRedirectUrl ?? data.approvalUrl ?? data.paypalApprovalUrl ?? null,
+      billingAgreementToken: data.payment?.billingAgreementToken ?? data.billingAgreementToken ?? data.paypalBillingAgreementToken ?? data.baToken ?? null,
     };
   }, [
     data.submitted,
+    data.payment,
     data.paymentMethod,
     data.stripePublishableKey,
     data.paypalClientId,
@@ -79,7 +80,7 @@ const Step4Confirmation = () => {
     stripePromise,
     elementsKey,
     sdkReInitCounter,
-  } = usePaymentProviderInstance(responsePayment, publicSettings);
+  } = usePaymentProviderInstance(responsePayment, publicSettings, data.payment ?? null);
 
   useEffect(() => {
     if (isPreview) {

@@ -259,11 +259,12 @@ const PaymentGatewaySelector = ({
 
     return () => { alive = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(paymentMethods.map((m) => m && ({ name: m.name, provider: m.provider })))]);
+  }, [JSON.stringify((Array.isArray(paymentMethods) ? paymentMethods : []).map((m) => m && ({ name: m.name, provider: m.provider })))]);
 
   if (gatewaysLoading) return null;
 
-  const hasAny = providers.length > 0;
+  const providerList = Array.isArray(providers) ? providers : [];
+  const hasAny = providerList.length > 0;
 
   return (
     <div className="pt-1">
@@ -285,7 +286,7 @@ const PaymentGatewaySelector = ({
         // Orchestration: 1 tile per provider type — donors pick method category only.
         // The orchestrator internally selects the best specific gateway configuration.
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
-          {providers.map((row) => {
+          {providerList.map((row) => {
             const isSelected = selectedProvider === row.provider;
             return (
               <MethodTile
@@ -297,11 +298,11 @@ const PaymentGatewaySelector = ({
                 isSelected={isSelected}
                 onClick={() => {
                   setSelectedProvider(row.provider);
-                  const stripe = providers.find((p) => p.provider === "stripe");
+                  const stripe = providerList.find((p) => p.provider === "stripe");
                   emitSelection({
                     picked: row,
                     stripe,
-                    aggregated: providers,
+                    aggregated: providerList,
                     donorData,
                     currency,
                     amount,

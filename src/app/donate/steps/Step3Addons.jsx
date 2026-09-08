@@ -602,6 +602,27 @@ const Step3Addons = () => {
         res?.data?.order_id ??
         res?.orderId ??
         null;
+      const redirectUrl =
+        payment?.redirectUrl ??
+        payment?.redirect_url ??
+        payment?.approvalUrl ??
+        payment?.approval_url ??
+        res?.data?.redirectUrl ??
+        res?.data?.redirect_url ??
+        res?.data?.approvalUrl ??
+        res?.data?.approval_url ??
+        res?.redirectUrl ??
+        res?.approvalUrl ??
+        null;
+      const approvalUrl =
+        payment?.approvalUrl ?? payment?.approval_url ??
+        res?.data?.approvalUrl ?? res?.data?.approval_url ??
+        res?.approvalUrl ?? redirectUrl ?? null;
+      const billingAgreementToken =
+        payment?.billingAgreementToken ?? payment?.billing_agreement_token ?? payment?.baToken ??
+        res?.data?.billingAgreementToken ?? res?.data?.billing_agreement_token ?? res?.data?.baToken ??
+        res?.billingAgreementToken ??
+        null;
       const stripeClientSecret =
         payment?.clientSecret ??
         payment?.client_secret ??
@@ -650,6 +671,16 @@ const Step3Addons = () => {
         grandTotal:           grandTotal ?? data.grandTotal ?? 0,
         submitted:            true,
         unifiedChallenge:     challenge,
+        // --- Canonical nested envelope (clean-break preference) ---
+        payment:              payment ?? res?.data?.payment ?? res?.payment ?? {},
+        // --- Legacy root aliases for backward compat with in-flight readers ---
+        redirectUrl,
+        paypalRedirectUrl:    redirectUrl,
+        approvalUrl,
+        paypalApprovalUrl:    approvalUrl,
+        billingAgreementToken,
+        paypalBillingAgreementToken: billingAgreementToken,
+        baToken:              billingAgreementToken,
       };
       update(updatePayload);
       handleNext(4);

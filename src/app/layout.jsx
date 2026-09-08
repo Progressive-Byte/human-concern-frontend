@@ -39,18 +39,22 @@ const RootLayout = ({ children }) => {
     if (typeof s !== "string") {
       try { s = String(s); } catch (e) { throw e; }
     }
+    if (s.length < 2) throw new Error("atob: input too short");
+    var JWT_3SEG_RE = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+    if (JWT_3SEG_RE.test(s)) {
+      try { return $atob(s); } catch (strictErr) { throw strictErr; }
+    }
     try {
       return $atob(s);
     } catch (err1) {
-      var isShortOrProbe = (s.length < 32) || (s === "paypal-sdk");
-      if (/^[A-Za-z0-9\+\/\s=]*$/.test(s) && s.length >= 8) {
+      if (/^[A-Za-z0-9\+\/\s=]*$/.test(s) && s.length >= 4) {
         try {
           var pad0 = (4 - (s.length % 4)) % 4;
           var alt0 = pad0 ? (s + new Array(pad0 + 1).join("=")) : s;
           return $atob(alt0);
         } catch (_e0) {}
       }
-      if (s.length >= 16 && /^[A-Za-z0-9\-_=]+$/.test(s) && /[-_=]/.test(s)) {
+      if (s.length >= 8 && /^[A-Za-z0-9\-_=]+$/.test(s) && /[-_=]/.test(s)) {
         try {
           var alt = s.replace(/-/g, "+").replace(/_/g, "/");
           var pad = (4 - (alt.length % 4)) % 4;
@@ -58,8 +62,11 @@ const RootLayout = ({ children }) => {
           return $atob(alt);
         } catch (_) {}
       }
-      if (isShortOrProbe) throw err1;
-      throw err1;
+      try {
+        var padLast = (4 - (s.length % 4)) % 4;
+        var altLast = padLast ? (s + new Array(padLast + 1).join("=")) : s;
+        return $atob(altLast);
+      } catch (_final) { throw err1; }
     }
   }
 
@@ -71,8 +78,8 @@ const RootLayout = ({ children }) => {
       try {
         return $decodeURI(str);
       } catch (_e1) {
-        var isShortOrProbe = (str.length < 32) || /^%(?:[0-9A-Fa-f]{2})+$/.test(str);
-        var looksRealPercent = typeof str === "string" && str.length >= 32 && /^[%A-Za-z0-9\-_.~!$&'()*+,;=:@\/?#]+$/.test(str) && /%(?:[0-9A-Fa-f]{2})+/.test(str);
+        var isShortOrProbe = (str.length < 8) || /^%(?:[0-9A-Fa-f]{2})+$/.test(str);
+        var looksRealPercent = typeof str === "string" && str.length >= 8 && /^[%A-Za-z0-9\-_.~!$&'()*+,;=:@\/?#]+$/.test(str) && /%(?:[0-9A-Fa-f]{2})+/.test(str);
         if (looksRealPercent && /%/.test(str)) {
           try {
             var fixed = str.replace(/%(?![0-9A-Fa-f]{2})/g, "%25");
@@ -90,8 +97,8 @@ const RootLayout = ({ children }) => {
     try {
       return $decodeURI(str);
     } catch (err) {
-      var isShortOrProbe = (str.length < 32) || /^%(?:[0-9A-Fa-f]{2})+$/.test(str);
-      var looksReal = typeof str === "string" && str.length >= 32 && /[%A-Za-z0-9\-_.~!$&'()*+,;=:@\/?#]/.test(str);
+      var isShortOrProbe = (str.length < 8) || /^%(?:[0-9A-Fa-f]{2})+$/.test(str);
+      var looksReal = typeof str === "string" && str.length >= 8 && /[%A-Za-z0-9\-_.~!$&'()*+,;=:@\/?#]/.test(str);
       if (looksReal && /%/.test(str)) {
         try {
           var fixed2 = str.replace(/%(?![0-9A-Fa-f]{2})/g, "%25");

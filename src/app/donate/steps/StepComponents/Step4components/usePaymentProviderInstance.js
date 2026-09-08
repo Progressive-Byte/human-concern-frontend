@@ -5,13 +5,23 @@ import { loadStripe } from "@stripe/stripe-js";
 
 const STRIPE_PROMISE_BY_KEY = new Map();
 
-export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {}) {
+export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {}, nestedPaymentSource = null) {
+  const _src = (nestedPaymentSource && typeof nestedPaymentSource === 'object') ? nestedPaymentSource : null;
+  const _n = (keys) => {
+    if (!_src) return null;
+    for (const k of keys) {
+      if (_src[k] !== undefined && _src[k] !== null) return _src[k];
+    }
+    return null;
+  };
   const provider =
+    _n(['provider']) ??
     responsePayment?.provider ??
     publicSettings?.provider ??
     null;
 
   const stripeDefaultPk =
+    _n(['stripePublishableKey','stripe_publishable_key','publishableKey','publishable_key']) ??
     publicSettings?.stripePublishableKey ??
     publicSettings?.stripe_publishable_key ??
     publicSettings?.publishableKey ??
@@ -19,6 +29,7 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
     null;
 
   const paypalDefaultClientId =
+    _n(['paypalClientId','paypal_client_id','clientId','client_id']) ??
     publicSettings?.paypalClientId ??
     publicSettings?.paypal_client_id ??
     publicSettings?.clientId ??
@@ -41,6 +52,7 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
   let sdkKey = null;
   if (isStripe) {
     const responseKeys =
+      _n(['publishableKey','publishable_key','stripePublishableKey','stripe_publishable_key']) ??
       responsePayment?.publishableKey ??
       responsePayment?.publishable_key ??
       responsePayment?.stripePublishableKey ??
@@ -53,6 +65,7 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
     }
   } else if (isPayPal) {
     const responseKeys =
+      _n(['clientId','client_id','paypalClientId','paypal_client_id']) ??
       responsePayment?.clientId ??
       responsePayment?.client_id ??
       responsePayment?.paypalClientId ??
@@ -71,14 +84,17 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
     ? "paypal"
     : provider;
 
-  const isRecurring =
+  const isRecurring = Boolean(
+    (typeof _n(['paymentMode']) === 'string' && (_n(['paymentMode']) === 'split' || _n(['paymentMode']) === 'recurring')) ||
+    _n(['isRecurring']) ||
     responsePayment?.paymentMode === "split" ||
     responsePayment?.paymentMode === "recurring" ||
     responsePayment?.isRecurring ||
-    publicSettings?.isRecurring ||
-    false;
+    publicSettings?.isRecurring
+  );
 
   const setupIntentId =
+    _n(['setupIntentId','setup_intent_id']) ??
     responsePayment?.setupIntentId ??
     responsePayment?.setup_intent_id ??
     responsePayment?.setupIntent?.id ??
@@ -88,6 +104,7 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
     null;
 
   const paymentIntentId =
+    _n(['paymentIntentId','payment_intent_id']) ??
     responsePayment?.paymentIntentId ??
     responsePayment?.payment_intent_id ??
     responsePayment?.paymentIntent?.id ??
@@ -98,6 +115,7 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
     null;
 
   const orderId =
+    _n(['orderId','order_id']) ??
     responsePayment?.orderId ??
     responsePayment?.order_id ??
     publicSettings?.paypalOrderId ??
@@ -107,6 +125,7 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
   let clientSecret = null;
   if (isStripe) {
     const responseCs =
+      _n(['clientSecret','client_secret','stripeClientSecret','stripe_client_secret']) ??
       responsePayment?.clientSecret ??
       responsePayment?.client_secret ??
       responsePayment?.stripeClientSecret ??
@@ -134,6 +153,7 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
   }
 
   let gatewayConfigurationId =
+    _n(['gatewayConfigurationId','gateway_configuration_id']) ??
     responsePayment?.gatewayConfigurationId ??
     responsePayment?.gateway_configuration_id ??
     null;
@@ -145,11 +165,13 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
   }
 
   const approvalUrl =
+    _n(['approvalUrl','approval_url']) ??
     responsePayment?.approvalUrl ??
     responsePayment?.approval_url ??
     null;
 
   const redirectUrl =
+    _n(['redirectUrl','redirect_url']) ??
     responsePayment?.redirectUrl ??
     responsePayment?.redirect_url ??
     publicSettings?.redirectUrl ??
@@ -157,6 +179,7 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
     null;
 
   const billingAgreementToken =
+    _n(['billingAgreementToken','billing_agreement_token','baToken','ba_token']) ??
     responsePayment?.billingAgreementToken ??
     responsePayment?.billing_agreement_token ??
     responsePayment?.baToken ??
@@ -181,10 +204,10 @@ export function resolvePaymentSdkConfig(responsePayment = {}, publicSettings = {
   };
 }
 
-export function usePaymentProviderInstance(responsePayment, publicSettings) {
+export function usePaymentProviderInstance(responsePayment, publicSettings, nestedPaymentSource = null) {
   const config = useMemo(
-    () => resolvePaymentSdkConfig(responsePayment, publicSettings),
-    [responsePayment, publicSettings]
+    () => resolvePaymentSdkConfig(responsePayment, publicSettings, nestedPaymentSource),
+    [responsePayment, publicSettings, nestedPaymentSource]
   );
 
   const [prevSdkKey,         setPrevSdkKey]         = useState(null);
