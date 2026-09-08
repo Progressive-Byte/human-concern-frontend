@@ -291,7 +291,7 @@ function getInitialForm(provider, config) {
       ...base,
       clientId: String(config?.clientId || "").trim(),
       clientSecret: "",
-      webhookUrl: String(config?.webhookUrl || "").trim(),
+      webhookId: String(config?.webhookId || "").trim(),
     };
   }
 
@@ -371,8 +371,8 @@ function buildConfigurationPayload(provider, form) {
   if (provider === "paypal") {
     payload.clientId = cleanInput(form?.clientId);
     payload.clientSecret = cleanInput(form?.clientSecret);
-    const webhookUrl = cleanInput(form?.webhookUrl);
-    if (webhookUrl) payload.webhookUrl = webhookUrl;
+    const webhookId = cleanInput(form?.webhookId);
+    if (webhookId) payload.webhookId = webhookId;
     return payload;
   }
 
@@ -984,22 +984,11 @@ const GatewayCardFormModal = ({
         if (!cleanInput(form?.clientSecret)) e.clientSecret = "Client secret required.";
       }
       if (provider === "paypal") {
-        const webhookUrl = cleanInput(form?.webhookUrl);
-        if (!webhookUrl) {
-          e.webhookUrl = "PayPal webhook URL is required.";
-        } else if (webhookUrl.length > 2000) {
-          e.webhookUrl = "Webhook URL is too long. Max 2,000 characters.";
-        } else if (!/^https?:\/\//i.test(webhookUrl)) {
-          e.webhookUrl = "Webhook URL must start with http:// or https://.";
-        } else {
-          try {
-            const u = new URL(webhookUrl);
-            if (u.protocol !== "http:" && u.protocol !== "https:") {
-              e.webhookUrl = "Webhook URL protocol must be http:// or https://.";
-            }
-          } catch (_err) {
-            e.webhookUrl = "Webhook URL is not a valid URL. Check for typos or missing http(s):// prefix.";
-          }
+        const webhookId = cleanInput(form?.webhookId);
+        if (!webhookId) {
+          e.webhookId = "PayPal Webhook ID is required. Found in PayPal Developer Dashboard → Webhooks → Webhook ID column.";
+        } else if (webhookId.length > 100) {
+          e.webhookId = "Webhook ID is too long (max 100 characters).";
         }
       }
     }
@@ -1379,21 +1368,15 @@ const GatewayCardFormModal = ({
               </div>
 
               <div className="mt-6 border-t border-[#F3F4F6] pt-6">
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
-                    🔗 Webhook (required)
-                  </span>
-                </div>
                 <Field
-                  label="Webhook URL"
+                  label="Webhook ID"
                   required
-                  error={errors?.webhookUrl}
-                  hint="Full PayPal webhook endpoint URL. HTTPS required. Max 2,000 chars. Include the gwConfId= query param if your backend uses it."
+                  error={errors?.webhookId}
                 >
                   <TextInput
-                    value={form.webhookUrl || ""}
-                    onChange={(e) => setForm((p) => ({ ...(p || {}), webhookUrl: e.target.value }))}
-                    placeholder="https://donation.api.sagsio.com/api/v1/donations/webhook/paypal?gwConfId=paypal_cfg_ae_live_2025"
+                    value={form.webhookId || ""}
+                    onChange={(e) => setForm((p) => ({ ...(p || {}), webhookId: e.target.value }))}
+                    placeholder="0EL26188R1234567A"
                   />
                 </Field>
               </div>
@@ -1583,18 +1566,23 @@ const GatewayCardFormModal = ({
                       </span>
                     ) : <span className="text-red-500 font-bold">Missing</span>}
                   </Row>
-                  <Row label="Webhook URL" ok={Boolean(cleanInput(form.webhookUrl))}>
-                    {form.webhookUrl ? (
+                  <Row label="Webhook ID" ok={Boolean(cleanInput(form.webhookId))}>
+                    {form.webhookId ? (
+                      <span className="font-mono text-[12px] font-bold text-[#111827]">{mask(form.webhookId, 4)}</span>
+                    ) : <span className="text-red-500 font-bold">Missing</span>}
+                  </Row>
+                  {form.webhookUrl ? (
+                    <Row label="Webhook URL (legacy)" ok>
                       <span className="inline-flex max-w-full items-center gap-1.5 rounded-md bg-[#F3F4F6] px-2 py-0.5 align-middle">
                         <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 text-[#6B7280]" fill="none">
                           <path d="M14 3h4a3 3 0 013 3v4M10 21H6a3 3 0 01-3-3v-4M10 14l7-7a2.12 2.12 0 013 3l-7 7-3 1 1-3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-                        <span className="max-w-[280px] truncate font-mono text-[12px] text-[#111827]" title={String(form.webhookUrl || "")}>
+                        <span className="max-w-[280px] truncate font-mono text-[12px] text-[#6B7280]" title={String(form.webhookUrl || "")}>
                           {String(form.webhookUrl || "")}
                         </span>
                       </span>
-                    ) : <span className="text-red-500 font-bold">Missing</span>}
-                  </Row>
+                    </Row>
+                  ) : null}
                 </>
               )}
             </dl>
