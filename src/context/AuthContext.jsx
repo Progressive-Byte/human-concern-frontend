@@ -12,13 +12,44 @@ const AuthContext = createContext(null);
 
 const USER_KEY = "hc_user";
 
-function getTokenExpiry(token) {
+function _fromBase64Url(segment) {
+  if (typeof segment !== "string" || segment.length === 0) return null;
   try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+    let base64 = segment.replace(/-/g, "+").replace(/_/g, "/");
+    const pad = (4 - (base64.length % 4)) % 4;
+    if (pad) base64 += "=".repeat(pad);
+    const decoded =
+      typeof atob === "function"
+        ? atob(base64)
+        : Buffer.from(base64, "base64").toString("binary");
+    const len = decoded.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = decoded.charCodeAt(i);
+    return typeof TextDecoder !== "undefined"
+      ? new TextDecoder("utf-8").decode(bytes)
+      : decodeURIComponent(escape(decoded));
   } catch {
     return null;
   }
+}
+
+function decodeJwtPayload(token) {
+  if (typeof token !== "string" || token.length === 0) return null;
+  const parts = token.split(".");
+  if (parts.length !== 3 || parts[1].length === 0) return null;
+  const json = _fromBase64Url(parts[1]);
+  if (typeof json !== "string" || json.length === 0) return null;
+  try {
+    const parsed = JSON.parse(json);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function getTokenExpiry(token) {
+  const payload = decodeJwtPayload(token);
+  return payload && typeof payload.exp === "number" ? payload.exp * 1000 : null;
 }
 
 function saveUser(user) {
