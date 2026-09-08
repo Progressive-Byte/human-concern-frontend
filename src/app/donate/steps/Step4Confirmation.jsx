@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, Component } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Elements } from "@stripe/react-stripe-js";
 import { useDonation } from "@/context/DonationContext";
@@ -11,86 +11,6 @@ import StepProgress from "./StepComponents/StepProgress";
 import DonationPreview from "./StepComponents/DonationPreview";
 import { NoticeIcon } from "@/components/common/SvgIcon";
 import { usePaymentProviderInstance } from "./StepComponents/Step4components/usePaymentProviderInstance";
-
-// #region debug-point H4:step4-error-boundary
-const DEBUG_URL_STEP4 = "http://127.0.0.1:7777/event";
-const DEBUG_SESSION_STEP4 = "paypal-onetime-atob-pending-record";
-function sendStep4(payload) {
-  if (typeof window === "undefined") return;
-  try {
-    fetch(DEBUG_URL_STEP4, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sessionId: DEBUG_SESSION_STEP4,
-        runId: "pre",
-        ts: Date.now(),
-        ...payload,
-      }),
-    }).catch(() => {});
-  } catch {}
-}
-class Step4RenderErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null, info: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  componentDidCatch(error, info) {
-    sendStep4({
-      hypothesisId: "H4",
-      location: "Step4RenderErrorBoundary.componentDidCatch",
-      msg: "[DEBUG] Step4 React render error caught",
-      data: {
-        msg: error && error.message ? String(error.message) : String(error || ""),
-        name: error && error.name ? String(error.name) : null,
-        stack: error && error.stack ? String(error.stack).slice(0, 1600) : null,
-        componentStack: info && info.componentStack ? String(info.componentStack).slice(0, 1600) : null,
-      },
-    });
-    this.setState({ info });
-  }
-  render() {
-    if (this.state.hasError) {
-      const e = this.state.error || {};
-      return (
-        <main className="min-h-screen bg-[#F9F9F9] pt-30 lg:pt-40 pb-16 px-4">
-          <div className="max-w-5xl mx-auto">
-            <StepProgress current={4} />
-            <div className="flex flex-col lg:flex-row items-start gap-5">
-              <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8 flex-1 min-w-0 w-full">
-                <h2 className="text-[24px] font-bold text-[#383838] mb-1">Complete Payment</h2>
-                <p className="text-sm text-[#8C8C8C] font-normal mb-6">
-                  Step4 encountered an error. We are collecting diagnostic information.
-                </p>
-                <div className="mb-5 rounded-xl border border-[#FFB4B4] bg-[#FFF5F5] px-4 py-3">
-                  <p className="text-[13px] font-semibold text-[#B91C1C] mb-1">
-                    Render error
-                  </p>
-                  <p className="text-[12px] text-[#9B1C1C] font-mono break-all">
-                    {String(e && e.message ? e.message : (e || "Unknown error"))}
-                  </p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
-                  {NoticeIcon}
-                  <span className="text-[12px] text-[#AEAEAE]">
-                    Your payment is secured with 256-bit SSL encryption
-                  </span>
-                </div>
-              </div>
-              <DonationPreview currentStep={4} />
-            </div>
-          </div>
-        </main>
-      );
-    }
-    return this.props.children;
-  }
-}
-// #endregion
 
 const Step4Confirmation = () => {
   const { data }          = useDonation();
@@ -274,12 +194,11 @@ const Step4Confirmation = () => {
   };
 
   return (
-    <Step4RenderErrorBoundary>
-      <main className="min-h-screen bg-[#F9F9F9] pt-30 lg:pt-40 pb-16 px-4">
-        <div className="max-w-5xl mx-auto">
-          <StepProgress current={4} />
+    <main className="min-h-screen bg-[#F9F9F9] pt-30 lg:pt-40 pb-16 px-4">
+      <div className="max-w-5xl mx-auto">
+        <StepProgress current={4} />
 
-          <div className="flex flex-col lg:flex-row items-start gap-5">
+        <div className="flex flex-col lg:flex-row items-start gap-5">
           <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8 flex-1 min-w-0 w-full">
             <h2 className="text-[24px] font-bold text-[#383838] mb-1">{isPreview ? "Preview Confirmation" : "Complete Payment"}</h2>
             <p className="text-sm text-[#8C8C8C] font-normal mb-6">
@@ -426,7 +345,6 @@ const Step4Confirmation = () => {
         </p>
       </div>
     </main>
-  </Step4RenderErrorBoundary>
   );
 };
 

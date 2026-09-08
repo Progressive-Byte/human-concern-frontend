@@ -94,46 +94,21 @@ function loadPayPalScript({ clientId, merchantId, currency, intent, vault }) {
     script.defer = true;
     script.setAttribute("data-paypal-sdk", "true");
     script.setAttribute("data-client-id", String(clientId || ""));
-    script.setAttribute("data-client-token", "paypal-sdk");
 
     let settled = false;
     const settle = (result, err) => {
       if (settled) return;
       settled = true;
-      teardown();
+      clearTimeout(watchdog);
       if (result) resolve(result);
       else reject(err || new Error("PayPal SDK load failed"));
     };
 
-    const KNOWN_SDK_PROBE_MSG_RE =
-      /(atob|URI malformed|Unexpected token|not correctly encoded|not valid JSON)/i;
-    let savedWindowOnError = window.onerror;
-    const onErrorSuppressor = function (msg, url, lineNo, colNo, err) {
-      const s = String(msg || "") + " " + String((err && err.message) || "");
-      if (KNOWN_SDK_PROBE_MSG_RE.test(s)) {
-        return true;
-      }
-      if (typeof savedWindowOnError === "function") {
-        return savedWindowOnError.apply(this, arguments);
-      }
-      return false;
-    };
-    try { savedWindowOnError = window.onerror; window.onerror = onErrorSuppressor; } catch (_) { savedWindowOnError = null; }
-
-    function teardown() {
-      if (savedWindowOnError !== null) {
-        try { window.onerror = savedWindowOnError; } catch (_) {}
-        savedWindowOnError = null;
-      }
-      clearTimeout(watchdog);
-    }
-
     script.onload = () => {
-      const settleOrWait = () => {
-        if (window.paypal) return settle(window.paypal, null);
-        return settle(null, new Error("PayPal SDK loaded but window.paypal missing."));
-      };
-      setTimeout(settleOrWait, 50);
+      setTimeout(() => {
+        if (window.paypal) settle(window.paypal, null);
+        else settle(null, new Error("PayPal SDK loaded but window.paypal missing."));
+      }, 50);
     };
     script.onerror = () => {
       setTimeout(() => {
