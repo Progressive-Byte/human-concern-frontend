@@ -206,8 +206,10 @@ const Step4Confirmation = () => {
               {isPreview
                 ? "Preview mode: no payment will be processed."
                 : isStripe
-                  ? "Enter your card details to finalise your donation"
-                  : `Complete your payment using ${data.paymentMethod}`}
+                  ? (isRecurring ? "Enter your card details to set up your recurring donation (no charge happens yet)." : "Enter your card details to finalise your donation")
+                  : isRecurring
+                    ? "Complete your payment using paypal to approve your recurring donation (no charge happens yet)."
+                    : `Complete your payment using ${data.paymentMethod}`}
             </p>
 
             {isPreview ? (

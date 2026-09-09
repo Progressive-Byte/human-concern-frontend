@@ -283,16 +283,14 @@ const PaymentGatewaySelector = ({
           </p>
         </div>
       ) : (
-        // Orchestration: 1 tile per provider type — donors pick method category only.
-        // The orchestrator internally selects the best specific gateway configuration.
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
           {providerList.map((row) => {
             const isSelected = selectedProvider === row.provider;
             return (
               <MethodTile
                 key={row.provider}
-                label={row.provider === "stripe" ? "Stripe" : "PayPal"}
-                sublabel={null}
+                label={row.provider === "stripe" ? "Debit/Credit Card" : "PayPal"}
+                sublabel={row.provider === "stripe" ? "Stripe" : null}
                 logo={row.provider === "stripe" ? "/images/stripe.jpg" : "/images/paypal.png"}
                 alt={row.provider}
                 isSelected={isSelected}
