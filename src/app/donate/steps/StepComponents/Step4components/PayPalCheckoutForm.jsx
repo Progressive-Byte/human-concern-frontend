@@ -214,6 +214,75 @@ const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   }, [sdkConfig.sdkKey, currency, isRecurring]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!isRecurring) return;
+    if (sdkState !== PAYPAL_STATES.READY) return;
+
+    let storedRedirectUrl = "";
+    try {
+      const challenge = loadUnifiedChallengeFromSession();
+      storedRedirectUrl =
+        challenge?.redirectUrl ||
+        challenge?.approvalUrl ||
+        challenge?.challenge?.redirectUrl ||
+        challenge?.challenge?.approvalUrl ||
+        "";
+      if (!storedRedirectUrl) {
+        const last = sessionStorage.getItem("hc_last_challenge") || "";
+        if (last) {
+          const parsed = JSON.parse(last);
+          storedRedirectUrl =
+            parsed.redirectUrl ||
+            parsed.challenge?.redirectUrl ||
+            parsed.approvalUrl ||
+            parsed.challenge?.approvalUrl ||
+            "";
+        }
+      }
+    } catch (_) {
+      storedRedirectUrl = "";
+    }
+
+    const sdkRedirectTarget =
+      (sdkConfig.redirectUrl || sdkConfig.approvalUrl ||
+        responsePayment.redirectUrl || responsePayment.approvalUrl ||
+        data.redirectUrl || data.approvalUrl ||
+        data.paypalRedirectUrl || data.paypalApprovalUrl ||
+        "")
+        .toString()
+        .trim();
+
+    const target = String(storedRedirectUrl || sdkRedirectTarget || "").trim();
+    if (!target) return;
+
+    let disposed = false;
+    const timer = window.setTimeout(() => {
+      if (disposed) return;
+      try {
+        window.location.assign(target);
+      } catch (_) {
+        window.location.href = target;
+      }
+    }, 800);
+
+    return () => {
+      disposed = true;
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [
+    isRecurring,
+    sdkState,
+    sdkConfig.redirectUrl,
+    sdkConfig.approvalUrl,
+    responsePayment.redirectUrl,
+    responsePayment.approvalUrl,
+    data.redirectUrl,
+    data.approvalUrl,
+    data.paypalRedirectUrl,
+    data.paypalApprovalUrl,
+  ]);
+
+  useEffect(() => {
     if (sdkState !== PAYPAL_STATES.READY) return;
     if (!buttonsContainerRef.current) return;
     if (typeof window === "undefined" || !window.paypal) return;

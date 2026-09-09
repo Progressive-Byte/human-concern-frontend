@@ -82,6 +82,21 @@ const Step4Confirmation = () => {
     sdkReInitCounter,
   } = usePaymentProviderInstance(responsePayment, publicSettings, data.payment ?? null);
 
+  const isRecurring = sdkConfig.isRecurring;
+  const isStripe = sdkConfig.isStripe;
+  const isPayPal =
+    Boolean(sdkConfig.isPayPal) ||
+    (responsePayment && responsePayment.provider === "paypal") ||
+    (data.paymentMethod && String(data.paymentMethod).toLowerCase() === "paypal");
+  const isPayPalRedirect =
+    isPayPal &&
+    data.submitted === true &&
+    Boolean(
+      sdkConfig.setupIntentId ||
+      (responsePayment && responsePayment.setupIntentId) ||
+      data.setupIntentId
+    );
+
   useEffect(() => {
     if (isPreview) {
       setReady(true);
@@ -127,6 +142,68 @@ const Step4Confirmation = () => {
     isPreview,
   ]);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || isPreview || !isPayPalRedirect || data.submitted !== true) {
+      return;
+    }
+
+    let storedRedirectUrl = "";
+    try {
+      const stored =
+        sessionStorage.getItem("hc_unified_challenge") ||
+        sessionStorage.getItem("hc_last_challenge") ||
+        "";
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        storedRedirectUrl =
+          parsed.redirectUrl ||
+          parsed.challenge?.redirectUrl ||
+          parsed.approvalUrl ||
+          parsed.challenge?.approvalUrl ||
+          "";
+      }
+    } catch (_) {
+      storedRedirectUrl = "";
+    }
+
+    const responseRedirect =
+      (responsePayment && (responsePayment.redirectUrl || responsePayment.approvalUrl)) ||
+      data.redirectUrl ||
+      data.approvalUrl ||
+      data.paypalRedirectUrl ||
+      data.paypalApprovalUrl ||
+      "";
+
+    const target = String(storedRedirectUrl || responseRedirect || "").trim();
+    if (!target) {
+      return;
+    }
+
+    let disposed = false;
+    const token = window.setTimeout(() => {
+      if (disposed) return;
+      try {
+        window.location.assign(target);
+      } catch (_) {
+        window.location.href = target;
+      }
+    }, 900);
+
+    return () => {
+      disposed = true;
+      if (token) window.clearTimeout(token);
+    };
+  }, [
+    isPreview,
+    isPayPalRedirect,
+    data.submitted,
+    responsePayment,
+    data.redirectUrl,
+    data.approvalUrl,
+    data.paypalRedirectUrl,
+    data.paypalApprovalUrl,
+  ]);
+
   const appearance = {
     theme: "stripe",
     variables: {
@@ -136,21 +213,6 @@ const Step4Confirmation = () => {
       fontSizeBase: "14px",
     },
   };
-
-  const isRecurring = sdkConfig.isRecurring;
-  const isStripe = sdkConfig.isStripe;
-  const isPayPal =
-    Boolean(sdkConfig.isPayPal) ||
-    (responsePayment && responsePayment.provider === "paypal") ||
-    (data.paymentMethod && String(data.paymentMethod).toLowerCase() === "paypal");
-  const isPayPalRedirect =
-    isPayPal &&
-    data.submitted === true &&
-    Boolean(
-      sdkConfig.setupIntentId ||
-      (responsePayment && responsePayment.setupIntentId) ||
-      data.setupIntentId
-    );
 
   if (!ready) return null;
 
@@ -206,10 +268,8 @@ const Step4Confirmation = () => {
               {isPreview
                 ? "Preview mode: no payment will be processed."
                 : isStripe
-                  ? (isRecurring ? "Enter your card details to set up your recurring donation (no charge happens yet)." : "Enter your card details to finalise your donation")
-                  : isRecurring
-                    ? "Complete your payment using paypal to approve your recurring donation (no charge happens yet)."
-                    : `Complete your payment using ${data.paymentMethod}`}
+                  ? "Enter your card details to finalise your donation"
+                  : `Complete your payment using ${data.paymentMethod}`}
             </p>
 
             {isPreview ? (
