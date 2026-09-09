@@ -17,7 +17,7 @@ import ReturnChallengeResultCard, { OUTCOMES } from "@/components/payment/Return
 import CountdownTimer from "@/components/common/CountdownTimer";
 import { getUserFacingErrorMessage } from "@/utils/errorMaps";
 
-const RETURN_QUERY_PARAMS = ["PayerID", "token", "paymentId", "customId", "provider"];
+const RETURN_QUERY_PARAMS = ["PayerID", "token", "paymentId", "customId", "provider", "ba_token", "BillingAgreementId"];
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
 function collectReturnQueryParams(rawSearchParams) {
@@ -31,7 +31,7 @@ function collectReturnQueryParams(rawSearchParams) {
       }
     } catch {}
   });
-  const extras = ["donationId", "pendingSessionId", "authChallengeId", "frontendReturnPayloadId", "setup_intent", "setupIntentId", "payment_intent", "paymentIntentId", "donorEmail", "orderId", "gatewayConfigurationId"];
+  const extras = ["donationId", "pendingSessionId", "authChallengeId", "frontendReturnPayloadId", "setup_intent", "setupIntentId", "payment_intent", "paymentIntentId", "donorEmail", "orderId", "gatewayConfigurationId", "ba_token", "BillingAgreementId"];
   extras.forEach((key) => {
     try {
       const value = rawSearchParams.get(key);
@@ -109,7 +109,14 @@ const ReturnChallengeClient = () => {
     (typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("provider")
       : null) ??
-    (queryReturnParams.PayerID ? "paypal" : "stripe");
+    (queryReturnParams.PayerID ? "paypal" : null) ??
+    (queryReturnParams.ba_token && String(queryReturnParams.ba_token).startsWith("BA-") ? "paypal" : null) ??
+    (queryReturnParams.BillingAgreementId && String(queryReturnParams.BillingAgreementId).startsWith("BA-") ? "paypal" : null) ??
+    (queryReturnParams.token && String(queryReturnParams.token).startsWith("EC-") ? "paypal" : null) ??
+    (queryReturnParams.token && String(queryReturnParams.token).startsWith("BA-") ? "paypal" : null) ??
+    (sessionChallenge?.provider ? String(sessionChallenge.provider) : null) ??
+    (data?.provider ? String(data.provider) : null) ??
+    "stripe";
 
   const isPayPal = provider === "paypal";
 
@@ -207,6 +214,11 @@ const ReturnChallengeClient = () => {
       sessionChallenge?.gatewayConfigurationId ??
       returnSession?.gatewayConfigurationId ??
       null;
+    const rawPayerID = queryReturnParams.PayerID ?? returnSession?.PayerID ?? sessionChallenge?.PayerID ?? null;
+    const rawToken = queryReturnParams.token ?? returnSession?.token ?? sessionChallenge?.token ?? null;
+    const rawBillingAgreementId = queryReturnParams.BillingAgreementId ?? sessionChallenge?.BillingAgreementId ?? returnSession?.BillingAgreementId ?? null;
+    const rawBAToken = queryReturnParams.ba_token ?? sessionChallenge?.ba_token ?? returnSession?.ba_token ?? null;
+    const normalizedBAToken = rawBillingAgreementId ?? rawBAToken;
 
     if (authChallengeId) body.authChallengeId = authChallengeId;
     if (frontendReturnPayloadId) body.frontendReturnPayloadId = frontendReturnPayloadId;
@@ -215,15 +227,26 @@ const ReturnChallengeClient = () => {
     if (setupIntentId) body.setupIntentId = setupIntentId;
     if (paymentIntentId) body.paymentIntentId = paymentIntentId;
     if (gatewayConfigurationId) body.gatewayConfigurationId = gatewayConfigurationId;
+    if (rawPayerID) body.PayerID = String(rawPayerID);
+    if (rawToken) body.token = String(rawToken);
+    if (rawBillingAgreementId) body.BillingAgreementId = String(rawBillingAgreementId);
+    if (rawBAToken) body.ba_token = String(rawBAToken);
+    if (normalizedBAToken && !body.setupIntentId && String(normalizedBAToken).startsWith("BA-")) {
+      body.setupIntentId = String(normalizedBAToken);
+    }
 
     const hasDonorParams =
       mergedDonorReturnParams && Object.keys(mergedDonorReturnParams).length > 0;
     if (hasDonorParams) {
       body.donorReturnParams = { ...mergedDonorReturnParams };
+      if (rawPayerID && !body.donorReturnParams.PayerID) body.donorReturnParams.PayerID = String(rawPayerID);
+      if (rawToken && !body.donorReturnParams.token) body.donorReturnParams.token = String(rawToken);
+      if (rawBillingAgreementId && !body.donorReturnParams.BillingAgreementId) body.donorReturnParams.BillingAgreementId = String(rawBillingAgreementId);
+      if (rawBAToken && !body.donorReturnParams.ba_token) body.donorReturnParams.ba_token = String(rawBAToken);
     }
 
     const paymentType = returnSession?.paymentMode ?? data.paymentType;
-    const isSplit = paymentType === "split" || paymentType === "recurring" || !!setupIntentId;
+    const isSplit = paymentType === "split" || paymentType === "recurring" || !!setupIntentId || (normalizedBAToken && String(normalizedBAToken).startsWith("BA-"));
     body.paymentMode = isSplit ? "split" : "one_time";
 
     body.orchestrationReturned = true;

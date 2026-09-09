@@ -281,7 +281,6 @@ function getInitialForm(provider, config) {
       ...base,
       apiKey: String(config?.apiKey || "").trim(),
       secretKey: "",
-      webhookUrl: String(config?.webhookUrl || "").trim(),
       webhookSigningSecret: "",
     };
   }
@@ -362,7 +361,6 @@ function buildConfigurationPayload(provider, form) {
   if (provider === "stripe") {
     payload.apiKey = cleanInput(form?.apiKey);
     payload.secretKey = cleanInput(form?.secretKey);
-    payload.webhookUrl = cleanInput(form?.webhookUrl);
     const webhookSigningSecret = cleanInput(form?.webhookSigningSecret);
     if (webhookSigningSecret) payload.webhookSigningSecret = webhookSigningSecret;
     return payload;
@@ -1314,17 +1312,28 @@ const GatewayCardFormModal = ({
               <div className="mt-6 border-t border-[#F3F4F6] pt-6">
                 <div className="mb-3 flex items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
-                    🔗 Webhook (optional)
+                    🔐 Webhook Signing Secret
                   </span>
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <Field label="Webhook URL" error={errors?.webhookUrl}>
-                    <TextInput
-                      value={form.webhookUrl || ""}
-                      onChange={(e) => setForm((p) => ({ ...(p || {}), webhookUrl: e.target.value }))}
-                      placeholder="https://your-domain.com/api/webhook/stripe"
-                    />
-                  </Field>
+                <div className="mb-4 flex items-start gap-2 rounded-lg border border-[#DBEAFE] bg-[#EFF6FF] p-3 text-[12px] leading-relaxed text-[#1E3A8A]">
+                  <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-[#2563EB]" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" />
+                    <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                  <div>
+                    <div className="font-semibold mb-0.5">Register this endpoint URL in Stripe Dashboard → Developers → Webhooks → Add endpoint</div>
+                    <div className="font-mono break-all text-[11px] text-[#1E40AF]">
+                      {typeof window !== "undefined" ? (new URL(window.location.origin).origin) : ""}
+                      /api/v1/donations/webhook/stripe
+                      {form.configurationId ? `?gwConfId=${String(form.configurationId)}` : "?gwConfId=<this-gateway-configuration-id>"}
+                    </div>
+                    <div className="mt-1 text-[11.5px] text-[#1E3A8A]/90">
+                      Select events to send: <span className="font-semibold">payment_intent.succeeded, payment_intent.payment_failed, payment_intent.canceled, setup_intent.succeeded, setup_intent.setup_failed, charge.refunded, charge.refund.updated</span>.
+                      After you click <span className="font-semibold">Add endpoint</span> in Stripe, copy the generated <span className="font-mono">whsec_...</span> signing secret and paste it below.
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
                   <Field label="Signing Secret" hint="Must start with whsec_" error={errors?.webhookSigningSecret}>
                     <TextInput
                       type="password"
@@ -1547,11 +1556,6 @@ const GatewayCardFormModal = ({
                       </span>
                     ) : <span className="text-red-500 font-bold">Missing</span>}
                   </Row>
-                  {form.webhookUrl ? (
-                    <Row label="Webhook URL" ok>
-                      <span className="font-mono text-[12px] font-bold text-[#374151] truncate">{mask(form.webhookUrl, 12)}</span>
-                    </Row>
-                  ) : null}
                 </>
               )}
               {provider === "paypal" && (
