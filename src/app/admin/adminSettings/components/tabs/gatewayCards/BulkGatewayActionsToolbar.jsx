@@ -40,7 +40,6 @@ const BulkGatewayActionsToolbar = ({
   onBulkDisconnect,
   onBulkSetPriority,
   onBulkAddCurrency,
-  onRunLegacyMigration,
 }) => {
   const [priorityValue, setPriorityValue] = useState(50);
   const [currencyValue, setCurrencyValue] = useState("AED");
@@ -179,15 +178,6 @@ const BulkGatewayActionsToolbar = ({
                 </button>
               </div>
             </div>
-            <div className="my-1.5 border-t border-[#F3F4F6]" />
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => onRunLegacyMigration?.()}
-              className="flex w-full items-center gap-2 px-3.5 py-2 text-left text-[12px] font-semibold text-[#111827] hover:bg-[#F3F4F6] disabled:opacity-50"
-            >
-              <span>🔄</span> Run Legacy Migration Wizard...
-            </button>
             <div className="my-1.5 border-t border-[#F3F4F6]" />
             <button
               type="button"

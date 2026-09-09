@@ -5,7 +5,6 @@ import SettingsSectionCard from "../SettingsSectionCard";
 import GatewayCard from "./gatewayCards/GatewayCard";
 import GatewayCardFormModal from "./gatewayCards/GatewayCardFormModal";
 import BulkGatewayActionsToolbar from "./gatewayCards/BulkGatewayActionsToolbar";
-import LegacyMigrationWizard from "./gatewayCards/LegacyMigrationWizard";
 import {
   PROVIDERS,
   getProviderLabel,
@@ -18,7 +17,6 @@ import {
   setAdminPaymentGatewayEnabledExtended,
   setAdminPaymentGatewayDefault,
   disconnectAdminPaymentGateway,
-  runGatewayHealthCanary,
 } from "@/services/admin";
 
 function CreditCardIcon() {
@@ -100,7 +98,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
   const [editing, setEditing] = useState(null);
   const [initialProvider, setInitialProvider] = useState("stripe");
   const [localBusy, setLocalBusy] = useState(false);
-  const [migrationOpen, setMigrationOpen] = useState(false);
   const [errors, setErrors] = useState([]);
 
   function pushError(msg) {
@@ -235,14 +232,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
     }
   }
 
-  async function handleTest(provider, configurationId) {
-    return await runGatewayHealthCanary(provider, configurationId, {
-      amountMinor: 100,
-      currency: "USD",
-      testMode: true,
-    });
-  }
-
   async function handleDefaultCurrencyChange(provider, configurationId, supportedCurrencies, defaultCurrency) {
     setLocalBusy(true);
     try {
@@ -356,16 +345,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
     }
   }
 
-  async function handleMigration(provider, configurationId, extendedFields) {
-    const existing = allConfigs.find((c) => c.provider === provider && getConfigId(c) === configurationId);
-    const payload = {
-      configurationId,
-      name: existing?.name || `${getProviderLabel(provider)} migrated`,
-      ...extendedFields,
-    };
-    return await updateAdminPaymentGatewayConfigurationExtended(provider, payload);
-  }
-
   const selectedArr = Array.from(selected);
 
   return (
@@ -442,15 +421,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={() => setMigrationOpen(true)}
-              disabled={loading || localBusy}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[#E5E7EB] bg-white px-3.5 py-2 text-[12.5px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-            >
-              <span>🔄</span>
-              Legacy Migration
-            </button>
-            <button
-              type="button"
               onClick={() => openAdd("stripe")}
               disabled={loading || localBusy}
               className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#111827] px-4 py-2 text-[12.5px] font-semibold text-white transition-colors duration-200 hover:bg-black disabled:opacity-60"
@@ -475,7 +445,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
           onBulkDisconnect={handleBulkDisconnect}
           onBulkSetPriority={handleBulkSetPriority}
           onBulkAddCurrency={handleBulkAddCurrency}
-          onRunLegacyMigration={() => setMigrationOpen(true)}
         />
       </div>
 
@@ -503,7 +472,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
                 onEdit={openEdit}
                 onMakeDefault={handleMakeDefault}
                 onDisconnect={handleDisconnect}
-                onTestConnection={handleTest}
                 onDefaultCurrencyChange={handleDefaultCurrencyChange}
               />
             );
@@ -556,17 +524,6 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
         editing={editing}
         allConfigs={allConfigs}
         initialProvider={initialProvider}
-      />
-
-      <LegacyMigrationWizard
-        open={migrationOpen}
-        onClose={() => {
-          setMigrationOpen(false);
-          if (typeof refresh === "function") refresh();
-        }}
-        existingGateways={gateways}
-        busy={busy || localBusy}
-        onMigrate={handleMigration}
       />
     </SettingsSectionCard>
   );

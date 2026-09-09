@@ -13,7 +13,6 @@ import {
   CURRENCY_LIST,
 } from "./constants";
 import CurrencyDefaultChips from "./CurrencyDefaultChips";
-import TestConnectionResult from "./TestConnectionResult";
 
 function ToggleSwitch({ enabled, onChange, disabled, size = "md" }) {
   const h = size === "sm" ? "h-5" : "h-6";
@@ -173,7 +172,6 @@ const GatewayCard = ({
   onEdit,
   onMakeDefault,
   onDisconnect,
-  onTestConnection,
   onDefaultCurrencyChange,
   isLastActiveForProvider = false,
   inFlightAuthChallenges = [],
@@ -230,7 +228,6 @@ const GatewayCard = ({
 
   const [confirmDisable, setConfirmDisable] = useState(false);
   const [confirmDisconnect, setConfirmDisconnect] = useState(false);
-  const [testResult, setTestResult] = useState(null);
   const [pendingNewState, setPendingNewState] = useState(null);
 
   async function handleEnabledToggle(nextState) {
@@ -255,20 +252,6 @@ const GatewayCard = ({
   async function runDisconnectConfirm() {
     setConfirmDisconnect(false);
     await onDisconnect?.(provider, configurationId);
-  }
-
-  async function handleTest() {
-    setTestResult({ loading: true });
-    try {
-      const res = await onTestConnection?.(provider, configurationId);
-      setTestResult({ loading: false, success: true, data: res || {} });
-    } catch (e) {
-      setTestResult({
-        loading: false,
-        success: false,
-        error: e?.message ? { message: e.message, code: e.code } : String(e),
-      });
-    }
   }
 
   const hasInFlight = Array.isArray(inFlightAuthChallenges) && inFlightAuthChallenges.length > 0;
@@ -335,7 +318,6 @@ const GatewayCard = ({
           options={[
             { label: "Edit configuration", icon: "⚙️", onClick: () => onEdit?.(provider, config) },
             { label: "Make default", icon: "⭐", onClick: () => onMakeDefault?.(provider, configurationId), disabled: isDefault },
-            { label: "Test connection", icon: "🧪", onClick: handleTest },
             { divider: true },
             { label: "Disconnect & remove", icon: "🗑️", danger: true, onClick: handleDisconnect, disabled: !configurationId },
           ]}
@@ -485,24 +467,9 @@ const GatewayCard = ({
         </div>
       </div>
 
-      <div className="border-t border-[#F3F4F6] p-3 space-y-3">
-        {testResult ? (
-          <TestConnectionResult
-            result={testResult}
-            onClose={() => setTestResult(null)}
-          />
-        ) : null}
-
+      <div className="border-t border-[#F3F4F6] p-3">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-1 flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={handleTest}
-              disabled={busy || loading || !configurationId}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 text-[11.5px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-            >
-              🧪 Test
-            </button>
             <button
               type="button"
               onClick={() => onEdit?.(provider, config)}
