@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
 import { useDonation } from "@/context/DonationContext";
 import { apiRequest } from "@/services/api";
 import {
@@ -66,7 +67,8 @@ function detectSessionMismatch({ returnSession, queryReturnParams, sessionChalle
 const ReturnChallengeClient = () => {
   const router = useRouter();
   const rawSearchParams = useSearchParams();
-  const { data, update } = useDonation();
+  const { isAuthenticated } = useAuth();
+  const { data, update, clearDonationSession } = useDonation();
 
   const [outcome, setOutcome] = useState(null);
   const [outcomeResult, setOutcomeResult] = useState({});
@@ -383,6 +385,37 @@ const ReturnChallengeClient = () => {
     })();
   }, [attempt, buildFinalizeBody, data.idempotencyKey, data.donationId, data.currency, data.email, donationAmount, router, update, classFinalizeErrorToOutcome, mergedDonorReturnParams, returnSession, queryReturnParams, provider, tamperRisk, sessionExpiresAt]);
 
+  useEffect(() => {
+    if (outcome !== OUTCOMES.SUCCESS || finalizing) return;
+    const receipt = outcomeResult?.receipt || {};
+    const nav = () => {
+      if (isAuthenticated) {
+        try {
+          const merged = {
+            donationId: receipt.donationId,
+            amount: receipt.amount ?? donationAmount,
+            currency: receipt.currency ?? data.currency,
+            frequency: receipt.frequency ?? data.frequency,
+            isRecurring: Boolean(receipt.isRecurring ?? data.isRecurring),
+            causes: receipt.causes ?? data.causes ?? null,
+            campaign: receipt.campaign ?? null,
+            causeAllocations: receipt.causeAllocations ?? null,
+            donor: receipt.donor ?? { email: receipt.donorEmail ?? data.email },
+            receiptId: receipt.receiptId ?? null,
+            donorEmail: receipt.donorEmail ?? data.email,
+          };
+          sessionStorage.setItem("thankyouData", JSON.stringify(merged));
+          clearDonationSession();
+        } catch (_) {}
+        router.replace("/dashboard/donation-history?thankyou=1");
+      } else {
+        router.replace("/donate/thank-you");
+      }
+    };
+    const t = setTimeout(nav, 80);
+    return () => clearTimeout(t);
+  }, [outcome, finalizing, isAuthenticated, outcomeResult?.receipt, donationAmount, data.currency, data.frequency, data.isRecurring, data.causes, data.email, clearDonationSession, router]);
+
   const handleRetryFinalize = useCallback(() => {
     finalizeRef.current = false;
     setOutcome(null);
@@ -420,7 +453,31 @@ const ReturnChallengeClient = () => {
 
   const handleNavigateSchedules = useCallback(() => router.replace("/dashboard/schedules"), [router]);
   const handleNavigateHome = useCallback(() => router.replace("/"), [router]);
-  const handleNavigateThankYou = useCallback(() => router.replace("/donate/thank-you"), [router]);
+  const handleNavigateThankYou = useCallback(() => {
+    const receipt = outcomeResult?.receipt || {};
+    if (isAuthenticated) {
+      try {
+        const merged = {
+          donationId: receipt.donationId,
+          amount: receipt.amount ?? donationAmount,
+          currency: receipt.currency ?? data.currency,
+          frequency: receipt.frequency ?? data.frequency,
+          isRecurring: Boolean(receipt.isRecurring ?? data.isRecurring),
+          causes: receipt.causes ?? data.causes ?? null,
+          campaign: receipt.campaign ?? null,
+          causeAllocations: receipt.causeAllocations ?? null,
+          donor: receipt.donor ?? { email: receipt.donorEmail ?? data.email },
+          receiptId: receipt.receiptId ?? null,
+          donorEmail: receipt.donorEmail ?? data.email,
+        };
+        sessionStorage.setItem("thankyouData", JSON.stringify(merged));
+        clearDonationSession();
+      } catch (_) {}
+      router.replace("/dashboard/donation-history?thankyou=1");
+    } else {
+      router.replace("/donate/thank-you");
+    }
+  }, [isAuthenticated, outcomeResult?.receipt, donationAmount, data.currency, data.frequency, data.isRecurring, data.causes, data.email, clearDonationSession, router]);
 
   return (
     <main className="min-h-screen bg-[#F6F6F6] flex items-start justify-center py-16 px-4 sm:px-6">
