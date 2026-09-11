@@ -10,6 +10,7 @@ import { ActionBanner } from "./components/ActionBanner";
 import { ScheduleDetailsCard } from "./components/ScheduleDetailsCard";
 import { AllocatedCausesCard } from "./components/AllocatedCausesCard";
 import { DonationHistoryCard } from "./components/DonationHistoryCard";
+import { ProviderSwitchCard } from "./components/ProviderSwitchCard";
 import { ScheduleSidebar } from "./components/ScheduleSidebar";
 import ScheduleOrchestrationStatusCard from "@/components/dashboard/ScheduleOrchestrationStatusCard";
 const frequencyLabel = { Weekly: "week", Monthly: "month", Daily: "day" };
@@ -217,6 +218,11 @@ const ScheduleDetailPage = () => {
               loading={loading}
               history={history}
               currency={currency}
+            />
+            <ProviderSwitchCard
+              scheduleId={scheduleId}
+              currentProvider={schedule?.provider}
+              onDone={() => refreshRef.current?.()}
             />
           </div>
 

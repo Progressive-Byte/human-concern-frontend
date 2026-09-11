@@ -134,6 +134,14 @@ export function cancelUserSchedule(scheduleId, reason = "") {
   });
 }
 
+export function startSchedulePaymentMethodSwitch(scheduleId, provider) {
+  const id = encodeURIComponent(String(scheduleId || "").trim());
+  return apiRequest(`/user/schedules/${id}/payment-method`, {
+    method: "POST",
+    body: JSON.stringify({ provider: String(provider || "").trim() }),
+  });
+}
+
 export function postFinalizeSplit(body, idemKey) {
   const options = {
     method: "POST",
