@@ -9,7 +9,7 @@ const causeBadgeStyles = {
 function statusClass(key) {
   const s = String(key || "").toLowerCase();
   if (s === "succeeded") return "text-[#047857]";
-  if (s === "pending" || s === "requires_action") return "text-[#B45309]";
+  if (s === "pending" || s === "processing" || s === "requires_action") return "text-[#B45309]";
   if (s === "failed") return "text-[#EA3335]";
   if (s === "refunded") return "text-[#6B7280]";
   return "text-[#047857]";
@@ -17,7 +17,7 @@ function statusClass(key) {
 function statusDotClass(key) {
   const s = String(key || "").toLowerCase();
   if (s === "succeeded") return "bg-[#047857]";
-  if (s === "pending" || s === "requires_action") return "bg-[#B45309]";
+  if (s === "pending" || s === "processing" || s === "requires_action") return "bg-[#B45309]";
   if (s === "failed") return "bg-[#EA3335]";
   if (s === "refunded") return "bg-[#6B7280]";
   return "bg-[#047857]";
