@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { apiRequest } from "@/services/api";
+import { DebitCreditCardIcon } from "@/components/common/SvgIcon";
 import {
   buildDonorReturnParams,
   buildDonorReturnQueryString,
@@ -21,37 +22,29 @@ const RecurringNotice = () => (
   </div>
 );
 
-// Generic payment-card glyph. Deliberately NOT a provider brand mark — the donor
-// sees the payment *type* (card), while the provider stays an implementation detail.
-const CardIcon = () => (
-  <svg viewBox="0 0 38 24" className="h-[22px] w-auto text-[#383838]" fill="none" aria-hidden="true">
-    <rect x="1" y="1" width="36" height="22" rx="4" stroke="currentColor" strokeWidth="2" />
-    <rect x="1" y="6.5" width="36" height="4" fill="currentColor" />
-    <rect x="6" y="15" width="9" height="3" rx="1.5" fill="currentColor" opacity="0.5" />
-  </svg>
-);
-
-const MethodTile = ({ label, sublabel, logo, icon, alt, isSelected, onClick }) => (
+// `logo` accepts either an image path (string) or a ready-made SVG node, so a
+// method can render a brand-neutral mark without shipping an image asset.
+const MethodTile = ({ label, sublabel, logo, alt, isSelected, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`flex items-center justify-between px-5 py-4 rounded-2xl border transition-all duration-200 text-left cursor-pointer ${
+    className={`flex items-center justify-between gap-3 px-5 py-4 rounded-2xl border transition-all duration-200 text-left cursor-pointer ${
       isSelected
         ? "border-[#383838] bg-white shadow-sm"
         : "border-[#E5E5E5] bg-white hover:border-[#AEAEAE]"
     }`}
   >
-    <div>
+    <div className="min-w-0">
       <span className="text-[14px] font-medium text-[#383838]">{label}</span>
       {sublabel && (
         <span className="ml-1.5 text-[13px] text-[#737373]">· {sublabel}</span>
       )}
     </div>
-    <div className="flex w-[60px] h-[24px] shrink-0 items-center justify-end">
-      {icon || (
-        <div className="relative h-full w-full">
-          <Image src={logo} alt={alt} fill className="object-contain" />
-        </div>
+    <div className="relative flex h-[24px] w-[60px] shrink-0 items-center justify-end">
+      {typeof logo === "string" ? (
+        <Image src={logo} alt={alt} fill className="object-contain" />
+      ) : (
+        logo
       )}
     </div>
   </button>
@@ -307,9 +300,8 @@ const PaymentGatewaySelector = ({
                 key={row.provider}
                 label={row.provider === "stripe" ? "Debit/Credit Card" : "PayPal"}
                 sublabel={null}
-                icon={row.provider === "stripe" ? <CardIcon /> : null}
-                logo={row.provider === "stripe" ? null : "/images/paypal.png"}
-                alt={row.provider}
+                logo={row.provider === "stripe" ? DebitCreditCardIcon : "/images/paypal.png"}
+                alt={row.provider === "stripe" ? "Debit or credit card" : "PayPal"}
                 isSelected={isSelected}
                 onClick={() => {
                   setSelectedProvider(row.provider);

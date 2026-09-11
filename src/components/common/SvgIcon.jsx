@@ -445,6 +445,25 @@ export const CardIcon = (
     <line x1="2" y1="10" x2="22" y2="10" />
   </svg>
 );
+// Generic debit/credit card mark used as the donor-facing logo for card payments.
+// Deliberately brand-neutral — we never surface the underlying processor to donors.
+export const DebitCreditCardIcon = (
+  <svg
+    width="60"
+    height="24"
+    viewBox="0 0 60 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label="Debit or credit card"
+  >
+    <rect x="0.5" y="0.5" width="59" height="23" rx="3.5" fill="#1F2937" stroke="#E5E7EB" />
+    <rect x="0.5" y="0.5" width="59" height="6.5" rx="3.5" fill="#111827" />
+    <rect x="6" y="11" width="10" height="7.5" rx="1.6" fill="#F4B740" />
+    <rect x="42" y="12.5" width="12" height="2.8" rx="1.4" fill="#FFFFFF" opacity="0.9" />
+    <rect x="42" y="17" width="8" height="2.8" rx="1.4" fill="#FFFFFF" opacity="0.55" />
+  </svg>
+);
 export const VideoDashboard = (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="3" width="7" height="7" />
