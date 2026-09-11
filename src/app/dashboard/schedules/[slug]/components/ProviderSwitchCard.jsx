@@ -19,11 +19,11 @@ async function getStripe() {
   return stripePromise;
 }
 
-function alternateProvider(currentProvider) {
+function fallbackAlternate(currentProvider) {
   const p = String(currentProvider || "").toLowerCase();
   if (p === "paypal") return "stripe";
   if (p === "stripe") return "paypal";
-  return "stripe";
+  return "";
 }
 
 function StripeVaultForm({ clientSecret, authChallengeId, frontendReturnPayloadId, onDone, onError }) {
@@ -81,8 +81,8 @@ function StripeVaultForm({ clientSecret, authChallengeId, frontendReturnPayloadI
   );
 }
 
-export function ProviderSwitchCard({ scheduleId, currentProvider, onDone }) {
-  const target = alternateProvider(currentProvider);
+export function ProviderSwitchCard({ scheduleId, currentProvider, alternateProvider, onDone }) {
+  const target = alternateProvider || fallbackAlternate(currentProvider);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -129,12 +129,12 @@ export function ProviderSwitchCard({ scheduleId, currentProvider, onDone }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
-      <h2 className="text-base font-semibold text-[#111827]">Payment Method</h2>
+    <div className="bg-white rounded-2xl border border-dashed border-[#EA3335]/40 p-5 md:p-6">
+      <h2 className="text-base font-semibold text-[#111827]">Action needed: payment provider unavailable</h2>
       <p className="mt-1 text-sm text-[#6B7280]">
         {currentProvider
-          ? `This schedule is charged via ${String(currentProvider)}.`
-          : "Update the payment method used for this schedule."}
+          ? `${String(currentProvider)} is currently unavailable, so this schedule can't be charged. Add ${target} to keep your donations going.`
+          : "Your payment provider is currently unavailable. Add another payment method to keep your donations going."}
       </p>
 
       {error ? (
@@ -151,7 +151,7 @@ export function ProviderSwitchCard({ scheduleId, currentProvider, onDone }) {
           className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#F9FAFB] disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? Spinner : null}
-          {loading ? "Starting…" : `Switch to ${target}`}
+          {loading ? "Starting…" : `Add ${target} & continue`}
         </button>
       ) : null}
 

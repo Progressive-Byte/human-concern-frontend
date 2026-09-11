@@ -219,11 +219,14 @@ const ScheduleDetailPage = () => {
               history={history}
               currency={currency}
             />
-            <ProviderSwitchCard
-              scheduleId={scheduleId}
-              currentProvider={schedule?.provider}
-              onDone={() => refreshRef.current?.()}
-            />
+            {schedule?.providerOutage?.down && schedule?.providerOutage?.alternateAvailable ? (
+              <ProviderSwitchCard
+                scheduleId={scheduleId}
+                currentProvider={schedule?.providerOutage?.currentProvider || schedule?.provider}
+                alternateProvider={schedule?.providerOutage?.alternateProvider}
+                onDone={() => refreshRef.current?.()}
+              />
+            ) : null}
           </div>
 
           <ScheduleSidebar
