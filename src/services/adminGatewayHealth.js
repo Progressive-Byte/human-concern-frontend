@@ -16,6 +16,15 @@ export function listGatewayHealthOverview({ provider, sinceMinutes } = {}) {
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
+export function getCrossProviderSwapMetrics({ sinceHours = 24, limit = 10 } = {}) {
+  const params = new URLSearchParams();
+  params.set("sinceHours", String(sinceHours));
+  params.set("limit", String(limit));
+  return adminApiRequest(`/admin/gateway-health/cross-provider-swaps?${params.toString()}`, {
+    method: "GET",
+  });
+}
+
 export function getGatewayHealthDetail(provider, confId) {
   const endpoint = `/admin/gateway-health/${encodeURIComponent(provider)}/${encodeURIComponent(confId)}`;
   return adminApiRequest(endpoint, { method: "GET" });

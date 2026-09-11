@@ -47,6 +47,7 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   }) => {
     const body = {
       setupIntentId,
+      paymentProvider: data.payment?.provider ?? data.paymentMethod ?? "stripe",
       ...(data.donationId && { donationId: data.donationId }),
       ...(data.pendingSessionId && { pendingSessionId: data.pendingSessionId }),
       ...(authChallengeId && { authChallengeId }),
@@ -67,7 +68,7 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
       }
       throw err;
     }
-  }, [data.donationId, data.pendingSessionId, update]);
+  }, [data.donationId, data.pendingSessionId, data.payment, data.paymentMethod, update]);
 
   const finalizeOneTimeDonation = useCallback(async ({
     paymentIntentId,
@@ -78,6 +79,7 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
     const body = {
       paymentMode: "one_time",
       ...(paymentIntentId && { paymentIntentId }),
+      paymentProvider: data.payment?.provider ?? data.paymentMethod ?? "stripe",
       ...(data.donationId && { donationId: data.donationId }),
       ...(data.pendingSessionId && { pendingSessionId: data.pendingSessionId }),
       ...(authChallengeId && { authChallengeId }),
@@ -112,7 +114,7 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
       }
       throw err;
     }
-  }, [data.donationId, data.pendingSessionId, update]);
+  }, [data.donationId, data.pendingSessionId, data.payment, data.paymentMethod, update]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

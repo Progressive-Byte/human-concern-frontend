@@ -19,12 +19,15 @@ const formatCurrency = (amount, currency = "USD") => {
   return `${sym}${num.toFixed(2)}`;
 };
 
-const SuccessCard = ({ receipt, onNavigateHome, onNavigateSchedules }) => {
+const PROVIDER_LABELS = { stripe: "card", paypal: "PayPal", bank_transfer: "bank transfer" };
+
+const SuccessCard = ({ receipt, onNavigateHome, onNavigateSchedules, providerSwapped, providerSwappedFrom }) => {
   const router = useRouter();
   const amount = receipt?.amount ?? receipt?.grandTotal ?? 0;
   const currency = receipt?.currency ?? "USD";
   const donationId = receipt?.donationId ?? receipt?.id ?? "";
   const isRecurring = receipt?.paymentType === "recurring" || receipt?.isSplit || receipt?.paymentMode === "split";
+  const fromLabel = PROVIDER_LABELS[providerSwappedFrom] || providerSwappedFrom || "your original method";
 
   return (
     <div className="rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
@@ -40,6 +43,17 @@ const SuccessCard = ({ receipt, onNavigateHome, onNavigateSchedules }) => {
           {isRecurring ? "Your monthly donation is set up successfully" : "Your donation was received successfully"}
         </p>
       </div>
+
+      {providerSwapped && (
+        <div className="mb-5 flex items-start gap-3 rounded-xl border border-[#FFE082] bg-[#FFF8E1] px-4 py-3 text-left">
+          <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#B45309] text-[12px] font-bold text-white">
+            !
+          </span>
+          <p className="text-[13px] text-[#8A5A12]">
+            We switched your payment method to complete this donation. Your {fromLabel} was never charged.
+          </p>
+        </div>
+      )}
 
       <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-4 mb-6">
         <div className="space-y-3 text-sm">
@@ -342,10 +356,20 @@ const ReturnChallengeResultCard = ({
   onContactSupport,
   onVerifyAndFinalize,
   onRetryFinalize,
+  providerSwapped = false,
+  providerSwappedFrom = null,
 }) => {
   switch (outcome) {
     case OUTCOMES.SUCCESS:
-      return <SuccessCard receipt={receipt} onNavigateHome={onNavigateHome} onNavigateSchedules={onNavigateSchedules} />;
+      return (
+        <SuccessCard
+          receipt={receipt}
+          onNavigateHome={onNavigateHome}
+          onNavigateSchedules={onNavigateSchedules}
+          providerSwapped={providerSwapped}
+          providerSwappedFrom={providerSwappedFrom}
+        />
+      );
     case OUTCOMES.FAILURE:
       return (
         <FailureCard

@@ -12,6 +12,19 @@ import DonationPreview from "./StepComponents/DonationPreview";
 import { NoticeIcon } from "@/components/common/SvgIcon";
 import { usePaymentProviderInstance } from "./StepComponents/Step4components/usePaymentProviderInstance";
 
+// Centralised copy (future i18n extraction point — English-only today).
+const PROVIDER_LABELS = { stripe: "card", paypal: "PayPal", bank_transfer: "bank transfer" };
+const SWAP_BANNER_COPY = {
+  title: "We switched your payment method",
+  body: (from, to) => {
+    const fromLabel = PROVIDER_LABELS[from] || from || "original";
+    const toLabel = PROVIDER_LABELS[to] || to || "another provider";
+    return `Your ${fromLabel} payment couldn't be started, so we switched you to ${toLabel}. Your ${fromLabel} method was never charged.`;
+  },
+  continuingPrefix: "Continuing to PayPal in",
+};
+const MIN_SWAP_BANNER_DURATION_MS = 2500;
+
 const Step4Confirmation = () => {
   const { data }          = useDonation();
   const { primaryColor }  = useBranding();
@@ -19,6 +32,63 @@ const Step4Confirmation = () => {
   const router            = useRouter();
   const [ready, setReady] = useState(false);
   const isPreview = pathname.startsWith("/admin/forms/preview");
+  const [swapDismissed, setSwapDismissed] = useState(false);
+  const [swapCountdown, setSwapCountdown] = useState(null);
+
+  const swapInfo = useMemo(() => {
+    if (data.providerSwapped) {
+      return {
+        swapped: true,
+        from: data.providerSwappedFrom ?? null,
+        to: data.payment?.provider ?? data.paymentMethod ?? null,
+        reasonCode: data.swappedReasonCode ?? null,
+        donationId: data.donationId ?? null,
+      };
+    }
+    if (typeof window !== "undefined") {
+      try {
+        const raw = sessionStorage.getItem("hc_provider_swap");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.swapped) return parsed;
+        }
+      } catch {
+        // noop
+      }
+    }
+    return null;
+  }, [
+    data.providerSwapped,
+    data.providerSwappedFrom,
+    data.swappedReasonCode,
+    data.payment,
+    data.paymentMethod,
+    data.donationId,
+  ]);
+
+  const swapDismissKey = `hc_provider_swap_dismissed_${data.donationId ?? "current"}`;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      setSwapDismissed(sessionStorage.getItem(swapDismissKey) === "1");
+    } catch {
+      // noop
+    }
+  }, [swapDismissKey]);
+
+  const showSwapBanner = Boolean(swapInfo?.swapped) && !swapDismissed;
+
+  const dismissSwapBanner = () => {
+    setSwapDismissed(true);
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.setItem(swapDismissKey, "1");
+      } catch {
+        // noop
+      }
+    }
+  };
 
   const publicSettings = useMemo(() => ({
     provider: data.paymentMethod ?? null,
@@ -179,7 +249,20 @@ const Step4Confirmation = () => {
       return;
     }
 
+    // When we switched the donor to PayPal, keep the swap banner on screen for a
+    // minimum duration before navigating so it is actually read/announced.
+    const swapped = Boolean(swapInfo?.swapped);
+    const delayMs = swapped ? MIN_SWAP_BANNER_DURATION_MS : 900;
+
     let disposed = false;
+    let countdownInterval = null;
+    if (swapped) {
+      setSwapCountdown(Math.ceil(MIN_SWAP_BANNER_DURATION_MS / 1000));
+      countdownInterval = window.setInterval(() => {
+        setSwapCountdown((n) => (n && n > 1 ? n - 1 : n));
+      }, 1000);
+    }
+
     const token = window.setTimeout(() => {
       if (disposed) return;
       try {
@@ -187,11 +270,12 @@ const Step4Confirmation = () => {
       } catch (_) {
         window.location.href = target;
       }
-    }, 900);
+    }, delayMs);
 
     return () => {
       disposed = true;
       if (token) window.clearTimeout(token);
+      if (countdownInterval) window.clearInterval(countdownInterval);
     };
   }, [
     isPreview,
@@ -202,6 +286,7 @@ const Step4Confirmation = () => {
     data.approvalUrl,
     data.paypalRedirectUrl,
     data.paypalApprovalUrl,
+    swapInfo?.swapped,
   ]);
 
   const appearance = {
@@ -260,6 +345,32 @@ const Step4Confirmation = () => {
     <main className="min-h-screen bg-[#F9F9F9] pt-30 lg:pt-40 pb-16 px-4">
       <div className="max-w-5xl mx-auto">
         <StepProgress current={4} />
+
+        {showSwapBanner && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mb-5 flex items-start gap-3 rounded-2xl border border-[#FFE082] bg-[#FFF8E1] px-4 py-3"
+          >
+            <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#B45309] text-[12px] font-bold text-white">
+              !
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[14px] font-semibold text-[#7C4A03]">{SWAP_BANNER_COPY.title}</p>
+              <p className="mt-0.5 text-[13px] text-[#8A5A12]">
+                {SWAP_BANNER_COPY.body(swapInfo.from, swapInfo.to)}
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-label="Dismiss payment method change notice"
+              onClick={dismissSwapBanner}
+              className="shrink-0 cursor-pointer rounded-full px-2 text-[18px] leading-none text-[#8A5A12] hover:text-[#5C3703]"
+            >
+              ×
+            </button>
+          </div>
+        )}
 
         <div className="flex flex-col lg:flex-row items-start gap-5">
           <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8 flex-1 min-w-0 w-full">
@@ -323,7 +434,9 @@ const Step4Confirmation = () => {
                   }}
                   className="mt-2 cursor-pointer rounded-full bg-[#1A1A1A] px-6 py-2.5 text-[14px] font-semibold text-white transition-all hover:bg-[#333333] active:scale-95"
                 >
-                  Go to PayPal now
+                  {swapCountdown
+                    ? `${SWAP_BANNER_COPY.continuingPrefix} ${swapCountdown}…`
+                    : "Go to PayPal now"}
                 </button>
               </div>
             ) : isStripe ? (

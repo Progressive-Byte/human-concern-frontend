@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SettingsSectionCard from "../SettingsSectionCard";
 import GatewayCard from "./gatewayCards/GatewayCard";
 import GatewayCardFormModal from "./gatewayCards/GatewayCardFormModal";
@@ -17,6 +17,8 @@ import {
   setAdminPaymentGatewayEnabledExtended,
   setAdminPaymentGatewayDefault,
   disconnectAdminPaymentGateway,
+  getAdminPaymentOrchestration,
+  updateAdminPaymentOrchestration,
 } from "@/services/admin";
 
 function CreditCardIcon() {
@@ -99,6 +101,54 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
   const [initialProvider, setInitialProvider] = useState("stripe");
   const [localBusy, setLocalBusy] = useState(false);
   const [errors, setErrors] = useState([]);
+
+  const [orchestration, setOrchestration] = useState(() => ({
+    allowCrossProviderFallback: Boolean(value?.orchestration?.allowCrossProviderFallback),
+    crossProviderFallbackOnlySameRegion: value?.orchestration?.crossProviderFallbackOnlySameRegion !== false,
+  }));
+  const [orchestrationBusy, setOrchestrationBusy] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await getAdminPaymentOrchestration();
+        const data = res?.data ?? res;
+        if (alive && data?.orchestration) {
+          setOrchestration({
+            allowCrossProviderFallback: Boolean(data.orchestration.allowCrossProviderFallback),
+            crossProviderFallbackOnlySameRegion: data.orchestration.crossProviderFallbackOnlySameRegion !== false,
+          });
+        }
+      } catch {
+        // Fall back to whatever the parent already provided.
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  async function handleOrchestrationToggle(key, next) {
+    const previous = orchestration;
+    setOrchestration((prev) => ({ ...prev, [key]: next }));
+    setOrchestrationBusy(true);
+    try {
+      const res = await updateAdminPaymentOrchestration({ [key]: next });
+      const data = res?.data ?? res;
+      if (data?.orchestration) {
+        setOrchestration({
+          allowCrossProviderFallback: Boolean(data.orchestration.allowCrossProviderFallback),
+          crossProviderFallbackOnlySameRegion: data.orchestration.crossProviderFallbackOnlySameRegion !== false,
+        });
+      }
+    } catch (e) {
+      setOrchestration(previous);
+      pushError(e?.message || String(e));
+    } finally {
+      setOrchestrationBusy(false);
+    }
+  }
 
   function pushError(msg) {
     setErrors((prev) => [...prev.slice(-4), { id: Date.now() + Math.random(), msg }]);
@@ -369,6 +419,45 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
           ))}
         </div>
       ) : null}
+
+      <div className="mb-4 rounded-2xl border border-[#E5E7EB] bg-white p-4">
+        <div className="mb-3 text-[13px] font-semibold text-[#111827]">Cross-Provider Fallback</div>
+        <p className="mb-3 text-[12px] text-[#6B7280]">
+          Applies to one-time and split/recurring donations equally. When off, a donor&apos;s payment fails if their chosen provider has no healthy cards; it never switches to the other provider.
+        </p>
+        <div className="flex flex-col gap-3">
+          <label className="flex items-start justify-between gap-4">
+            <span className="flex flex-col">
+              <span className="text-[13px] font-medium text-[#111827]">Allow cross-provider failover</span>
+              <span className="text-[12px] text-[#6B7280]">If every card of the donor&apos;s provider is unhealthy, retry with the other provider.</span>
+            </span>
+            <input
+              type="checkbox"
+              role="switch"
+              aria-label="Allow cross-provider failover"
+              checked={Boolean(orchestration.allowCrossProviderFallback)}
+              disabled={orchestrationBusy}
+              onChange={(e) => handleOrchestrationToggle("allowCrossProviderFallback", e.target.checked)}
+              className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-[#111827] disabled:opacity-50"
+            />
+          </label>
+          <label className="flex items-start justify-between gap-4">
+            <span className="flex flex-col">
+              <span className="text-[13px] font-medium text-[#111827]">Match region tags for cross-provider fallback</span>
+              <span className="text-[12px] text-[#6B7280]">Only switch when the alternate provider&apos;s region tags include the donor&apos;s country (or are global).</span>
+            </span>
+            <input
+              type="checkbox"
+              role="switch"
+              aria-label="Match region tags for cross-provider fallback"
+              checked={Boolean(orchestration.crossProviderFallbackOnlySameRegion)}
+              disabled={orchestrationBusy}
+              onChange={(e) => handleOrchestrationToggle("crossProviderFallbackOnlySameRegion", e.target.checked)}
+              className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-[#111827] disabled:opacity-50"
+            />
+          </label>
+        </div>
+      </div>
 
       <div className="mb-4 rounded-2xl border border-[#E5E7EB] bg-white p-3">
         <div className="flex flex-wrap items-center justify-between gap-3">

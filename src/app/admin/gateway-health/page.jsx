@@ -5,6 +5,7 @@ import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import {
   listGatewayHealthOverview,
+  getCrossProviderSwapMetrics,
   getGatewayHealthDetail,
   forceCloseCircuit,
   forceOpenCircuit,
@@ -572,6 +573,9 @@ const AdminGatewayHealthPage = () => {
   const [rawResponse, setRawResponse] = useState(null);
   const [responseMeta, setResponseMeta] = useState({ count: null, providers: null, sinceMinutes: null, generatedAt: null });
 
+  const [swapMetrics, setSwapMetrics] = useState(null);
+  const [swapModalOpen, setSwapModalOpen] = useState(false);
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -632,6 +636,21 @@ const AdminGatewayHealthPage = () => {
       alive = false;
     };
   }, [filters.provider, filters.sinceMinutes, refreshKey]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await getCrossProviderSwapMetrics({ sinceHours: 24, limit: 10 });
+        if (alive) setSwapMetrics(res?.data ?? res ?? null);
+      } catch {
+        if (alive) setSwapMetrics(null);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [refreshKey]);
 
   const handleViewDetail = useCallback(async (row) => {
     if (!row) return;
@@ -897,6 +916,40 @@ const AdminGatewayHealthPage = () => {
         </div>
       ) : null}
 
+      {swapMetrics ? (
+        <button
+          type="button"
+          onClick={() => setSwapModalOpen(true)}
+          className={`hc-animate-fade-up w-full rounded-2xl border px-4 py-3 text-left transition-colors ${
+            swapMetrics.thresholdExceeded
+              ? "border-orange-300 bg-orange-50"
+              : "border-dashed border-[#E5E7EB] bg-white hover:bg-[#FAFAFA]"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className={`text-[12px] font-semibold uppercase tracking-wide ${swapMetrics.thresholdExceeded ? "text-orange-700" : "text-[#6B7280]"}`}>
+                Cross-provider swaps (last {swapMetrics.sinceHours}h)
+              </div>
+              <div className="mt-0.5 text-[20px] font-semibold text-[#111827]">
+                {swapMetrics.swapCount}
+                <span className="text-[13px] font-normal text-[#6B7280]">
+                  {" "}/ {swapMetrics.totalDonations} donations ({swapMetrics.swapPercent}%)
+                </span>
+              </div>
+            </div>
+            {swapMetrics.thresholdExceeded ? (
+              <span className="rounded-full bg-orange-500 px-2.5 py-1 text-[11px] font-semibold text-white">
+                Alert &gt; {swapMetrics.thresholdPercent}%
+              </span>
+            ) : null}
+          </div>
+          <div className="mt-1 text-[12px] text-[#6B7280]">
+            Click to view the last {Array.isArray(swapMetrics.items) ? swapMetrics.items.length : 0} swapped donations.
+          </div>
+        </button>
+      ) : null}
+
       <GatewayHealthSummaryCards items={items} loading={loading} meta={responseMeta} windowMinutes={Number(filters.sinceMinutes) || 15} />
 
       <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
@@ -1036,6 +1089,59 @@ const AdminGatewayHealthPage = () => {
         onConfirm={handleSweep}
         loading={sweeping}
       />
+
+      {swapModalOpen && swapMetrics ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setSwapModalOpen(false)}
+        >
+          <div
+            className="max-h-[80vh] w-full max-w-3xl overflow-auto rounded-2xl bg-white p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-[16px] font-semibold text-[#111827]">Recent cross-provider swaps</h3>
+              <button
+                type="button"
+                onClick={() => setSwapModalOpen(false)}
+                className="rounded-full px-2 text-[20px] leading-none text-[#6B7280] hover:text-[#111827]"
+              >
+                ×
+              </button>
+            </div>
+            {Array.isArray(swapMetrics.items) && swapMetrics.items.length > 0 ? (
+              <table className="w-full text-left text-[13px]">
+                <thead>
+                  <tr className="text-[11px] uppercase tracking-wide text-[#6B7280]">
+                    <th className="py-2 pr-3">Donation</th>
+                    <th className="py-2 pr-3">From → To</th>
+                    <th className="py-2 pr-3">Amount</th>
+                    <th className="py-2 pr-3">Reason</th>
+                    <th className="py-2 pr-3">Donor</th>
+                    <th className="py-2">When</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {swapMetrics.items.map((it) => (
+                    <tr key={it.donationId || String(it.swappedAt)} className="border-t border-[#F3F4F6]">
+                      <td className="py-2 pr-3 font-mono text-[12px] text-[#111827]">
+                        {String(it.donationId || "").slice(0, 10)}…
+                      </td>
+                      <td className="py-2 pr-3 text-[#111827]">{it.fromProvider} → {it.toProvider}</td>
+                      <td className="py-2 pr-3 text-[#111827]">{it.currency} {Number(it.amount || 0).toFixed(2)}</td>
+                      <td className="py-2 pr-3 text-[#6B7280]">{it.reasonCode || "—"}</td>
+                      <td className="py-2 pr-3 text-[#6B7280]">{it.donorEmail || "—"}</td>
+                      <td className="py-2 text-[#6B7280]">{it.swappedAt ? new Date(it.swappedAt).toLocaleString() : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="text-[13px] text-[#6B7280]">No swaps recorded in this window.</p>
+            )}
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 };

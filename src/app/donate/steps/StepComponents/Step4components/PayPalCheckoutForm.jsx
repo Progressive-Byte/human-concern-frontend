@@ -102,6 +102,7 @@ const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
   }) => {
     const body = {
       setupIntentId,
+      paymentProvider: data.payment?.provider ?? data.paymentMethod ?? "paypal",
       ...(data.donationId && { donationId: data.donationId }),
       ...(data.pendingSessionId && { pendingSessionId: data.pendingSessionId }),
       ...(authChallengeId && { authChallengeId }),
@@ -122,7 +123,7 @@ const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
       }
       throw err;
     }
-  }, [data.donationId, data.pendingSessionId, update]);
+  }, [data.donationId, data.pendingSessionId, data.payment, data.paymentMethod, update]);
 
   const finalizeOneTimeDonation = useCallback(async ({
     orderId,
@@ -139,6 +140,7 @@ const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
       ...(payerId && { payerId }),
       ...(paypalToken && { paypalToken }),
       ...(paymentId && { paymentId }),
+      paymentProvider: data.payment?.provider ?? data.paymentMethod ?? "paypal",
       ...(data.donationId && { donationId: data.donationId }),
       ...(data.pendingSessionId && { pendingSessionId: data.pendingSessionId }),
       ...(authChallengeId && { authChallengeId }),
@@ -173,7 +175,7 @@ const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
       }
       throw err;
     }
-  }, [data.donationId, data.pendingSessionId, update]);
+  }, [data.donationId, data.pendingSessionId, data.payment, data.paymentMethod, update]);
 
   useEffect(() => {
     if (!sdkConfig.sdkKey) {

@@ -495,6 +495,17 @@ export function getAdminSettingsPayment() {
   return adminApiRequest("/admin/settings/payment", { method: "GET" });
 }
 
+export function getAdminPaymentOrchestration() {
+  return adminApiRequest("/admin/settings/payment/orchestration", { method: "GET" });
+}
+
+export function updateAdminPaymentOrchestration(payload) {
+  return adminApiRequest("/admin/settings/payment/orchestration", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
 export function getAdminSettingsExchangeRates() {
   return adminApiRequest("/admin/settings/exchange-rates", { method: "GET" });
 }

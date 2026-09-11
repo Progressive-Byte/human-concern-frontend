@@ -517,6 +517,29 @@ const Step3Addons = () => {
       const submitOpts = { method: "POST", body: JSON.stringify(buildSubmitBody()) };
       if (data.idempotencyKey) submitOpts.idempotencyKey = data.idempotencyKey;
       const res     = await apiRequest("donations/submit", submitOpts);
+
+      // Cross-provider fallback markers (backend composeResponseStep root fields).
+      const providerSwapped = Boolean(
+        res?.providerSwapped ?? res?.data?.providerSwapped ?? res?.data?.data?.providerSwapped
+      );
+      const providerSwappedFrom =
+        res?.providerSwappedFrom ?? res?.data?.providerSwappedFrom ?? res?.data?.data?.providerSwappedFrom ?? null;
+      const swappedReasonCode =
+        res?.swappedReasonCode ?? res?.data?.swappedReasonCode ?? res?.data?.data?.swappedReasonCode ?? null;
+
+      // Ordering matters: overwrite the context provider FIRST, then (re)write the
+      // unified challenge session, THEN navigate to Step 4.
+      if (providerSwapped && typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem("hc_unified_challenge");
+          sessionStorage.removeItem("hc_last_challenge");
+          sessionStorage.removeItem("hc_auth_challenge_id");
+          sessionStorage.removeItem("hc_frontend_return_payload_id");
+        } catch {
+          // noop
+        }
+      }
+
       const payment =
         res?.payment ??
         res?.data?.payment ??
@@ -656,6 +679,32 @@ const Step3Addons = () => {
         data.paymentMethod ??
         null;
 
+      // 1) Overwrite the gateway state with the winning provider BEFORE navigating,
+      //    so Step 4 mounts the correct provider form (form type always wins from
+      //    payment.provider, never from the donor's original tile choice).
+      if (providerSwapped && resolvedProvider) {
+        setGatewayState({
+          gateway: resolvedProvider,
+          configurationId: gatewayConfigurationId,
+          publishableKey: resolvedPublishableKey,
+          clientId: resolvedClientId,
+        });
+        if (typeof window !== "undefined") {
+          try {
+            sessionStorage.setItem("hc_provider_swap", JSON.stringify({
+              swapped: true,
+              from: providerSwappedFrom,
+              to: resolvedProvider,
+              reasonCode: swappedReasonCode,
+              donationId: res?.donationId ?? res?.data?.donationId ?? null,
+              ts: Date.now(),
+            }));
+          } catch {
+            // noop
+          }
+        }
+      }
+
       const updatePayload = {
         donationId:           res?.donationId ?? res?.data?.donationId ?? res?.id ?? null,
         guestSessionId:       res?.guestSessionId ?? res?.data?.guestSessionId ?? res?.guest_session_id ?? res?.data?.guest_session_id ?? null,
@@ -681,6 +730,9 @@ const Step3Addons = () => {
         billingAgreementToken,
         paypalBillingAgreementToken: billingAgreementToken,
         baToken:              billingAgreementToken,
+        providerSwapped,
+        providerSwappedFrom:  providerSwappedFrom ?? "",
+        swappedReasonCode:    swappedReasonCode ?? "",
       };
       update(updatePayload);
       handleNext(4);

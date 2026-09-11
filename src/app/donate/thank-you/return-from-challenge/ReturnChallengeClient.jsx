@@ -101,6 +101,9 @@ const ReturnChallengeClient = () => {
   const returnSession = useMemo(() => loadReturnSession(), []);
   const sessionChallenge = useMemo(() => loadUnifiedChallengeFromSession(), []);
 
+  const providerSwapped = Boolean(sessionChallenge?.providerSwapped ?? data.providerSwapped);
+  const providerSwappedFrom = sessionChallenge?.providerSwappedFrom ?? data.providerSwappedFrom ?? null;
+
   const donorEmail = outcomeResult?.donorEmail ?? mergedDonorReturnParams?.email ?? returnSession?.donorEmail ?? queryReturnParams.donorEmail ?? data.email ?? "";
 
   const provider =
@@ -179,6 +182,12 @@ const ReturnChallengeClient = () => {
       body.paymentProvider = "paypal";
     }
 
+    // paymentProvider is the winning provider from the unified challenge (post-switch),
+    // never the donor's pre-switch tile choice.
+    body.paymentProvider = sessionChallenge?.provider
+      ? String(sessionChallenge.provider)
+      : (data?.payment?.provider ? String(data.payment.provider) : provider);
+
     const authChallengeId =
       queryReturnParams.authChallengeId ??
       returnSession?.authChallengeId ??
@@ -243,6 +252,13 @@ const ReturnChallengeClient = () => {
       if (rawToken && !body.donorReturnParams.token) body.donorReturnParams.token = String(rawToken);
       if (rawBillingAgreementId && !body.donorReturnParams.BillingAgreementId) body.donorReturnParams.BillingAgreementId = String(rawBillingAgreementId);
       if (rawBAToken && !body.donorReturnParams.ba_token) body.donorReturnParams.ba_token = String(rawBAToken);
+    }
+
+    if (sessionChallenge?.providerSwapped) {
+      body.donorReturnParams = {
+        ...(body.donorReturnParams || {}),
+        swappedViaProviderFallback: "1",
+      };
     }
 
     const paymentType = returnSession?.paymentMode ?? data.paymentType;
@@ -596,6 +612,8 @@ const ReturnChallengeClient = () => {
             onNavigateThankYou={handleNavigateThankYou}
             contactSupportUrl="/contact"
             donorEmail={donorEmail}
+            providerSwapped={providerSwapped}
+            providerSwappedFrom={providerSwappedFrom}
           />
         )}
       </div>
