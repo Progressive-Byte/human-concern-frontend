@@ -21,7 +21,17 @@ const RecurringNotice = () => (
   </div>
 );
 
-const MethodTile = ({ label, sublabel, logo, alt, isSelected, onClick }) => (
+// Generic payment-card glyph. Deliberately NOT a provider brand mark — the donor
+// sees the payment *type* (card), while the provider stays an implementation detail.
+const CardIcon = () => (
+  <svg viewBox="0 0 38 24" className="h-[22px] w-auto text-[#383838]" fill="none" aria-hidden="true">
+    <rect x="1" y="1" width="36" height="22" rx="4" stroke="currentColor" strokeWidth="2" />
+    <rect x="1" y="6.5" width="36" height="4" fill="currentColor" />
+    <rect x="6" y="15" width="9" height="3" rx="1.5" fill="currentColor" opacity="0.5" />
+  </svg>
+);
+
+const MethodTile = ({ label, sublabel, logo, icon, alt, isSelected, onClick }) => (
   <button
     type="button"
     onClick={onClick}
@@ -37,8 +47,12 @@ const MethodTile = ({ label, sublabel, logo, alt, isSelected, onClick }) => (
         <span className="ml-1.5 text-[13px] text-[#737373]">· {sublabel}</span>
       )}
     </div>
-    <div className="relative w-[60px] h-[24px] shrink-0">
-      <Image src={logo} alt={alt} fill className="object-contain" />
+    <div className="flex w-[60px] h-[24px] shrink-0 items-center justify-end">
+      {icon || (
+        <div className="relative h-full w-full">
+          <Image src={logo} alt={alt} fill className="object-contain" />
+        </div>
+      )}
     </div>
   </button>
 );
@@ -291,9 +305,10 @@ const PaymentGatewaySelector = ({
             return (
               <MethodTile
                 key={row.provider}
-                label={row.provider === "stripe" ? "Stripe" : "PayPal"}
+                label={row.provider === "stripe" ? "Debit/Credit Card" : "PayPal"}
                 sublabel={null}
-                logo={row.provider === "stripe" ? "/images/stripe.jpg" : "/images/paypal.png"}
+                icon={row.provider === "stripe" ? <CardIcon /> : null}
+                logo={row.provider === "stripe" ? null : "/images/paypal.png"}
                 alt={row.provider}
                 isSelected={isSelected}
                 onClick={() => {
