@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAdminDonorDonations } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import { AddOnList } from "@/components/common/AddOnList";
 import { formatCurrency } from "@/utils/helpers";
 
 function formatDateTime(value) {
@@ -200,6 +201,7 @@ const DonorTransactionsModal = ({ open, donorKey, onClose }) => {
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                   <th className="px-5 py-3">Cause</th>
+                  <th className="py-3 pr-4">Add-ons</th>
                   <th className="py-3 pr-4">Amount</th>
                   <th className="py-3 pr-4">Status</th>
                   <th className="py-3 pr-5 text-right">Created</th>
@@ -236,6 +238,10 @@ const DonorTransactionsModal = ({ open, donorKey, onClose }) => {
                     return (
                       <tr key={id || `${causeName}-${createdAt}`} className="border-t border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors duration-200">
                         <td className="px-5 py-4">{causeName}</td>
+                        <td className="py-4 pr-4">
+                          <AddOnList addons={d?.addons} currency={String(d?.currency || "USD")} max={3} />
+                          {!(Array.isArray(d?.addons) && d.addons.length) ? <span className="text-[#9CA3AF]">—</span> : null}
+                        </td>
                         <td className="py-4 pr-4 font-semibold">{formatCurrency(amount)}</td>
                         <td className="py-4 pr-4">{st}</td>
                         <td className="py-4 pr-5 text-right text-[#6B7280]">{formatDateTime(createdAt)}</td>

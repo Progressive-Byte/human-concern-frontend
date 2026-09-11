@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DonationContentIcon } from "@/components/common/SvgIcon";
 import { SkeletonStack } from "@/components/ui/Skeleton";
+import { AddOnList } from "@/components/common/AddOnList";
 import { formatCurrency } from "@/utils/helpers";
 
 const causeBadgeStyles = {
@@ -37,6 +38,7 @@ const RecentDonationsCard = ({ loading, donations }) => (
               <div className="min-w-0">
                 <p className="font-medium text-[#111827] text-sm truncate">{d.title}</p>
                 <p className="text-xs text-[#6B7280] mt-0.5">{d.date || "—"}</p>
+                <AddOnList addons={d.addons} currency={d.currency} className="mt-1.5" max={2} />
               </div>
             </div>
             <div className="text-right flex flex-col items-end gap-1 shrink-0 ml-3">

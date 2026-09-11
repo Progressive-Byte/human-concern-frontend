@@ -3,6 +3,7 @@
 import DonationRowActions from "./DonationRowActions";
 import DonationStatusPill from "./DonationStatusPill";
 import DonationsPagination from "./DonationsPagination";
+import { AddOnList } from "@/components/common/AddOnList";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -113,6 +114,7 @@ const DonationsTable = ({
                     </td>
                     <td className="py-4 pr-4">
                       <div className="truncate text-[#111827]">{campaignName}</div>
+                      <AddOnList addons={d?.addons} currency={String(d?.currency || currency)} className="mt-1.5" max={2} />
                     </td>
                     <td className="py-4 pr-4">
                       <span className="inline-flex rounded-full bg-[#F3F4F6] px-3 py-1 text-[11px] font-semibold text-[#6B7280]">

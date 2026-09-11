@@ -1,5 +1,6 @@
 import { EyeIcon } from "@/components/common/SvgIcon";
 import { SkeletonRows } from "@/components/ui/Skeleton";
+import { AddOnList } from "@/components/common/AddOnList";
 import { formatCurrency } from "@/utils/helpers";
 const causeBadgeStyles = {
   Zakat:     "bg-[#ECFDF5] text-[#047857]",
@@ -45,6 +46,7 @@ function DonationRow({ r, isLast }) {
       </td>
       <td className="px-4 py-4">
         <p className="text-[#111827] text-sm leading-snug">{r.campaign}</p>
+        <AddOnList addons={r.addons} currency={r.currency} className="mt-1.5" max={2} />
         <span className="md:hidden mt-1 block">
           <StatusBadge statusKey={r.statusKey} status={r.status} />
         </span>

@@ -125,6 +125,15 @@ function normalizeDonation(raw) {
   const causeLabel = String(raw?.causeLabel || "—");
   const causeType = String(raw?.causeType || "");
 
+  const addons = (Array.isArray(raw?.addons) ? raw.addons : [])
+    .filter((a) => a && typeof a === "object")
+    .map((a) => ({
+      addOnId: String(a?.addOnId || ""),
+      name: String(a?.name || ""),
+      amount: Number(a?.amount || 0),
+      inputValues: a?.inputValues && typeof a.inputValues === "object" ? a.inputValues : {},
+    }));
+
   return {
     id,
     donationId,
@@ -136,6 +145,7 @@ function normalizeDonation(raw) {
     causeType,
     amount,
     tipAmount,
+    addons,
     currency,
     status,
     statusLabel,

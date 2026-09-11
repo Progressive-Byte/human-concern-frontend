@@ -93,6 +93,7 @@ const DashboardPage = () => {
       amount:   Number(it?.amount ?? 0),
       currency: String(it?.currency || kpis?.currency || "USD"),
       cause:    String(it?.causes?.[0]?.label || "").trim() || "—",
+      addons:   Array.isArray(it?.addons) ? it.addons : [],
     })),
   [recentItems, kpis?.currency]);
 

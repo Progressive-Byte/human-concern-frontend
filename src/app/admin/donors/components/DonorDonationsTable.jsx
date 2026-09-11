@@ -1,3 +1,4 @@
+import { AddOnList } from "@/components/common/AddOnList";
 import { formatCurrency } from "@/utils/helpers";
 
 function formatDate(value) {
@@ -80,6 +81,7 @@ const DonorDonationsTable = ({ donations, loading, onViewAll }) => {
                     <div className="min-w-0">
                       <div className="truncate text-[13px] font-semibold text-[#111827]">{causeName}</div>
                       <div className="mt-1 text-[12px] text-[#6B7280]">{formatDate(createdAt)}</div>
+                      <AddOnList addons={d?.addons} currency={String(d?.currency || "USD")} className="mt-1.5" max={2} />
                     </div>
                   </div>
                   <div className="shrink-0 text-[13px] font-semibold text-[#111827]">{formatCurrency(amount)}</div>
