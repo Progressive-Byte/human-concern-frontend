@@ -294,7 +294,9 @@ const AdminSidebar = ({ onNavigate }) => {
   const visibleNavItems = navItems.filter((item) => hasPermission(item.permission));
 
   return (
-    <aside className="flex h-screen w-65 shrink-0 flex-col text-white" style={{ backgroundColor: "var(--admin-primary-700)" }}>
+    // Static, non-branded chrome: the sidebar deliberately uses fixed colors rather
+    // than the Settings > Branding primary, so changing the brand never recolors it.
+    <aside className="flex h-screen w-65 shrink-0 flex-col bg-[#171717] text-white">
       <div className="flex items-center gap-3 border-b border-white/10 px-4 py-5">
         <div className="flex items-center justify-center rounded-full bg-white/10">
           <Image src={brandLogoUrl || "/icons/hcu-icon-light.png"} alt="Human Concern USA" width={30} height={30} />
@@ -329,10 +331,10 @@ const AdminSidebar = ({ onNavigate }) => {
               href={item.href}
               onClick={() => onNavigate?.()}
               className={`${base} ${
-                active ? "bg-red-600/15 text-white ring-1 ring-inset ring-red-500/25" : "text-white/70 hover:bg-white/5 hover:text-white"
+                active ? "bg-white/10 text-white ring-1 ring-inset ring-white/15" : "text-white/70 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <NavIcon name={item.icon} className={active ? "text-red-200" : "text-white/60"} />
+              <NavIcon name={item.icon} className={active ? "text-white" : "text-white/60"} />
               <span>{item.label}</span>
             </Link>
           );
