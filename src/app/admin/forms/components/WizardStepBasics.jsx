@@ -49,6 +49,36 @@ function isActiveCategory(cat) {
   return status === "active";
 }
 
+// Internal Basics fields hidden from the UI.
+//
+// These are HIDDEN, not removed: their state, handlers and payload entries are all
+// kept, so any value already saved on a form round-trips untouched, and re-enabling
+// a field is a one-line change here. Hidden fields are also optional in validation.
+// (Fund codes live in their own dedicated place; the separate "Causes" wizard step
+// is unrelated and unaffected.)
+const HIDDEN_INTERNAL_FIELDS = new Set(["fundCause", "fundCode", "beneficiaryId", "locationId"]);
+
+function isInternalFieldVisible(key) {
+  return !HIDDEN_INTERNAL_FIELDS.has(key);
+}
+
+// Hidden fields are optional; visible fields stay required. Either way, a value
+// that IS provided must still satisfy its format/length rules.
+function validateInternalField(errors, key, value, rules = {}) {
+  const v = String(value || "");
+  if (!v) {
+    if (isInternalFieldVisible(key)) errors[`internal.${key}`] = "Required";
+    return;
+  }
+  if (rules.digitsOnly && !isDigits(v)) {
+    errors[`internal.${key}`] = "Digits only";
+    return;
+  }
+  if (rules.maxLength && v.length > rules.maxLength) {
+    errors[`internal.${key}`] = rules.maxMessage;
+  }
+}
+
 const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) => {
   const toast = useToast();
 
@@ -240,25 +270,17 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     else if (internal.campaignId.length > 32) errors["internal.campaignId"] = "Max 32 characters";
     else if (!isInternalCampaignId(internal.campaignId)) errors["internal.campaignId"] = "Invalid format";
 
-    if (!internal.fundCause) errors["internal.fundCause"] = "Required";
-    else if (internal.fundCause.length > 200) errors["internal.fundCause"] = "Max 200 characters";
-
-    if (!internal.fundCode) errors["internal.fundCode"] = "Required";
-    else if (!isDigits(internal.fundCode)) errors["internal.fundCode"] = "Digits only";
-    else if (internal.fundCode.length > 64) errors["internal.fundCode"] = "Max 64 digits";
-
-    if (!internal.beneficiaryId) errors["internal.beneficiaryId"] = "Required";
-    else if (!isDigits(internal.beneficiaryId)) errors["internal.beneficiaryId"] = "Digits only";
-    else if (internal.beneficiaryId.length > 64) errors["internal.beneficiaryId"] = "Max 64 digits";
+    // Hidden-from-UI fields: optional, but still validated when a value exists.
+    validateInternalField(errors, "fundCause", internal.fundCause, { maxLength: 200, maxMessage: "Max 200 characters" });
+    validateInternalField(errors, "fundCode", internal.fundCode, { digitsOnly: true, maxLength: 64, maxMessage: "Max 64 digits" });
+    validateInternalField(errors, "beneficiaryId", internal.beneficiaryId, { digitsOnly: true, maxLength: 64, maxMessage: "Max 64 digits" });
+    validateInternalField(errors, "locationId", internal.locationId, { maxLength: 100, maxMessage: "Max 100 characters" });
 
     if (!internal.designation) errors["internal.designation"] = "Required";
     else if (internal.designation.length > 64) errors["internal.designation"] = "Max 64 characters";
 
     if (!internal.shortDescription) errors["internal.shortDescription"] = "Required";
     else if (internal.shortDescription.length > 200) errors["internal.shortDescription"] = "Max 200 characters";
-
-    if (!internal.locationId) errors["internal.locationId"] = "Required";
-    else if (internal.locationId.length > 100) errors["internal.locationId"] = "Max 100 characters";
 
     if (!pub.displayName) errors["public.displayName"] = "Required";
     else if (pub.displayName.length < 3) errors["public.displayName"] = "Min 3 characters";
@@ -489,47 +511,53 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
             <FieldError message={fieldErrors["internal.campaignId"]} />
           </div>
 
-          <div>
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-              Fund Cause <span className="text-red-600">*</span>
+          {isInternalFieldVisible("fundCause") ? (
+            <div>
+              <div className="mb-2 text-[13px] font-semibold text-[#111827]">
+                Fund Cause <span className="text-red-600">*</span>
+              </div>
+              <input
+                value={fundCause}
+                onChange={(e) => setFundCause(e.target.value)}
+                placeholder="e.g. Child Sponsorship Program"
+                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                disabled={saving}
+              />
+              <FieldError message={fieldErrors["internal.fundCause"]} />
             </div>
-            <input
-              value={fundCause}
-              onChange={(e) => setFundCause(e.target.value)}
-              placeholder="e.g. Child Sponsorship Program"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
-            />
-            <FieldError message={fieldErrors["internal.fundCause"]} />
-          </div>
+          ) : null}
 
-          <div>
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-              Fund Code <span className="text-red-600">*</span>
+          {isInternalFieldVisible("fundCode") ? (
+            <div>
+              <div className="mb-2 text-[13px] font-semibold text-[#111827]">
+                Fund Code <span className="text-red-600">*</span>
+              </div>
+              <input
+                value={fundCode}
+                onChange={(e) => setFundCode(e.target.value)}
+                placeholder="digits only"
+                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                disabled={saving}
+              />
+              <FieldError message={fieldErrors["internal.fundCode"]} />
             </div>
-            <input
-              value={fundCode}
-              onChange={(e) => setFundCode(e.target.value)}
-              placeholder="digits only"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
-            />
-            <FieldError message={fieldErrors["internal.fundCode"]} />
-          </div>
+          ) : null}
 
-          <div>
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-              Beneficiary ID <span className="text-red-600">*</span>
+          {isInternalFieldVisible("beneficiaryId") ? (
+            <div>
+              <div className="mb-2 text-[13px] font-semibold text-[#111827]">
+                Beneficiary ID <span className="text-red-600">*</span>
+              </div>
+              <input
+                value={beneficiaryId}
+                onChange={(e) => setBeneficiaryId(e.target.value)}
+                placeholder="digits only"
+                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                disabled={saving}
+              />
+              <FieldError message={fieldErrors["internal.beneficiaryId"]} />
             </div>
-            <input
-              value={beneficiaryId}
-              onChange={(e) => setBeneficiaryId(e.target.value)}
-              placeholder="digits only"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
-            />
-            <FieldError message={fieldErrors["internal.beneficiaryId"]} />
-          </div>
+          ) : null}
 
           <div>
             <div className="mb-2 text-[13px] font-semibold text-[#111827]">
@@ -545,19 +573,21 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
             <FieldError message={fieldErrors["internal.designation"]} />
           </div>
 
-          <div>
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-              Location/Form Used <span className="text-red-600">*</span>
+          {isInternalFieldVisible("locationId") ? (
+            <div>
+              <div className="mb-2 text-[13px] font-semibold text-[#111827]">
+                Location/Form Used <span className="text-red-600">*</span>
+              </div>
+              <input
+                value={locationId}
+                onChange={(e) => setLocationId(e.target.value)}
+                placeholder="Location ID"
+                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                disabled={saving}
+              />
+              <FieldError message={fieldErrors["internal.locationId"]} />
             </div>
-            <input
-              value={locationId}
-              onChange={(e) => setLocationId(e.target.value)}
-              placeholder="Location ID"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
-            />
-            <FieldError message={fieldErrors["internal.locationId"]} />
-          </div>
+          ) : null}
 
           <div className="md:col-span-2">
             <div className="mb-2 text-[13px] font-semibold text-[#111827]">
