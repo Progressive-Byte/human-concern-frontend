@@ -7,7 +7,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout          from "./StepComponents/StepLayout";
 import PersonalInfoSection from "./StepComponents/Step1components/PersonalInfoSection";
-import DonorCountrySelector from "@/components/payment/DonorCountrySelector";
 import AddressSection      from "./StepComponents/Step1components/AddressSection";
 import CauseSelector       from "./StepComponents/Step1components/CauseSelector";
 import DonorPreferences    from "./StepComponents/Step1components/DonorPreferences";
@@ -125,7 +124,7 @@ const Step1Info = ({ campaignSlug }) => {
     if (wasAuth && !isAuthenticated) {
       update({
         organization: "", firstName: "", lastName: "", email: "", phone: "",
-        addressLine1: "", city: "", province: "", zip: "", country: "",
+        addressLine1: "", city: "", province: "", zip: "", country: "", donorCountryCode: "",
         causeIds: [], causes: [], causeSplit: {}, objective: null, objectiveLabel: "",
       });
       setEditMode(false);
@@ -213,24 +212,6 @@ const Step1Info = ({ campaignSlug }) => {
           onToggleEditMode={() => setEditMode((prev) => !prev)}
           personalField={personalField}
         />
-
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl px-4 py-4">
-          <DonorCountrySelector
-            value={data.donorCountryCode}
-            onChange={(isoCode, countryName) => {
-              update({ donorCountryCode: isoCode, error: "" });
-              setError("");
-              if (countryName && !data.country?.trim()) {
-                update({ country: countryName });
-              }
-            }}
-            userCountry={user?.country ?? ""}
-            addressCountry={user?.address?.country ?? ""}
-            required
-            label="Donor Country"
-            helpText="Used for payment processing and tax receipt eligibility."
-          />
-        </div>
 
         <AddressSection
           setError={setError}

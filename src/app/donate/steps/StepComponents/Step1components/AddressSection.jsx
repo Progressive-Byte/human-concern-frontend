@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Country, State, City } from "country-state-city";
 import { useDonation } from "@/context/DonationContext";
+import { useAuth } from "@/context/AuthContext";
 import Field from "@/components/ui/Field";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import GooglePlacesInput from "@/components/common/GooglePlacesInput";
@@ -11,10 +12,15 @@ import { resolveCountryIso, resolveStateIso } from "@/utils/isoHelpers";
 
 const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
   const { data, update } = useDonation();
+  const { user } = useAuth();
 
+  // Country is the single source of truth for this form. Selecting it writes both
+  // `country` (name, used for the address) and `donorCountryCode` (ISO, used for
+  // payment processing and tax receipts) so the two can never drift apart.
   const [countryCode, setCountryCode] = useState("");
-  const [stateCode,   setStateCode]   = useState("");
+  const [stateCode, setStateCode] = useState("");
   const didAutoCollapse = useRef(false);
+  const prefillAttempted = useRef(false);
 
   useEffect(() => {
     if (!didAutoCollapse.current && (data.addressLine1?.trim() || data.city?.trim())) {
@@ -24,16 +30,38 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
   }, [data.addressLine1, data.city, setAddressExpanded]);
 
   useEffect(() => {
-    if (data.country) {
-      if (!countryCode) {
-        const iso = resolveCountryIso(data.country);
-        if (iso) setCountryCode(iso);
-      }
-    } else {
-      setCountryCode("");
+    const existing = resolveCountryIso(data.donorCountryCode) || resolveCountryIso(data.country);
+    if (existing) {
+      setCountryCode((prev) => (prev === existing ? prev : existing));
+      return;
     }
+    if (prefillAttempted.current) return;
+    prefillAttempted.current = true;
+
+    const fromUser = resolveCountryIso(user?.country || "") || resolveCountryIso(user?.address?.country || "");
+    if (fromUser) {
+      const c = Country.getCountryByCode(fromUser);
+      setCountryCode(fromUser);
+      if (c) update({ country: c.name, donorCountryCode: c.isoCode });
+      return;
+    }
+
+    const abort = new AbortController();
+    (async () => {
+      try {
+        const res = await fetch("https://ipapi.co/json/", { signal: abort.signal });
+        if (!res.ok) return;
+        const json = await res.json();
+        const iso = resolveCountryIso(json?.country_code || "");
+        if (!iso) return;
+        const c = Country.getCountryByCode(iso);
+        setCountryCode(iso);
+        if (c) update({ country: c.name, donorCountryCode: c.isoCode });
+      } catch {}
+    })();
+    return () => abort.abort();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.country]);
+  }, [data.donorCountryCode, data.country, user]);
 
   useEffect(() => {
     if (data.province) {
@@ -73,7 +101,12 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
     const country = Country.getCountryByCode(isoCode);
     setCountryCode(isoCode);
     setStateCode("");
-    update({ country: country?.name ?? "", province: "", city: "" });
+    update({
+      country: country?.name ?? "",
+      donorCountryCode: country?.isoCode ?? isoCode,
+      province: "",
+      city: "",
+    });
     setError("");
   };
 
@@ -89,13 +122,15 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
     setError("");
   };
 
-  // called when Google Places autocomplete selects an address
+  // called when Google Places autocomplete selects an address.
+  // Country name + ISO code both come from here so the single Country field,
+  // the address, and the payment/tax country never drift apart.
   const handlePlaceSelect = useCallback((parsed) => {
-    setCountryCode(parsed.countryCode);
     setStateCode(parsed.stateCode);
     update({
       addressLine1: parsed.addressLine1,
       country:      parsed.country,
+      ...(parsed.countryCode ? { donorCountryCode: parsed.countryCode } : {}),
       province:     parsed.province,
       city:         parsed.city,
       zip:          parsed.zip,
@@ -151,6 +186,9 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
               label="Countries"
               maxHeight="220px"
             />
+            <p className="text-[11px] text-[#AEAEAE]">
+              Used for payment processing and tax receipt eligibility.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
