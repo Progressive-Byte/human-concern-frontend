@@ -66,8 +66,26 @@ const AmountSelector = ({
   // click "Edit change" to modify it, mirroring Step1Info's field lock pattern.
   const [locked, setLocked] = useState(true);
 
-  const convertedMin = toConverted(minDonation ?? 0);
-  const convertedMax = maxDonation != null ? toConverted(maxDonation) : undefined;
+  const occ = Math.max(1, Number(occurrences) || 1);
+  // "Pay this amount each date" holds a per-payment value; "Divide total" holds the total.
+  const perPaymentEntry = Boolean(isRecurring) && splitMode !== "divide";
+
+  const totalsMin = toConverted(minDonation ?? 0);
+  const totalsMax = maxDonation != null ? toConverted(maxDonation) : null;
+
+  // The campaign min/max applies to the whole schedule ($10 × 5 = $50 vs a $50 minimum),
+  // so in per-payment mode the input bounds are the totals divided by the payment count.
+  const convertedMin = perPaymentEntry ? totalsMin / occ : totalsMin;
+  const convertedMax = totalsMax != null ? (perPaymentEntry ? totalsMax / occ : totalsMax) : undefined;
+
+  const minAmountError = perPaymentEntry
+    ? `Total must be at least ${sym}${formatDisplay(totalsMin)} (${occ} × ${sym}${formatDisplay(convertedMin)})`
+    : `Minimum donation amount is ${sym}${formatDisplay(totalsMin)}`;
+  const maxAmountError = totalsMax != null
+    ? (perPaymentEntry
+        ? `Total must not exceed ${sym}${formatDisplay(totalsMax)}`
+        : `Maximum donation amount is ${sym}${formatDisplay(totalsMax)}`)
+    : "";
 
   const effectiveAmount = customAmount
     ? Number(customAmount)
@@ -109,9 +127,9 @@ const AmountSelector = ({
     const num    = Number(val);
     const hasErr = num < convertedMin || Boolean(convertedMax != null && num > convertedMax);
     if (num < convertedMin) {
-      setCustomAmountError(`Minimum donation amount is ${sym}${formatDisplay(convertedMin)}`);
+      setCustomAmountError(minAmountError);
     } else if (convertedMax != null && num > convertedMax) {
-      setCustomAmountError(`Maximum donation amount is ${sym}${formatDisplay(convertedMax)}`);
+      setCustomAmountError(maxAmountError);
     } else {
       setCustomAmountError("");
     }
