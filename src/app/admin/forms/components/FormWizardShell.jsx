@@ -1,5 +1,25 @@
 "use client";
 
+import { useFormEditorGuard } from "./FormEditorGuardProvider";
+
+const STATUS_STYLES = {
+  saving: { label: "Saving...", className: "bg-[#F3F4F6] text-[#6B7280]" },
+  dirty: { label: "Unsaved changes", className: "bg-[#FEF3C7] text-[#92400E]" },
+  saved: { label: "All changes saved", className: "bg-[#ECFDF5] text-[#047857]" },
+  error: { label: "Save failed", className: "bg-red-500/10 text-red-600" },
+};
+
+function SaveStatusChip({ state }) {
+  const entry = STATUS_STYLES[String(state || "")];
+  if (!entry) return null;
+
+  return (
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[12px] font-semibold ${entry.className}`}>
+      {entry.label}
+    </span>
+  );
+}
+
 const FormWizardShell = ({
   step = "basics",
   title = "Create Form",
@@ -8,6 +28,7 @@ const FormWizardShell = ({
   onStepClick,
   children,
 }) => {
+  const guard = useFormEditorGuard();
   const list = Array.isArray(steps) && steps.length ? steps : [
     { key: "basics", label: "Basics" },
     { key: "goals-dates", label: "Goals & Dates" },
@@ -25,8 +46,12 @@ const FormWizardShell = ({
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">{title}</h1>
-            <p className="mt-1 text-[14px] text-[#6B7280]">Wizard configuration is saved on the Form.</p>
+            <p className="mt-1 text-[14px] text-[#6B7280]">
+              Changes are saved automatically. Wizard configuration is saved on the Form.
+            </p>
           </div>
+
+          <SaveStatusChip state={guard?.saveState} />
         </div>
 
         <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">

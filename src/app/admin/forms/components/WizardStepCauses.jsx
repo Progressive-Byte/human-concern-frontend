@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getAdminCauses, getAdminDesignations, getAdminFormCauses, updateAdminFormCauses } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import WizardFooterNav from "./WizardFooterNav";
+import useStepAutosave from "../hooks/useStepAutosave";
 
 function normalizeItemsResponse(res) {
   const items = res?.data?.items || res?.data?.data?.items || res?.items || [];
@@ -93,6 +94,14 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
   );
   const selectedCount = selectedCauseIds.length;
 
+  // Autosave once the step has loaded (the draft must already exist).
+  useStepAutosave({
+    formId,
+    deps: [selectedCauseIds, designationByCause],
+    ready: !loading,
+    persist: () => save({ silent: true }),
+  });
+
   useEffect(() => {
     if (!formId) {
       setLoading(false);
@@ -155,16 +164,16 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
     });
   }
 
-  async function save({ goNext } = { goNext: false }) {
-    setTopError("");
+  async function save({ goNext, silent = false } = { goNext: false }) {
+    if (!silent) setTopError("");
 
     if (!campaignId) {
-      toast.error("Missing campaignId");
-      return { ok: false };
+      if (!silent) toast.error("Missing campaignId");
+      return { ok: false, error: "Missing campaignId" };
     }
     if (!formId) {
-      toast.error("Complete Basics first");
-      return { ok: false };
+      if (!silent) toast.error("Complete Basics first");
+      return { ok: false, error: "Complete Basics first" };
     }
 
     const enabledIdSet = new Set(
@@ -186,7 +195,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
     setSaving(true);
     try {
       await updateAdminFormCauses(formId, payload);
-      toast.success("Causes saved");
+      if (!silent) toast.success("Causes saved");
       onSaved?.();
 
       if (goNext) {
@@ -195,9 +204,11 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: true };
     } catch (e) {
       const msg = e?.message || "Failed to save causes.";
-      setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
-      toast.error(msg);
-      return { ok: false };
+      if (!silent) {
+        setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
+        toast.error(msg);
+      }
+      return { ok: false, error: msg };
     } finally {
       setSaving(false);
     }

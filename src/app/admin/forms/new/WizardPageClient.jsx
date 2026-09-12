@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import FormWizardShell from "../components/FormWizardShell";
+import FormEditorGuardProvider, { useFormEditorGuard } from "../components/FormEditorGuardProvider";
 import WizardStepBasics from "../components/WizardStepBasics";
 import WizardStepGoalsDates from "../components/WizardStepGoalsDates";
 import WizardStepCauses from "../components/WizardStepCauses";
@@ -19,9 +20,10 @@ function isActiveCategory(cat) {
   return status === "active";
 }
 
-const WizardPageClient = () => {
+const WizardContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const guard = useFormEditorGuard();
 
   const step = searchParams.get("step") || "basics";
   const campaignId = searchParams.get("campaignId") || "";
@@ -32,7 +34,7 @@ const WizardPageClient = () => {
   const [basicsCategoryIds, setBasicsCategoryIds] = useState([]);
   const [sectionsCompleted, setSectionsCompleted] = useState({});
 
-  function navigateToStep(nextStep, nextFormId = initialFormId) {
+  function goToStep(nextStep, nextFormId = initialFormId) {
     const s = String(nextStep || "").trim();
     if (!s) return;
     const params = new URLSearchParams();
@@ -41,6 +43,16 @@ const WizardPageClient = () => {
     const fid = String(nextFormId || "").trim();
     if (fid) params.set("formId", fid);
     router.push(`/admin/forms/new?${params.toString()}`);
+  }
+
+  // Editor navigation always respects the unsaved-changes guard; `goToStep` stays raw for the
+  // internal step-normalisation redirect below.
+  function navigateToStep(nextStep, nextFormId = initialFormId) {
+    guard?.confirmNavigation(() => goToStep(nextStep, nextFormId));
+  }
+
+  function exitToForms() {
+    guard?.confirmNavigation(() => router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`));
   }
 
   async function refreshFormMeta(nextFormId = initialFormId) {
@@ -159,9 +171,11 @@ const WizardPageClient = () => {
   }, [initialFormId, categories, categoriesLoading, basicsCategoryIds]);
 
   useEffect(() => {
+    // A step-normalisation redirect, not a user action — never raise the guard for it.
     if (step === "objectives" && isRamadanForm === false) {
-      navigateToStep("addons", initialFormId);
+      goToStep("addons", initialFormId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, isRamadanForm, initialFormId]);
 
   const steps = useMemo(() => {
@@ -235,7 +249,7 @@ const WizardPageClient = () => {
               navigateToStep(nextStep, formId || initialFormId);
               return;
             }
-            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+            exitToForms();
           }}
         />
       ) : step === "goals-dates" ? (
@@ -248,7 +262,7 @@ const WizardPageClient = () => {
               navigateToStep(nextStep, initialFormId);
               return;
             }
-            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+            exitToForms();
           }}
         />
       ) : step === "causes" ? (
@@ -265,7 +279,7 @@ const WizardPageClient = () => {
               }
               return;
             }
-            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+            exitToForms();
           }}
         />
       ) : step === "objectives" ? (
@@ -286,7 +300,7 @@ const WizardPageClient = () => {
                 navigateToStep(nextStep, initialFormId);
                 return;
               }
-              router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+              exitToForms();
             }}
           />
         )
@@ -301,7 +315,7 @@ const WizardPageClient = () => {
               navigateToStep(nextStep, initialFormId);
               return;
             }
-            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+            exitToForms();
           }}
         />
       ) : step === "media" ? (
@@ -314,7 +328,7 @@ const WizardPageClient = () => {
               navigateToStep(nextStep, initialFormId);
               return;
             }
-            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+            exitToForms();
           }}
         />
       ) : step === "review" ? (
@@ -325,7 +339,7 @@ const WizardPageClient = () => {
           onSaved={() => refreshFormMeta(initialFormId)}
           onExit={({ nextStep } = {}) => {
             if (nextStep === "finish") {
-              router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+              exitToForms();
               return;
             }
             if (nextStep) {
@@ -336,7 +350,7 @@ const WizardPageClient = () => {
               }
               return;
             }
-            router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`);
+            exitToForms();
           }}
         />
       ) : (
@@ -344,11 +358,18 @@ const WizardPageClient = () => {
           title="Review"
           description="Review readiness to publish."
           onBack={() => navigateToStep("media", initialFormId)}
-          onNext={() => router.push(`/admin/forms?campaignId=${encodeURIComponent(campaignId)}`)}
+          onNext={() => exitToForms()}
           nextLabel="Finish"
         />
       )}
     </FormWizardShell>
   );
-}
+};
+
+const WizardPageClient = () => (
+  <FormEditorGuardProvider>
+    <WizardContent />
+  </FormEditorGuardProvider>
+);
+
 export default WizardPageClient;
