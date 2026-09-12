@@ -28,6 +28,10 @@ export default function useStepAutosave({
   enabled = true,
 }) {
   const guard = useFormEditorGuard();
+  // Hold the latest guard in a ref so the effects below don't re-run every time the provider
+  // rebuilds its context value (which happens on each dirty/save-state change).
+  const guardRef = useRef(guard);
+  guardRef.current = guard;
 
   const baselineRef = useRef(null);
   const timerRef = useRef(null);
@@ -52,41 +56,46 @@ export default function useStepAutosave({
     if (next === baselineRef.current) return { ok: true };
     if (typeof persistRef.current !== "function") return { ok: false, error: "Nothing to save." };
 
-    guard?.markSaving?.();
+    guardRef.current?.markSaving?.();
     try {
       const result = await persistRef.current();
       if (result && result.ok === false) {
         throw new Error(result.error || "Could not save your changes.");
       }
-      baselineRef.current = next;
-      guard?.markClean?.();
+      // Most steps re-read the form after saving and set state from the server's copy, which
+      // changes `deps`. Let that render land, then re-baseline from the *current* values —
+      // otherwise the hook reads the refresh as a fresh edit and saves on a loop.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      baselineRef.current = serialize(depsRef.current);
+      guardRef.current?.markClean?.();
       return { ok: true };
     } catch (err) {
-      guard?.markError?.(err?.message || "Could not save your changes.");
-      return { ok: false, error: err?.message || "Could not save your changes." };
+      const message = err?.message || "Could not save your changes.";
+      guardRef.current?.markError?.(message);
+      return { ok: false, error: message };
     }
-  }, [guard]);
+  }, []);
 
   // Let the unsaved-changes dialog force an immediate save.
   useEffect(() => {
     if (!active) return undefined;
-    guard.registerFlush(runSave);
-    return () => guard.clearFlush();
-  }, [active, guard, runSave]);
+    guardRef.current?.registerFlush?.(runSave);
+    return () => guardRef.current?.clearFlush?.();
+  }, [active, runSave]);
 
   // Debounced save whenever the step's values change.
   useEffect(() => {
     if (!active || !ready) return undefined;
     if (snapshot === baselineRef.current) return undefined;
 
-    guard.markDirty();
+    guardRef.current?.markDirty?.();
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       void runSave();
     }, delayMs);
 
     return () => clearTimeout(timerRef.current);
-  }, [active, ready, snapshot, delayMs, guard, runSave]);
+  }, [active, ready, snapshot, delayMs, runSave]);
 
   return { saveNow: runSave };
 }
