@@ -155,7 +155,7 @@ function DonationHistoryPage() {
           causeOptions={causeOptions}
         />
 
-        <DonationTable loading={loading} rows={rows} />
+        <DonationTable loading={loading} rows={rows} onError={setError} />
       </div>
 
       {showPopup && thankyouData && (

@@ -218,6 +218,8 @@ const ScheduleDetailPage = () => {
               loading={loading}
               history={history}
               currency={currency}
+              donationId={scheduleId}
+              onError={setError}
             />
             {schedule?.providerOutage?.down && schedule?.providerOutage?.alternateAvailable ? (
               <ProviderSwitchCard

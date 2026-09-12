@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { apiRequest } from "@/services/api";
-import { EmailIcon, Spinner, CircleCheckIcon } from "@/components/common/SvgIcon";
+import { downloadReceipt } from "@/services/donationService";
+import { EmailIcon, Spinner } from "@/components/common/SvgIcon";
 import { validateEmail } from "@/utils/validateEmail";
 
 const ResendReceiptWithEditableEmail = ({
@@ -15,13 +15,11 @@ const ResendReceiptWithEditableEmail = ({
   const [editDraft, setEditDraft] = useState(initialEmail || "");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
 
   const handleEdit = () => {
     setEditDraft(email);
     setIsEditing(true);
     setError("");
-    setSuccessMsg("");
   };
 
   const handleCancelEdit = () => {
@@ -40,7 +38,7 @@ const ResendReceiptWithEditableEmail = ({
     setError("");
   };
 
-  const handleResend = async () => {
+  const handleDownload = async () => {
     const trimmed = String(email || "").trim();
     if (!donationId) {
       setError("Missing donation reference.");
@@ -54,21 +52,12 @@ const ResendReceiptWithEditableEmail = ({
     }
     setStatus("loading");
     setError("");
-    setSuccessMsg("");
     try {
-      await apiRequest("receipt/resend", {
-        method: "POST",
-        body: JSON.stringify({ donationId, email: trimmed }),
-      });
-      setStatus("success");
-      setSuccessMsg("Receipt sent. Check your inbox.");
-      setTimeout(() => {
-        setStatus("idle");
-        setSuccessMsg("");
-      }, 4000);
+      await downloadReceipt({ donationId, email: trimmed });
+      setStatus("idle");
     } catch (e) {
       setStatus("error");
-      setError(e?.message || "Could not resend receipt. Please try again.");
+      setError(e?.message || "Could not download receipt. Please try again.");
       setTimeout(() => setStatus("idle"), 3000);
     }
   };
@@ -114,7 +103,7 @@ const ResendReceiptWithEditableEmail = ({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[11px] uppercase tracking-wider text-gray-400 mb-0.5">
-                Sent to
+                Receipt for
               </p>
               <p className="text-[13px] font-semibold text-gray-800 truncate" title={email}>
                 {email || "—"}
@@ -136,26 +125,19 @@ const ResendReceiptWithEditableEmail = ({
           </div>
         )}
 
-        {successMsg && (
-          <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-50 px-3 py-2">
-            <span className="text-emerald-600">{CircleCheckIcon}</span>
-            <span className="text-[12px] text-emerald-700 font-medium">{successMsg}</span>
-          </div>
-        )}
-
         <button
           type="button"
-          onClick={handleResend}
+          onClick={handleDownload}
           disabled={status === "loading"}
           className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#EA3335] hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed px-4 py-3 text-[13px] font-semibold text-white transition-colors active:scale-[0.98]"
         >
           {status === "loading" ? (
             <>
               <span className="text-white">{Spinner}</span>
-              Sending...
+              Preparing...
             </>
           ) : (
-            <>Resend Receipt</>
+            <>Download Receipt</>
           )}
         </button>
       </div>

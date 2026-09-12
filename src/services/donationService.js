@@ -1,4 +1,68 @@
 import { apiRequest } from "./api";
+import { apiBase } from "@/utils/constants";
+
+function getCookieValue(name) {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+/**
+ * Download a donation receipt as a PDF.
+ *
+ * Cannot use `apiRequest` (it parses JSON/text) — receipts are binary, so this
+ * mirrors the blob-download pattern used by the reconciliation CSV export.
+ * `email` is required for the guest path (thank-you page); signed-in donors are
+ * authorized by their bearer token alone.
+ */
+export function downloadReceipt({ donationId, transactionId, email } = {}) {
+  const id = String(donationId || "").trim();
+  if (!id) return Promise.reject(new Error("Missing donation reference."));
+
+  const token = getCookieValue("token");
+  const base = typeof apiBase === "string" ? apiBase : "";
+  const url = `${base.replace(/\/+$/, "")}/receipt/download`;
+
+  const body = { donationId: id };
+  if (transactionId) body.transactionId = String(transactionId).trim();
+  if (email) body.email = String(email).trim();
+
+  return fetch(url, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body),
+  }).then(async (res) => {
+    if (!res.ok) {
+      let message = "Could not download receipt.";
+      try {
+        const payload = await res.json();
+        message = (payload && payload.error && payload.error.message) || message;
+      } catch {
+        // non-JSON error body — keep the generic message
+      }
+      const err = new Error(message);
+      err.statusCode = res.status;
+      throw err;
+    }
+
+    const blob = await res.blob();
+    const disposition = res.headers.get("content-disposition") || "";
+    const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+    const filename = match ? match[1] : `receipt-${id}.pdf`;
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  });
+}
 
 export function createDonation(payload) {
   return apiRequest("/donations", {

@@ -1,5 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { SkeletonRows } from "@/components/ui/Skeleton";
+import { DownloadIcon } from "@/components/common/SvgIcon";
 import { formatCurrency } from "@/utils/helpers";
+import { downloadReceipt } from "@/services/donationService";
 const causeBadgeStyles = {
   Zakat:     "bg-[#ECFDF5] text-[#047857]",
   Sadaqah:   "bg-[#FFF8EC] text-[#B45309]",
@@ -33,7 +38,8 @@ function formatShortDate(value) {
 
 const HEADERS = ["Date", "Amount", "Cause", "Status", "Receipt"];
 
-function HistoryRow({ row, currency }) {
+function HistoryRow({ row, currency, donationId, onError }) {
+  const [busy, setBusy] = useState(false);
   const date = formatShortDate(row?.date) || "—";
   const amount = Number(row?.amount ?? 0);
   const cur = String(row?.currency || currency);
@@ -41,6 +47,20 @@ function HistoryRow({ row, currency }) {
   const causeLabel = String(causes?.[0]?.label || "").trim() || "—";
   const rowStatusKey = String(row?.status?.key || "").trim().toLowerCase();
   const rowStatusLabel = String(row?.status?.label || "").trim() || "—";
+  const transactionId = String(row?.transactionId || "").trim();
+  const targetDonationId = String(row?.donationId || donationId || "").trim();
+
+  const handleDownload = async () => {
+    if (!targetDonationId || !transactionId || busy) return;
+    setBusy(true);
+    try {
+      await downloadReceipt({ donationId: targetDonationId, transactionId });
+    } catch (e) {
+      onError?.(e?.message || "Could not download receipt.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <tr className="hover:bg-[#F9FAFB] transition-colors">
@@ -57,12 +77,27 @@ function HistoryRow({ row, currency }) {
           {rowStatusLabel}
         </span>
       </td>
-      <td className="py-3.5 px-2 last:pr-0 text-[#6B7280]">—</td>
+      <td className="py-3.5 px-2 last:pr-0">
+        {transactionId ? (
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={busy || !targetDonationId}
+            title="Download receipt"
+            aria-label="Download receipt"
+            className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-[#6B7280] hover:text-red-600 hover:bg-red-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          >
+            {busy ? <span className="animate-pulse">{DownloadIcon}</span> : DownloadIcon}
+          </button>
+        ) : (
+          <span className="text-[#6B7280]">—</span>
+        )}
+      </td>
     </tr>
   );
 }
 
-export function DonationHistoryCard({ loading, history, currency }) {
+export function DonationHistoryCard({ loading, history, currency, donationId, onError }) {
   return (
     <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
       <h2 className="text-base font-semibold text-[#111827] mb-4">Donation History</h2>
@@ -85,7 +120,7 @@ export function DonationHistoryCard({ loading, history, currency }) {
               <SkeletonRows rows={4} cols={5} cellClass="px-2 py-2.5" />
             ) : history.length ? (
               history.map((row, i) => (
-                <HistoryRow key={String(row?.transactionId || i)} row={row} currency={currency} />
+                <HistoryRow key={String(row?.transactionId || i)} row={row} currency={currency} donationId={donationId} onError={onError} />
               ))
             ) : (
               <tr>

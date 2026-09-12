@@ -1,7 +1,11 @@
-import { EyeIcon } from "@/components/common/SvgIcon";
+"use client";
+
+import { useState } from "react";
+import { DownloadIcon } from "@/components/common/SvgIcon";
 import { SkeletonRows } from "@/components/ui/Skeleton";
 import { AddOnList } from "@/components/common/AddOnList";
 import { formatCurrency } from "@/utils/helpers";
+import { downloadReceipt } from "@/services/donationService";
 const causeBadgeStyles = {
   Zakat:     "bg-[#ECFDF5] text-[#047857]",
   Sadaqah:   "bg-[#FFF8EC] text-[#B45309]",
@@ -35,7 +39,21 @@ function StatusBadge({ statusKey, status }) {
   );
 }
 
-function DonationRow({ r, isLast }) {
+function DonationRow({ r, isLast, onError }) {
+  const [busy, setBusy] = useState(false);
+
+  const handleDownload = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await downloadReceipt({ donationId: r.id });
+    } catch (e) {
+      onError?.(e?.message || "Could not download receipt.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <tr className={`hover:bg-[#F9FAFB] transition-colors ${!isLast ? "border-b border-[#E5E7EB]" : ""}`}>
       <td className="px-4 py-4 whitespace-nowrap">
@@ -65,16 +83,20 @@ function DonationRow({ r, isLast }) {
       <td className="px-4 py-4 text-right">
         <button
           type="button"
-          className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#6B7280] hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
+          onClick={handleDownload}
+          disabled={busy}
+          title="Download receipt"
+          aria-label="Download receipt"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#6B7280] hover:text-red-600 hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >
-          {EyeIcon}
+          {busy ? <span className="animate-pulse">{DownloadIcon}</span> : DownloadIcon}
         </button>
       </td>
     </tr>
   );
 }
 
-export function DonationTable({ loading, rows }) {
+export function DonationTable({ loading, rows, onError }) {
   return (
     <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white overflow-hidden">
       <div className="overflow-x-auto">
@@ -91,7 +113,7 @@ export function DonationTable({ loading, rows }) {
               <SkeletonRows rows={5} cols={6} />
             ) : rows.length ? (
               rows.map((r, idx) => (
-                <DonationRow key={r.id} r={r} isLast={idx === rows.length - 1} />
+                <DonationRow key={r.id} r={r} isLast={idx === rows.length - 1} onError={onError} />
               ))
             ) : (
               <tr>

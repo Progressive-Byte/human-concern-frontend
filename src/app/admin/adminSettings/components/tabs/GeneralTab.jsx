@@ -30,6 +30,16 @@ function SelectInput(props) {
   );
 }
 
+function TextareaInput(props) {
+  return (
+    <textarea
+      {...props}
+      rows={props.rows || 3}
+      className={`w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 ${props.className || ""}`.trim()}
+    />
+  );
+}
+
 function SaveButton({ onClick, disabled, children }) {
   return (
     <button
@@ -138,6 +148,16 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
               disabled={loading}
             />
           </Field>
+          <div className="md:col-span-2">
+            <Field label="Tax Acknowledgment Statement">
+              <TextareaInput
+                value={organization.taxAcknowledgmentStatement || ""}
+                onChange={(e) => onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), taxAcknowledgmentStatement: e.target.value } }))}
+                placeholder="No goods or services were provided in exchange for this donation."
+                disabled={loading}
+              />
+            </Field>
+          </div>
           {/* <div className="md:col-span-2">
             <Field label="Timezone">
               <SelectInput
