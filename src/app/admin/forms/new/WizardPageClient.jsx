@@ -112,9 +112,11 @@ const WizardContent = () => {
         const pub = d?.public || {};
         const ids = Array.isArray(pub?.categoryIds) ? pub.categoryIds : [];
         setBasicsCategoryIds(ids.map((x) => String(x).trim()).filter(Boolean));
+        setBasicsCampaignType(String(pub?.campaignType || "").trim());
       } catch {
         if (!alive) return;
         setBasicsCategoryIds([]);
+        setBasicsCampaignType("");
       }
     })();
     return () => {
@@ -145,30 +147,17 @@ const WizardContent = () => {
     };
   }, [initialFormId]);
 
+  // null = the form's basics haven't loaded yet, which preserves the tri-state so the step
+  // list doesn't shift once the form loads.
+  const [basicsCampaignType, setBasicsCampaignType] = useState(null);
+
+  // Ramadan is driven by the campaign type now, not by the Ramadan Category.
   const isRamadanForm = useMemo(() => {
     if (!initialFormId) return null;
-    if (categoriesLoading) return null;
+    if (basicsCampaignType === null) return null;
 
-    const selected = Array.isArray(basicsCategoryIds) ? basicsCategoryIds : [];
-    if (!selected.length) return false;
-
-    const list = Array.isArray(categories) ? categories : [];
-    const byId = new Map();
-    for (const c of list) {
-      const id = String(c?.id || c?._id || "").trim();
-      if (!id) continue;
-      byId.set(id, c);
-    }
-
-    for (const id of selected) {
-      const c = byId.get(String(id));
-      if (!c) continue;
-      const slug = String(c?.slug || "").trim().toLowerCase();
-      const name = String(c?.name || "").trim().toLowerCase();
-      if (slug === "ramadan" || name === "ramadan") return true;
-    }
-    return false;
-  }, [initialFormId, categories, categoriesLoading, basicsCategoryIds]);
+    return String(basicsCampaignType).trim().toLowerCase() === "ramadan";
+  }, [initialFormId, basicsCampaignType]);
 
   useEffect(() => {
     // A step-normalisation redirect, not a user action — never raise the guard for it.

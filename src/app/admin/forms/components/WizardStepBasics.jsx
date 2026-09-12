@@ -4,6 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
 import { createAdminCampaignForm, getAdminCategories, getAdminFormBasics, getAdminForms, updateAdminFormBasics } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+
+// Hardcoded for now. "Special" is a UI grouping only — the stored value is always the concrete type.
+const SPECIAL_TYPES = [
+  { value: "normal", label: "Normal Campaign", hint: "No special handling" },
+  { value: "ramadan", label: "Ramadan Campaign", hint: "Extra requirements apply" },
+  { value: "qurbani", label: "Qurbani Campaign", hint: "Coming soon", disabled: true },
+];
 import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
 import FieldError from "./FieldError";
@@ -104,7 +111,9 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   const [collaborationImageFile, setCollaborationImageFile] = useState(null);
   const [collaborationImagePreview, setCollaborationImagePreview] = useState("");
   const [collaborationImageRemoved, setCollaborationImageRemoved] = useState(false);
-  const [campaignType, setCampaignType] = useState("seasonal");
+  const [campaignType, setCampaignType] = useState("normal");
+  const [specialOpen, setSpecialOpen] = useState(false);
+  const isSpecialType = campaignType === "ramadan" || campaignType === "qurbani";
   const [categoryIds, setCategoryIds] = useState([]);
   const [featured, setFeatured] = useState(false);
 
@@ -295,7 +304,10 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         setCollaborationImagePreview("");
         setCollaborationImageRemoved(false);
         setCollaborating(Boolean(orgName) || Boolean(orgImage));
-        setCampaignType(String(pub?.campaignType || "seasonal"));
+        const storedType = String(pub?.campaignType || "normal");
+        // Legacy durations are no longer a type — duration comes from the start/end dates.
+        setCampaignType(storedType === "seasonal" || storedType === "ongoing" ? "normal" : storedType);
+        setSpecialOpen(storedType === "ramadan" || storedType === "qurbani");
         setCategoryIds(
           Array.isArray(pub?.categoryIds)
             ? pub.categoryIds.map((x) => String(x).trim()).filter(Boolean)
@@ -356,7 +368,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
 
     if (pub.description && pub.description.length > 500) errors["public.description"] = "Max 500 characters";
 
-    if (pub.campaignType !== "seasonal" && pub.campaignType !== "ongoing") errors["public.campaignType"] = "Choose seasonal or ongoing";
+    if (!["normal", "ramadan", "qurbani"].includes(pub.campaignType)) errors["public.campaignType"] = "Choose a campaign type";
 
     const uniqueCats = Array.from(new Set(pub.categoryIds.map((x) => String(x).trim()).filter(Boolean)));
     if (uniqueCats.length < 1) errors["public.categoryIds"] = "Add at least 1 category";
@@ -818,27 +830,63 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                   type="button"
-                  onClick={() => setCampaignType("seasonal")}
+                  onClick={() => {
+                    setCampaignType("normal");
+                    setSpecialOpen(false);
+                  }}
                   disabled={saving}
                   className={`cursor-pointer rounded-2xl border px-4 py-3 text-left transition ${
-                    campaignType === "seasonal" ? "border-red-600/30 bg-red-600/10" : "border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]"
+                    !isSpecialType ? "border-red-600/30 bg-red-600/10" : "border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]"
                   }`}
                 >
-                  <div className="text-[13px] font-semibold text-[#111827]">Seasonal</div>
-                  <div className="mt-1 text-[12px] text-[#6B7280]">Time-bound campaign with start/end date</div>
+                  <div className="text-[13px] font-semibold text-[#111827]">Normal Campaign</div>
+                  <div className="mt-1 text-[12px] text-[#6B7280]">A standard campaign — with or without an end date</div>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setCampaignType("ongoing")}
+                  onClick={() => {
+                    setSpecialOpen(true);
+                    if (!isSpecialType) setCampaignType("normal");
+                  }}
                   disabled={saving}
                   className={`cursor-pointer rounded-2xl border px-4 py-3 text-left transition ${
-                    campaignType === "ongoing" ? "border-red-600/30 bg-red-600/10" : "border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]"
+                    isSpecialType ? "border-red-600/30 bg-red-600/10" : "border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]"
                   }`}
                 >
-                  <div className="text-[13px] font-semibold text-[#111827]">Ongoing</div>
-                  <div className="mt-1 text-[12px] text-[#6B7280]">Continuous campaign with no fixed end date</div>
+                  <div className="text-[13px] font-semibold text-[#111827]">Special Campaign</div>
+                  <div className="mt-1 text-[12px] text-[#6B7280]">Ramadan, Qurbani and other special campaigns</div>
                 </button>
               </div>
+
+              {specialOpen ? (
+                <div className="mt-3 rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FCFCFC] p-3">
+                  <div className="mb-2 text-[12px] font-semibold text-[#6B7280]">Choose a special campaign type</div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    {SPECIAL_TYPES.map((type) => (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => {
+                          if (type.disabled) return;
+                          setCampaignType(type.value);
+                        }}
+                        disabled={saving || type.disabled}
+                        title={type.disabled ? "Not available yet" : undefined}
+                        className={`rounded-xl border px-3 py-2 text-left transition ${
+                          type.disabled
+                            ? "cursor-not-allowed border-[#F1F1F1] bg-[#FAFAFA] opacity-60"
+                            : campaignType === type.value
+                              ? "cursor-pointer border-red-600/30 bg-red-600/10"
+                              : "cursor-pointer border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]"
+                        }`}
+                      >
+                        <div className="text-[12px] font-semibold text-[#111827]">{type.label}</div>
+                        <div className="mt-0.5 text-[11px] text-[#6B7280]">{type.hint}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
               <FieldError message={fieldErrors["public.campaignType"]} />
             </div>
 
