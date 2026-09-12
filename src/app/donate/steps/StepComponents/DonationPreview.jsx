@@ -193,27 +193,6 @@ const DonationPreview = ({ currentStep }) => {
                 </div>
               )}
 
-              {/* Recurring + Step 3: the exact amount charged first (first installment + add-ons + tip) */}
-              {isRecurring && currentStep >= 3 && (
-                <div className="mt-2 rounded-xl border border-[#FFE0E0] bg-[#FFF5F5] px-3 py-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[12px] font-semibold text-[#EA3335]">First payment</span>
-                    <span className="text-[15px] font-bold text-[#EA3335] tabular-nums shrink-0">
-                      {sym}{firstPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  {extrasTotal > 0 && (
-                    <p className="text-[11px] text-[#EA3335] mt-0.5">
-                      Includes{" "}
-                      {[
-                        (data.addOnsTotal ?? 0) > 0 ? `${sym}${Number(data.addOnsTotal).toFixed(2)} add-ons` : null,
-                        tipAmount > 0 ? `${sym}${tipAmount.toFixed(2)} tip` : null,
-                      ].filter(Boolean).join(" + ")}
-                    </p>
-                  )}
-                </div>
-              )}
-
               {/* Recurring: per-payment default */}
               {isRecurring && (
                 <div className="flex items-center justify-between text-[12px] mt-1">
@@ -362,6 +341,27 @@ const DonationPreview = ({ currentStep }) => {
                 </p>
               </div>
             </Section>
+          )}
+
+          {/* Recurring + Step 3: the exact amount charged first (first installment + add-ons + tip) */}
+          {showPayment && isRecurring && currentStep >= 3 && (
+            <div className="mt-3 rounded-xl border border-[#FFE0E0] bg-[#FFF5F5] px-3 py-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[12px] font-semibold text-[#EA3335]">First payment</span>
+                <span className="text-[15px] font-bold text-[#EA3335] tabular-nums shrink-0">
+                  {sym}{firstPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              {extrasTotal > 0 && (
+                <p className="text-[11px] text-[#EA3335] mt-0.5">
+                  Includes{" "}
+                  {[
+                    (data.addOnsTotal ?? 0) > 0 ? `${sym}${Number(data.addOnsTotal).toFixed(2)} add-ons` : null,
+                    tipAmount > 0 ? `${sym}${tipAmount.toFixed(2)} tip` : null,
+                  ].filter(Boolean).join(" + ")}
+                </p>
+              )}
+            </div>
           )}
 
           {showPayment && (
