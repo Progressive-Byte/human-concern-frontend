@@ -9,6 +9,7 @@ import { UserIcon } from "../common/SvgIcon";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Campaigns", href: "/campaigns" },
+  { label: "Track Your Donation", href: "/track-donation", guestOnly: true },
 ];
 
 const Navbar = () => {
@@ -24,6 +25,8 @@ const Navbar = () => {
 
   const showAuth = mounted && !loading;
   const displayName = user?.name || user?.firstName || "User";
+  // "Track Your Donation" is for guests only.
+  const visibleNavLinks = navLinks.filter((link) => !link.guestOnly || !isAuthenticated);
 
   return (
     <header
@@ -41,7 +44,7 @@ const Navbar = () => {
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-[6px] ml-auto">
-            {navLinks.map(({ label, href }) => (
+            {visibleNavLinks.map(({ label, href }) => (
               <Link
                 key={href}
                 href={href}
@@ -119,7 +122,7 @@ const Navbar = () => {
           }`}
         >
           <div className="flex flex-col gap-1 p-4">
-            {navLinks.map(({ label, href }) => (
+            {visibleNavLinks.map(({ label, href }) => (
               <Link
                 key={href}
                 href={href}
