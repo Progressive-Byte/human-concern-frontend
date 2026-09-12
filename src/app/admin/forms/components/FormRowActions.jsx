@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { archiveAdminForm, publishAdminForm, restoreAdminForm, unpublishAdminForm } from "@/services/admin";
+import { home } from "@/utils/constants";
 
 function buildMenu(status) {
   const s = String(status || "").toLowerCase();
   const items = [];
 
   items.push({ key: "edit", label: "Edit" });
+  items.push({ key: "copyUrl", label: "Copy Form URL" });
   if (s === "draft") items.push({ key: "publish", label: "Publish" }, { key: "archive", label: "Archive" });
   if (s === "published") items.push({ key: "unpublish", label: "Move to Draft" }, { key: "archive", label: "Archive" });
   if (s === "archived") items.push({ key: "restore", label: "Restore" });
@@ -38,6 +40,26 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
   const id = item?.id || item?.formId || item?._id;
   const campaignId = item?.campaignId || item?.campaign?._id || item?.campaign?.id || campaignIdFilter;
   const menu = useMemo(() => buildMenu(item?.status), [item?.status]);
+
+  /**
+   * Public link for this specific donation form: {site}/{formSlug}/1.
+   * `home` is the public website; `siteUrl` is the API and would be wrong here.
+   */
+  async function copyFormUrl() {
+    const slug = String(item?.slug || "").trim();
+    if (!slug) {
+      toast.error("This form has no public link yet.");
+      return;
+    }
+
+    const url = `${home}/${encodeURIComponent(slug)}/1`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Form URL copied");
+    } catch {
+      window.prompt("Copy this form URL", url);
+    }
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -114,6 +136,10 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
                   router.push(
                     `/admin/forms/new?step=basics&campaignId=${encodeURIComponent(cid)}&formId=${encodeURIComponent(String(id))}`
                   );
+                  return;
+                }
+                if (m.key === "copyUrl") {
+                  copyFormUrl();
                   return;
                 }
                 setConfirmAction(m.key);
