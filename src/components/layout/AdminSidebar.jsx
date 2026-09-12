@@ -226,6 +226,14 @@ function Icon({ name }) {
     );
   }
 
+  if (name === "fund-breakdown") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M5 20V11M11 20V4M17 20v-6M21 20H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
       <path
@@ -265,6 +273,7 @@ const navItems = [
   { href: "/admin/reconciliation", label: "Reconciliation", icon: "reconciliation", permission: "transactions.read" },
   { href: null, label: "Payments Ops", icon: "payments-ops", disabled: true },
   { href: "/admin/schedules", label: "Schedules", icon: "schedules" },
+  { href: "/admin/fund-breakdown", label: "Fund Breakdown", icon: "fund-breakdown", permission: "transactions.read" },
   { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
   { href: "/admin/logs", label: "Logs", icon: "logs" },
   { href: "/admin/adminSettings", label: "Settings", icon: "settings" },
