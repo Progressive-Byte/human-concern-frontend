@@ -340,7 +340,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
       });
     }
 
-    setSaving(true);
+    if (!silent) setSaving(true);
     try {
       const res = await updateAdminFormMedia(formId, body);
       const d = normalizeMediaResponse(res);
@@ -366,7 +366,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
       }
       return { ok: false, error: msg };
     } finally {
-      setSaving(false);
+      if (!silent) setSaving(false);
     }
   }
 

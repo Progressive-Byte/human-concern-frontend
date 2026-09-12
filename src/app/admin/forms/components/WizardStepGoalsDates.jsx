@@ -737,7 +737,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: false, error: "Fix the highlighted fields" };
     }
 
-    setSaving(true);
+    if (!silent) setSaving(true);
     try {
       await updateAdminFormGoalsDates(formId, payload);
       try {
@@ -767,7 +767,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       }
       return { ok: false, error: msg };
     } finally {
-      setSaving(false);
+      if (!silent) setSaving(false);
     }
   }
 

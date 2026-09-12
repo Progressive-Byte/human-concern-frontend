@@ -192,7 +192,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
         .filter((link) => Boolean(link.designationId)),
     };
 
-    setSaving(true);
+    if (!silent) setSaving(true);
     try {
       await updateAdminFormCauses(formId, payload);
       if (!silent) toast.success("Causes saved");
@@ -210,7 +210,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
       }
       return { ok: false, error: msg };
     } finally {
-      setSaving(false);
+      if (!silent) setSaving(false);
     }
   }
 

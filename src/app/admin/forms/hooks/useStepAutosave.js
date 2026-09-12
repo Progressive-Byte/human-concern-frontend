@@ -24,7 +24,7 @@ export default function useStepAutosave({
   deps = [],
   ready = true,
   persist,
-  delayMs = 1000,
+  intervalMs = 30000,
   enabled = true,
 }) {
   const guard = useFormEditorGuard();
@@ -83,19 +83,39 @@ export default function useStepAutosave({
     return () => guardRef.current?.clearFlush?.();
   }, [active, runSave]);
 
-  // Debounced save whenever the step's values change.
+  // Mark dirty as soon as the step's values drift from the baseline.
   useEffect(() => {
     if (!active || !ready) return undefined;
     if (snapshot === baselineRef.current) return undefined;
-
     guardRef.current?.markDirty?.();
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      void runSave();
-    }, delayMs);
+  }, [active, ready, snapshot]);
 
-    return () => clearTimeout(timerRef.current);
-  }, [active, ready, snapshot, delayMs, runSave]);
+  /**
+   * Save on intent, not on a short idle timer — leaving a field, or a slow safety net. Pausing
+   * to think therefore fires nothing, and because `silent` keeps `saving` (and the inputs'
+   * `disabled`) untouched, a save never interrupts typing.
+   */
+  useEffect(() => {
+    if (!active || !ready) return undefined;
+
+    function saveIfDirty() {
+      if (serialize(depsRef.current) === baselineRef.current) return;
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        if (serialize(depsRef.current) === baselineRef.current) return;
+        void runSave();
+      }, 250);
+    }
+
+    document.addEventListener("focusout", saveIfDirty);
+    const intervalId = setInterval(saveIfDirty, intervalMs);
+
+    return () => {
+      document.removeEventListener("focusout", saveIfDirty);
+      clearInterval(intervalId);
+      clearTimeout(timerRef.current);
+    };
+  }, [active, ready, intervalMs, runSave]);
 
   return { saveNow: runSave };
 }

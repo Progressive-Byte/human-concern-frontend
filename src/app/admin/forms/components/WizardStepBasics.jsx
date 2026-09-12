@@ -451,7 +451,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       return { ok: false, error: "Missing campaignId" };
     }
 
-    setSaving(true);
+    if (!silent) setSaving(true);
     try {
       const refreshBasics = async (id) => {
         try {
@@ -517,7 +517,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       }
       return { ok: false, error: msg };
     } finally {
-      setSaving(false);
+      if (!silent) setSaving(false);
     }
   }
 

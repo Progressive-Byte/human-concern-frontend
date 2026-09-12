@@ -190,7 +190,7 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
       ),
     };
 
-    setSaving(true);
+    if (!silent) setSaving(true);
     try {
       await updateAdminFormAddons(formId, payload);
       if (!silent) toast.success("Add-ons saved");
@@ -208,7 +208,7 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
       }
       return { ok: false, error: msg };
     } finally {
-      setSaving(false);
+      if (!silent) setSaving(false);
     }
   }
 

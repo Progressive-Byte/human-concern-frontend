@@ -176,7 +176,7 @@ const WizardStepObjectives = ({ campaignId, formId, onExit, onSaved }) => {
       ),
     };
 
-    setSaving(true);
+    if (!silent) setSaving(true);
     try {
       await updateAdminFormObjectives(formId, payload);
       if (!silent) toast.success("Objectives saved");
@@ -194,7 +194,7 @@ const WizardStepObjectives = ({ campaignId, formId, onExit, onSaved }) => {
       }
       return { ok: false, error: msg };
     } finally {
-      setSaving(false);
+      if (!silent) setSaving(false);
     }
   }
 
