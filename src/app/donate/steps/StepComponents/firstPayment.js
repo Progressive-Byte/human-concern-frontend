@@ -1,21 +1,11 @@
 import { generateDatesInRange } from "./countOccurrences";
 
-// What is actually charged on the FIRST scheduled date of a recurring donation:
-// the first instalment's amount plus every one-time extra (add-ons + tip).
-// Mirrors the backend, which creates installments[0] as
-// `baseAmount + extrasOnce` (SetupSucceededHandler -> installment1Amount).
-//
-// Later payments are just their per-date amount, so the summary and the pay
-// button must show this figure (not the whole commitment) when recurring.
-export function computeFirstPayment({
-  isRecurring,
-  scheduleType,
-  scheduleConfig,
-  amountTier,
-  addOnsTotal = 0,
-  tipAmount = 0,
-}) {
-  if (!isRecurring) return { amount: 0, date: "" };
+// The amount and date of the FIRST scheduled installment (excludes add-ons/tip).
+// Used for the "first payment" figure and as the basis for the platform tip — the
+// tip is charged in full with installment #1, so a % of the whole commitment would
+// dwarf the first charge.
+export function resolveFirstInstallment({ isRecurring, scheduleType, scheduleConfig, amountTier }) {
+  if (!isRecurring) return { base: 0, date: "" };
 
   const cfg = scheduleConfig && typeof scheduleConfig === "object" ? scheduleConfig : {};
   const overrides = cfg.dateAmounts ?? {};
@@ -36,7 +26,28 @@ export function computeFirstPayment({
   }
 
   const base = firstKey && overrides[firstKey] !== undefined ? Number(overrides[firstKey]) : tier;
+  return { base, date: firstKey };
+}
+
+// What is actually charged on the FIRST scheduled date of a recurring donation:
+// the first instalment's amount plus every one-time extra (add-ons + tip).
+// Mirrors the backend, which creates installments[0] as
+// `baseAmount + extrasOnce` (SetupSucceededHandler -> installment1Amount).
+//
+// Later payments are just their per-date amount, so the summary and the pay
+// button must show this figure (not the whole commitment) when recurring.
+export function computeFirstPayment({
+  isRecurring,
+  scheduleType,
+  scheduleConfig,
+  amountTier,
+  addOnsTotal = 0,
+  tipAmount = 0,
+}) {
+  if (!isRecurring) return { amount: 0, date: "" };
+
+  const { base, date } = resolveFirstInstallment({ isRecurring, scheduleType, scheduleConfig, amountTier });
   const amount = Number((base + (Number(addOnsTotal) || 0) + (Number(tipAmount) || 0)).toFixed(2));
 
-  return { amount, date: firstKey };
+  return { amount, date };
 }

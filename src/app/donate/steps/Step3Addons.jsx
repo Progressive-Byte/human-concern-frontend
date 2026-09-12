@@ -9,7 +9,7 @@ import { apiRequest } from "@/services/api";
 import { submitScheduleEditForm } from "@/services/donationService";
 import { generateDatesInRange } from "./StepComponents/countOccurrences";
 import { distributeAmount } from "@/utils/causeSplit";
-import { computeFirstPayment } from "./StepComponents/firstPayment";
+import { computeFirstPayment, resolveFirstInstallment } from "./StepComponents/firstPayment";
 import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
@@ -211,8 +211,21 @@ const Step3Addons = () => {
   );
 
   const customTipParsed = customTipAmount !== "" ? Math.max(0, Number(customTipAmount) || 0) : null;
+
+  // The tip is charged in full with the FIRST installment, so for recurring the percentage
+  // applies to the first payment — not the whole commitment (which would dwarf the first
+  // charge). One-time keeps using the single payment amount.
+  const tipBasis = isRecurring
+    ? resolveFirstInstallment({
+        isRecurring,
+        scheduleType: data.scheduleType,
+        scheduleConfig: data.scheduleConfig,
+        amountTier,
+      }).base
+    : amountTier;
+
   const tipAmount       = enableTipping
-    ? (customTipParsed !== null ? customTipParsed : Math.round((baseDonation * tipPct) / 100 * 100) / 100)
+    ? (customTipParsed !== null ? customTipParsed : Math.round((tipBasis * tipPct) / 100 * 100) / 100)
     : 0;
   const grandTotal = baseDonation + addOnsTotal + tipAmount;
 

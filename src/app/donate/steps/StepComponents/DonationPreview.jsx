@@ -6,7 +6,7 @@ import Section from "@/components/ui/Section";
 import { useDonation } from "@/context/DonationContext";
 import { generateDatesInRange } from "./countOccurrences";
 import { distributeAmount } from "@/utils/causeSplit";
-import { computeFirstPayment } from "./firstPayment";
+import { computeFirstPayment, resolveFirstInstallment } from "./firstPayment";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
@@ -44,13 +44,22 @@ const DonationPreview = ({ currentStep }) => {
   const customTipParsed = data.customTipAmount !== "" && data.customTipAmount != null
     ? Math.max(0, Number(data.customTipAmount) || 0)
     : null;
-  // Tip is only shown from Step 3 onwards, calculated on the full schedule total (baseTotal),
-  // matching how Step3Addons calculates it (5% of $400, not 5% of $100 per-payment).
+  // Recurring tips apply to the FIRST payment (the full tip is charged with installment #1),
+  // matching Step3Addons; one-time keeps using the total.
+  const tipBasis = isRecurring
+    ? resolveFirstInstallment({
+        isRecurring,
+        scheduleType: data.scheduleType,
+        scheduleConfig: data.scheduleConfig,
+        amountTier: effectiveAmountTier,
+      }).base
+    : baseTotal;
+
   const tipAmount = (currentStep >= 3 && enableTipping)
     ? (customTipParsed !== null
         ? customTipParsed
         : data.tipPct
-          ? Math.round(baseTotal * data.tipPct) / 100
+          ? Math.round(tipBasis * data.tipPct) / 100
           : 0)
     : 0;
   const hasTip     = tipAmount > 0;
@@ -337,7 +346,7 @@ const DonationPreview = ({ currentStep }) => {
             <Section label="Tip">
               <div className="flex items-center justify-between">
                 <p className="text-[12px] text-[#8C8C8C]">
-                  {customTipParsed !== null ? "Custom amount" : `${data.tipPct}% of donation`}
+                  {customTipParsed !== null ? "Custom amount" : `${data.tipPct}% of ${isRecurring ? "first payment" : "donation"}`}
                 </p>
                 <p className="text-[12px] font-medium text-[#383838]">
                   {sym}{tipAmount.toFixed(2)}
