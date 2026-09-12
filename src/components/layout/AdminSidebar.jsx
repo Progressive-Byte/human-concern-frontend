@@ -226,15 +226,6 @@ function Icon({ name }) {
     );
   }
 
-  if (name === "payments-ops") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-        <rect x="3" y="4" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" />
-        <path d="M8 20h8M12 16v4M7 9h10M7 12h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    );
-  }
-
   if (name === "fund-breakdown") {
     return (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
@@ -283,7 +274,6 @@ const navItems = [
   { href: "/admin/fund-breakdown", label: "Fund Breakdown", icon: "fund-breakdown", permission: "transactions.read" },
   { href: "/admin/gateway-health", label: "Gateway Health", icon: "gateway-health", permission: "settings.read" },
   { href: null, label: "Reconciliation", icon: "reconciliation", disabled: true },
-  { href: null, label: "Payments Ops", icon: "payments-ops", disabled: true },
   { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
   { href: "/admin/logs", label: "Logs", icon: "logs" },
   { href: "/admin/adminSettings", label: "Settings", icon: "settings" },

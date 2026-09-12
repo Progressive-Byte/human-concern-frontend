@@ -134,7 +134,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                         <input
                           value={String(n.key ?? "")}
                           onChange={(e) => setNote(idx, { key: e.target.value })}
-                          placeholder="e.g. tShirtSize"
+                          placeholder="e.g. zakatYear"
                           disabled={disabled}
                           className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                         />
@@ -146,7 +146,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                         <input
                           value={String(n.label ?? "")}
                           onChange={(e) => setNote(idx, { label: e.target.value })}
-                          placeholder="e.g. T-shirt size"
+                          placeholder="e.g. Zakat year"
                           disabled={disabled}
                           className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                         />
@@ -182,7 +182,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                           <input
                             value={String(n.placeholder ?? "")}
                             onChange={(e) => setNote(idx, { placeholder: e.target.value })}
-                            placeholder="e.g. Full name"
+                            placeholder="e.g. Dedication name"
                             disabled={disabled}
                             className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                           />
@@ -257,7 +257,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                                 <input
                                   value={String(o.label ?? "")}
                                   onChange={(e) => setOption(idx, optIdx, { label: e.target.value })}
-                                  placeholder="e.g. S"
+                                  placeholder="e.g. Zakat"
                                   disabled={disabled}
                                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                                 />
@@ -269,7 +269,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                                 <input
                                   value={String(o.value ?? "")}
                                   onChange={(e) => setOption(idx, optIdx, { value: e.target.value })}
-                                  placeholder="e.g. s"
+                                  placeholder="e.g. zakat"
                                   disabled={disabled}
                                   className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                                 />
