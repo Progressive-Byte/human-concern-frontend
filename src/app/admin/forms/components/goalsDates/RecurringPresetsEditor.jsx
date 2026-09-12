@@ -148,7 +148,12 @@ function DateField({ label, value, placeholder = "Select date", onClick, disable
   );
 }
 
-function DateRangeEditor({ value, onChange, disabled, errors }) {
+function campaignWindowLabel(campaignStartDate, campaignEndDate) {
+  if (!campaignStartDate && !campaignEndDate) return "";
+  return `Dates must fall within the campaign window: ${campaignStartDate || "—"} → ${campaignEndDate || "ongoing"}.`;
+}
+
+function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate, campaignEndDate }) {
   const v = value && typeof value === "object" ? value : {};
   const startDate = toDateInputValue(v.startDate);
   const endDate = toDateInputValue(v.endDate);
@@ -197,13 +202,19 @@ function DateRangeEditor({ value, onChange, disabled, errors }) {
             anchorRef={startBtnRef}
             onRequestClose={() => setOpenPicker(null)}
           >
-            <MiniCalendar selectedDates={startDate ? [startDate] : []} onToggleDate={setStart} disablePast={false} />
+            <MiniCalendar
+              selectedDates={startDate ? [startDate] : []}
+              onToggleDate={setStart}
+              minDate={campaignStartDate}
+              maxDate={campaignEndDate}
+              defaultMonth={startDate || campaignStartDate}
+            />
           </CalendarPopover>
         </div>
 
         <div className="relative">
           <DateField
-            label="End Date"
+            label="End Date (Optional)"
             value={endDate}
             onClick={() => setOpenPicker((p) => (p === "end" ? null : "end"))}
             disabled={disabled}
@@ -215,10 +226,20 @@ function DateRangeEditor({ value, onChange, disabled, errors }) {
             anchorRef={endBtnRef}
             onRequestClose={() => setOpenPicker(null)}
           >
-            <MiniCalendar selectedDates={endDate ? [endDate] : []} onToggleDate={setEnd} disablePast={false} />
+            <MiniCalendar
+              selectedDates={endDate ? [endDate] : []}
+              onToggleDate={setEnd}
+              minDate={campaignStartDate}
+              maxDate={campaignEndDate}
+              defaultMonth={endDate || campaignStartDate}
+            />
           </CalendarPopover>
         </div>
       </div>
+
+      {campaignWindowLabel(campaignStartDate, campaignEndDate) ? (
+        <div className="text-[11px] text-[#6B7280]">{campaignWindowLabel(campaignStartDate, campaignEndDate)}</div>
+      ) : null}
 
       <div className={showInterval ? "" : "md:col-span-2"}>
         <div className="mb-2 text-[13px] font-semibold text-[#111827]">Frequency</div>
@@ -264,7 +285,7 @@ function DateRangeEditor({ value, onChange, disabled, errors }) {
   );
 }
 
-function SpecificDatesEditor({ value, onChange, disabled, errors }) {
+function SpecificDatesEditor({ value, onChange, disabled, errors, campaignStartDate, campaignEndDate }) {
   const v = value && typeof value === "object" ? value : {};
   const dates = Array.isArray(v.dates) ? v.dates.map(toDateInputValue).filter(Boolean) : [];
   const datesBtnRef = useRef(null);
@@ -301,7 +322,13 @@ function SpecificDatesEditor({ value, onChange, disabled, errors }) {
         />
         <CalendarPopover open={open} anchorRef={datesBtnRef} onRequestClose={() => setOpen(false)}>
           <div className="space-y-3">
-            <MiniCalendar selectedDates={dates} onToggleDate={toggleDate} disablePast={false} />
+            <MiniCalendar
+              selectedDates={dates}
+              onToggleDate={toggleDate}
+              minDate={campaignStartDate}
+              maxDate={campaignEndDate}
+              defaultMonth={dates[0] || campaignStartDate}
+            />
             <div className="flex justify-end">
               <button
                 type="button"
@@ -314,6 +341,10 @@ function SpecificDatesEditor({ value, onChange, disabled, errors }) {
           </div>
         </CalendarPopover>
       </div>
+
+      {campaignWindowLabel(campaignStartDate, campaignEndDate) ? (
+        <div className="mt-2 text-[11px] text-[#6B7280]">{campaignWindowLabel(campaignStartDate, campaignEndDate)}</div>
+      ) : null}
 
       {dates.length ? (
         <div className="mt-3 flex flex-wrap gap-2">
@@ -359,7 +390,7 @@ function SpecificDatesEditor({ value, onChange, disabled, errors }) {
   );
 }
 
-function PresetCard({ value, onChange, onRemove, disabled, errors }) {
+function PresetCard({ value, onChange, onRemove, disabled, errors, campaignStartDate, campaignEndDate }) {
   const v = value && typeof value === "object" ? value : {};
   const scheduleType = String(v.scheduleType || "date_range");
   const config = v.scheduleConfig && typeof v.scheduleConfig === "object" ? v.scheduleConfig : {};
@@ -428,9 +459,23 @@ function PresetCard({ value, onChange, onRemove, disabled, errors }) {
           </div>
 
           {scheduleType === "date_range" ? (
-            <DateRangeEditor value={config} onChange={setConfig} disabled={disabled} errors={cardErrors.scheduleConfig} />
+            <DateRangeEditor
+              value={config}
+              onChange={setConfig}
+              disabled={disabled}
+              errors={cardErrors.scheduleConfig}
+              campaignStartDate={campaignStartDate}
+              campaignEndDate={campaignEndDate}
+            />
           ) : (
-            <SpecificDatesEditor value={config} onChange={setConfig} disabled={disabled} errors={cardErrors.scheduleConfig} />
+            <SpecificDatesEditor
+              value={config}
+              onChange={setConfig}
+              disabled={disabled}
+              errors={cardErrors.scheduleConfig}
+              campaignStartDate={campaignStartDate}
+              campaignEndDate={campaignEndDate}
+            />
           )}
         </div>
 
@@ -456,6 +501,8 @@ const RecurringPresetsEditor = ({
   disabled,
   errors,
   allowError,
+  campaignStartDate,
+  campaignEndDate,
 }) => {
   const presets = Array.isArray(value) ? value : [];
 
@@ -503,6 +550,8 @@ const RecurringPresetsEditor = ({
                 onRemove={() => removePreset(idx)}
                 disabled={disabled}
                 errors={errors?.[idx]}
+                campaignStartDate={campaignStartDate}
+                campaignEndDate={campaignEndDate}
               />
             ))
           ) : (

@@ -3,11 +3,27 @@ import { useState } from "react";
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
-const MiniCalendar = ({ selectedDates, onToggleDate, disablePast = false }) => {
+function toLocalMidnight(value) {
+  const s = String(value || "").trim();
+  if (!s) return null;
+  const t = Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(s) ? `${s}T00:00:00` : s);
+  if (Number.isNaN(t)) return null;
+  const d = new Date(t);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+const MiniCalendar = ({ selectedDates, onToggleDate, disablePast = false, minDate, maxDate, defaultMonth }) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [viewDate, setViewDate] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  const min = toLocalMidnight(minDate);
+  const max = toLocalMidnight(maxDate);
+
+  const [viewDate, setViewDate] = useState(() => {
+    const initial = toLocalMidnight(defaultMonth) || today;
+    return new Date(initial.getFullYear(), initial.getMonth(), 1);
+  });
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -58,6 +74,9 @@ const MiniCalendar = ({ selectedDates, onToggleDate, disablePast = false }) => {
           const dateStr = toDateStr(day);
           const dateObj = new Date(year, month, day);
           const isPast = disablePast ? dateObj < today : false;
+          const isBeforeMin = min ? dateObj < min : false;
+          const isAfterMax = max ? dateObj > max : false;
+          const isDisabled = isPast || isBeforeMin || isAfterMax;
           const isSel = selected.includes(dateStr);
           const isToday = dateObj.getTime() === today.getTime();
 
@@ -65,16 +84,16 @@ const MiniCalendar = ({ selectedDates, onToggleDate, disablePast = false }) => {
             <div key={i} className="flex items-center justify-center py-[3px]">
               <button
                 type="button"
-                disabled={isPast}
+                disabled={isDisabled}
                 onClick={() => onToggleDate?.(dateStr)}
                 className={[
                   "flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-semibold transition-all",
-                  isPast ? "cursor-not-allowed text-[#D1D5DB]" : "cursor-pointer",
+                  isDisabled ? "cursor-not-allowed text-[#D1D5DB]" : "cursor-pointer",
                   isSel
                     ? "bg-[#111827] text-white"
-                    : isToday && !isPast
+                    : isToday && !isDisabled
                       ? "ring-1 ring-[#111827]/30 text-[#111827] hover:bg-[#F9FAFB]"
-                      : !isPast
+                      : !isDisabled
                         ? "text-[#111827] hover:bg-[#F9FAFB]"
                         : "",
                 ].join(" ")}
@@ -90,4 +109,3 @@ const MiniCalendar = ({ selectedDates, onToggleDate, disablePast = false }) => {
 };
 
 export default MiniCalendar;
-

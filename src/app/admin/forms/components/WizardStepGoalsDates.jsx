@@ -341,6 +341,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     const nextCurrency = nextCurrencies[0] || "";
     const nextStartAt = String(startAt || "").trim();
     const nextEndAt = String(endAt || "").trim();
+    const campaignStartMs = nextStartAt && !Number.isNaN(Date.parse(nextStartAt)) ? Date.parse(nextStartAt) : null;
+    const campaignEndMs = nextEndAt && !Number.isNaN(Date.parse(nextEndAt)) ? Date.parse(nextEndAt) : null;
 
     const goal = String(goalAmount ?? "").trim();
     const min = String(minimumDonation ?? "").trim();
@@ -466,13 +468,29 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           const intervalRaw = cfg.intervalValue === null || cfg.intervalValue === undefined ? "" : String(cfg.intervalValue).trim();
 
           if (enabled && !startDate) cfgErrors.startDate = "Required";
-          if (enabled && !endDate) cfgErrors.endDate = "Required";
           if (enabled && startDate && endDate) {
             const sT = Date.parse(startDate);
             const eT = Date.parse(endDate);
             if (Number.isNaN(sT)) cfgErrors.startDate = "Invalid date";
             if (Number.isNaN(eT)) cfgErrors.endDate = "Invalid date";
             if (!cfgErrors.startDate && !cfgErrors.endDate && !(sT < eT)) cfgErrors.endDate = "End must be after start";
+          } else if (enabled && endDate && Number.isNaN(Date.parse(endDate))) {
+            cfgErrors.endDate = "Invalid date";
+          }
+
+          if (enabled && startDate && !cfgErrors.startDate) {
+            const sT = Date.parse(startDate);
+            if (!Number.isNaN(sT)) {
+              if (campaignStartMs !== null && sT < campaignStartMs) cfgErrors.startDate = "Must be on or after campaign start date";
+              else if (campaignEndMs !== null && sT > campaignEndMs) cfgErrors.startDate = "Must be on or before campaign end date";
+            }
+          }
+          if (enabled && endDate && !cfgErrors.endDate) {
+            const eT = Date.parse(endDate);
+            if (!Number.isNaN(eT)) {
+              if (campaignStartMs !== null && eT < campaignStartMs) cfgErrors.endDate = "Must be on or after campaign start date";
+              else if (campaignEndMs !== null && eT > campaignEndMs) cfgErrors.endDate = "Must be on or before campaign end date";
+            }
           }
           if (enabled && !frequency) cfgErrors.frequency = "Required";
           const freqOk = frequency === "daily" || frequency === "weekly" || frequency === "monthly" || frequency === "yearly" || frequency === "custom";
@@ -499,7 +517,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
           cfgOut = {
             startDate: startIso || startDate,
-            endDate: endIso || endDate,
+            ...(endIso ? { endDate: endIso } : {}),
             frequency: frequency === "custom" ? "daily" : frequency,
             ...(intervalValue !== undefined ? { intervalValue } : {}),
           };
@@ -518,6 +536,14 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             .filter(Boolean);
           const unique = Array.from(new Set(normalizedDates));
           if (enabled && unique.length === 0) cfgErrors.dates = "Add at least one date";
+          else if (enabled) {
+            const outOfRange = unique.some((d) => {
+              const t = Date.parse(d);
+              if (Number.isNaN(t)) return false;
+              return (campaignStartMs !== null && t < campaignStartMs) || (campaignEndMs !== null && t > campaignEndMs);
+            });
+            if (outOfRange) cfgErrors.dates = "All dates must fall within the campaign start and end dates";
+          }
           cfgOut = { dates: unique };
         }
 
@@ -961,6 +987,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         disabled={disabled}
         errors={recurringPresetsErrors}
         allowError={fieldErrors.allowRecurringDonations}
+        campaignStartDate={startAt}
+        campaignEndDate={endAt}
       />
 
       <WizardFooterNav
