@@ -69,6 +69,9 @@ const WizardContent = () => {
       setBasicsCategoryIds(
         Array.isArray(pub?.categoryIds) ? pub.categoryIds.map((x) => String(x).trim()).filter(Boolean) : []
       );
+      // Must be refreshed on every save too: the step list (Objectives shown/required) depends
+      // on the campaign type, which the admin can change from the Basics step.
+      setBasicsCampaignType(String(pub?.campaignType || "").trim());
     } catch {
       return;
     }
