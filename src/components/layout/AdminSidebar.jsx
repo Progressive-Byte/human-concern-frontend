@@ -278,12 +278,18 @@ const navItems = [
   { href: "/admin/objectives", label: "Objectives", icon: "objectives" },
   { href: "/admin/add-ons", label: "Addons", icon: "addons" },
   { href: "/admin/donors", label: "Donors", icon: "donors" },
-  { href: "/admin/donations", label: "Transactions", icon: "transactions" },
+  {
+    href: "/admin/donations",
+    label: "Transactions",
+    icon: "transactions",
+    children: [
+      { href: "/admin/schedules", label: "Schedules", icon: "schedules" },
+      { href: "/admin/fund-breakdown", label: "Fund Breakdown", icon: "fund-breakdown", permission: "transactions.read" },
+    ],
+  },
   { href: "/admin/gateway-health", label: "Gateway Health", icon: "gateway-health", permission: "settings.read" },
   { href: "/admin/reconciliation", label: "Reconciliation", icon: "reconciliation", permission: "transactions.read" },
   { href: null, label: "Payments Ops", icon: "payments-ops", disabled: true },
-  { href: "/admin/schedules", label: "Schedules", icon: "schedules" },
-  { href: "/admin/fund-breakdown", label: "Fund Breakdown", icon: "fund-breakdown", permission: "transactions.read" },
   { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
   { href: "/admin/logs", label: "Logs", icon: "logs" },
   { href: "/admin/adminSettings", label: "Settings", icon: "settings" },
@@ -295,6 +301,12 @@ const AdminSidebar = ({ onNavigate }) => {
   const { brandLogoUrl, organizationName } = useAdminBranding();
 
   const isActive = (href) => (href ? (href === "/admin" ? pathname === href : pathname?.startsWith(href)) : false);
+
+  // A parent also reads as active while one of its sub-items is open.
+  const isItemActive = (item) => {
+    if (isActive(item?.href)) return true;
+    return Array.isArray(item?.children) ? item.children.some((child) => isActive(child.href)) : false;
+  };
 
   const hasPermission = (required) => {
     if (!required) return true;
@@ -328,7 +340,7 @@ const AdminSidebar = ({ onNavigate }) => {
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         {visibleNavItems.map((item) => {
-          const active = isActive(item.href);
+          const active = isItemActive(item);
           const base =
             "flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 text-[14px] font-medium transition-colors";
 
@@ -344,18 +356,46 @@ const AdminSidebar = ({ onNavigate }) => {
             );
           }
 
+          const children = Array.isArray(item.children)
+            ? item.children.filter((child) => hasPermission(child.permission))
+            : [];
+
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => onNavigate?.()}
-              className={`${base} ${
-                active ? "bg-white/10 text-white ring-1 ring-inset ring-white/15" : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <NavIcon name={item.icon} className={active ? "text-white" : "text-white/60"} />
-              <span>{item.label}</span>
-            </Link>
+            <div key={item.href}>
+              <Link
+                href={item.href}
+                onClick={() => onNavigate?.()}
+                className={`${base} ${
+                  active ? "bg-white/10 text-white ring-1 ring-inset ring-white/15" : "text-white/70 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <NavIcon name={item.icon} className={active ? "text-white" : "text-white/60"} />
+                <span>{item.label}</span>
+              </Link>
+
+              {children.length > 0 ? (
+                <div className="ml-5 mt-1 space-y-1 border-l border-white/10 pl-2">
+                  {children.map((child) => {
+                    const childActive = isActive(child.href);
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        onClick={() => onNavigate?.()}
+                        className={`flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-[13px] font-medium transition-colors ${
+                          childActive
+                            ? "bg-white/10 text-white ring-1 ring-inset ring-white/15"
+                            : "text-white/60 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        <NavIcon name={child.icon} className={childActive ? "text-white" : "text-white/50"} />
+                        <span>{child.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
           );
         })}
       </nav>
