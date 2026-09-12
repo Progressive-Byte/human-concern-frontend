@@ -61,13 +61,12 @@ const TrackDonationPage = () => {
 
           {submitted ? (
             <div className="mt-5 rounded-2xl border border-[#F5D9D9] bg-[#FFF6F6] px-5 py-4">
-              <p className="m-0 text-[15px] font-semibold text-[#111111]">Thanks — we&apos;ve got your email.</p>
-              <p className="m-0 mt-1 text-[14px] leading-relaxed text-[#383838]">
+              <p className="m-0 text-[14px] leading-relaxed text-[#383838]">
                 Donation tracking is still being built and isn&apos;t live yet. In the meantime, email us at{" "}
                 <a href="mailto:info@humanconcernusa.org" className="font-semibold text-[#CC1F1F] underline">
                   info@humanconcernusa.org
                 </a>{" "}
-                or call 1-800-583-5841 and we&apos;ll gladly help with a receipt or the status of your gift.
+                or call 1-800-583-5841 and we&apos;ll gladly help with a receipt or the status of your donation.
               </p>
             </div>
           ) : null}

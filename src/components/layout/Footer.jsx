@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import { EmailIcon, FacebookIcon, InstagramIcon, LinkedInIcon, LocationIcon, PhoneIcon, TaxIcon, WhatsAppIcon, XIcon, YoutubeIcon } from "../common/SvgIcon";
 
 const contactItems = [
@@ -24,7 +23,6 @@ const Footer = () => {
   const year = new Date().getFullYear();
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const { isAuthenticated } = useAuth();
 
   return (
     <footer className={`${isHome ? "mt-0 md:-mt-[40px] lg:-mt-[93px]" : ""} relative z-10`}>
@@ -87,17 +85,6 @@ const Footer = () => {
             </div>
 
           </div>
-
-          {!isAuthenticated ? (
-            <div className="flex justify-center py-5">
-              <Link
-                href="/track-donation"
-                className="text-[14px] sm:text-[16px] font-semibold text-[#383838] hover:text-[#CC1F1F] no-underline transition-colors duration-200"
-              >
-                Track Your Donation
-              </Link>
-            </div>
-          ) : null}
 
           {/* Copyright */}
           <div className="py-6 text-center">
