@@ -97,6 +97,7 @@ function buildCampaignDataFromAdminReview(review, formId, globalNote = []) {
       recurringPresets: Array.isArray(goalsDates?.recurringPresets) ? goalsDates.recurringPresets : [],
       allowAnonymousDonations: goalsDates?.allowAnonymousDonations === undefined ? false : Boolean(goalsDates.allowAnonymousDonations),
       showGlobalNote: goalsDates?.showGlobalNote === undefined ? false : Boolean(goalsDates.showGlobalNote),
+      endAt: goalsDates?.endAt ?? form?.endAt ?? null,
     },
     causes,
   };
@@ -191,6 +192,7 @@ const AdminFormPreviewStepPage = () => {
                 recurringPresets: Array.isArray(goalsDatesRaw?.recurringPresets) ? goalsDatesRaw.recurringPresets : campaignData.goalsDates?.recurringPresets || [],
                 showGlobalNote:
                   goalsDatesRaw?.showGlobalNote === undefined ? campaignData.goalsDates?.showGlobalNote : Boolean(goalsDatesRaw.showGlobalNote),
+                endAt: goalsDatesRaw?.endAt ?? campaignData.goalsDates?.endAt ?? null,
               }
             : {}),
         };
