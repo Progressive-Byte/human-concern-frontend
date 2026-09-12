@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
-import { createAdminCampaignForm, getAdminCategories, getAdminFormBasics, updateAdminFormBasics } from "@/services/admin";
+import { createAdminCampaignForm, getAdminCategories, getAdminFormBasics, getAdminForms, updateAdminFormBasics } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
@@ -134,6 +134,57 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     ready: !loading,
     persist: () => save({ silent: true }),
   });
+
+  /**
+   * Duplicate-form hint while typing the public name.
+   *
+   * Deliberately isolated from autosave: `similarForms` is NOT in the autosave deps and this
+   * never touches `loading`, so a read-only lookup can't move the baseline or trigger a save.
+   * Every setState happens inside the timer callback (never synchronously in the effect).
+   */
+  const [similarForms, setSimilarForms] = useState([]);
+
+  useEffect(() => {
+    const term = String(displayName || "").trim();
+    let alive = true;
+
+    const timer = setTimeout(
+      async () => {
+        if (term.length < 4) {
+          if (alive) setSimilarForms([]);
+          return;
+        }
+
+        try {
+          const res = await getAdminForms({ page: "1", limit: "5", q: term });
+          if (!alive) return;
+
+          const items = res?.data?.items || res?.data?.data?.items || res?.items || [];
+          const currentId = String(formId || "").trim();
+
+          setSimilarForms(
+            (Array.isArray(items) ? items : [])
+              .filter((f) => String(f?.id || f?._id || "") !== currentId)
+              .map((f) => ({
+                id: String(f?.id || f?._id || ""),
+                name: String(f?.basics?.public?.displayName || f?.name || "Untitled form"),
+                campaignId: String(f?.campaignId || f?.campaign?.id || f?.campaign?._id || ""),
+                status: String(f?.status || ""),
+              }))
+              .filter((f) => f.id)
+          );
+        } catch {
+          if (alive) setSimilarForms([]);
+        }
+      },
+      term.length < 4 ? 0 : 400
+    );
+
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, [displayName, formId]);
 
   useEffect(() => {
     if (formId) return;
@@ -633,6 +684,36 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               disabled={saving}
             />
             <FieldError message={fieldErrors["public.displayName"]} />
+
+            {similarForms.length > 0 ? (
+              <div className="mt-3 rounded-xl border border-dashed border-[#FDE68A] bg-[#FFFBEB] px-4 py-3">
+                <div className="text-[13px] font-semibold text-[#92400E]">
+                  A similar form already exists: {similarForms[0].name}
+                </div>
+                <p className="mt-1 text-[12px] text-[#92400E]">
+                  Review it before you continue, so you don&apos;t create a duplicate. This is only a
+                  suggestion — you can still save this form.
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {similarForms.map((f) => {
+                    const href = f.campaignId
+                      ? `/admin/forms/new?step=basics&campaignId=${encodeURIComponent(f.campaignId)}&formId=${encodeURIComponent(f.id)}`
+                      : "/admin/forms";
+                    return (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => window.open(href, "_blank", "noopener,noreferrer")}
+                        className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#FDE68A] bg-white px-3 py-1 text-[12px] font-semibold text-[#92400E] transition hover:bg-[#FEF3C7]"
+                      >
+                        {f.name}
+                        {f.status ? <span className="text-[11px] font-medium text-[#B45309]">({f.status})</span> : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
 
             <div className="mt-4">
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">Description</div>
