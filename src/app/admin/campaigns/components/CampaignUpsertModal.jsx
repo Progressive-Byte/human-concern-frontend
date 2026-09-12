@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createAdminCampaign, getAdminCampaignById, updateAdminCampaign } from "@/services/admin";
+import { createAdminCampaign, getAdminCampaignById, getAdminCampaigns, updateAdminCampaign } from "@/services/admin";
 import { useToast } from "./ToastProvider";
 
 const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => {
@@ -15,6 +15,53 @@ const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+
+  /**
+   * Suggest possibly-duplicate campaigns while the admin types the name.
+   * Warning only — it never blocks creation. All setState lives inside the timer callback.
+   */
+  const [similarCampaigns, setSimilarCampaigns] = useState([]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const term = String(name || "").trim();
+    let alive = true;
+
+    const timer = setTimeout(
+      async () => {
+        if (term.length < 4) {
+          if (alive) setSimilarCampaigns([]);
+          return;
+        }
+
+        try {
+          const res = await getAdminCampaigns({ page: "1", limit: "5", q: term });
+          if (!alive) return;
+
+          const items = res?.data?.items || res?.data?.data?.items || res?.items || [];
+          setSimilarCampaigns(
+            (Array.isArray(items) ? items : [])
+              .filter((c) => String(c?.id || c?._id || "") !== String(campaignId || ""))
+              .map((c) => ({
+                id: String(c?.id || c?._id || ""),
+                name: String(c?.name || "Untitled campaign"),
+                status: String(c?.status || ""),
+              }))
+              .filter((c) => c.id)
+          );
+        } catch {
+          if (alive) setSimilarCampaigns([]);
+        }
+      },
+      term.length < 4 ? 0 : 400
+    );
+
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, [open, name, campaignId]);
 
   const title = useMemo(() => (isEdit ? "Edit Campaign" : "Create Campaign"), [isEdit]);
   const primaryLabel = useMemo(() => (isEdit ? "Save Changes" : "Create Campaign"), [isEdit]);
@@ -162,6 +209,31 @@ const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => 
                   placeholder="Campaign name"
                 />
               </div>
+
+              {similarCampaigns.length > 0 ? (
+                <div className="rounded-xl border border-dashed border-[#FDE68A] bg-[#FFFBEB] px-4 py-3">
+                  <div className="text-[13px] font-semibold text-[#92400E]">
+                    A similar campaign already exists: {similarCampaigns[0].name}
+                  </div>
+                  <p className="mt-1 text-[12px] text-[#92400E]">
+                    Review it first so you don&apos;t create a duplicate. This is only a suggestion — you
+                    can still create this campaign.
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {similarCampaigns.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => window.open(`/admin/campaigns/${encodeURIComponent(c.id)}`, "_blank", "noopener,noreferrer")}
+                        className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#FDE68A] bg-white px-3 py-1 text-[12px] font-semibold text-[#92400E] transition hover:bg-[#FEF3C7]"
+                      >
+                        {c.name}
+                        {c.status ? <span className="text-[11px] font-medium text-[#B45309]">({c.status})</span> : null}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
               {isEdit ? (
                 <div>
