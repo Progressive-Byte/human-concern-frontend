@@ -66,7 +66,7 @@ const DonationsTable = ({
         <table className="w-full min-w-[1100px] border-collapse text-[13px] text-[#111827]">
           <thead>
             <tr className="text-left text-[12px] font-medium text-[#6B7280]">
-              <th className="px-5 py-3">Transaction ID</th>
+              <th className="px-5 py-3">Reference</th>
               <th className="py-3 pr-4">Donor</th>
               <th className="py-3 pr-4">Campaign</th>
               <th className="py-3 pr-4">Cause</th>
@@ -102,9 +102,23 @@ const DonationsTable = ({
                     className="border-t border-[#F3F4F6] transition-colors duration-200 hover:bg-[#F9FAFB]"
                   >
                     <td className="px-5 py-4">
-                      <span className="inline-flex rounded-lg bg-[#F3F4F6] px-2.5 py-1 text-[12px] font-semibold text-[#111827]">
-                        {shortTransactionId(id)}
-                      </span>
+                      {d?.providerTransactionId ? (
+                        <div className="min-w-0">
+                          <div
+                            className="max-w-[180px] truncate font-mono text-[12px] font-semibold text-[#111827]"
+                            title={String(d.providerTransactionId)}
+                          >
+                            {String(d.providerTransactionId)}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-[#6B7280]" title={id}>
+                            {shortTransactionId(id)}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="inline-flex rounded-lg bg-[#F3F4F6] px-2.5 py-1 text-[12px] font-semibold text-[#111827]">
+                          {shortTransactionId(id)}
+                        </span>
+                      )}
                     </td>
                     <td className="py-4 pr-4">
                       <div className="min-w-0">
