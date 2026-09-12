@@ -78,7 +78,15 @@ async function openScheduleEditSession(scheduleId, router) {
   }
 
   const scheduleConfig = scheduleType === "date_range"
-    ? { startDate: rawConfig.startDate || "", endDate: rawConfig.endDate || "", frequency: rawConfig.frequency || "daily", dateAmounts }
+    ? {
+        startDate: rawConfig.startDate || "",
+        endDate: rawConfig.endDate || "",
+        frequency: rawConfig.frequency || "daily",
+        ...(rawConfig.frequency === "weekly" && Array.isArray(rawConfig.daysOfWeek) && rawConfig.daysOfWeek.length
+          ? { daysOfWeek: rawConfig.daysOfWeek }
+          : {}),
+        dateAmounts,
+      }
     : { dates: datesList, dateAmounts };
   const addOnBreakdown = addons.map((a) => ({
     id: String(a.addOnId || ""),

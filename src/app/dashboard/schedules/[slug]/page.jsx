@@ -149,7 +149,7 @@ const ScheduleDetailPage = () => {
 
   const currency = String(schedule?.currency || "USD");
   const frequency = String(schedule?.frequencyLabel || "").trim() || "—";
-  const perLabel = frequencyLabel[frequency] ?? String(frequency || "").toLowerCase();
+  const perLabel = frequencyLabel[frequency] ?? String(frequency || "");
   const totalDonated = Number(schedule?.totalDonated ?? 0);
   const nextAmount = Number((schedule?.nextDonation?.amount ?? schedule?.installmentAmount) || 0);
 

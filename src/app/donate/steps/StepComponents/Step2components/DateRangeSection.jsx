@@ -4,9 +4,11 @@ import { useMemo } from "react";
 import countOccurrences from "../countOccurrences";
 import { FREQ_OPTIONS } from "./scheduleUtils";
 import MiniCalendar from "./MiniCalendar";
+import { WEEKDAYS, recurringFrequencyHint } from "@/utils/recurringFrequency";
 
 const DateRangeSection = ({
   rangeStart, rangeEnd, rangeFreq, customInterval,
+  weekDays = [], onWeekDays,
   effectiveAmount, sym,
   lockedInterval = null,
   maxDateStr = null,
@@ -125,9 +127,47 @@ const DateRangeSection = ({
                 <span className="text-[11px] text-[#AEAEAE]">(max 15)</span>
               </div>
             )}
+
+            {rangeFreq === "weekly" && (
+              <div className="mt-3">
+                <div className="mb-2 text-[12px] font-medium text-[#383838]">
+                  Days of the week <span className="text-red-600">*</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {WEEKDAYS.map((w) => {
+                    const active = weekDays.includes(w.value);
+                    return (
+                      <button
+                        key={w.value}
+                        type="button"
+                        onClick={() => {
+                          const next = active
+                            ? weekDays.filter((d) => d !== w.value)
+                            : [...weekDays, w.value].sort((a, b) => a - b);
+                          onWeekDays?.(next);
+                        }}
+                        className={`px-3 py-1.5 rounded-lg border text-[12px] font-medium transition-all cursor-pointer ${
+                          active
+                            ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
+                            : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40"
+                        }`}
+                      >
+                        {w.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
+
+      {recurringFrequencyHint({ frequency: rangeFreq, interval: lockedInterval ?? customInterval, daysOfWeek: weekDays }) ? (
+        <p className="text-[11px] text-[#6B7280] px-0.5">
+          {recurringFrequencyHint({ frequency: rangeFreq, interval: lockedInterval ?? customInterval, daysOfWeek: weekDays })}
+        </p>
+      ) : null}
 
       {/* Payment count summary */}
       {rangeStart && rangeEnd && occurrences > 0 && (

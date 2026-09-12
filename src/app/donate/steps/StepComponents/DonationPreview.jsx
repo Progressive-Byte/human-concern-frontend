@@ -81,7 +81,7 @@ const DonationPreview = ({ currentStep }) => {
     const end   = data.scheduleConfig?.endDate?.split("T")[0];
     const freq  = data.scheduleConfig?.frequency ?? "daily";
     if (!start || !end) return [];
-    return generateDatesInRange(start, end, freq, data.scheduleConfig?.customInterval ?? 1).map((d) => {
+    return generateDatesInRange(start, end, freq, data.scheduleConfig?.customInterval ?? 1, data.scheduleConfig?.daysOfWeek ?? []).map((d) => {
       const isCustom = overrides[d] !== undefined;
       const amt      = isCustom ? Number(overrides[d]) : effectiveAmountTier;
       return { d, amt, isCustom };

@@ -17,7 +17,7 @@ export function resolveFreq(newStart, newEnd, currentFreq) {
   return currentFreq;
 }
 
-export function buildConfig(type, dates, start, end, freq, amounts, interval) {
+export function buildConfig(type, dates, start, end, freq, amounts, interval, daysOfWeek) {
   if (type === "specific_dates") {
     const sorted = [...dates].sort();
     const overrides = {};
@@ -40,6 +40,9 @@ export function buildConfig(type, dates, start, end, freq, amounts, interval) {
     endDate:   end   ? new Date(`${end}T00:00:00.000Z`).toISOString()   : "",
     frequency: freq,
     ...(freq === "custom" && { customInterval: Math.max(1, Number(interval) || 1) }),
+    ...(freq === "weekly" && Array.isArray(daysOfWeek) && daysOfWeek.length
+      ? { daysOfWeek: Array.from(new Set(daysOfWeek.map(Number))).sort((a, b) => a - b) }
+      : {}),
     ...(Object.keys(overrides).length > 0 && { dateAmounts: overrides }),
   };
 }

@@ -260,9 +260,10 @@ const Step3Addons = () => {
       // date_range — expand to individual rows, each with optional transactionId
       const rawFreq  = scheduleConfig.frequency ?? "daily";
       const interval = scheduleConfig.customInterval ?? 1;
+      const days     = Array.isArray(scheduleConfig.daysOfWeek) ? scheduleConfig.daysOfWeek : [];
       const startKey = scheduleConfig.startDate?.split("T")[0] ?? "";
       const endKey   = scheduleConfig.endDate?.split("T")[0]   ?? "";
-      return generateDatesInRange(startKey, endKey, rawFreq, interval).map((d) => {
+      return generateDatesInRange(startKey, endKey, rawFreq, interval, days).map((d) => {
         const prefill = prefillDateMap[d];
         const amount  = dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier;
         const row = { date: `${d}T00:00:00.000Z`, amount };
@@ -320,15 +321,17 @@ const Step3Addons = () => {
     const rawFreq  = scheduleConfig.frequency ?? "daily";
     const apiFreq  = rawFreq === "custom" ? "interval" : rawFreq;
     const interval = scheduleConfig.customInterval ?? 1;
+    const days     = Array.isArray(scheduleConfig.daysOfWeek) ? scheduleConfig.daysOfWeek : [];
     const startKey = scheduleConfig.startDate?.split("T")[0] ?? "";
     const endKey   = scheduleConfig.endDate?.split("T")[0]   ?? "";
-    const allKeys  = generateDatesInRange(startKey, endKey, rawFreq, interval);
+    const allKeys  = generateDatesInRange(startKey, endKey, rawFreq, interval, days);
 
     return {
       startDate: scheduleConfig.startDate ?? "",
       endDate:   scheduleConfig.endDate   ?? "",
       frequency: apiFreq,
       ...(apiFreq === "interval" && { intervalValue: interval }),
+      ...(apiFreq === "weekly" && days.length ? { daysOfWeek: days } : {}),
       dates: allKeys.map((d) => {
         const amount = dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier;
         return {

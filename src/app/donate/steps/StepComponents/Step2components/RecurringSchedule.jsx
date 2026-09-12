@@ -9,6 +9,12 @@ import PerDateAmountTable from "./PerDateAmountTable";
 
 const getTodayStr = () => new Date().toISOString().split("T")[0];
 
+const weekdayOf = (dateStr) => {
+  if (!dateStr) return null;
+  const d = new Date(`${dateStr}T00:00:00.000Z`);
+  return Number.isNaN(d.getTime()) ? null : d.getUTCDay();
+};
+
 const SCHEDULE_TYPES = [
   { value: "specific_dates", label: "Specific Dates" },
   { value: "date_range",     label: "Date Range" },
@@ -42,27 +48,39 @@ const RecurringSchedule = ({
   const [rangeEnd,       setRangeEnd]       = useState(initialConfig?.endDate?.split("T")[0]   ?? "");
   const [rangeFreq,      setRangeFreq]      = useState(initialConfig?.frequency ?? "daily");
   const [customInterval, setCustomInterval] = useState(initialConfig?.customInterval ?? 1);
+  const [weekDays,       setWeekDays]       = useState(() =>
+    Array.isArray(initialConfig?.daysOfWeek) ? initialConfig.daysOfWeek : []
+  );
+
+  // Weekly collects on at least one weekday; default to the start date's weekday.
+  const effectiveWeekDays = useMemo(() => {
+    if (rangeFreq !== "weekly") return [];
+    if (weekDays.length) return weekDays;
+    const d = weekdayOf(rangeStart);
+    return d === null ? [] : [d];
+  }, [rangeFreq, weekDays, rangeStart]);
 
   const generatedDates = useMemo(
     () => scheduleType === "date_range"
-      ? generateDatesInRange(rangeStart, rangeEnd, rangeFreq, customInterval)
+      ? generateDatesInRange(rangeStart, rangeEnd, rangeFreq, customInterval, effectiveWeekDays)
       : [],
-    [scheduleType, rangeStart, rangeEnd, rangeFreq, customInterval]
+    [scheduleType, rangeStart, rangeEnd, rangeFreq, customInterval, effectiveWeekDays]
   );
 
   const activeDates = scheduleType === "date_range"
     ? generatedDates
     : [...selectedDates].sort();
 
-  const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset) => {
+  const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset, daysOverride) => {
+    const days = daysOverride !== undefined ? daysOverride : effectiveWeekDays;
     const futureDates = type === "specific_dates" ? dates.filter((d) => d >= todayStr) : dates;
     const futureAmounts = type === "specific_dates"
       ? Object.fromEntries(Object.entries(amounts).filter(([d]) => d >= todayStr))
       : amounts;
     const occ    = type === "specific_dates"
       ? futureDates.length
-      : countOccurrences(start, end, freq, interval);
-    const config = buildConfig(type, futureDates, start, end, freq, futureAmounts, interval);
+      : countOccurrences(start, end, freq, interval, days);
+    const config = buildConfig(type, futureDates, start, end, freq, futureAmounts, interval, days);
     onChange({ scheduleType: type, scheduleConfig: config, occurrences: occ, activePreset: preset });
   };
 
@@ -73,6 +91,7 @@ const RecurringSchedule = ({
       setScheduleType("specific_dates");
       setSelectedDates([]);
       setDateAmounts({});
+      setWeekDays([]);
       notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
       return;
     }
@@ -89,6 +108,9 @@ const RecurringSchedule = ({
         const end      = cfg.endDate?.split("T")[0]   ?? "";
         const interval = cfg.intervalValue ?? 1;
         const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
+        const presetDays = freq === "weekly"
+          ? (Array.isArray(cfg.daysOfWeek) && cfg.daysOfWeek.length ? cfg.daysOfWeek : (weekdayOf(start) === null ? [] : [weekdayOf(start)]))
+          : [];
         setScheduleType("date_range");
         setRangeStart(start);
         setRangeEnd(end);
@@ -96,7 +118,8 @@ const RecurringSchedule = ({
         setCustomInterval(interval > 1 ? interval : 1);
         setSelectedDates([]);
         setDateAmounts({});
-        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId);
+        setWeekDays(presetDays);
+        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId, presetDays);
       } else {
         // "Specific Dates" template — open empty calendar
         setScheduleType("specific_dates");
@@ -111,6 +134,9 @@ const RecurringSchedule = ({
         const end      = cfg.endDate?.split("T")[0]   ?? "";
         const interval = cfg.intervalValue ?? 1;
         const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
+        const presetDays = freq === "weekly"
+          ? (Array.isArray(cfg.daysOfWeek) && cfg.daysOfWeek.length ? cfg.daysOfWeek : (weekdayOf(start) === null ? [] : [weekdayOf(start)]))
+          : [];
         setScheduleType("date_range");
         setRangeStart(start);
         setRangeEnd(end);
@@ -118,7 +144,8 @@ const RecurringSchedule = ({
         setCustomInterval(interval > 1 ? interval : 1);
         setSelectedDates([]);
         setDateAmounts({});
-        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId);
+        setWeekDays(presetDays);
+        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId, presetDays);
       } else {
         const dates = (cfg.dates ?? []).map((d) => d.split("T")[0]);
         setScheduleType("specific_dates");
@@ -172,16 +199,25 @@ const RecurringSchedule = ({
   const handleScheduleType = (val) => {
     setScheduleType(val);
     setDateAmounts({});
-    notify(val, selectedDates, rangeStart, rangeEnd, rangeFreq, {}, customInterval);
+    const days = val === "weekly" && !weekDays.length
+      ? (weekdayOf(rangeStart) === null ? [] : [weekdayOf(rangeStart)])
+      : effectiveWeekDays;
+    if (val === "weekly" && !weekDays.length) setWeekDays(days);
+    notify(val, selectedDates, rangeStart, rangeEnd, rangeFreq, {}, customInterval, activePreset, days);
   };
 
   const handleRangeStart = (val) => {
     setRangeStart(val);
     const nextFreq = resolveFreq(val, rangeEnd, rangeFreq);
     if (nextFreq !== rangeFreq) setRangeFreq(nextFreq);
+    let days = effectiveWeekDays;
+    if (nextFreq === "weekly" && !weekDays.length) {
+      days = weekdayOf(val) === null ? [] : [weekdayOf(val)];
+      setWeekDays(days);
+    }
     const next = Object.fromEntries(Object.entries(dateAmounts).filter(([d]) => d >= val));
     setDateAmounts(next);
-    notify(scheduleType, selectedDates, val, rangeEnd, nextFreq, next, customInterval);
+    notify(scheduleType, selectedDates, val, rangeEnd, nextFreq, next, customInterval, activePreset, days);
   };
 
   const handleRangeEnd = (val) => {
@@ -196,7 +232,11 @@ const RecurringSchedule = ({
   const handleRangeFreq = (val) => {
     setRangeFreq(val);
     setDateAmounts({});
-    notify(scheduleType, selectedDates, rangeStart, rangeEnd, val, {}, customInterval);
+    const days = val === "weekly"
+      ? (weekDays.length ? weekDays : (weekdayOf(rangeStart) === null ? [] : [weekdayOf(rangeStart)]))
+      : [];
+    setWeekDays(days);
+    notify(scheduleType, selectedDates, rangeStart, rangeEnd, val, {}, customInterval, activePreset, days);
   };
 
   const handleCustomInterval = (val) => {
@@ -306,6 +346,8 @@ const RecurringSchedule = ({
               rangeEnd={rangeEnd}
               rangeFreq={rangeFreq}
               customInterval={customInterval}
+              weekDays={effectiveWeekDays}
+              onWeekDays={setWeekDays}
               effectiveAmount={effectiveAmount}
               sym={sym}
               lockedInterval={lockedInterval}

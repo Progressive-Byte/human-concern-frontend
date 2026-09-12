@@ -466,6 +466,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           const endDate = String(cfg.endDate || "").trim();
           const frequency = String(cfg.frequency || "").trim();
           const intervalRaw = cfg.intervalValue === null || cfg.intervalValue === undefined ? "" : String(cfg.intervalValue).trim();
+          const daysRaw = Array.isArray(cfg.daysOfWeek) ? cfg.daysOfWeek : [];
+          const daysOfWeek = Array.from(new Set(daysRaw.map((d) => Number(d)).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))).sort((a, b) => a - b);
 
           if (enabled && !startDate) cfgErrors.startDate = "Required";
           if (enabled && startDate && endDate) {
@@ -495,6 +497,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           if (enabled && !frequency) cfgErrors.frequency = "Required";
           const freqOk = frequency === "daily" || frequency === "weekly" || frequency === "monthly" || frequency === "yearly" || frequency === "custom";
           if (frequency && !freqOk) cfgErrors.frequency = "Invalid";
+          if (enabled && frequency === "weekly" && !daysOfWeek.length) cfgErrors.daysOfWeek = "Select at least one day";
 
           let intervalValue = undefined;
           if (frequency === "custom") {
@@ -520,6 +523,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             ...(endIso ? { endDate: endIso } : {}),
             frequency: frequency === "custom" ? "daily" : frequency,
             ...(intervalValue !== undefined ? { intervalValue } : {}),
+            ...(frequency === "weekly" && daysOfWeek.length ? { daysOfWeek } : {}),
           };
         }
 

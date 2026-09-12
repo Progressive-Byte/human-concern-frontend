@@ -35,7 +35,7 @@ const ScheduleCard = ({ s, isActive, isPaused, isCancelled, isCompleted, onPause
           <div className="shrink-0 flex items-center gap-2 md:gap-3">
             <div className="text-right">
               <p className="text-xl md:text-2xl font-bold text-[#EA3335] leading-none">{formatCurrency(s.amount, s.currency)}</p>
-              <p className="text-[11px] text-[#6B7280] mt-0.5">{frequencyLabel[s.frequency] ?? s.frequency.toLowerCase()}</p>
+              <p className="text-[11px] text-[#6B7280] mt-0.5">{frequencyLabel[s.frequency] ?? s.frequency}</p>
             </div>
             <div className="flex items-center gap-1">
               <ActionButtons

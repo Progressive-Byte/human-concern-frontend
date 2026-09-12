@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Toggle from "@/components/ui/Toggle";
 import FieldError from "../FieldError";
 import MiniCalendar from "./MiniCalendar";
+import { WEEKDAYS, recurringFrequencyHint } from "@/utils/recurringFrequency";
 
 const FREQ_OPTIONS = [
   { value: "daily", label: "Daily" },
@@ -153,6 +154,13 @@ function campaignWindowLabel(campaignStartDate, campaignEndDate) {
   return `Dates must fall within the campaign window: ${campaignStartDate || "—"} → ${campaignEndDate || "ongoing"}.`;
 }
 
+function dayOfWeekFromInput(value) {
+  const s = String(value || "").trim();
+  if (!s) return null;
+  const d = new Date(`${s}T00:00:00.000Z`);
+  return Number.isNaN(d.getTime()) ? null : d.getUTCDay();
+}
+
 function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate, campaignEndDate }) {
   const v = value && typeof value === "object" ? value : {};
   const startDate = toDateInputValue(v.startDate);
@@ -170,6 +178,13 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
   }
 
   const showInterval = String(frequency) === "custom";
+  const days = Array.isArray(v.daysOfWeek) ? v.daysOfWeek : [];
+  const showWeekDays = String(frequency) === "weekly";
+
+  function toggleDay(day) {
+    const next = days.includes(day) ? days.filter((d) => d !== day) : [...days, day].sort((a, b) => a - b);
+    setField({ daysOfWeek: next });
+  }
 
   const startBtnRef = useRef(null);
   const endBtnRef = useRef(null);
@@ -250,6 +265,13 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
               const next = e.target.value;
               if (next === "custom") {
                 setField({ frequency: "custom" });
+              } else if (next === "weekly") {
+                const wd = dayOfWeekFromInput(startDate);
+                setField({
+                  frequency: "weekly",
+                  intervalValue: "",
+                  ...(days.length || wd === null ? {} : { daysOfWeek: [wd] }),
+                });
               } else {
                 setField({ frequency: next, intervalValue: "" });
               }
@@ -279,6 +301,41 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
             className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
           />
           <FieldError message={errors?.intervalValue} />
+        </div>
+      ) : null}
+
+      {showWeekDays ? (
+        <div>
+          <div className="mb-2 text-[13px] font-semibold text-[#111827]">
+            Days of the week <span className="text-red-600">*</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {WEEKDAYS.map((w) => {
+              const active = days.includes(w.value);
+              return (
+                <button
+                  key={w.value}
+                  type="button"
+                  onClick={() => toggleDay(w.value)}
+                  disabled={disabled}
+                  className={`rounded-xl border px-3 py-1.5 text-[12px] font-semibold transition ${
+                    active
+                      ? "border-[#111827] bg-[#111827] text-white"
+                      : "border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#111827]"
+                  } disabled:opacity-60`}
+                >
+                  {w.label}
+                </button>
+              );
+            })}
+          </div>
+          <FieldError message={errors?.daysOfWeek} />
+        </div>
+      ) : null}
+
+      {recurringFrequencyHint({ frequency, interval: intervalValue, daysOfWeek: days }) ? (
+        <div className="text-[11px] text-[#6B7280]">
+          {recurringFrequencyHint({ frequency, interval: intervalValue, daysOfWeek: days })}
         </div>
       ) : null}
     </div>
