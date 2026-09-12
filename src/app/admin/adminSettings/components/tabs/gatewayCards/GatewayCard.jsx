@@ -13,6 +13,7 @@ import {
   CURRENCY_LIST,
 } from "./constants";
 import CurrencyDefaultChips from "./CurrencyDefaultChips";
+import { serverApiBase } from "@/utils/constants";
 
 function ToggleSwitch({ enabled, onChange, disabled, size = "md" }) {
   const h = size === "sm" ? "h-5" : "h-6";
@@ -180,6 +181,14 @@ const GatewayCard = ({
 }) => {
   const configurationId = getConfigId(config);
   const cardName = String(config?.name || config?.label || config?.title || "").trim() || `${getProviderLabel(provider)} ${index + 1}`;
+  const webhookPath = provider === "stripe"
+    ? "donations/webhook/stripe"
+    : provider === "paypal"
+      ? "donations/webhook/paypal"
+      : "";
+  const webhookUrl = webhookPath
+    ? `${String(serverApiBase || "").replace(/\/+$/, "")}/${webhookPath}${configurationId ? `?gwConfId=${encodeURIComponent(configurationId)}` : ""}`
+    : "";
   const enabled = Boolean(config?.enabled);
   const environment = getEnvironment(config);
   const isLive = environment === "live";
@@ -229,6 +238,20 @@ const GatewayCard = ({
   const [confirmDisable, setConfirmDisable] = useState(false);
   const [confirmDisconnect, setConfirmDisconnect] = useState(false);
   const [pendingNewState, setPendingNewState] = useState(null);
+  const [webhookCopied, setWebhookCopied] = useState(false);
+
+  async function handleCopyWebhook() {
+    if (!webhookUrl) return;
+    try {
+      if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(webhookUrl);
+      }
+      setWebhookCopied(true);
+      setTimeout(() => setWebhookCopied(false), 2000);
+    } catch (_e) {
+      setWebhookCopied(false);
+    }
+  }
 
   async function handleEnabledToggle(nextState) {
     if (nextState === false && isLastActiveForProvider) {
@@ -428,6 +451,31 @@ const GatewayCard = ({
             }
           />
         </div>
+
+        {webhookUrl ? (
+          <div className="flex items-start gap-2">
+            <span className="mt-0.5 text-sm shrink-0">🔗</span>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">Webhook URL</div>
+              <div className="mt-1 flex items-center gap-2">
+                <code
+                  className="min-w-0 flex-1 truncate rounded-lg border border-[#E5E7EB] bg-white px-2 py-1.5 font-mono text-[11px] text-[#111827]"
+                  title={webhookUrl}
+                >
+                  {webhookUrl}
+                </code>
+                <button
+                  type="button"
+                  onClick={handleCopyWebhook}
+                  title="Copy webhook URL"
+                  className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[#E5E7EB] bg-white px-2.5 py-1.5 text-[11px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+                >
+                  {webhookCopied ? "✓ Copied" : "Copy"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className="flex items-start gap-2">
           <span className="mt-0.5 text-sm shrink-0">🟢</span>
