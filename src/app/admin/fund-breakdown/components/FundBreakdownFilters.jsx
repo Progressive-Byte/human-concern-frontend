@@ -8,6 +8,10 @@ const INPUT_CLASS =
 const FundBreakdownFilters = ({
   q,
   onChangeQ,
+  from,
+  to,
+  onChangeFrom,
+  onChangeTo,
   currency,
   currencies = [],
   onChangeCurrency,
@@ -20,7 +24,7 @@ const FundBreakdownFilters = ({
   onReset,
 }) => (
   <div className="space-y-3">
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
       <div>
         <label className="mb-1 block text-[12px] font-medium text-[#383838]">Search</label>
         <input
@@ -28,6 +32,28 @@ const FundBreakdownFilters = ({
           onChange={(event) => onChangeQ(event.target.value)}
           placeholder="Fund code or cause…"
           className={INPUT_CLASS}
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-[12px] font-medium text-[#383838]">First payment from</label>
+        <input
+          type="date"
+          value={from}
+          max={to || undefined}
+          onChange={(event) => onChangeFrom(event.target.value)}
+          className={`${INPUT_CLASS} cursor-pointer`}
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-[12px] font-medium text-[#383838]">First payment to</label>
+        <input
+          type="date"
+          value={to}
+          min={from || undefined}
+          onChange={(event) => onChangeTo(event.target.value)}
+          className={`${INPUT_CLASS} cursor-pointer`}
         />
       </div>
 

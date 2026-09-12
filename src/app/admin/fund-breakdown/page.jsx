@@ -5,7 +5,7 @@ import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { formatCurrency } from "@/utils/helpers";
 import { SUPPORTED_FORM_CURRENCY_OPTIONS } from "@/utils/currencies";
-import { getAdminCampaigns, getAdminForms, getAdminFundBreakdown } from "@/services/admin";
+import { getAdminCampaigns, getAdminForms, getAdminFundBreakdown, exportAdminFundBreakdown } from "@/services/admin";
 import FundBreakdownHeader from "./components/FundBreakdownHeader";
 import FundBreakdownSummaryCards from "./components/FundBreakdownSummaryCards";
 import FundBreakdownFilters from "./components/FundBreakdownFilters";
@@ -22,6 +22,8 @@ const DEFAULT_FILTERS = {
   currency: "",
   campaignIds: [],
   formIds: [],
+  from: "",
+  to: "",
 };
 
 function useDebouncedValue(value, delayMs) {
@@ -101,12 +103,6 @@ function normalizeFundRow(raw) {
   };
 }
 
-function escapeCsvCell(value) {
-  const s = String(value ?? "");
-  if (s.includes('"') || s.includes(",") || s.includes("\n")) return `"${s.replaceAll('"', '""')}"`;
-  return s;
-}
-
 const AdminFundBreakdownPage = () => {
   const toast = useToast();
 
@@ -119,6 +115,7 @@ const AdminFundBreakdownPage = () => {
   const [pagination, setPagination] = useState(null);
   const [summary, setSummary] = useState(EMPTY_SUMMARY);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [exporting, setExporting] = useState(false);
 
   const [campaignOptions, setCampaignOptions] = useState([]);
   const [allFormOptions, setAllFormOptions] = useState([]);
@@ -177,6 +174,8 @@ const AdminFundBreakdownPage = () => {
           currency: filters.currency,
           campaignIds: filters.campaignIds,
           formIds: filters.formIds,
+          from: filters.from,
+          to: filters.to,
         });
 
         if (!alive) return;
@@ -208,6 +207,8 @@ const AdminFundBreakdownPage = () => {
     filters.currency,
     filters.campaignIds,
     filters.formIds,
+    filters.from,
+    filters.to,
     debouncedQ,
     refreshKey,
   ]);
@@ -232,58 +233,42 @@ const AdminFundBreakdownPage = () => {
     setRefreshKey((value) => value + 1);
   }
 
-  function handleExport() {
+  // Unpaginated CSV built server-side, so "export" means every row matching the
+  // filters — not just the page on screen.
+  async function handleExport() {
     try {
-      const rows = Array.isArray(items) ? items : [];
-      if (rows.length === 0) {
+      setExporting(true);
+
+      const csv = await exportAdminFundBreakdown({
+        sort: filters.sort,
+        order: filters.order,
+        q: debouncedQ,
+        currency: filters.currency,
+        campaignIds: filters.campaignIds,
+        formIds: filters.formIds,
+        from: filters.from,
+        to: filters.to,
+      });
+
+      const text = typeof csv === "string" ? csv : "";
+      if (!text.trim() || text.trim().split("\n").length <= 1) {
         toast.info("No rows to export.");
         return;
       }
 
-      const header = [
-        "fundCode",
-        "causeNames",
-        "currency",
-        "amount",
-        "payments",
-        "donations",
-        "uniqueDonors",
-        "forms",
-        "campaigns",
-        "lastPaymentAt",
-      ];
-      const lines = [header.join(",")];
-
-      for (const row of rows) {
-        lines.push(
-          [
-            row.fundCode || "Unassigned",
-            row.causes.join(" | "),
-            row.currency,
-            row.amount,
-            row.payments,
-            row.donationCount,
-            row.uniqueDonors,
-            row.formsCount,
-            row.campaignsCount,
-            row.lastPaymentAt ? String(row.lastPaymentAt).slice(0, 10) : "",
-          ]
-            .map(escapeCsvCell)
-            .join(",")
-        );
-      }
-
-      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "fund-breakdown.csv";
+      link.download = `fund-breakdown-${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
     } catch (e) {
       toast.error(e?.message || "Export failed.");
+    } finally {
+      setExporting(false);
     }
   }
 
@@ -292,7 +277,7 @@ const AdminFundBreakdownPage = () => {
 
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
-      <FundBreakdownHeader onExport={handleExport} onRefresh={refresh} refreshing={loading} />
+      <FundBreakdownHeader onExport={handleExport} onRefresh={refresh} refreshing={loading} exporting={exporting} />
 
       {error ? (
         <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
@@ -307,6 +292,10 @@ const AdminFundBreakdownPage = () => {
         <FundBreakdownFilters
           q={filters.q}
           onChangeQ={(next) => setFilters((prev) => ({ ...prev, page: "1", q: next }))}
+          from={filters.from}
+          onChangeFrom={(next) => setFilters((prev) => ({ ...prev, page: "1", from: next }))}
+          to={filters.to}
+          onChangeTo={(next) => setFilters((prev) => ({ ...prev, page: "1", to: next }))}
           currency={filters.currency}
           currencies={currencyOptions}
           onChangeCurrency={(next) => setFilters((prev) => ({ ...prev, page: "1", currency: next }))}

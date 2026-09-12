@@ -1,6 +1,6 @@
 "use client";
 
-const FundBreakdownHeader = ({ onExport, onRefresh, refreshing }) => (
+const FundBreakdownHeader = ({ onExport, onRefresh, refreshing, exporting }) => (
   <div className="flex flex-wrap items-start justify-between gap-3">
     <div>
       <h1 className="text-[20px] font-semibold text-[#171717]">Fund Breakdown</h1>
@@ -21,9 +21,10 @@ const FundBreakdownHeader = ({ onExport, onRefresh, refreshing }) => (
       <button
         type="button"
         onClick={onExport}
-        className="cursor-pointer rounded-xl bg-[#171717] px-3.5 py-2 text-[13px] font-medium text-white transition hover:bg-[#000000]"
+        disabled={exporting}
+        className="cursor-pointer rounded-xl bg-[#171717] px-3.5 py-2 text-[13px] font-medium text-white transition hover:bg-[#000000] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Export CSV
+        {exporting ? "Exporting…" : "Export CSV"}
       </button>
     </div>
   </div>

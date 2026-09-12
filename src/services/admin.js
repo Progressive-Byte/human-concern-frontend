@@ -444,7 +444,7 @@ export function cancelAdminSchedule(donationId) {
 // -----------------------------
 // Fund Breakdown
 // -----------------------------
-export function getAdminFundBreakdown({ page, limit, sort, order, q, currency, campaignIds, formIds } = {}) {
+function buildFundBreakdownParams({ page, limit, sort, order, q, currency, campaignIds, formIds, from, to } = {}) {
   const params = new URLSearchParams();
 
   if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
@@ -453,11 +453,26 @@ export function getAdminFundBreakdown({ page, limit, sort, order, q, currency, c
   if (typeof order === "string" && order.trim()) params.set("order", order.trim());
   if (typeof q === "string" && q.trim()) params.set("q", q.trim());
   if (typeof currency === "string" && currency.trim()) params.set("currency", currency.trim());
+  if (typeof from === "string" && from.trim()) params.set("from", from.trim());
+  if (typeof to === "string" && to.trim()) params.set("to", to.trim());
   if (Array.isArray(campaignIds) && campaignIds.length) params.set("campaignIds", campaignIds.join(","));
   if (Array.isArray(formIds) && formIds.length) params.set("formIds", formIds.join(","));
 
-  const query = params.toString();
+  return params;
+}
+
+export function getAdminFundBreakdown(options = {}) {
+  const query = buildFundBreakdownParams(options).toString();
   const endpoint = query ? `/admin/fund-breakdown?${query}` : "/admin/fund-breakdown";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+// Unpaginated CSV of every row matching the same filters. adminApiRequest returns
+// response.text() for non-JSON content types, so this resolves to the raw CSV string.
+export function exportAdminFundBreakdown(options = {}) {
+  const query = buildFundBreakdownParams(options).toString();
+  const endpoint = query ? `/admin/fund-breakdown/export?${query}` : "/admin/fund-breakdown/export";
 
   return adminApiRequest(endpoint, { method: "GET" });
 }
