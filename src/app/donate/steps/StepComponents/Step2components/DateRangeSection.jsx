@@ -9,6 +9,7 @@ const DateRangeSection = ({
   rangeStart, rangeEnd, rangeFreq, customInterval,
   effectiveAmount, sym,
   lockedInterval = null,
+  maxDateStr = null,
   onRangeStart, onRangeEnd, onRangeFreq, onCustomInterval,
 }) => {
   const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
@@ -56,6 +57,7 @@ const DateRangeSection = ({
               mode="single"
               selectedDates={rangeEnd ? [rangeEnd] : []}
               minDateStr={rangeStart || todayStr}
+              maxDateStr={maxDateStr}
               onToggleDate={(d) => onRangeEnd(d)}
             />
           </div>

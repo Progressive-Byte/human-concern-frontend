@@ -2,7 +2,7 @@
 
 import MiniCalendar from "./MiniCalendar";
 
-const SpecificDatesSection = ({ selectedDates, onToggleDate }) => {
+const SpecificDatesSection = ({ selectedDates, onToggleDate, maxDateStr = null }) => {
   return (
     <div className="flex flex-col gap-3">
       <div>
@@ -12,7 +12,7 @@ const SpecificDatesSection = ({ selectedDates, onToggleDate }) => {
             <span className="ml-1.5 text-[#EA3335]">({selectedDates.length} selected)</span>
           )}
         </label>
-        <MiniCalendar selectedDates={selectedDates} onToggleDate={onToggleDate} />
+        <MiniCalendar selectedDates={selectedDates} onToggleDate={onToggleDate} maxDateStr={maxDateStr} />
         {selectedDates.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {[...selectedDates].sort().map((d) => (

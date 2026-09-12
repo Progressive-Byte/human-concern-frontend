@@ -28,6 +28,7 @@ const RecurringSchedule = ({
   apiPresets = [],
   causeSplit,
   causeLabelById,
+  campaignEndDate = null,
   onChange,
 }) => {
   const todayStr = useMemo(getTodayStr, []);
@@ -298,7 +299,7 @@ const RecurringSchedule = ({
           )}
 
           {scheduleType === "specific_dates" ? (
-            <SpecificDatesSection selectedDates={selectedDates} onToggleDate={toggleDate} />
+            <SpecificDatesSection selectedDates={selectedDates} onToggleDate={toggleDate} maxDateStr={campaignEndDate} />
           ) : (
             <DateRangeSection
               rangeStart={rangeStart}
@@ -308,6 +309,7 @@ const RecurringSchedule = ({
               effectiveAmount={effectiveAmount}
               sym={sym}
               lockedInterval={lockedInterval}
+              maxDateStr={campaignEndDate}
               onRangeStart={handleRangeStart}
               onRangeEnd={handleRangeEnd}
               onRangeFreq={handleRangeFreq}

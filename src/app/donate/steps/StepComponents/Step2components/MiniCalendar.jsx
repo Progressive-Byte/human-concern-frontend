@@ -6,7 +6,8 @@ const DAY_LABELS  = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 // mode="multi"  — default multi-select toggle behaviour
 // mode="single" — single-date picker; clicking the same date deselects it
 // minDateStr    — ISO date string (YYYY-MM-DD); dates before this are disabled
-const MiniCalendar = ({ selectedDates, onToggleDate, mode = "multi", minDateStr = null }) => {
+// maxDateStr    — ISO date string (YYYY-MM-DD); dates after this are disabled
+const MiniCalendar = ({ selectedDates, onToggleDate, mode = "multi", minDateStr = null, maxDateStr = null }) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -198,7 +199,10 @@ const MiniCalendar = ({ selectedDates, onToggleDate, mode = "multi", minDateStr 
           const dateStr    = toDateStr(day);
           const dateObj    = new Date(year, month, day);
           const isPast     = dateObj <= today;
-          const isDisabled = isPast || (minDateStr != null && dateStr < minDateStr);
+          const maxStr     = maxDateStr ? String(maxDateStr).slice(0, 10) : null;
+          const isDisabled = isPast
+            || (minDateStr != null && dateStr < minDateStr)
+            || (maxStr != null && dateStr > maxStr);
           const isSel      = selectedDates.includes(dateStr);
           const isToday    = dateObj.getTime() === today.getTime();
 

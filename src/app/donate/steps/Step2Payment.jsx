@@ -27,7 +27,7 @@ const Step2Payment = () => {
     } catch { return false; }
   }, []);
 
-  const { suggestedAmounts, allowRecurring, minDonation, maxDonation, recurringPresets, currenciesWithRates } = useMemo(() => {
+  const { suggestedAmounts, allowRecurring, minDonation, maxDonation, recurringPresets, currenciesWithRates, campaignEndDate } = useMemo(() => {
     const fallbackPreview = { suggestedAmounts: [], allowRecurring: false, minDonation: 0, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
     const fallbackDefault = { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
     try {
@@ -52,6 +52,7 @@ const Step2Payment = () => {
           .filter((p) => p.enabled)
           .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
         currenciesWithRates: meta.currenciesWithRates ?? [],
+        campaignEndDate:     goalsDates.endAt ?? meta.endAt ?? null,
       };
     } catch {
       return isPreview ? fallbackPreview : fallbackDefault;
@@ -354,6 +355,7 @@ const Step2Payment = () => {
                 apiPresets={recurringPresets}
                 causeSplit={causeSplit}
                 causeLabelById={causeLabelById}
+                campaignEndDate={isEditMode ? null : campaignEndDate}
                 onChange={handleScheduleChange}
               />
             </div>
