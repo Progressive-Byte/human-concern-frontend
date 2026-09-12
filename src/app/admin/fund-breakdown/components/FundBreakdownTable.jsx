@@ -1,19 +1,37 @@
 "use client";
 
+import FundBreakdownPagination from "./FundBreakdownPagination";
+
 function formatDay(value) {
   if (!value) return "—";
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return "—";
-  return parsed.toISOString().slice(0, 10);
+  try {
+    return new Date(value).toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" });
+  } catch {
+    return "—";
+  }
 }
 
-const HEAD_CLASS = "px-4 py-2.5 text-[11px] font-medium uppercase tracking-wide text-[#8C8C8C]";
-const CELL_CLASS = "px-4 py-3 text-[13px] text-[#383838]";
+function Skeleton() {
+  return (
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+      <div className="flex items-center justify-between gap-3 px-5 py-4">
+        <div className="h-6 w-52 animate-pulse rounded bg-[#F3F4F6]" />
+        <div className="h-9 w-40 animate-pulse rounded bg-[#F3F4F6]" />
+      </div>
+      <div className="border-t border-[#F3F4F6]" />
+      <div className="p-5">
+        <div className="h-12 animate-pulse rounded bg-[#F3F4F6]" />
+        <div className="mt-3 h-12 animate-pulse rounded bg-[#F3F4F6]" />
+        <div className="mt-3 h-12 animate-pulse rounded bg-[#F3F4F6]" />
+      </div>
+    </div>
+  );
+}
 
 const FundBreakdownTable = ({
   items = [],
-  loading,
-  pagination,
+  loading = false,
+  pagination = null,
   formatAmount,
   sort,
   order,
@@ -21,21 +39,24 @@ const FundBreakdownTable = ({
   onPrevPage,
   onNextPage,
 }) => {
-  const currentPage = Number(pagination?.page || 1);
-  const totalPages = Number(pagination?.totalPages || 1);
-  const total = Number(pagination?.total || 0);
+  if (loading && (!Array.isArray(items) || items.length === 0)) return <Skeleton />;
+
+  const rows = Array.isArray(items) ? items : [];
+  const total = Number(pagination?.total || rows.length || 0);
+  const amt = typeof formatAmount === "function" ? formatAmount : (v) => String(v ?? "");
 
   return (
-    <div className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#F1F1F1] px-4 py-3">
-        <p className="text-[13px] font-semibold text-[#171717]">By fund code</p>
+    <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+      <div className="flex items-center justify-between gap-3 px-5 py-4">
+        <div className="text-[18px] font-semibold text-[#111827]">All Funds ({total})</div>
+
         <select
           value={`${sort}:${order}`}
           onChange={(event) => {
             const [nextSort, nextOrder] = event.target.value.split(":");
-            onChangeSort(nextSort, nextOrder);
+            onChangeSort?.(nextSort, nextOrder);
           }}
-          className="cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] text-[#383838] outline-none focus:border-[#171717]/30"
+          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
         >
           <option value="amount:desc">Amount (high → low)</option>
           <option value="amount:asc">Amount (low → high)</option>
@@ -45,56 +66,54 @@ const FundBreakdownTable = ({
         </select>
       </div>
 
+      <div className="border-t border-[#F3F4F6]" />
+
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left">
+        <table className="w-full min-w-250 border-collapse text-[13px] text-[#111827]">
           <thead>
-            <tr className="border-b border-[#F1F1F1] bg-[#FAFAFA]">
-              <th className={HEAD_CLASS}>Fund code</th>
-              <th className={HEAD_CLASS}>Currency</th>
-              <th className={`${HEAD_CLASS} text-right`}>Amount</th>
-              <th className={`${HEAD_CLASS} text-right`}>Payments</th>
-              <th className={`${HEAD_CLASS} text-right`}>Donations</th>
-              <th className={`${HEAD_CLASS} text-right`}>Donors</th>
-              <th className={`${HEAD_CLASS} text-right`}>Forms</th>
-              <th className={`${HEAD_CLASS} text-right`}>Campaigns</th>
-              <th className={HEAD_CLASS}>Last payment</th>
+            <tr className="text-left text-[12px] font-medium text-[#6B7280]">
+              <th className="px-5 py-3">Fund Code</th>
+              <th className="py-3 pr-4">Currency</th>
+              <th className="py-3 pr-4 text-right">Amount</th>
+              <th className="py-3 pr-4 text-right">Payments</th>
+              <th className="py-3 pr-4 text-right">Donations</th>
+              <th className="py-3 pr-4 text-right">Donors</th>
+              <th className="py-3 pr-4 text-right">Forms</th>
+              <th className="py-3 pr-4 text-right">Campaigns</th>
+              <th className="py-3 pr-5">Last Payment</th>
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {rows.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-10 text-center text-[13px] text-[#8C8C8C]">
-                  Loading…
-                </td>
-              </tr>
-            ) : items.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="px-4 py-10 text-center text-[13px] text-[#8C8C8C]">
-                  No funds match these filters.
+                <td colSpan={9} className="px-5 py-10 text-center text-sm text-[#6B7280]">
+                  No funds found.
                 </td>
               </tr>
             ) : (
-              items.map((row, index) => (
+              rows.map((row, idx) => (
                 <tr
-                  key={`${row.fundCode}-${row.currency}-${index}`}
-                  className="border-b border-[#F6F6F6] last:border-0 hover:bg-[#FCFCFC]"
+                  key={`${row?.fundCode || "unassigned"}-${row?.currency || ""}-${idx}`}
+                  className="border-t border-[#F3F4F6] transition-colors duration-200 hover:bg-[#F9FAFB]"
                 >
-                  <td className={CELL_CLASS}>
-                    <div className="font-medium text-[#171717]">{row.fundCode || "Unassigned"}</div>
-                    {row.causes.length > 0 ? (
-                      <div className="mt-0.5 text-[11px] text-[#8C8C8C]">{row.causes.join(", ")}</div>
-                    ) : null}
+                  <td className="px-5 py-4 align-top">
+                    <div className="flex flex-col gap-1">
+                      <span className="inline-flex w-fit rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[12px] font-semibold text-[#111827]">
+                        {row?.fundCode || "Unassigned"}
+                      </span>
+                      {row?.causes?.length ? (
+                        <span className="text-[12px] text-[#6B7280]">{row.causes.join(", ")}</span>
+                      ) : null}
+                    </div>
                   </td>
-                  <td className={CELL_CLASS}>{row.currency || "—"}</td>
-                  <td className={`${CELL_CLASS} text-right font-semibold text-[#171717]`}>
-                    {formatAmount(row.amount, row.currency)}
-                  </td>
-                  <td className={`${CELL_CLASS} text-right`}>{row.payments}</td>
-                  <td className={`${CELL_CLASS} text-right`}>{row.donationCount}</td>
-                  <td className={`${CELL_CLASS} text-right`}>{row.uniqueDonors}</td>
-                  <td className={`${CELL_CLASS} text-right`}>{row.formsCount}</td>
-                  <td className={`${CELL_CLASS} text-right`}>{row.campaignsCount}</td>
-                  <td className={CELL_CLASS}>{formatDay(row.lastPaymentAt)}</td>
+                  <td className="py-4 pr-4 align-top">{row?.currency || "—"}</td>
+                  <td className="py-4 pr-4 align-top text-right font-semibold">{amt(row?.amount, row?.currency)}</td>
+                  <td className="py-4 pr-4 align-top text-right">{Number(row?.payments || 0)}</td>
+                  <td className="py-4 pr-4 align-top text-right">{Number(row?.donationCount || 0)}</td>
+                  <td className="py-4 pr-4 align-top text-right">{Number(row?.uniqueDonors || 0)}</td>
+                  <td className="py-4 pr-4 align-top text-right">{Number(row?.formsCount || 0)}</td>
+                  <td className="py-4 pr-4 align-top text-right">{Number(row?.campaignsCount || 0)}</td>
+                  <td className="py-4 pr-5 align-top text-[#6B7280]">{formatDay(row?.lastPaymentAt)}</td>
                 </tr>
               ))
             )}
@@ -102,31 +121,8 @@ const FundBreakdownTable = ({
         </table>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#F1F1F1] px-4 py-3">
-        <p className="text-[12px] text-[#8C8C8C]">
-          {total} {total === 1 ? "fund" : "funds"}
-          {totalPages > 1 ? ` · page ${currentPage} of ${totalPages}` : ""}
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onPrevPage}
-            disabled={currentPage <= 1}
-            className="cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-medium text-[#383838] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <button
-            type="button"
-            onClick={onNextPage}
-            disabled={currentPage >= totalPages}
-            className="cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-medium text-[#383838] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-    </div>
+      <FundBreakdownPagination pagination={pagination} onPrev={onPrevPage} onNext={onNextPage} />
+    </section>
   );
 };
 

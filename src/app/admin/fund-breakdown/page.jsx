@@ -308,7 +308,6 @@ const AdminFundBreakdownPage = () => {
           forms={formOptions}
           formIds={filters.formIds}
           onChangeFormIds={(next) => setFilters((prev) => ({ ...prev, page: "1", formIds: next }))}
-          onReset={() => setFilters({ ...DEFAULT_FILTERS })}
         />
       </div>
 
