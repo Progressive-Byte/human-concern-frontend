@@ -48,6 +48,7 @@ const initialState = {
   paymentType: "one-time",
   grandTotal: 0,
   unifiedChallenge: null,
+  manualCauseIds: [],
 };
 
 function hashIntentFields(state) {

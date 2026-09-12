@@ -3,16 +3,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { distributeAmount } from "@/utils/causeSplit";
 
-const CauseAmountInput = ({ amount, sym, onChange }) => {
+const CauseAmountInput = ({ amount, maxAmount, sym, onChange }) => {
   const [text, setText] = useState(() => amount.toFixed(2));
   const lastAmount = useRef(amount);
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
+    // While the donor is typing, don't overwrite their text with the clamped/rounded
+    // value — the corrected amount is applied on blur.
+    if (focused) return;
     if (amount === lastAmount.current) return;
     lastAmount.current = amount;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing the auto-balanced amount computed by a sibling edit, not deriving local state
     setText(amount.toFixed(2));
-  }, [amount]);
+  }, [amount, focused]);
 
   const handleChange = (e) => {
     const val = e.target.value;
@@ -24,7 +28,11 @@ const CauseAmountInput = ({ amount, sym, onChange }) => {
     }
   };
 
-  const handleBlur = () => setText(amount.toFixed(2));
+  const handleBlur = () => {
+    setFocused(false);
+    lastAmount.current = amount;
+    setText(amount.toFixed(2));
+  };
 
   return (
     <div
@@ -35,21 +43,32 @@ const CauseAmountInput = ({ amount, sym, onChange }) => {
       <input
         type="number"
         min={0}
+        max={maxAmount}
         value={text}
         onChange={handleChange}
         onBlur={handleBlur}
-        onFocus={(e) => e.target.select()}
+        onFocus={(e) => { setFocused(true); e.target.select(); }}
         className="w-full min-w-0 py-1.5 pr-2.5 text-[13px] font-semibold text-[#383838] outline-none bg-transparent"
       />
     </div>
   );
 };
 
-const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, totalAmount, sym, onSplitChange }) => {
+const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, manualCauseIds = [], totalAmount, sym, onSplitChange, onResetSplit }) => {
   const allocations = useMemo(
     () => Object.fromEntries(distributeAmount(totalAmount, causeSplit).map((a) => [a.causeId, a.amount])),
     [totalAmount, causeSplit]
   );
+
+  const manualSet = useMemo(() => new Set(manualCauseIds), [manualCauseIds]);
+
+  // What this cause can still take without starving the manually entered ones.
+  const maxAmountFor = (causeId) => {
+    const manualOthersTotal = selectedCauseIds
+      .filter((id) => id !== causeId && manualSet.has(id))
+      .reduce((sum, id) => sum + (allocations[id] ?? 0), 0);
+    return Math.max(0, Number(totalAmount) - manualOthersTotal);
+  };
 
   if (!causes.length) return null;
 
@@ -57,12 +76,23 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <p className="text-[13px] font-semibold text-[#383838]">Select Cause</p>
-        <span className="text-[13px] text-[#8C8C8C]">
-          <span className="text-[#000000] font-normal">{selectedCauseIds.length} selected</span>
-          {" "}of {causes.length}
-        </span>
+        <div className="flex items-center gap-3">
+          {showSplit ? (
+            <button
+              type="button"
+              onClick={onResetSplit}
+              className="text-[12px] font-medium text-[#EA3335] hover:underline cursor-pointer"
+            >
+              Reset to equal
+            </button>
+          ) : null}
+          <span className="text-[13px] text-[#8C8C8C]">
+            <span className="text-[#000000] font-normal">{selectedCauseIds.length} selected</span>
+            {" "}of {causes.length}
+          </span>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {causes.map((cause) => {
@@ -100,6 +130,7 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
               {active && showSplit && (
                 <CauseAmountInput
                   amount={allocations[cause.id] ?? 0}
+                  maxAmount={maxAmountFor(cause.id)}
                   sym={sym}
                   onChange={(amount) => onSplitChange(cause.id, amount)}
                 />
