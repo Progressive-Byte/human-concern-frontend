@@ -27,7 +27,7 @@ function readSessionChallengeIds() {
   }
 }
 
-const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
+const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, currency, isRecurring }) => {
   const stripe   = useStripe();
   const elements = useElements();
   const router   = useRouter();
@@ -243,7 +243,9 @@ const StripeCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
               <span>{isRecurring ? "Setting up…" : "Processing…"}</span>
             </>
           ) : isRecurring ? (
-            `Authorise Split Payments (${sym}${(grandTotal ?? 0).toFixed(2)})`
+            firstPaymentAmount != null
+              ? `Authorise split payments — first payment ${sym}${Number(firstPaymentAmount).toFixed(2)}${firstPaymentDate ? ` on ${firstPaymentDate}` : ""}`
+              : `Authorise Split Payments (${sym}${(grandTotal ?? 0).toFixed(2)})`
           ) : (
             `Pay ${sym}${(grandTotal ?? 0).toFixed(2)}`
           )}

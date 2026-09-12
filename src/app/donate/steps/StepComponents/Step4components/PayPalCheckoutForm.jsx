@@ -35,7 +35,7 @@ const PAYPAL_STATES = {
   ERROR: "error",
 };
 
-const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
+const PayPalCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, currency, isRecurring }) => {
   const router = useRouter();
   const { data, update } = useDonation();
 
@@ -516,7 +516,11 @@ const PayPalCheckoutForm = ({ grandTotal, currency, isRecurring }) => {
                   <span>Redirecting…</span>
                 </>
               ) : (
-                <>Go to PayPal now ({sym}{(grandTotal ?? 0).toFixed(2)}/installment)</>
+                <>
+                  {firstPaymentAmount != null
+                    ? `Go to PayPal — first payment ${sym}${Number(firstPaymentAmount).toFixed(2)}${firstPaymentDate ? ` on ${firstPaymentDate}` : ""}`
+                    : `Go to PayPal now (${sym}${(grandTotal ?? 0).toFixed(2)}/installment)`}
+                </>
               )}
             </button>
           </div>

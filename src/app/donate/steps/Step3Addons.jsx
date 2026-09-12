@@ -9,6 +9,7 @@ import { apiRequest } from "@/services/api";
 import { submitScheduleEditForm } from "@/services/donationService";
 import { generateDatesInRange } from "./StepComponents/countOccurrences";
 import { distributeAmount } from "@/utils/causeSplit";
+import { computeFirstPayment } from "./StepComponents/firstPayment";
 import AddOnsList from "./StepComponents/Step3components/AddOnsList";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
@@ -215,6 +216,17 @@ const Step3Addons = () => {
     : 0;
   const grandTotal = baseDonation + addOnsTotal + tipAmount;
 
+  // Recurring charges the first scheduled payment + all one-time extras (add-ons + tip)
+  // on the first date — not the whole commitment. Surfaced on the pay button (step 4).
+  const { amount: firstPaymentAmount, date: firstPaymentDate } = computeFirstPayment({
+    isRecurring,
+    scheduleType: data.scheduleType,
+    scheduleConfig: data.scheduleConfig,
+    amountTier,
+    addOnsTotal,
+    tipAmount,
+  });
+
   const updateAddOnInput = (addOnId, key, val) =>
     setAddOnInputs((prev) => ({ ...prev, [addOnId]: { ...prev[addOnId], [key]: val } }));
 
@@ -226,9 +238,11 @@ const Step3Addons = () => {
       addOnsTotal,
       grandTotal,
       addOnBreakdown: computedBreakdown,
+      firstPaymentAmount,
+      firstPaymentDate,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tipPct, customTipAmount, computedBreakdown, grandTotal]);
+  }, [tipPct, customTipAmount, computedBreakdown, grandTotal, firstPaymentAmount, firstPaymentDate]);
 
   const buildEditPayload = () => {
     const scheduleType   = data.scheduleType   ?? "specific_dates";
@@ -488,7 +502,7 @@ const Step3Addons = () => {
     }
     setNoteErrors({});
     const paymentMethod = isPreview ? "stripe" : gatewayState.gateway;
-    update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod });
+    update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod, firstPaymentAmount, firstPaymentDate });
     setSubmitting(true);
     setSubmitError(null);
     try {

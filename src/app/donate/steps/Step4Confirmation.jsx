@@ -474,6 +474,8 @@ const Step4Confirmation = () => {
                   >
                     <StripeCheckoutForm
                       grandTotal={data.grandTotal}
+                      firstPaymentAmount={data.firstPaymentAmount}
+                      firstPaymentDate={data.firstPaymentDate}
                       currency={data.currency}
                       isRecurring={isRecurring}
                     />
@@ -494,6 +496,8 @@ const Step4Confirmation = () => {
             ) : isPayPal && !isPayPalRedirect ? (
               <PayPalCheckoutForm
                 grandTotal={data.grandTotal}
+                firstPaymentAmount={data.firstPaymentAmount}
+                firstPaymentDate={data.firstPaymentDate}
                 currency={data.currency}
                 isRecurring={isRecurring}
               />
