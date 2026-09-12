@@ -12,7 +12,8 @@ function buildMenu(status) {
   const items = [];
 
   items.push({ key: "edit", label: "Edit" });
-  items.push({ key: "copyUrl", label: "Copy Form URL" });
+  // The public link only resolves once the form is published.
+  items.push({ key: "copyUrl", label: "Copy Form URL", disabled: s !== "published" });
   if (s === "draft") items.push({ key: "publish", label: "Publish" }, { key: "archive", label: "Archive" });
   if (s === "published") items.push({ key: "unpublish", label: "Move to Draft" }, { key: "archive", label: "Archive" });
   if (s === "archived") items.push({ key: "restore", label: "Restore" });
@@ -125,7 +126,10 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
             <button
               key={m.key}
               type="button"
+              disabled={Boolean(m.disabled)}
+              title={m.disabled ? "Publish this form first" : undefined}
               onClick={() => {
+                if (m.disabled) return;
                 setOpen(false);
                 if (m.key === "edit") {
                   const cid = String(campaignId || "").trim();
@@ -144,7 +148,11 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
                 }
                 setConfirmAction(m.key);
               }}
-              className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
+              className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium transition ${
+                m.disabled
+                  ? "cursor-not-allowed text-[#9CA3AF]"
+                  : "cursor-pointer text-[#111827] hover:bg-[#F9FAFB]"
+              }`}
             >
               <span>{m.label}</span>
             </button>
