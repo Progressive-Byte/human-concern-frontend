@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 import { apiRequest } from "@/services/api";
 import { buildCampaignData } from "@/utils/campaignData";
 
+function isScheduleEditMode() {
+  try {
+    return Boolean(JSON.parse(sessionStorage.getItem("hc_schedule_edit") || "{}").isEditMode);
+  } catch {
+    return false;
+  }
+}
+
 // Refreshes the campaign configuration the donate steps read, so admin changes
 // are reflected on every entry (including a refresh or a shared/direct link).
 //
@@ -14,6 +22,16 @@ const CampaignConfigLoader = ({ campaignSlug, children }) => {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    // Schedule-edit sessions reach the wizard through this same route, but their
+    // config is built by getUserScheduleEditForm (fresh on every click, and tailored
+    // to that schedule: availableCauses/availableAddOns/constraints). Overwriting it
+    // with the public campaign config would change the cause/add-on options and inject
+    // payment methods + global notes, so leave edit sessions alone.
+    if (isScheduleEditMode()) {
+      setReady(true);
+      return undefined;
+    }
+
     let alive = true;
 
     async function refresh() {
