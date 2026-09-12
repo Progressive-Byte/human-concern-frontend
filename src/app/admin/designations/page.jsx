@@ -1,90 +1,78 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AlertIcon } from "@/components/common/SvgIcon";
-import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
-import {
-  getAdminDesignations,
-  createAdminDesignation,
-  updateAdminDesignation,
-  archiveAdminDesignation,
-  restoreAdminDesignation,
-} from "@/services/admin";
+import { useEffect, useMemo, useState } from "react";
+import { archiveAdminDesignation, getAdminDesignations, restoreAdminDesignation } from "@/services/admin";
 import DesignationsHeader from "./components/DesignationsHeader";
+import DesignationsSummaryCards from "./components/DesignationsSummaryCards";
 import DesignationsFilters from "./components/DesignationsFilters";
 import DesignationsTable from "./components/DesignationsTable";
 import DesignationUpsertModal from "./components/DesignationUpsertModal";
-
-const DEFAULT_FILTERS = { page: "1", limit: "20", sort: "code", order: "asc", q: "", status: "" };
+import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import { AlertIcon } from "@/components/common/SvgIcon";
 
 function useDebouncedValue(value, delayMs) {
   const [debounced, setDebounced] = useState(value);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(t);
   }, [value, delayMs]);
 
   return debounced;
 }
 
 function normalizeItemsResponse(res) {
-  const r = res || {};
-  if (Array.isArray(r?.data?.items)) return r.data.items;
-  if (Array.isArray(r?.data?.data?.items)) return r.data.data.items;
-  if (Array.isArray(r?.items)) return r.items;
-  if (Array.isArray(r?.data)) return r.data;
-  return [];
+  return res?.data?.items || res?.data?.data?.items || res?.items || [];
 }
 
-function normalizePagination(res) {
-  const p =
-    res?.meta?.pagination ||
-    res?.data?.meta?.pagination ||
-    res?.pagination ||
-    res?.data?.pagination ||
-    null;
-  if (!p) return null;
+function normalizeDesignation(raw) {
+  const id = String(raw?._id || raw?.id || "");
+  const code = String(raw?.code ?? "");
+  const name = String(raw?.name || "");
+  const status = String(raw?.status || "");
 
-  const page = Number(p?.page ?? 1);
-  const limit = Number(p?.limit ?? 20);
-  const total = Number(p?.total ?? 0);
-  const totalPages = Number(p?.totalPages ?? (limit > 0 ? Math.ceil(total / limit) : 1));
-
-  return {
-    page: page > 0 ? page : 1,
-    limit: limit > 0 ? limit : 20,
-    total: total >= 0 ? total : 0,
-    totalPages: totalPages > 0 ? totalPages : 1,
-  };
-}
-
-function normalizeDesignationRow(raw) {
-  return {
-    id: String(raw?.id || raw?._id || ""),
-    code: String(raw?.code ?? ""),
-    name: String(raw?.name ?? ""),
-    status: String(raw?.status || "active"),
-  };
+  return { id, code, name, status };
 }
 
 const AdminDesignationsPage = () => {
   const toast = useToast();
 
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState({
+    page: "1",
+    limit: "50",
+    sort: "createdAt",
+    order: "desc",
+    q: "",
+    status: "",
+  });
+
   const debouncedQ = useDebouncedValue(filters.q, 300);
 
-  const [items, setItems] = useState([]);
-  const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [items, setItems] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState("");
-  const [busyId, setBusyId] = useState("");
+  const [upsertOpen, setUpsertOpen] = useState(false);
+  const [upsertMode, setUpsertMode] = useState("create");
+  const [upsertDesignation, setUpsertDesignation] = useState(null);
+
+  function refresh() {
+    setRefreshKey((v) => v + 1);
+  }
+
+  function openCreate() {
+    setUpsertMode("create");
+    setUpsertDesignation(null);
+    setUpsertOpen(true);
+  }
+
+  function openEdit(designation) {
+    setUpsertMode("edit");
+    setUpsertDesignation(designation || null);
+    setUpsertOpen(true);
+  }
 
   useEffect(() => {
     let alive = true;
@@ -101,16 +89,17 @@ const AdminDesignationsPage = () => {
           q: debouncedQ,
           status: filters.status,
         });
-
         if (!alive) return;
 
-        setItems(normalizeItemsResponse(res).map(normalizeDesignationRow));
-        setPagination(normalizePagination(res));
-      } catch (e) {
+        const rawItems = normalizeItemsResponse(res);
+        const normalized = (Array.isArray(rawItems) ? rawItems : []).map(normalizeDesignation);
+        setItems(normalized);
+        setMeta(res?.meta || res?.data?.meta || res?.data?.data?.meta || null);
+      } catch (err) {
         if (!alive) return;
-        setError(e?.message || "Failed to load designations.");
+        setError(err?.message || "Failed to load designations.");
         setItems([]);
-        setPagination(null);
+        setMeta(null);
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -123,62 +112,42 @@ const AdminDesignationsPage = () => {
     };
   }, [filters.page, filters.limit, filters.sort, filters.order, filters.status, debouncedQ, refreshKey]);
 
-  const currentPage = Number(pagination?.page || 1);
-  const totalPages = Number(pagination?.totalPages || 1);
+  async function handleArchive(designation) {
+    const id = designation?.id;
+    if (!id) return;
 
-  function refresh() {
-    setRefreshKey((value) => value + 1);
-  }
-
-  function openCreate() {
-    setEditing(null);
-    setFormError("");
-    setModalOpen(true);
-  }
-
-  function openEdit(row) {
-    setEditing(row);
-    setFormError("");
-    setModalOpen(true);
-  }
-
-  async function handleSubmit({ name, code }) {
-    setSaving(true);
-    setFormError("");
     try {
-      if (editing) {
-        await updateAdminDesignation(editing.id, { name, code });
-        toast.info("Designation updated.");
-      } else {
-        await createAdminDesignation({ name, code });
-        toast.info("Designation created.");
-      }
-      setModalOpen(false);
-      setEditing(null);
+      await archiveAdminDesignation(id);
+      toast.success("Archived");
       refresh();
     } catch (e) {
-      setFormError(e?.message || "Failed to save the designation.");
-    } finally {
-      setSaving(false);
+      toast.error(e?.message || "Archive failed.");
     }
   }
 
-  async function handleToggleStatus(row) {
-    setBusyId(row.id);
+  async function handleRestore(designation) {
+    const id = designation?.id;
+    if (!id) return;
+
     try {
-      if (row.status === "archived") await restoreAdminDesignation(row.id);
-      else await archiveAdminDesignation(row.id);
+      await restoreAdminDesignation(id);
+      toast.success("Restored");
       refresh();
     } catch (e) {
-      toast.error(e?.message || "Failed to update the designation.");
-    } finally {
-      setBusyId("");
+      toast.error(e?.message || "Restore failed.");
     }
   }
+
+  const summary = useMemo(() => {
+    const total = items.length;
+    const active = items.filter((d) => String(d.status).toLowerCase() === "active").length;
+    const archived = items.filter((d) => String(d.status).toLowerCase() === "archived").length;
+    return { total, active, archived };
+  }, [items]);
 
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
-      <DesignationsHeader onRefresh={refresh} refreshing={loading} onCreate={openCreate} />
+      <DesignationsHeader onCreate={openCreate} />
 
       {error ? (
         <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
@@ -187,40 +156,32 @@ const AdminDesignationsPage = () => {
         </div>
       ) : null}
 
-      <div className="relative z-20 hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <DesignationsSummaryCards summary={meta?.summary || summary} loading={loading} />
+
+      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
         <DesignationsFilters
           q={filters.q}
           onChangeQ={(next) => setFilters((prev) => ({ ...prev, page: "1", q: next }))}
           status={filters.status}
           onChangeStatus={(next) => setFilters((prev) => ({ ...prev, page: "1", status: next }))}
-          onReset={() => setFilters({ ...DEFAULT_FILTERS })}
         />
       </div>
 
       <DesignationsTable
         items={items}
         loading={loading}
-        pagination={pagination}
-        busyId={busyId}
         onEdit={openEdit}
-        onToggleStatus={handleToggleStatus}
-        onPrevPage={() => setFilters((prev) => ({ ...prev, page: String(Math.max(1, currentPage - 1)) }))}
-        onNextPage={() => setFilters((prev) => ({ ...prev, page: String(Math.min(totalPages, currentPage + 1)) }))}
+        onArchive={handleArchive}
+        onRestore={handleRestore}
       />
 
-      {modalOpen ? (
-        <DesignationUpsertModal
-          key={editing?.id ?? "new"}
-          initial={editing}
-          saving={saving}
-          error={formError}
-          onClose={() => {
-            setModalOpen(false);
-            setEditing(null);
-          }}
-          onSubmit={handleSubmit}
-        />
-      ) : null}
+      <DesignationUpsertModal
+        open={upsertOpen}
+        mode={upsertMode}
+        designation={upsertDesignation}
+        onClose={() => setUpsertOpen(false)}
+        onSuccess={() => refresh()}
+      />
     </main>
   );
 };
