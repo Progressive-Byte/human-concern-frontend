@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getAdminFormMedia, updateAdminFormMedia } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
 import WizardFooterNav from "./WizardFooterNav";
 
@@ -116,6 +117,14 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
   const [sliderPreviewUrls, setSliderPreviewUrls] = useState([]);
 
   const [videoUrl, setVideoUrl] = useState("");
+
+  // Autosave the metadata only — file uploads stay explicit (the PATCH is multipart then).
+  useStepAutosave({
+    formId,
+    deps: [videoUrl],
+    ready: !loading,
+    persist: () => save({ silent: true }),
+  });
 
   const [serverThumbnail, setServerThumbnail] = useState(null);
   const [serverSliderImages, setServerSliderImages] = useState([]);
@@ -264,22 +273,22 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     if (sliderInputRef.current) sliderInputRef.current.value = "";
   }
 
-  async function save({ goNext } = { goNext: false }) {
-    setTopError("");
+  async function save({ goNext, silent = false } = { goNext: false }) {
+    if (!silent) setTopError("");
 
     if (!campaignId) {
-      toast.error("Missing campaignId");
-      return { ok: false };
+      if (!silent) toast.error("Missing campaignId");
+      return { ok: false, error: "Missing campaignId" };
     }
     if (!formId) {
-      toast.error("Complete Basics first");
-      return { ok: false };
+      if (!silent) toast.error("Complete Basics first");
+      return { ok: false, error: "Complete Basics first" };
     }
 
     const nextVideoUrl = String(videoUrl || "").trim();
     if (!isValidUrl(nextVideoUrl)) {
-      toast.error("Video URL must be a valid URL");
-      return { ok: false };
+      if (!silent) toast.error("Video URL must be a valid URL");
+      return { ok: false, error: "Video URL must be a valid URL" };
     }
 
     const hasAnyFile = Boolean(thumbnailFile) || sliderFiles.length > 0;
@@ -294,8 +303,8 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
         try {
           fd.append("thumbnailImage", await fetchRemoteFile(serverThumbnail.path, "thumbnail.jpg"));
         } catch {
-          toast.error("Thumbnail image is required");
-          return { ok: false };
+          if (!silent) toast.error("Thumbnail image is required");
+          return { ok: false, error: "Thumbnail image is required" };
         }
       }
 
@@ -342,7 +351,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
       setServerSliderImages(sliders);
       if (typeof d?.videoUrl === "string") setVideoUrl(d.videoUrl);
 
-      toast.success("Media saved");
+      if (!silent) toast.success("Media saved");
       onSaved?.();
 
       if (goNext) {
@@ -351,9 +360,11 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: true };
     } catch (e) {
       const msg = e?.message || "Failed to save media.";
-      setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
-      toast.error(msg);
-      return { ok: false };
+      if (!silent) {
+        setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
+        toast.error(msg);
+      }
+      return { ok: false, error: msg };
     } finally {
       setSaving(false);
     }

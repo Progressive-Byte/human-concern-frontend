@@ -29,6 +29,7 @@ const FormWizardShell = ({
   children,
 }) => {
   const guard = useFormEditorGuard();
+  const saveError = guard?.saveError;
   const list = Array.isArray(steps) && steps.length ? steps : [
     { key: "basics", label: "Basics" },
     { key: "goals-dates", label: "Goals & Dates" },
@@ -97,6 +98,12 @@ const FormWizardShell = ({
           </div>
         </div>
       </div>
+
+      {saveError ? (
+        <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-600">
+          <span className="font-semibold">Save failed:</span> {saveError}
+        </div>
+      ) : null}
 
       {children}
     </div>

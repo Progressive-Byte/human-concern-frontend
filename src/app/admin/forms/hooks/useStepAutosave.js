@@ -62,7 +62,7 @@ export default function useStepAutosave({
       guard?.markClean?.();
       return { ok: true };
     } catch (err) {
-      guard?.markError?.();
+      guard?.markError?.(err?.message || "Could not save your changes.");
       return { ok: false, error: err?.message || "Could not save your changes." };
     }
   }, [guard]);

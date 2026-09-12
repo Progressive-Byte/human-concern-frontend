@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
 import { createAdminCampaignForm, getAdminCategories, getAdminFormBasics, updateAdminFormBasics } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
 import FieldError from "./FieldError";
 import WizardFooterNav from "./WizardFooterNav";
@@ -111,6 +112,28 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState("");
   const [categoryQuery, setCategoryQuery] = useState("");
+
+  // Autosave only once the draft exists — creating it stays an explicit action.
+  useStepAutosave({
+    formId,
+    deps: [
+      internalCampaignId,
+      fundCause,
+      fundCode,
+      beneficiaryId,
+      locationId,
+      shortDescription,
+      displayName,
+      description,
+      collaborating,
+      collaborationOrganizationName,
+      campaignType,
+      categoryIds,
+      featured,
+    ],
+    ready: !loading,
+    persist: () => save({ silent: true }),
+  });
 
   useEffect(() => {
     if (formId) return;
@@ -357,20 +380,24 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     });
   }
 
-  async function save() {
-    setTopError("");
-    setFieldErrors({});
+  async function save({ silent = false } = {}) {
+    if (!silent) {
+      setTopError("");
+      setFieldErrors({});
+    }
 
     const { errors, payload } = validate();
     if (Object.keys(errors).length) {
-      setFieldErrors(errors);
-      toast.error("Fix the highlighted fields");
-      return { ok: false };
+      if (!silent) {
+        setFieldErrors(errors);
+        toast.error("Fix the highlighted fields");
+      }
+      return { ok: false, error: "Fix the highlighted fields" };
     }
 
     if (!campaignId) {
-      toast.error("Missing campaignId");
-      return { ok: false };
+      if (!silent) toast.error("Missing campaignId");
+      return { ok: false, error: "Missing campaignId" };
     }
 
     setSaving(true);
@@ -410,7 +437,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
           await refreshBasics(String(createdId));
         }
         onSaved?.(createdId || null);
-        toast.success("Basics saved");
+        if (!silent) toast.success("Basics saved");
         return { ok: true, formId: createdId || null };
       }
 
@@ -422,20 +449,22 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       }
       await refreshBasics(formId);
       onSaved?.(formId);
-      toast.success("Basics saved");
+      if (!silent) toast.success("Basics saved");
       return { ok: true, formId };
     } catch (e) {
       const msg = e?.message || "Failed to save basics.";
-      setTopError(msg);
+      if (!silent) {
+        setTopError(msg);
 
-      const nextErrors = {};
-      if (String(msg).includes("FUND_CODE_IN_USE")) nextErrors["internal.fundCode"] = "Fund code already in use";
-      if (String(msg).includes("BENEFICIARY_ID_IN_USE")) nextErrors["internal.beneficiaryId"] = "Beneficiary id already in use";
-      if (String(msg).includes("FORM_NOT_EDITABLE")) setTopError("Form can’t be edited (not draft).");
-      if (Object.keys(nextErrors).length) setFieldErrors(nextErrors);
+        const nextErrors = {};
+        if (String(msg).includes("FUND_CODE_IN_USE")) nextErrors["internal.fundCode"] = "Fund code already in use";
+        if (String(msg).includes("BENEFICIARY_ID_IN_USE")) nextErrors["internal.beneficiaryId"] = "Beneficiary id already in use";
+        if (String(msg).includes("FORM_NOT_EDITABLE")) setTopError("Form can’t be edited (not draft).");
+        if (Object.keys(nextErrors).length) setFieldErrors(nextErrors);
 
-      toast.error(msg);
-      return { ok: false };
+        toast.error(msg);
+      }
+      return { ok: false, error: msg };
     } finally {
       setSaving(false);
     }

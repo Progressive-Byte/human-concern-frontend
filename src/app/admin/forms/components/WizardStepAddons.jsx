@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAdminAddOns, getAdminFormAddons, updateAdminFormAddons } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import useStepAutosave from "../hooks/useStepAutosave";
 import WizardFooterNav from "./WizardFooterNav";
 
 function normalizeItemsResponse(res) {
@@ -98,6 +99,14 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
   const [allAddons, setAllAddons] = useState([]);
   const [selectedAddOnIds, setSelectedAddOnIds] = useState([]);
 
+  // Autosave once the step has loaded (the draft must already exist).
+  useStepAutosave({
+    formId,
+    deps: [selectedAddOnIds],
+    ready: !loading,
+    persist: () => save({ silent: true }),
+  });
+
   const addons = useMemo(() => (Array.isArray(allAddons) ? allAddons : []), [allAddons]);
   const selectedCount = selectedAddOnIds.length;
 
@@ -158,16 +167,16 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
     });
   }
 
-  async function save({ goNext } = { goNext: false }) {
-    setTopError("");
+  async function save({ goNext, silent = false } = { goNext: false }) {
+    if (!silent) setTopError("");
 
     if (!campaignId) {
-      toast.error("Missing campaignId");
-      return { ok: false };
+      if (!silent) toast.error("Missing campaignId");
+      return { ok: false, error: "Missing campaignId" };
     }
     if (!formId) {
-      toast.error("Complete Basics first");
-      return { ok: false };
+      if (!silent) toast.error("Complete Basics first");
+      return { ok: false, error: "Complete Basics first" };
     }
 
     const enabledIdSet = new Set(
@@ -184,7 +193,7 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
     setSaving(true);
     try {
       await updateAdminFormAddons(formId, payload);
-      toast.success("Add-ons saved");
+      if (!silent) toast.success("Add-ons saved");
       onSaved?.();
 
       if (goNext) {
@@ -193,9 +202,11 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
       return { ok: true };
     } catch (e) {
       const msg = e?.message || "Failed to save add-ons.";
-      setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
-      toast.error(msg);
-      return { ok: false };
+      if (!silent) {
+        setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
+        toast.error(msg);
+      }
+      return { ok: false, error: msg };
     } finally {
       setSaving(false);
     }

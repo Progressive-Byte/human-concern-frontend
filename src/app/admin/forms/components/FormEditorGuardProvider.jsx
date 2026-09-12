@@ -20,6 +20,7 @@ const FormEditorGuardProvider = ({ children }) => {
 
   const [isDirty, setIsDirty] = useState(false);
   const [saveState, setSaveState] = useState("idle"); // idle | dirty | saving | saved | error
+  const [saveError, setSaveError] = useState("");
   const [dialog, setDialog] = useState({ open: false, go: null, saving: false, error: "" });
 
   const dirtyRef = useRef(false);
@@ -34,11 +35,15 @@ const FormEditorGuardProvider = ({ children }) => {
   const markClean = useCallback(() => {
     dirtyRef.current = false;
     setIsDirty(false);
+    setSaveError("");
     setSaveState("saved");
   }, []);
 
   const markSaving = useCallback(() => setSaveState("saving"), []);
-  const markError = useCallback(() => setSaveState("error"), []);
+  const markError = useCallback((message) => {
+    setSaveError(String(message || "Could not save your changes."));
+    setSaveState("error");
+  }, []);
 
   const registerFlush = useCallback((fn) => {
     flushRef.current = fn;
@@ -142,6 +147,7 @@ const FormEditorGuardProvider = ({ children }) => {
     () => ({
       isDirty,
       saveState,
+      saveError,
       markDirty,
       markClean,
       markSaving,
@@ -150,7 +156,7 @@ const FormEditorGuardProvider = ({ children }) => {
       clearFlush,
       confirmNavigation,
     }),
-    [isDirty, saveState, markDirty, markClean, markSaving, markError, registerFlush, clearFlush, confirmNavigation]
+    [isDirty, saveState, saveError, markDirty, markClean, markSaving, markError, registerFlush, clearFlush, confirmNavigation]
   );
 
   return (

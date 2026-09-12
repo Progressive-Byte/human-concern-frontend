@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAdminFormObjectives, getAdminObjectives, updateAdminFormObjectives } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import useStepAutosave from "../hooks/useStepAutosave";
 import WizardFooterNav from "./WizardFooterNav";
 
 function normalizeItemsResponse(res) {
@@ -84,6 +85,14 @@ const WizardStepObjectives = ({ campaignId, formId, onExit, onSaved }) => {
   const [allObjectives, setAllObjectives] = useState([]);
   const [selectedObjectiveIds, setSelectedObjectiveIds] = useState([]);
 
+  // Autosave once the step has loaded (the draft must already exist).
+  useStepAutosave({
+    formId,
+    deps: [selectedObjectiveIds],
+    ready: !loading,
+    persist: () => save({ silent: true }),
+  });
+
   const objectives = useMemo(() => (Array.isArray(allObjectives) ? allObjectives : []), [allObjectives]);
   const selectedCount = selectedObjectiveIds.length;
 
@@ -144,16 +153,16 @@ const WizardStepObjectives = ({ campaignId, formId, onExit, onSaved }) => {
     });
   }
 
-  async function save({ goNext } = { goNext: false }) {
-    setTopError("");
+  async function save({ goNext, silent = false } = { goNext: false }) {
+    if (!silent) setTopError("");
 
     if (!campaignId) {
-      toast.error("Missing campaignId");
-      return { ok: false };
+      if (!silent) toast.error("Missing campaignId");
+      return { ok: false, error: "Missing campaignId" };
     }
     if (!formId) {
-      toast.error("Complete Basics first");
-      return { ok: false };
+      if (!silent) toast.error("Complete Basics first");
+      return { ok: false, error: "Complete Basics first" };
     }
 
     const enabledIdSet = new Set(
@@ -170,7 +179,7 @@ const WizardStepObjectives = ({ campaignId, formId, onExit, onSaved }) => {
     setSaving(true);
     try {
       await updateAdminFormObjectives(formId, payload);
-      toast.success("Objectives saved");
+      if (!silent) toast.success("Objectives saved");
       onSaved?.();
 
       if (goNext) {
@@ -179,9 +188,11 @@ const WizardStepObjectives = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: true };
     } catch (e) {
       const msg = e?.message || "Failed to save objectives.";
-      setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
-      toast.error(msg);
-      return { ok: false };
+      if (!silent) {
+        setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
+        toast.error(msg);
+      }
+      return { ok: false, error: msg };
     } finally {
       setSaving(false);
     }

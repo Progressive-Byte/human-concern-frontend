@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
 import { getAdminFormGoalsDates, getAdminSettingsExchangeRates, getAdminSettingsPayment, updateAdminFormGoalsDates } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import useStepAutosave from "../hooks/useStepAutosave";
 import FieldError from "./FieldError";
 import WizardFooterNav from "./WizardFooterNav";
 import SuggestedAmountsEditor from "./goalsDates/SuggestedAmountsEditor";
@@ -278,6 +279,30 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const [showGlobalNote, setShowGlobalNote] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [paymentMethodOptions, setPaymentMethodOptions] = useState([]);
+
+  // Autosave once the step has loaded (the draft must already exist).
+  useStepAutosave({
+    formId,
+    deps: [
+      currencies,
+      goalAmount,
+      startAt,
+      endAt,
+      minimumDonation,
+      maximumDonation,
+      suggestedAmounts,
+      customNotes,
+      recurringPresets,
+      allowOneTimeDonations,
+      allowRecurringDonations,
+      enableTipping,
+      allowAnonymousDonations,
+      showGlobalNote,
+      paymentMethods,
+    ],
+    ready: !loading,
+    persist: () => save({ silent: true }),
+  });
 
   useEffect(() => {
     if (!formId) {
@@ -682,30 +707,34 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     return { errors, payload, suggErrors, presetsErrors, notesErrors };
   }
 
-  async function save({ goNext } = { goNext: false }) {
-    setTopError("");
-    setFieldErrors({});
-    setSuggestedAmountsErrors([]);
-    setRecurringPresetsErrors([]);
-    setCustomNotesErrors([]);
+  async function save({ goNext, silent = false } = { goNext: false }) {
+    if (!silent) {
+      setTopError("");
+      setFieldErrors({});
+      setSuggestedAmountsErrors([]);
+      setRecurringPresetsErrors([]);
+      setCustomNotesErrors([]);
+    }
 
     if (!campaignId) {
-      toast.error("Missing campaignId");
-      return { ok: false };
+      if (!silent) toast.error("Missing campaignId");
+      return { ok: false, error: "Missing campaignId" };
     }
     if (!formId) {
-      toast.error("Complete Basics first");
-      return { ok: false };
+      if (!silent) toast.error("Complete Basics first");
+      return { ok: false, error: "Complete Basics first" };
     }
 
     const { errors, payload, suggErrors, presetsErrors, notesErrors } = validate();
     if (Object.keys(errors).length) {
-      setFieldErrors(errors);
-      setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
-      setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
-      setCustomNotesErrors(Array.isArray(notesErrors) ? notesErrors : []);
-      toast.error("Fix the highlighted fields");
-      return { ok: false };
+      if (!silent) {
+        setFieldErrors(errors);
+        setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
+        setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
+        setCustomNotesErrors(Array.isArray(notesErrors) ? notesErrors : []);
+        toast.error("Fix the highlighted fields");
+      }
+      return { ok: false, error: "Fix the highlighted fields" };
     }
 
     setSaving(true);
@@ -723,7 +752,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
         setPaymentMethods(filterPaymentMethodsToOptions(d?.paymentMethods, paymentMethodOptions));
       } catch {}
-      toast.success("Goals & dates saved");
+      if (!silent) toast.success("Goals & dates saved");
       onSaved?.();
 
       if (goNext) {
@@ -732,9 +761,11 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: true };
     } catch (e) {
       const msg = e?.message || "Failed to save goals & dates.";
-      setTopError(msg);
-      toast.error(msg);
-      return { ok: false };
+      if (!silent) {
+        setTopError(msg);
+        toast.error(msg);
+      }
+      return { ok: false, error: msg };
     } finally {
       setSaving(false);
     }
