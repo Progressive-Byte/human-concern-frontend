@@ -86,7 +86,10 @@ function loadPayPalScript({ clientId, merchantId, currency, intent, vault }) {
     if (intent) params.set("intent", intent);
     if (vault) params.set("vault", "true");
     params.set("components", "buttons,messages");
-    params.set("enable-funding", "paylater,venmo,card");
+    // Only the PayPal button and the standalone Debit/Credit Card button should render.
+    // Pay Later and Venmo are explicitly switched off.
+    params.set("enable-funding", "card");
+    params.set("disable-funding", "paylater,venmo");
 
     const script = document.createElement("script");
     script.src = `https://www.paypal.com/sdk/js?${params.toString()}`;
