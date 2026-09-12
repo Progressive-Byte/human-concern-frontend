@@ -88,6 +88,17 @@ const DonationPreview = ({ currentStep }) => {
     });
   }, [isDateRange, data.scheduleConfig, effectiveAmountTier]);
 
+  // The backend charges the first installment plus ALL add-ons and the tip
+  // (installment1Amount = installments[0].baseAmount + extrasOnce). Show that exact
+  // first charge so the recurring summary isn't read as "every payment costs this".
+  const firstInstallmentBase = isSpecificDates
+    ? (dateRows[0]?.amt ?? effectiveAmountTier)
+    : (isDateRange && dateRangeRows.length > 0)
+      ? dateRangeRows[0].amt
+      : effectiveAmountTier;
+  const extrasTotal  = (data.addOnsTotal ?? 0) + tipAmount;
+  const firstPayment = firstInstallmentBase + extrasTotal;
+
   const MAX_VISIBLE = 5;
   const visibleRows      = dateRows.slice(0, MAX_VISIBLE);
   const hiddenCount      = dateRows.length - MAX_VISIBLE;
@@ -179,6 +190,27 @@ const DonationPreview = ({ currentStep }) => {
                     {sym}{effectiveAmountTier.toLocaleString()}
                   </span>
                   <span className="text-[12px] text-[#8C8C8C]">{data.currency}</span>
+                </div>
+              )}
+
+              {/* Recurring + Step 3: the exact amount charged first (first installment + add-ons + tip) */}
+              {isRecurring && currentStep >= 3 && (
+                <div className="mt-2 rounded-xl border border-[#FFE0E0] bg-[#FFF5F5] px-3 py-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[12px] font-semibold text-[#EA3335]">First payment</span>
+                    <span className="text-[15px] font-bold text-[#EA3335] tabular-nums shrink-0">
+                      {sym}{firstPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  {extrasTotal > 0 && (
+                    <p className="text-[11px] text-[#EA3335] mt-0.5">
+                      Includes{" "}
+                      {[
+                        (data.addOnsTotal ?? 0) > 0 ? `${sym}${Number(data.addOnsTotal).toFixed(2)} add-ons` : null,
+                        tipAmount > 0 ? `${sym}${tipAmount.toFixed(2)} tip` : null,
+                      ].filter(Boolean).join(" + ")}
+                    </p>
+                  )}
                 </div>
               )}
 
