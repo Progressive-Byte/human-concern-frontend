@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import { CircleCheckIcon, ShareCampaignIcon } from "@/components/common/SvgIcon";
 import { apiRequest } from "@/services/api";
+import { buildCampaignData } from "@/utils/campaignData";
 
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
@@ -99,36 +100,7 @@ const DonationWidget = ({ campaign }) => {
     sessionStorage.removeItem("hc_donation");
     sessionStorage.removeItem("hc_donation_done");
     sessionStorage.removeItem("hc_schedule_edit");
-    const gd = campaign.goalsDates ?? {};
-    sessionStorage.setItem("campaignData", JSON.stringify({
-      id:                  campaign.id,
-      name:                campaign.name               ?? "",
-      description:         campaign.description        ?? "",
-      zakatEligible:       campaign.zakatEligible      ?? false,
-      suggestedAmounts:    campaign.suggestedAmounts   ?? [],
-      addOns:              campaign.addOns             ?? [],
-      currenciesWithRates: campaign.currenciesWithRates ?? [],
-      globalNote:          globalNote,
-      goalsDates: {
-        allowOneTimeDonations:   gd.allowOneTimeDonations   ?? true,
-        allowRecurringDonations: gd.allowRecurringDonations ?? true,
-        enableTipping:           gd.enableTipping           ?? false,
-        minimumDonation:         gd.minimumDonation         ?? 0,
-        maximumDonation:         gd.maximumDonation         ?? null,
-        customNotes:             gd.customNotes             ?? [],
-        recurringPresets:        gd.recurringPresets        ?? [],
-        showGlobalNote:          gd.showGlobalNote          ?? false,
-        paymentMethods:          gd.paymentMethods          ?? [],
-        endAt:                   campaign.endAt             ?? null,
-      },
-      causes: (campaign.causes ?? []).map((c) => ({
-        id:            c.id,
-        name:          c.name          ?? "",
-        description:   c.description   ?? "",
-        iconEmoji:     c.iconEmoji     ?? "",
-        zakatEligible: c.zakatEligible ?? false,
-      })),
-    }));
+    sessionStorage.setItem("campaignData", JSON.stringify(buildCampaignData(campaign, globalNote)));
 
     const params = new URLSearchParams({ amount: String(finalAmount), currency });
     router.push(`/${campaign.slug}/1?${params}`);

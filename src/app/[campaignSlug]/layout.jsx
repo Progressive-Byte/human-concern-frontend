@@ -1,10 +1,15 @@
 import { DonationProvider } from "@/context/DonationContext";
 import { BrandingProvider } from "@/context/BrandingContext";
+import CampaignConfigLoader from "./components/CampaignConfigLoader";
 
-export default function CampaignDonateLayout({ children }) {
+export default async function CampaignDonateLayout({ children, params }) {
+  const { campaignSlug } = await params;
+
   return (
     <BrandingProvider>
-      <DonationProvider>{children}</DonationProvider>
+      <DonationProvider>
+        <CampaignConfigLoader campaignSlug={campaignSlug}>{children}</CampaignConfigLoader>
+      </DonationProvider>
     </BrandingProvider>
   );
 }

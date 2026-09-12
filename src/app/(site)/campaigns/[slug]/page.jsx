@@ -26,7 +26,7 @@ export default async function CampaignPage({ params }) {
     const url = `${serverApiBase}campaigns/${slug}`;
 
     const res  = await fetch(url, {
-      next: { revalidate: 60 },
+      cache: "no-store",
       headers: { Accept: "application/json" },
     });
 
