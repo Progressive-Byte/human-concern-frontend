@@ -92,7 +92,6 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   const [fundCause, setFundCause] = useState("");
   const [fundCode, setFundCode] = useState("");
   const [beneficiaryId, setBeneficiaryId] = useState("");
-  const [designation, setDesignation] = useState("");
   const [locationId, setLocationId] = useState("");
   const [shortDescription, setShortDescription] = useState("");
 
@@ -205,7 +204,6 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         setFundCause(String(internal?.fundCause || ""));
         setFundCode(String(internal?.fundCode ?? ""));
         setBeneficiaryId(String(internal?.beneficiaryId ?? ""));
-        setDesignation(String(internal?.designation || ""));
         setShortDescription(String(internal?.shortDescription || ""));
         setLocationId(String(internal?.locationId || ""));
 
@@ -251,7 +249,6 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       fundCause: String(fundCause || "").trim(),
       fundCode: String(fundCode || "").trim(),
       beneficiaryId: String(beneficiaryId || "").trim(),
-      designation: String(designation || "").trim(),
       shortDescription: String(shortDescription || "").trim(),
       locationId: String(locationId || "").trim(),
     };
@@ -276,9 +273,6 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     validateInternalField(errors, "beneficiaryId", internal.beneficiaryId, { digitsOnly: true, maxLength: 64, maxMessage: "Max 64 digits" });
     validateInternalField(errors, "locationId", internal.locationId, { maxLength: 100, maxMessage: "Max 100 characters" });
 
-    if (!internal.designation) errors["internal.designation"] = "Required";
-    else if (internal.designation.length > 64) errors["internal.designation"] = "Max 64 characters";
-
     if (!internal.shortDescription) errors["internal.shortDescription"] = "Required";
     else if (internal.shortDescription.length > 200) errors["internal.shortDescription"] = "Max 200 characters";
 
@@ -301,7 +295,6 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         fundCause: internal.fundCause,
         fundCode: internal.fundCode,
         beneficiaryId: internal.beneficiaryId,
-        designation: internal.designation,
         shortDescription: internal.shortDescription,
         locationId: internal.locationId,
       },
@@ -558,20 +551,6 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               <FieldError message={fieldErrors["internal.beneficiaryId"]} />
             </div>
           ) : null}
-
-          <div>
-            <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-              Designation <span className="text-red-600">*</span>
-            </div>
-            <input
-              value={designation}
-              onChange={(e) => setDesignation(e.target.value)}
-              placeholder="e.g. XX - General"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
-              disabled={saving}
-            />
-            <FieldError message={fieldErrors["internal.designation"]} />
-          </div>
 
           {isInternalFieldVisible("locationId") ? (
             <div>

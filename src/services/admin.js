@@ -223,6 +223,45 @@ export function restoreAdminCause(causeId) {
 }
 
 // -----------------------------
+// Designations
+// -----------------------------
+export function getAdminDesignations({ page, limit, sort, order, q, status } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/designations?${query}` : "/admin/designations";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function createAdminDesignation(payload) {
+  return adminApiRequest("/admin/designations", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function getAdminDesignationById(designationId) {
+  return adminApiRequest(`/admin/designations/${designationId}`, { method: "GET" });
+}
+
+export function updateAdminDesignation(designationId, payload) {
+  return adminApiRequest(`/admin/designations/${designationId}`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function archiveAdminDesignation(designationId) {
+  return adminApiRequest(`/admin/designations/${designationId}/archive`, { method: "POST" });
+}
+
+export function restoreAdminDesignation(designationId) {
+  return adminApiRequest(`/admin/designations/${designationId}/restore`, { method: "POST" });
+}
+
+// -----------------------------
 // Objectives
 // -----------------------------
 export function getAdminObjectives({ page, limit, sort, order, q, status, ramadanOnly } = {}) {

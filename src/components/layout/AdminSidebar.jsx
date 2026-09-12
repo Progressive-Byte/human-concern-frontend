@@ -43,6 +43,15 @@ function Icon({ name }) {
     );
   }
 
+  if (name === "designations") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M19 16l2 2-2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
   if (name === "addons") {
     return (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
@@ -265,6 +274,7 @@ const navItems = [
   { href: "/admin/forms", label: "Forms", icon: "forms" },
   { href: "/admin/categories", label: "FC Categories", icon: "categories" },
   { href: "/admin/causes", label: "Causes", icon: "causes" },
+  { href: "/admin/designations", label: "Designations", icon: "designations" },
   { href: "/admin/objectives", label: "Objectives", icon: "objectives" },
   { href: "/admin/add-ons", label: "Addons", icon: "addons" },
   { href: "/admin/donors", label: "Donors", icon: "donors" },

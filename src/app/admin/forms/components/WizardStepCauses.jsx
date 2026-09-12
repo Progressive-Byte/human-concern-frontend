@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getAdminCauses, getAdminFormCauses, updateAdminFormCauses } from "@/services/admin";
+import { getAdminCauses, getAdminDesignations, getAdminFormCauses, updateAdminFormCauses } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import WizardFooterNav from "./WizardFooterNav";
 
@@ -29,12 +29,29 @@ function normalizeSelectedCauseIds(res) {
   return Array.from(new Set(ids));
 }
 
-function isSelectableCause(cause) {
-  if (!cause) return false;
+function isSelectableCause(cause) {  if (!cause) return false;
   if (cause.enabled === false) return false;
   const status = String(cause.status || "").trim().toLowerCase();
   if (status && status !== "active") return false;
   return true;
+}
+
+// The form's per-cause designations come back as [{ causeId, designationId }]; the wizard
+// edits them as a simple causeId -> designationId map.
+function normalizeCauseDesignations(res) {
+  const raw =
+    res?.data?.causeDesignations ||
+    res?.data?.data?.causeDesignations ||
+    res?.causeDesignations ||
+    [];
+  const list = Array.isArray(raw) ? raw : [];
+  const map = {};
+  for (const link of list) {
+    const causeId = String(link?.causeId || "").trim();
+    const designationId = String(link?.designationId || "").trim();
+    if (causeId && designationId) map[causeId] = designationId;
+  }
+  return map;
 }
 
 function SkeletonGrid() {
@@ -65,8 +82,15 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
 
   const [allCauses, setAllCauses] = useState([]);
   const [selectedCauseIds, setSelectedCauseIds] = useState([]);
+  const [allDesignations, setAllDesignations] = useState([]);
+  const [designationByCause, setDesignationByCause] = useState({});
 
   const causes = useMemo(() => (Array.isArray(allCauses) ? allCauses : []), [allCauses]);
+  const designations = useMemo(() => (Array.isArray(allDesignations) ? allDesignations : []), [allDesignations]);
+  const selectedCauseIdSet = useMemo(
+    () => new Set(selectedCauseIds.map((id) => String(id).trim()).filter(Boolean)),
+    [selectedCauseIds]
+  );
   const selectedCount = selectedCauseIds.length;
 
   useEffect(() => {
@@ -81,9 +105,10 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
 
     (async () => {
       try {
-        const [causesRes, selectedRes] = await Promise.all([
+        const [causesRes, selectedRes, designationsRes] = await Promise.all([
           getAdminCauses({ page: "1", limit: "200", order: "asc", status: "active", enabled: "true" }),
           getAdminFormCauses(formId),
+          getAdminDesignations({ page: "1", limit: "200", order: "asc", status: "active" }),
         ]);
         if (!alive) return;
 
@@ -97,10 +122,14 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
 
         setAllCauses(nextAll);
         setSelectedCauseIds(nextSelected.filter((id) => enabledIdSet.has(id)));
+        setAllDesignations(normalizeItemsResponse(designationsRes));
+        setDesignationByCause(normalizeCauseDesignations(selectedRes));
       } catch (e) {
         if (!alive) return;
         setAllCauses([]);
         setSelectedCauseIds([]);
+        setAllDesignations([]);
+        setDesignationByCause({});
         setTopError(e?.message || "Failed to load causes.");
       } finally {
         if (!alive) return;
@@ -143,10 +172,15 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
         .map((c) => String(c?._id || c?.id || "").trim())
         .filter(Boolean)
     );
+    const selectedIds = Array.from(new Set(selectedCauseIds.map((x) => String(x).trim()).filter(Boolean))).filter((id) =>
+      enabledIdSet.has(id)
+    );
     const payload = {
-      causeIds: Array.from(new Set(selectedCauseIds.map((x) => String(x).trim()).filter(Boolean))).filter((id) =>
-        enabledIdSet.has(id)
-      ),
+      causeIds: selectedIds,
+      // Optional — a cause with no designation simply reports as "Unassigned".
+      causeDesignations: selectedIds
+        .map((causeId) => ({ causeId, designationId: designationByCause[causeId] }))
+        .filter((link) => Boolean(link.designationId)),
     };
 
     setSaving(true);
@@ -274,6 +308,61 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
             })}
           </div>
         )}
+
+        {selectedCount > 0 ? (
+          <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-4">
+            <div className="text-[13px] font-semibold text-[#111827]">Designation per selected cause</div>
+            <p className="mt-0.5 text-[12px] text-[#6B7280]">
+              Optional — a cause with no designation reports as “Unassigned”.
+            </p>
+
+            <div className="mt-3 space-y-2">
+              {causes
+                .filter((cause) => selectedCauseIdSet.has(String(cause?._id || cause?.id || "").trim()))
+                .map((cause) => {
+                  const causeId = String(cause?._id || cause?.id || "").trim();
+                  return (
+                    <div key={causeId} className="flex flex-wrap items-center gap-3">
+                      <div className="min-w-[200px] flex-1 text-[13px] text-[#111827]">
+                        {String(cause?.name || "Cause")}
+                        {cause?.fundCode ? (
+                          <span className="ml-2 inline-flex items-center rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-semibold text-white">
+                            {cause.fundCode}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <select
+                        value={designationByCause[causeId] || ""}
+                        onChange={(event) => {
+                          const nextValue = event.target.value;
+                          setDesignationByCause((prev) => {
+                            const next = { ...(prev || {}) };
+                            if (nextValue) next[causeId] = nextValue;
+                            else delete next[causeId];
+                            return next;
+                          });
+                        }}
+                        className="w-full max-w-[300px] cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#383838] outline-none focus:border-[#171717]/30"
+                      >
+                        <option value="">— None —</option>
+                        {designations.map((designation) => {
+                          const id = String(designation?._id || designation?.id || "").trim();
+                          if (!id) return null;
+                          return (
+                            <option key={id} value={id}>
+                              {designation?.code ? `${designation.code} — ` : ""}
+                              {String(designation?.name || "")}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <WizardFooterNav
