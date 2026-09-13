@@ -128,10 +128,16 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
 
   const [serverThumbnail, setServerThumbnail] = useState(null);
   const [serverSliderImages, setServerSliderImages] = useState([]);
+  const [removedServerThumbnail, setRemovedServerThumbnail] = useState(false);
 
   const hasLocalThumbnail = Boolean(thumbnailFile && thumbnailPreviewUrl);
+  const hasServerThumbnail = Boolean(serverThumbnail?.path) && !removedServerThumbnail;
 
-  const activeThumbnailPreview = hasLocalThumbnail ? thumbnailPreviewUrl : resolveAssetUrl(serverThumbnail?.path);
+  const activeThumbnailPreview = hasLocalThumbnail
+    ? thumbnailPreviewUrl
+    : hasServerThumbnail
+      ? resolveAssetUrl(serverThumbnail?.path)
+      : "";
   const serverSliderPreviews = useMemo(
     () => serverSliderImages.map((x) => resolveAssetUrl(x.path)).filter(Boolean),
     [serverSliderImages]
@@ -220,6 +226,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
 
     setThumbnailFile(file);
     setThumbnailPreviewUrl(URL.createObjectURL(file));
+    setRemovedServerThumbnail(false);
   }
 
   function onSliderChange(e) {
@@ -255,7 +262,16 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     if (thumbnailPreviewUrl) URL.revokeObjectURL(thumbnailPreviewUrl);
     setThumbnailFile(null);
     setThumbnailPreviewUrl("");
+    if (serverThumbnail?.path) setRemovedServerThumbnail(true);
     if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
+  }
+
+  function removeServerSliderAt(index) {
+    setServerSliderImages((prev) => {
+      const next = Array.isArray(prev) ? [...prev] : [];
+      next.splice(index, 1);
+      return next;
+    });
   }
 
   function removeLocalSliderAt(index) {
@@ -292,13 +308,16 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     }
 
     const hasAnyFile = Boolean(thumbnailFile) || sliderFiles.length > 0;
-    const hasServerThumbnail = Boolean(serverThumbnail?.path);
 
     let body;
     if (hasAnyFile) {
       const fd = new FormData();
+
       if (thumbnailFile) {
         fd.append("thumbnailImage", thumbnailFile);
+      } else if (removedServerThumbnail) {
+        // Explicitly clear the saved thumbnail instead of re-uploading it.
+        fd.append("removeThumbnail", "1");
       } else if (hasServerThumbnail) {
         try {
           fd.append("thumbnailImage", await fetchRemoteFile(serverThumbnail.path, "thumbnail.jpg"));
@@ -306,36 +325,27 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
           if (!silent) toast.error("Thumbnail image is required");
           return { ok: false, error: "Thumbnail image is required" };
         }
+      } else {
+        if (!silent) toast.error("Thumbnail image is required");
+        return { ok: false, error: "Thumbnail image is required" };
       }
 
-      const serverSliderPaths = serverSliderImages.map((x) => x?.path).filter(Boolean);
-      let serverSliderFiles = [];
-      try {
-        serverSliderFiles = await Promise.all(
-          serverSliderPaths.map((p, idx) => fetchRemoteFile(p, `slider_${idx + 1}.jpg`))
-        );
-      } catch {
-        toast.error("Failed to load existing slider images");
-        return { ok: false };
-      }
-
-      const allSliderFiles = [...serverSliderFiles, ...sliderFiles].slice(0, 10);
-      for (const f of allSliderFiles) fd.append("sliderImages", f);
+      // Keep the already-saved slider images the admin didn't remove; upload only the new files.
+      fd.append(
+        "retainedSliderImages",
+        JSON.stringify(serverSliderImages.map((x) => x?.path).filter(Boolean))
+      );
+      for (const f of sliderFiles) fd.append("sliderImages", f);
       if (nextVideoUrl) fd.append("videoUrl", nextVideoUrl);
       body = fd;
-      if (!thumbnailFile && !hasServerThumbnail) {
-        toast.error("Thumbnail image is required");
-        return { ok: false };
-      }
     } else {
-      const thumb = serverThumbnail?.path
-        ? { path: serverThumbnail.path, alt: serverThumbnail.alt || undefined }
-        : undefined;
       body = JSON.stringify({
-        ...(thumb ? { thumbnailImage: thumb } : {}),
-        ...(Array.isArray(serverSliderImages) && serverSliderImages.length
-          ? { sliderImages: serverSliderImages.map((x) => ({ path: x.path, alt: x.alt || undefined })) }
-          : {}),
+        thumbnailImage: hasServerThumbnail
+          ? { path: serverThumbnail.path, alt: serverThumbnail.alt || undefined }
+          : null,
+        sliderImages: serverSliderImages
+          .filter((x) => x?.path)
+          .map((x) => ({ path: x.path, alt: x.alt || undefined })),
         ...(nextVideoUrl ? { videoUrl: nextVideoUrl } : {}),
       });
     }
@@ -344,11 +354,22 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     try {
       const res = await updateAdminFormMedia(formId, body);
       const d = normalizeMediaResponse(res);
-      const thumb = toImageObj(d?.thumbnailImage) || serverThumbnail;
-      const sliders = toImageList(d?.sliderImages) || serverSliderImages;
+      const thumb = d && "thumbnailImage" in d ? toImageObj(d.thumbnailImage) : serverThumbnail;
+      const sliders = Array.isArray(d?.sliderImages) ? toImageList(d.sliderImages) : serverSliderImages;
 
       setServerThumbnail(thumb);
       setServerSliderImages(sliders);
+
+      // The chosen files are now persisted server-side; drop the local previews so they
+      // don't render twice, and reset removals against the saved list.
+      if (thumbnailPreviewUrl) URL.revokeObjectURL(thumbnailPreviewUrl);
+      setThumbnailFile(null);
+      setThumbnailPreviewUrl("");
+      for (const u of sliderPreviewUrls) URL.revokeObjectURL(u);
+      setSliderFiles([]);
+      setSliderPreviewUrls([]);
+      setRemovedServerThumbnail(false);
+
       if (typeof d?.videoUrl === "string") setVideoUrl(d.videoUrl);
 
       if (!silent) toast.success("Media saved");
@@ -422,7 +443,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
                 Choose Image
               </button>
               {thumbnailFile ? <div className="text-[12px] text-[#6B7280]">{thumbnailFile.name}</div> : null}
-              {thumbnailFile ? (
+              {thumbnailFile || hasServerThumbnail ? (
                 <button
                   type="button"
                   onClick={removeThumbnail}
@@ -488,6 +509,14 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {serverSliderPreviews.map((src, idx) => (
                   <div key={`${src}-${idx}`} className="hc-hover-lift relative rounded-2xl border border-[#E5E7EB] bg-white p-2">
+                    <button
+                      type="button"
+                      onClick={() => removeServerSliderAt(idx)}
+                      disabled={saving}
+                      className="absolute right-2 top-2 z-10 rounded-lg border border-[#E5E7EB] bg-white px-2 py-1 text-[11px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Remove
+                    </button>
                     <img src={src} alt={`Slider preview ${idx + 1}`} className="w-full aspect-[4/3] object-cover rounded-xl" />
                   </div>
                 ))}
