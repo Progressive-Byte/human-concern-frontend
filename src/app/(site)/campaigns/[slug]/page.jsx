@@ -4,6 +4,7 @@ import Link from "next/link";
 import { siteUrl, serverApiBase } from "@/utils/constants";
 import CampaignTabs from "./components/CampaignTabs";
 import DonationWidget from "./components/DonationWidget";
+import CampaignGallery from "./components/CampaignGallery";
 
 function resolveImageUrl(path) {
   if (!path) return null;
@@ -68,7 +69,30 @@ export default async function CampaignPage({ params }) {
     campaign.media?.thumbnailPath ?? campaign.thumbnailPath
   );
 
-  const remaining = daysLeft(campaign.endAt);
+  // One gallery: the thumbnail first, then each slider image (de-duplicated, order kept).
+  const sliderUrls = Array.isArray(campaign.media?.sliderImages)
+    ? campaign.media.sliderImages.map(resolveImageUrl).filter(Boolean)
+    : [];
+  const galleryImages = [];
+  for (const url of [thumbnailUrl, ...sliderUrls]) {
+    if (url && !galleryImages.includes(url)) galleryImages.push(url);
+  }
+
+  const hasBadges = Boolean(campaign.zakatEligible) || campaign.categories?.length > 0;
+  const badges = hasBadges ? (
+    <>
+      {campaign.zakatEligible && (
+        <span className="bg-[#E6F9F0] text-[#10B981] rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap">
+          Zakat Eligible
+        </span>
+      )}
+      {campaign.categories?.length > 0 && campaign.categories.map((cat) => (
+        <span key={cat.id} className="bg-white/90 text-[#383838] rounded-full px-2.5 py-1 text-xs font-medium capitalize whitespace-nowrap">
+          {cat.name}
+        </span>
+      ))}
+    </>
+  ) : null;
 
   return (
     <main className="bg-white min-h-screen">
@@ -89,56 +113,18 @@ export default async function CampaignPage({ params }) {
           {/* Left */}
           <div className="w-full lg:w-[1000px]">
 
-            {/* Thumbnail */}
-            {thumbnailUrl && (
-              <div className="relative h-[240px] sm:h-[350px] md:h-[490px] rounded-3xl overflow-hidden">
-                <Image
-                  src={thumbnailUrl}
-                  alt={campaign.name}
-                  fill
-                  className="object-cover"
-                  priority
-                />
+            <CampaignGallery
+              images={galleryImages}
+              alt={campaign.name}
+              overlay={badges}
+            >
+              {/* Title */}
+              <div className="pt-5 sm:pt-[30px]">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#383838] leading-tight">
+                  {campaign.name}
+                </h1>
 
-                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap gap-2">
-                  {campaign.zakatEligible && (
-                    <span className="bg-[#E6F9F0] text-[#10B981] rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap">
-                      Zakat Eligible
-                    </span>
-                  )}
-                  {campaign.categories?.length > 0 && campaign.categories.map((cat) => (
-                    <span key={cat.id} className="bg-white/90 text-[#383838] rounded-full px-2.5 py-1 text-xs font-medium capitalize whitespace-nowrap">
-                      {cat.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Title */}
-            <div className="pt-5 sm:pt-[30px]">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#383838] leading-tight">
-                {campaign.name}
-              </h1>
-
-              {/* <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-[#383838] mt-4">
-
-                {campaign.donors != null && (
-                  console.log("Campaign donors:", campaign.donors),
-                  <span>
-                    {campaign.donors.toLocaleString()} donors
-                  </span>
-                )}
-
-                {remaining != null && (
-                  <span>{remaining} days left</span>
-                )}
-
-                {campaign.categories?.length > 0 && (
-                  <span>{campaign.categories.join(", ")}</span>
-                )}
-              </div> */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-normal text-[#383838] mt-4">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-normal text-[#383838] mt-4">
                   <Image src="/images/donars.png" alt="donor" width={15} height={15} className="object-contain shrink-0" />
                   <span className="shrink-0">{campaign.donors != null ? campaign.donors.toLocaleString() : "0"} donors</span>
                   <Image src="/images/calander.png" alt="calander" width={15} height={15} className="object-contain shrink-0" />
@@ -146,23 +132,8 @@ export default async function CampaignPage({ params }) {
                   <Image src="/images/map.png" alt="map" width={15} height={15} className="object-contain shrink-0" />
                   <span className="truncate max-w-[140px] sm:max-w-none">Multiple Regions</span>
                 </div>
-            </div>
-
-            {/* Slider */}
-            {campaign.media?.sliderImages?.length > 0 && (
-              <div className="mt-6 flex gap-3 overflow-x-auto pb-2">
-                {campaign.media.sliderImages.map((src, i) => (
-                  <div key={i} className="relative w-[160px] h-[100px] rounded-xl overflow-hidden">
-                    <Image
-                      src={resolveImageUrl(src)}
-                      alt={`${campaign.name} ${i + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
               </div>
-            )}
+            </CampaignGallery>
 
             {/* Tabs */}
             <div className="mt-8">
