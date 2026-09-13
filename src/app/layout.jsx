@@ -7,6 +7,10 @@ import DonationSessionCleaner from "@/components/common/DonationSessionCleaner";
 export const metadata = {
   title: "Human Concern",
   description: "A platform for connecting people and resources to address human concerns.",
+  icons: {
+    icon: [{ url: "/icons/favicon.png", type: "image/png" }],
+    shortcut: "/icons/favicon.png",
+  },
 };
 
 const RootLayout = ({ children }) => {
