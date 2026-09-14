@@ -49,9 +49,10 @@ function HistoryRow({ row, currency, donationId, onError }) {
   const rowStatusLabel = String(row?.status?.label || "").trim() || "—";
   const transactionId = String(row?.transactionId || "").trim();
   const targetDonationId = String(row?.donationId || donationId || "").trim();
+  const receiptAvailable = rowStatusKey === "succeeded";
 
   const handleDownload = async () => {
-    if (!targetDonationId || !transactionId || busy) return;
+    if (!targetDonationId || !transactionId || !receiptAvailable || busy) return;
     setBusy(true);
     try {
       await downloadReceipt({ donationId: targetDonationId, transactionId });
@@ -78,7 +79,7 @@ function HistoryRow({ row, currency, donationId, onError }) {
         </span>
       </td>
       <td className="py-3.5 px-2 last:pr-0">
-        {transactionId ? (
+        {receiptAvailable && transactionId ? (
           <button
             type="button"
             onClick={handleDownload}
@@ -90,7 +91,12 @@ function HistoryRow({ row, currency, donationId, onError }) {
             {busy ? <span className="animate-pulse">{DownloadIcon}</span> : DownloadIcon}
           </button>
         ) : (
-          <span className="text-[#6B7280]">—</span>
+          <span
+            className="text-[#6B7280]"
+            title={receiptAvailable ? undefined : "Receipt is available once the payment is confirmed."}
+          >
+            —
+          </span>
         )}
       </td>
     </tr>
