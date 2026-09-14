@@ -62,7 +62,7 @@ function useScheduleDetail(scheduleId) {
     return () => { alive = false; };
   }, [scheduleId]);
 
-  return { loading, error, data, refreshRef };
+  return { loading, error, setError, data, refreshRef };
 }
 
 function useInstallmentAction(installmentId) {
@@ -128,7 +128,7 @@ const ScheduleDetailPage = () => {
   const router = useRouter();
   const installmentId = String(searchParams?.get("installmentId") || "").trim();
 
-  const { loading, error, data, refreshRef } = useScheduleDetail(scheduleId);
+  const { loading, error, setError, data, refreshRef } = useScheduleDetail(scheduleId);
   const { actionLoading, actionError, setActionError, actionData, syncStatus, setSyncStatus } =
     useInstallmentAction(installmentId);
 

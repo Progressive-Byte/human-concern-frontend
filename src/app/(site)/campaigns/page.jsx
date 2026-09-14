@@ -6,7 +6,7 @@ import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import Pagination from "@/components/common/Pagination";
 import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
-import { serverApiBase } from "@/utils/constants";
+import { apiBase } from "@/utils/constants";
 
 const SORT_OPTIONS = [
   { label: "Newest", value: "new_first" },
@@ -98,8 +98,8 @@ const CampaignsPageInner = () => {
   // Load categories and causes in parallel; populate lookup maps for client-side filtering
   useEffect(() => {
     Promise.all([
-      fetch(`${serverApiBase}categories`).then(r => r.json()),
-      fetch(`${serverApiBase}causes`).then(r => r.json()),
+      fetch(`${apiBase}categories`).then(r => r.json()),
+      fetch(`${apiBase}causes`).then(r => r.json()),
     ]).then(([catData, causeData]) => {
       const catItems = catData?.data?.items ?? [];
       categoryMap.current = Object.fromEntries(catItems.map(c => [c.key, c.name]));
@@ -128,7 +128,7 @@ const CampaignsPageInner = () => {
       const limit     = hasFilter ? FILTER_FETCH_LIMIT : PAGE_SIZE;
       const apiPage   = hasFilter ? 1 : page;
 
-      const res  = await fetch(`${serverApiBase}campaigns?${buildAPIParams({ q, sort, page: apiPage, limit })}`);
+      const res  = await fetch(`${apiBase}campaigns?${buildAPIParams({ q, sort, page: apiPage, limit })}`);
       const json = await res.json();
       let items  = json?.data?.items ?? [];
 

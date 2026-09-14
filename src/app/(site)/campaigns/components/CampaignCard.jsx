@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { serverApiBase, siteUrl } from "@/utils/constants";
+import { apiBase, siteUrl } from "@/utils/constants";
 
 let brandingLogoUrlCache = null;
 let brandingLogoLoaded = false;
@@ -28,7 +28,7 @@ async function loadBrandingLogoUrl() {
   if (brandingLogoPromise) return brandingLogoPromise;
   brandingLogoPromise = (async () => {
     try {
-      const res = await fetch(`${serverApiBase}settings/branding`, { method: "GET" });
+      const res = await fetch(`${apiBase}settings/branding`, { method: "GET" });
       const json = await res.json();
       const path = json?.data?.branding?.logo?.path ?? null;
       const url = resolveAssetUrl(path);

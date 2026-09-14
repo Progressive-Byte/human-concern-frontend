@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import { apiRequest } from "@/services/api";
-import { serverApiBase } from "@/utils/constants";
+import { apiBase } from "@/utils/constants";
 import { CircleCheckIcon, ShareCampaignIcon, DashboardTabIcon, BrowserIcon } from "@/components/common/SvgIcon";
 import CauseAllocationBreakdown from "@/components/thank-you/CauseAllocationBreakdown";
 import ResendReceiptWithEditableEmail from "@/components/thank-you/ResendReceiptWithEditableEmail";
@@ -272,7 +272,7 @@ const ThankYouClient = () => {
   }, [isAuthenticated, needsFinalize, finalizeLoading, finalizeError, dispatchState]);
 
   useEffect(() => {
-    fetch(`${serverApiBase}campaigns/featured`)
+    fetch(`${apiBase}campaigns/featured`)
       .then((r) => r.json())
       .then((res) => setCampaigns(res?.data?.items || []))
       .catch(() => {})
