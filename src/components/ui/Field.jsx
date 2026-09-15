@@ -12,10 +12,12 @@ const Field = ({
 }) => {
   return (
     <div>
-      <label className="text-[13px] font-medium text-[#111827] mb-1.5 block">
-        {label}
-        {required && <span className="text-[#EA3335] ml-0.5">*</span>}
-      </label>
+      {label ? (
+        <label className="text-[13px] font-medium text-[#111827] mb-1.5 block">
+          {label}
+          {required && <span className="text-[#EA3335] ml-0.5">*</span>}
+        </label>
+      ) : null}
 
       <input
         type={type}

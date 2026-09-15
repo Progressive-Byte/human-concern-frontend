@@ -83,6 +83,8 @@ const ProfilePage = () => {
 
   const setField   = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   const setAddress = (key) => (e) => setForm((f) => ({ ...f, address: { ...f.address, [key]: e.target.value } }));
+  // Dropdown variant — receives the value directly rather than a change event.
+  const setAddressValue = (key, value) => setForm((f) => ({ ...f, address: { ...f.address, [key]: value } }));
   const setPref    = (key) => (val) => setPrefs((p) => ({ ...p, [key]: val }));
 
   const handleSaveProfile = async () => {
@@ -190,6 +192,7 @@ const ProfilePage = () => {
           form={form}
           setField={setField}
           setAddress={setAddress}
+          setAddressValue={setAddressValue}
           onSave={handleSaveProfile}
         />
 
