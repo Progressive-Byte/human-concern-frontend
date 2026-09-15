@@ -598,7 +598,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     const notes = Array.isArray(customNotes) ? customNotes : [];
     const normalizedNotes = [];
     const notesErrors = [];
-    const keySet = new Set();
     notes.forEach((raw, idx) => {
       const n = raw || {};
       const type = String(n.type || "").trim();
@@ -618,17 +617,13 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       }
 
       if (!allowedTypes.has(type)) rowErr.type = "Invalid";
-      if (!key) rowErr.key = "Required";
       if (!label) rowErr.label = "Required";
-      if (key) {
-        if (keySet.has(key)) rowErr.key = "Must be unique";
-        else keySet.add(key);
-      }
 
       const out = {
         ...(n.id ? { id: n.id } : {}),
         type,
-        key,
+        // Existing keys are preserved; new notes leave it blank for the server to derive from the label.
+        ...(key ? { key } : {}),
         label,
         ...(required ? { required: true } : {}),
         ...(helpText ? { helpText } : {}),
