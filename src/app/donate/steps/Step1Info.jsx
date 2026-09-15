@@ -12,6 +12,7 @@ import CauseSelector       from "./StepComponents/Step1components/CauseSelector"
 import DonorPreferences    from "./StepComponents/Step1components/DonorPreferences";
 import { fitSplit, applyManualAmount } from "@/utils/causeSplit";
 import { getUserProfile } from "@/services/donationService";
+import { resolveCountryIso } from "@/utils/isoHelpers";
 
 const CURRENCY_SYMBOLS = { USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$", SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥" };
 
@@ -217,11 +218,17 @@ const Step1Info = ({ campaignSlug }) => {
       !data.addressLine1?.trim() ||
       !data.city?.trim()         ||
       !data.province?.trim()     ||
-      !data.zip?.trim()          ||
-      !data.country?.trim()      ||
-      !data.donorCountryCode?.trim()
+      !data.zip?.trim()
     ) {
       setError("Please fill in all required fields.");
+      if (!addressExpanded) setAddressExpanded(true);
+      return;
+    }
+    // The country can be pre-filled as a name without its ISO — resolve it so the payment/tax
+    // country is always set (and the field isn't reported as missing).
+    const countryCode = String(data.donorCountryCode || "").trim() || resolveCountryIso(data.country || "") || "";
+    if (!countryCode) {
+      setError("Please select your country.");
       if (!addressExpanded) setAddressExpanded(true);
       return;
     }
@@ -241,8 +248,8 @@ const Step1Info = ({ campaignSlug }) => {
         email:        data.email,
         phone:        data.phone,
         country:      data.country,
-        countryCode:  data.donorCountryCode,
-        donorCountryCode: data.donorCountryCode,
+        countryCode,
+        donorCountryCode: countryCode,
         address: {
           ...(user?.address ?? {}),
           line1:      data.addressLine1,

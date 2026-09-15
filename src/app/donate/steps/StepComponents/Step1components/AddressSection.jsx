@@ -33,6 +33,11 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
     const existing = resolveCountryIso(data.donorCountryCode) || resolveCountryIso(data.country);
     if (existing) {
       setCountryCode((prev) => (prev === existing ? prev : existing));
+      // A pre-filled country usually arrives as a NAME with no ISO (e.g. from the profile),
+      // and payment/tax country + step validation both need the code. Keep the draft in step.
+      if (String(data.donorCountryCode || "").toUpperCase() !== existing) {
+        update({ donorCountryCode: existing });
+      }
       return;
     }
     if (prefillAttempted.current) return;
