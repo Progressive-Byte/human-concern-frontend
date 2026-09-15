@@ -29,7 +29,7 @@ export function buildConfig(type, dates, start, end, freq, amounts, interval, da
       ...(Object.keys(overrides).length > 0 && { dateAmounts: overrides }),
     };
   }
-  const rangeDatesArr = generateDatesInRange(start, end, freq, interval);
+  const rangeDatesArr = generateDatesInRange(start, end, freq, interval, daysOfWeek);
   const validSet = new Set(rangeDatesArr);
   const overrides = {};
   Object.entries(amounts).forEach(([d, v]) => {

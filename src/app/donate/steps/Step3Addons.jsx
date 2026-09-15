@@ -15,6 +15,7 @@ import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
 import { buildDonorReturnParams, saveDonorReturnParams } from "@/components/payment/UnifiedChallengeDispatcher";
 import { resetIdempotencyKeyForChangedIntent } from "@/utils/idempotency";
+import { validateOverviewStep } from "@/utils/donationStepValidation";
 
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
@@ -489,6 +490,13 @@ const Step3Addons = () => {
 
   const handleSubmit = async () => {
     if (submitting) return;
+    if (!isPreview && !isEditMode) {
+      const overviewError = validateOverviewStep({ paymentMethod: gatewayState.gateway });
+      if (overviewError) {
+        setSubmitError(overviewError);
+        return;
+      }
+    }
     const errors = Object.fromEntries(
       customNoteFields
         .filter((f) => {

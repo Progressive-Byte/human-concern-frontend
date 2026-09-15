@@ -26,7 +26,7 @@ const DateRangeSection = ({
     [rangeDays]
   );
 
-  const occurrences = countOccurrences(rangeStart, rangeEnd, rangeFreq, customInterval);
+  const occurrences = countOccurrences(rangeStart, rangeEnd, rangeFreq, customInterval, rangeFreq === "weekly" ? weekDays : []);
 
   return (
     <div className="flex flex-col gap-3">
