@@ -583,6 +583,20 @@ export function getAdminSettingsPayment() {
   return adminApiRequest("/admin/settings/payment", { method: "GET" });
 }
 
+export function getAdminSettingsEmail() {
+  return adminApiRequest("/admin/settings/email", { method: "GET" });
+}
+
+export function updateAdminSettingsEmail(payload) {
+  return adminApiRequest("/admin/settings/email", { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function sendAdminSettingsTestEmail({ to } = {}) {
+  const body = {};
+  if (typeof to === "string" && to.trim()) body.to = to.trim();
+  return adminApiRequest("/admin/settings/email/test", { method: "POST", body: JSON.stringify(body) });
+}
+
 export function getAdminPaymentOrchestration() {
   return adminApiRequest("/admin/settings/payment/orchestration", { method: "GET" });
 }

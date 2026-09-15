@@ -13,13 +13,16 @@ import {
   getAdminSettingsBranding,
   getAdminSettingsExchangeRates,
   getAdminSettingsGeneral,
+  getAdminSettingsEmail,
   getAdminSettingsNotifications,
   getAdminSettingsPayment,
   getAdminSettingsSecurity,
+  sendAdminSettingsTestEmail,
   setAdminPaymentGatewayEnabled,
   syncAdminSettingsExchangeRates,
   updateAdminPaymentGatewayConfiguration,
   updateAdminSettingsBranding,
+  updateAdminSettingsEmail,
   updateAdminSettingsExchangeRates,
   updateAdminSettingsGeneral,
   updateAdminSettingsNotifications,
@@ -33,6 +36,7 @@ import SecurityTab from "./components/tabs/SecurityTab";
 import BrandingTab from "./components/tabs/BrandingTab";
 import PaymentTab from "./components/tabs/PaymentTab";
 import ExchangeRatesTab from "./components/tabs/ExchangeRatesTab";
+import EmailTab from "./components/tabs/EmailTab";
 
 function normalizeObj(res) {
   if (res?.data && typeof res.data === "object" && !Array.isArray(res.data)) return res.data;
@@ -63,7 +67,7 @@ function diffList(prev, next) {
   return JSON.stringify(p) === JSON.stringify(n) ? null : n;
 }
 
-const tabs = ["general", "exchange-rates", "payment", "notifications", "security", "branding"];
+const tabs = ["general", "exchange-rates", "payment", "email", "notifications", "security", "branding"];
 
 const SettingsPageClient = () => {
   const toast = useToast();
@@ -117,6 +121,14 @@ const SettingsPageClient = () => {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentBusy, setPaymentBusy] = useState(false);
 
+  const [email, setEmail] = useState({});
+  const [emailInitial, setEmailInitial] = useState({});
+  const [emailResolved, setEmailResolved] = useState({});
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailTesting, setEmailTesting] = useState(false);
+  const [emailTestTo, setEmailTestTo] = useState("");
+
   const [exchangeRates, setExchangeRates] = useState([]);
   const [exchangeRatesInitial, setExchangeRatesInitial] = useState([]);
   const [exchangeRatesLoading, setExchangeRatesLoading] = useState(false);
@@ -133,6 +145,17 @@ const SettingsPageClient = () => {
     setExchangeRates(rates);
     setExchangeRatesInitial(rates);
     return rates;
+  }
+
+  function applyEmailResponse(res) {
+    const data = normalizeObj(res);
+    const incoming = data?.email && typeof data.email === "object" ? data.email : {};
+    // The password is write-only — keep the field empty so an untouched form never re-sends it.
+    const masked = { ...incoming, password: "" };
+    setEmail(masked);
+    setEmailInitial(masked);
+    setEmailResolved(data?.resolved && typeof data.resolved === "object" ? data.resolved : {});
+    return masked;
   }
 
   useEffect(() => {
@@ -190,6 +213,12 @@ const SettingsPageClient = () => {
           setExchangeRates(rates);
           setExchangeRatesInitial(rates);
         }
+        if (activeTab === "email") {
+          setEmailLoading(true);
+          const res = await getAdminSettingsEmail();
+          if (!alive) return;
+          applyEmailResponse(res);
+        }
       } catch (e) {
         if (!alive) return;
         setError(e?.message || "Failed to load settings.");
@@ -201,6 +230,7 @@ const SettingsPageClient = () => {
         setBrandingLoading(false);
         setPaymentLoading(false);
         setExchangeRatesLoading(false);
+        setEmailLoading(false);
       }
     }
     load();
@@ -474,6 +504,52 @@ const SettingsPageClient = () => {
     }
   }
 
+  async function saveEmail() {
+    setEmailSaving(true);
+    setError("");
+    try {
+      const { password, ...rest } = email || {};
+      const payload = diffObject(emailInitial || {}, rest);
+      if (typeof password === "string" && password.length > 0) payload.password = password;
+
+      if (!Object.keys(payload).length) {
+        toast.info("No changes to save.");
+        return;
+      }
+
+      const res = await updateAdminSettingsEmail(payload);
+      applyEmailResponse(res);
+      toast.success("Saved");
+    } catch (e) {
+      setError(e?.message || "Save failed.");
+      toast.error(e?.message || "Save failed.");
+    } finally {
+      setEmailSaving(false);
+    }
+  }
+
+  async function sendEmailTest() {
+    setEmailTesting(true);
+    setError("");
+    try {
+      const res = await sendAdminSettingsTestEmail({ to: emailTestTo });
+      const data = normalizeObj(res);
+      if (data?.ok) {
+        toast.success(`Test email sent to ${data.to || "the configured address"}`);
+      } else {
+        toast.error(data?.error || "Test email failed.");
+      }
+
+      const refreshed = await getAdminSettingsEmail();
+      applyEmailResponse(refreshed);
+    } catch (e) {
+      setError(e?.message || "Test failed.");
+      toast.error(e?.message || "Test failed.");
+    } finally {
+      setEmailTesting(false);
+    }
+  }
+
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
       <div className="hc-animate-fade-up flex items-start justify-between gap-4">
@@ -530,6 +606,21 @@ const SettingsPageClient = () => {
           onConfigure={configureGateway}
           onToggleEnabled={toggleGateway}
           onDisconnect={disconnectGateway}
+        />
+      ) : null}
+
+      {activeTab === "email" ? (
+        <EmailTab
+          value={email}
+          resolved={emailResolved}
+          testTo={emailTestTo}
+          onChangeTestTo={setEmailTestTo}
+          onChange={setEmail}
+          loading={emailLoading}
+          saving={emailSaving}
+          testing={emailTesting}
+          onSave={saveEmail}
+          onSendTest={sendEmailTest}
         />
       ) : null}
 

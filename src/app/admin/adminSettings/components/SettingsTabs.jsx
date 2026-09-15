@@ -4,6 +4,7 @@ const items = [
   { key: "general", label: "General" },
   { key: "exchange-rates", label: "Exchange Rates" },
   { key: "payment", label: "Payment" },
+  { key: "email", label: "Email" },
   { key: "notifications", label: "Notifications" },
   { key: "security", label: "Security" },
   { key: "branding", label: "Branding" },
