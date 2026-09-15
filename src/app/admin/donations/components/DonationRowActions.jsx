@@ -22,7 +22,7 @@ async function copyText(value) {
   return false;
 }
 
-const DonationRowActions = ({ donation }) => {
+const DonationRowActions = ({ donation, onViewBreakdown }) => {
   const toast = useToast();
   const [open, setOpen] = useState(false);
   const [sending, setSending] = useState(false);
@@ -68,6 +68,11 @@ const DonationRowActions = ({ donation }) => {
     }
   }
 
+  function handleViewBreakdown() {
+    setOpen(false);
+    onViewBreakdown?.();
+  }
+
   async function handleCopyId() {
     try {
       const ok = await copyText(id);
@@ -103,6 +108,13 @@ const DonationRowActions = ({ donation }) => {
 
       {open ? (
         <div className="hc-animate-dropdown absolute right-0 top-10 z-20 w-48 overflow-hidden rounded-xl border border-dashed border-[#E5E7EB] bg-white shadow-lg">
+          <button
+            type="button"
+            onClick={handleViewBreakdown}
+            className="w-full cursor-pointer px-4 py-3 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB]"
+          >
+            View Breakdown
+          </button>
           {isCompleted ? (
             <button
               type="button"

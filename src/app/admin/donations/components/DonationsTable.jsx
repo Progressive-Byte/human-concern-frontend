@@ -1,23 +1,11 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import DonationRowActions from "./DonationRowActions";
 import DonationStatusPill from "./DonationStatusPill";
-import DonationBreakdown from "./DonationBreakdown";
+import DonationBreakdownModal from "./DonationBreakdownModal";
 import DonationsPagination from "./DonationsPagination";
 import { AddOnList } from "@/components/common/AddOnList";
-
-function ChevronIcon({ open }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={`h-4 w-4 transition-transform duration-200 ${open ? "rotate-90" : ""}`}
-      fill="none"
-    >
-      <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 function formatDate(value) {
   if (!value) return "—";
@@ -62,22 +50,13 @@ const DonationsTable = ({
   showingLabel,
   formatAmount,
 }) => {
-  const [expanded, setExpanded] = useState(() => new Set());
+  const [breakdownFor, setBreakdownFor] = useState(null);
 
   if (loading && (!Array.isArray(items) || items.length === 0)) return <Skeleton />;
 
   const rows = Array.isArray(items) ? items : [];
   const total = Number(pagination?.total || rows.length || 0);
   const amountFmt = typeof formatAmount === "function" ? formatAmount : (v) => String(v ?? "");
-
-  const toggleRow = (rowId) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(rowId)) next.delete(rowId);
-      else next.add(rowId);
-      return next;
-    });
-  };
 
   return (
     <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
@@ -91,8 +70,7 @@ const DonationsTable = ({
         <table className="w-full min-w-[1100px] border-collapse text-[13px] text-[#111827]">
           <thead>
             <tr className="text-left text-[12px] font-medium text-[#6B7280]">
-              <th className="w-10 py-3 pl-4" aria-label="Expand row" />
-              <th className="py-3 pr-4">Reference</th>
+              <th className="px-5 py-3">Reference</th>
               <th className="py-3 pr-4">Donor</th>
               <th className="py-3 pr-4">Campaign</th>
               <th className="py-3 pr-4">Cause</th>
@@ -106,14 +84,13 @@ const DonationsTable = ({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-5 py-10 text-center text-sm text-[#6B7280]">
+                <td colSpan={9} className="px-5 py-10 text-center text-sm text-[#6B7280]">
                   No transactions found.
                 </td>
               </tr>
             ) : (
               rows.map((d, idx) => {
                 const id = String(d?.id || "");
-                const rowKey = id || `${idx}-${String(d?.donor?.email || "")}-${d?.createdAt}`;
                 const donorName = String(d?.donor?.name || "—");
                 const donorEmail = String(d?.donor?.email || "");
                 const campaignName = String(d?.campaignName || "—");
@@ -122,75 +99,65 @@ const DonationsTable = ({
                 const tip = Number(d?.tipAmount || 0);
                 const status = String(d?.statusLabel || d?.status || "—");
                 const createdAt = d?.createdAt;
-                const isOpen = expanded.has(rowKey);
 
                 return (
-                  <Fragment key={rowKey}>
-                    <tr className="border-t border-[#F3F4F6] transition-colors duration-200 hover:bg-[#F9FAFB]">
-                      <td className="py-4 pl-4 pr-2 align-top">
-                        <button
-                          type="button"
-                          onClick={() => toggleRow(rowKey)}
-                          aria-expanded={isOpen}
-                          aria-label={isOpen ? "Hide payment breakdown" : "Show payment breakdown"}
-                          className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-[#6B7280] transition hover:bg-[#F3F4F6] hover:text-[#111827]"
-                        >
-                          <ChevronIcon open={isOpen} />
-                        </button>
-                      </td>
-                      <td className="py-4 pr-4">
-                        {d?.providerTransactionId ? (
-                          <div className="min-w-0">
-                            <div
-                              className="max-w-[180px] truncate font-mono text-[12px] font-semibold text-[#111827]"
-                              title={String(d.providerTransactionId)}
-                            >
-                              {String(d.providerTransactionId)}
-                            </div>
-                            <div className="mt-0.5 text-[11px] text-[#6B7280]" title={id}>
-                              {shortTransactionId(id)}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="inline-flex rounded-lg bg-[#F3F4F6] px-2.5 py-1 text-[12px] font-semibold text-[#111827]">
-                            {shortTransactionId(id)}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-4 pr-4">
+                  <tr
+                    key={id || `${idx}-${donorEmail}-${createdAt}`}
+                    className="border-t border-[#F3F4F6] transition-colors duration-200 hover:bg-[#F9FAFB]"
+                  >
+                    <td className="px-5 py-4">
+                      {d?.providerTransactionId ? (
                         <div className="min-w-0">
-                          <div className="truncate font-semibold text-[#111827]">{donorName}</div>
-                          <div className="mt-1 truncate text-[12px] text-[#6B7280]">{donorEmail || "—"}</div>
+                          <div
+                            className="max-w-[180px] truncate font-mono text-[12px] font-semibold text-[#111827]"
+                            title={String(d.providerTransactionId)}
+                          >
+                            {String(d.providerTransactionId)}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-[#6B7280]" title={id}>
+                            {shortTransactionId(id)}
+                          </div>
                         </div>
-                      </td>
-                      <td className="py-4 pr-4">
-                        <div className="truncate text-[#111827]">{campaignName}</div>
-                        <AddOnList addons={d?.addons} currency={String(d?.currency || currency)} className="mt-1.5" max={2} />
-                      </td>
-                      <td className="py-4 pr-4">
-                        <span className="inline-flex rounded-full bg-[#F3F4F6] px-3 py-1 text-[11px] font-semibold text-[#6B7280]">
-                          {cause}
+                      ) : (
+                        <span className="inline-flex rounded-lg bg-[#F3F4F6] px-2.5 py-1 text-[12px] font-semibold text-[#111827]">
+                          {shortTransactionId(id)}
                         </span>
-                      </td>
-                      <td className="py-4 pr-4 text-right font-semibold">{amountFmt(amount, currency)}</td>
-                      <td className="py-4 pr-4 text-right text-[#6B7280]">{tip > 0 ? amountFmt(tip, currency) : "—"}</td>
-                      <td className="py-4 pr-4 text-[#6B7280]">{formatDate(createdAt)}</td>
-                      <td className="py-4 pr-4">
-                        <DonationStatusPill status={status} />
-                      </td>
-                      <td className="py-4 pr-5 text-right">
-                        <DonationRowActions donation={d} />
-                      </td>
-                    </tr>
-
-                    {isOpen ? (
-                      <tr className="bg-[#FCFCFD]">
-                        <td colSpan={10} className="px-4 pb-4 pt-1">
-                          <DonationBreakdown donation={d} formatAmount={(v) => amountFmt(v, currency)} />
-                        </td>
-                      </tr>
-                    ) : null}
-                  </Fragment>
+                      )}
+                    </td>
+                    <td className="py-4 pr-4">
+                      <div className="min-w-0">
+                        <div className="truncate font-semibold text-[#111827]">{donorName}</div>
+                        <div className="mt-1 truncate text-[12px] text-[#6B7280]">{donorEmail || "—"}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 pr-4">
+                      <div className="truncate text-[#111827]">{campaignName}</div>
+                      <AddOnList addons={d?.addons} currency={String(d?.currency || currency)} className="mt-1.5" max={2} />
+                    </td>
+                    <td className="py-4 pr-4">
+                      <span className="inline-flex rounded-full bg-[#F3F4F6] px-3 py-1 text-[11px] font-semibold text-[#6B7280]">
+                        {cause}
+                      </span>
+                    </td>
+                    <td className="py-4 pr-4 text-right font-semibold">
+                      <button
+                        type="button"
+                        onClick={() => setBreakdownFor(d)}
+                        title="View payment breakdown"
+                        className="cursor-pointer rounded-lg px-2 py-1 font-semibold text-[#111827] underline decoration-dotted decoration-[#9CA3AF] underline-offset-4 transition hover:bg-[#F3F4F6]"
+                      >
+                        {amountFmt(amount, currency)}
+                      </button>
+                    </td>
+                    <td className="py-4 pr-4 text-right text-[#6B7280]">{tip > 0 ? amountFmt(tip, currency) : "—"}</td>
+                    <td className="py-4 pr-4 text-[#6B7280]">{formatDate(createdAt)}</td>
+                    <td className="py-4 pr-4">
+                      <DonationStatusPill status={status} />
+                    </td>
+                    <td className="py-4 pr-5 text-right">
+                      <DonationRowActions donation={d} onViewBreakdown={() => setBreakdownFor(d)} />
+                    </td>
+                  </tr>
                 );
               })
             )}
@@ -199,6 +166,12 @@ const DonationsTable = ({
       </div>
 
       <DonationsPagination pagination={pagination} onPrev={onPrevPage} onNext={onNextPage} showingLabel={showingLabel} />
+
+      <DonationBreakdownModal
+        donation={breakdownFor}
+        onClose={() => setBreakdownFor(null)}
+        formatAmount={(v) => amountFmt(v, currency)}
+      />
     </section>
   );
 }
