@@ -11,11 +11,10 @@ const DateRangeSection = ({
   weekDays = [], onWeekDays,
   effectiveAmount, sym,
   lockedInterval = null,
+  minDateStr = null,
   maxDateStr = null,
   onRangeStart, onRangeEnd, onRangeFreq, onCustomInterval,
 }) => {
-  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
-
   const rangeDays = useMemo(() => {
     if (!rangeStart || !rangeEnd) return 0;
     const diff = Math.floor((new Date(rangeEnd) - new Date(rangeStart)) / 86400000) + 1;
@@ -45,6 +44,8 @@ const DateRangeSection = ({
             <MiniCalendar
               mode="single"
               selectedDates={rangeStart ? [rangeStart] : []}
+              minDateStr={minDateStr}
+              maxDateStr={maxDateStr}
               onToggleDate={(d) => onRangeStart(d)}
             />
           </div>
@@ -58,7 +59,7 @@ const DateRangeSection = ({
             <MiniCalendar
               mode="single"
               selectedDates={rangeEnd ? [rangeEnd] : []}
-              minDateStr={rangeStart || todayStr}
+              minDateStr={rangeStart || minDateStr}
               maxDateStr={maxDateStr}
               onToggleDate={(d) => onRangeEnd(d)}
             />

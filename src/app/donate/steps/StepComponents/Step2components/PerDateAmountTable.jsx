@@ -2,11 +2,11 @@
 
 import DateAmountRow from "./DateAmountRow";
 
-const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange, todayStr, causeSplit, causeLabelById }) => {
-  const today = todayStr ?? new Date().toISOString().split("T")[0];
+const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange, minDateStr, causeSplit, causeLabelById }) => {
+  const cutoff = minDateStr ?? new Date().toISOString().split("T")[0];
 
-  const futureDates = activeDates.filter((d) => d >= today);
-  const pastDates   = activeDates.filter((d) => d < today);
+  const futureDates = activeDates.filter((d) => d >= cutoff);
+  const pastDates   = activeDates.filter((d) => d < cutoff);
 
   const total = futureDates.reduce((sum, d) => {
     const ov  = dateAmounts[d] ?? "";
@@ -44,7 +44,7 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
             effectiveAmount={effectiveAmount}
             sym={sym}
             onChange={onChange}
-            disabled={d < today}
+            disabled={d < cutoff}
             causeSplit={causeSplit}
             causeLabelById={causeLabelById}
           />

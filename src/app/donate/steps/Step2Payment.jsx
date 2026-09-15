@@ -9,6 +9,7 @@ import countOccurrences, { generateDatesInRange } from "./StepComponents/countOc
 import RecurringSchedule from "./StepComponents/Step2components/RecurringSchedule";
 import AmountSelector    from "./StepComponents/Step2components/AmountSelector";
 import SectionStep from "./StepComponents/Step2components/SectionStep";
+import { isDueDateAllowed, earliestAllowedDateStr } from "@/utils/scheduleDateLimits";
 
 const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
@@ -102,6 +103,7 @@ const Step2Payment = () => {
 
   const [effectiveAmount, setEffectiveAmount] = useState(initAmount);
   const [amountError,     setAmountError]     = useState(false);
+  const [scheduleError,   setScheduleError]   = useState("");
   const [occurrences,     setOccurrences]     = useState(isRecurring ? initOccurrences : 1);
   const [splitMode,       setSplitMode]       = useState(data.splitMode ?? "repeat");
   const [activePreset,    setActivePreset]    = useState(data.schedulePreset ?? "custom");
@@ -176,6 +178,38 @@ const Step2Payment = () => {
     setOccurrences(occ);
     setScheduleState({ scheduleType, scheduleConfig });
     if (preset !== undefined) setActivePreset(preset);
+    setScheduleError("");
+  };
+
+  // Recurring schedules are validated here, on the step that owns them, so an
+  // incomplete date selection never surfaces on a later step.
+  const validateSchedule = () => {
+    if (!isRecurring) return "";
+    const cfg  = scheduleState.scheduleConfig ?? {};
+    const type = scheduleState.scheduleType ?? "specific_dates";
+
+    let dueDates;
+    if (type === "specific_dates") {
+      dueDates = cfg.dates ?? [];
+      if (!dueDates.length) return "Please select at least one date for your schedule.";
+    } else {
+      if (!cfg.startDate) return "Please set a start date for your schedule.";
+      if (!cfg.endDate)   return "Please set an end date for your schedule.";
+      const days = Array.isArray(cfg.daysOfWeek) ? cfg.daysOfWeek : [];
+      dueDates = generateDatesInRange(
+        cfg.startDate.split("T")[0],
+        cfg.endDate.split("T")[0],
+        cfg.frequency ?? "daily",
+        cfg.customInterval ?? 1,
+        days,
+      );
+      if (!dueDates.length) return "Please choose a valid date range for your schedule.";
+    }
+
+    if (dueDates.some((d) => !isDueDateAllowed(d))) {
+      return `All scheduled dates must be in the future. Please choose dates from ${earliestAllowedDateStr()} onwards.`;
+    }
+    return "";
   };
 
   const handleSplitModeChange = (val) => {
@@ -226,6 +260,12 @@ const Step2Payment = () => {
       subtitle="Choose your amount and payment schedule"
       onNext={() => {
         if (amountError) return;
+        const schedErr = validateSchedule();
+        if (schedErr) {
+          setScheduleError(schedErr);
+          return;
+        }
+        setScheduleError("");
         update({
           paymentType,
           currency:         data.currency ?? "USD",
@@ -358,6 +398,11 @@ const Step2Payment = () => {
                 campaignEndDate={isEditMode ? null : campaignEndDate}
                 onChange={handleScheduleChange}
               />
+              {scheduleError && (
+                <p className="text-[13px] text-[#EA3335] bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-3">
+                  {scheduleError}
+                </p>
+              )}
             </div>
           </>
         )}

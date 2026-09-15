@@ -3,11 +3,10 @@
 import { useState, useMemo } from "react";
 import countOccurrences, { generateDatesInRange } from "../countOccurrences";
 import { buildConfig, resolveFreq } from "./scheduleUtils";
+import { earliestAllowedDateStr } from "@/utils/scheduleDateLimits";
 import SpecificDatesSection from "./SpecificDatesSection";
 import DateRangeSection from "./DateRangeSection";
 import PerDateAmountTable from "./PerDateAmountTable";
-
-const getTodayStr = () => new Date().toISOString().split("T")[0];
 
 const weekdayOf = (dateStr) => {
   if (!dateStr) return null;
@@ -37,7 +36,8 @@ const RecurringSchedule = ({
   campaignEndDate = null,
   onChange,
 }) => {
-  const todayStr = useMemo(getTodayStr, []);
+  // Earliest date the API accepts as a due date (now + lead time, at UTC midnight).
+  const minDateStr = useMemo(() => earliestAllowedDateStr(), []);
   const [activePreset,   setActivePreset]   = useState(initialActivePreset ?? "custom");
   const [scheduleType,   setScheduleType]   = useState(initialScheduleType ?? "specific_dates");
   const [selectedDates,  setSelectedDates]  = useState(() =>
@@ -73,9 +73,9 @@ const RecurringSchedule = ({
 
   const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset, daysOverride) => {
     const days = daysOverride !== undefined ? daysOverride : effectiveWeekDays;
-    const futureDates = type === "specific_dates" ? dates.filter((d) => d >= todayStr) : dates;
+    const futureDates = type === "specific_dates" ? dates.filter((d) => d >= minDateStr) : dates;
     const futureAmounts = type === "specific_dates"
-      ? Object.fromEntries(Object.entries(amounts).filter(([d]) => d >= todayStr))
+      ? Object.fromEntries(Object.entries(amounts).filter(([d]) => d >= minDateStr))
       : amounts;
     const occ    = type === "specific_dates"
       ? futureDates.length
@@ -252,7 +252,7 @@ const RecurringSchedule = ({
   const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
   // Show full controls for: Custom pill, template presets, or no API presets at all
   const showFullControls = isCustom || isTemplateActive || !hasPresets;
-  const futureSelectedDates = selectedDates.filter((d) => d >= todayStr);
+  const futureSelectedDates = selectedDates.filter((d) => d >= minDateStr);
   const presetDateCount  = !showFullControls
     ? (scheduleType === "date_range" ? generatedDates.length : futureSelectedDates.length)
     : 0;
@@ -339,7 +339,12 @@ const RecurringSchedule = ({
           )}
 
           {scheduleType === "specific_dates" ? (
-            <SpecificDatesSection selectedDates={selectedDates} onToggleDate={toggleDate} maxDateStr={campaignEndDate} />
+            <SpecificDatesSection
+              selectedDates={selectedDates}
+              onToggleDate={toggleDate}
+              minDateStr={minDateStr}
+              maxDateStr={campaignEndDate}
+            />
           ) : (
             <DateRangeSection
               rangeStart={rangeStart}
@@ -351,6 +356,7 @@ const RecurringSchedule = ({
               effectiveAmount={effectiveAmount}
               sym={sym}
               lockedInterval={lockedInterval}
+              minDateStr={minDateStr}
               maxDateStr={campaignEndDate}
               onRangeStart={handleRangeStart}
               onRangeEnd={handleRangeEnd}
@@ -369,7 +375,7 @@ const RecurringSchedule = ({
           effectiveAmount={effectiveAmount}
           sym={sym}
           onChange={handleDateAmountChange}
-          todayStr={todayStr}
+          minDateStr={minDateStr}
           causeSplit={causeSplit}
           causeLabelById={causeLabelById}
         />
