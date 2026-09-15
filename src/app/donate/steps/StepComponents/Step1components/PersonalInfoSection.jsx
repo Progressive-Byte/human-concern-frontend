@@ -1,5 +1,6 @@
 import Field from "@/components/ui/Field";
 import PhoneField from "@/components/ui/PhoneField";
+import { EditIcon } from "@/components/common/SvgIcon";
 
 const PersonalInfoSection = ({
   isAuthenticated,
@@ -16,12 +17,15 @@ const PersonalInfoSection = ({
         <button
           type="button"
           onClick={onToggleEditMode}
-          className={`text-[12px] font-medium transition-colors cursor-pointer select-none ${
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors cursor-pointer select-none ${
             hasEdited
-              ? "text-[#EA3335] hover:underline"
-              : "text-[#AEAEAE] opacity-60"
+              ? "border-[#EA3335]/40 bg-[#FFF5F5] text-[#EA3335] hover:bg-[#FFEBEB]"
+              : "border-[#E5E7EB] bg-white text-[#383838] hover:border-[#EA3335]/50 hover:text-[#EA3335]"
           }`}
         >
+          {editMode ? null : (
+            <span className="inline-flex h-4 w-4 items-center justify-center">{EditIcon}</span>
+          )}
           {editMode ? "Save change" : "Edit change"}
         </button>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import { EditIcon } from "@/components/common/SvgIcon";
 
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
@@ -166,10 +167,15 @@ const AmountSelector = ({
           <button
             type="button"
             onClick={() => setLocked((prev) => !prev)}
-            className={`text-[12px] font-medium transition-colors cursor-pointer select-none whitespace-nowrap ${
-              locked ? "text-[#AEAEAE] opacity-60" : "text-[#EA3335] hover:underline"
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors cursor-pointer select-none whitespace-nowrap ${
+              locked
+                ? "border-[#E5E7EB] bg-white text-[#383838] hover:border-[#EA3335]/50 hover:text-[#EA3335]"
+                : "border-[#EA3335]/40 bg-[#FFF5F5] text-[#EA3335] hover:bg-[#FFEBEB]"
             }`}
           >
+            {locked ? (
+              <span className="inline-flex h-4 w-4 items-center justify-center">{EditIcon}</span>
+            ) : null}
             {locked ? "Edit change" : "Save change"}
           </button>
         </div>
