@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import DashboardHeader from "@/components/layout/DashboardHeader";
 import { getUserProfile, updateUserNotificationPreferences, updateUserProfile } from "@/services/donationService";
 import { changePassword } from "@/services/authService";
+import { useAuth } from "@/context/AuthContext";
 import { PersonalInfoCard } from "./components/PersonalInfoCard";
 import { NotificationPrefsCard } from "./components/NotificationPrefsCard";
 import { SecurityCard } from "./components/SecurityCard";
@@ -11,6 +12,7 @@ import { AccountCard } from "./components/AccountCard";
 import { ChangePasswordModal } from "./components/ChangePasswordModal";
 
 const ProfilePage = () => {
+  const { updateUser } = useAuth();
   const [loading, setLoading]           = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPrefs, setSavingPrefs]   = useState(false);
@@ -87,7 +89,7 @@ const ProfilePage = () => {
     setError(""); setSuccess("");
     setSavingProfile(true);
     try {
-      await updateUserProfile({
+      const payload = {
         organization: String(form.organization || "").trim(),
         firstName:    String(form.firstName || "").trim(),
         lastName:     String(form.lastName || "").trim(),
@@ -100,7 +102,10 @@ const ProfilePage = () => {
           postalCode: String(form.address?.postalCode || "").trim(),
           country:    String(form.address?.country || "").trim(),
         },
-      });
+      };
+      await updateUserProfile(payload);
+      // Keep the cached auth user in sync — the donate form prefills from it.
+      updateUser(payload);
       setSuccess("Profile updated.");
     } catch (e) {
       setError(e?.message || "Save failed.");

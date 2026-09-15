@@ -11,6 +11,7 @@ import AddressSection      from "./StepComponents/Step1components/AddressSection
 import CauseSelector       from "./StepComponents/Step1components/CauseSelector";
 import DonorPreferences    from "./StepComponents/Step1components/DonorPreferences";
 import { fitSplit, applyManualAmount } from "@/utils/causeSplit";
+import { getUserProfile } from "@/services/donationService";
 
 const CURRENCY_SYMBOLS = { USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$", SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥" };
 
@@ -29,6 +30,10 @@ const Step1Info = ({ campaignSlug }) => {
   const [hasEdited,        setHasEdited]        = useState(false);
   const [addressExpanded,  setAddressExpanded]  = useState(true);
   const prevAuthRef = useRef(isAuthenticated);
+
+  // Latest draft, so the async profile refresh never clobbers what the donor has typed.
+  const dataRef = useRef(data);
+  useEffect(() => { dataRef.current = data; }, [data]);
 
   const causes = useMemo(() => {
     try {
@@ -134,6 +139,46 @@ const Step1Info = ({ campaignSlug }) => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user, isPreview]);
+
+  // The cached auth user is written at login only, so it can be stale (e.g. an address added
+  // from the profile afterwards). Pull the fresh profile and fill any address field the donor
+  // hasn't filled yet — never overwrite what they've already entered.
+  useEffect(() => {
+    if (isPreview || !isAuthenticated) return undefined;
+    let alive = true;
+
+    (async () => {
+      try {
+        const res = await getUserProfile();
+        if (!alive) return;
+
+        const fresh = (res?.data?.data || res?.data || {}).user || {};
+        const address = fresh.address || {};
+        const current = dataRef.current || {};
+        const patch = {};
+
+        const fillIfEmpty = (key, value) => {
+          const next = String(value ?? "").trim();
+          if (!next) return;
+          if (String(current[key] ?? "").trim()) return;
+          patch[key] = next;
+        };
+
+        fillIfEmpty("addressLine1", address.line1);
+        fillIfEmpty("city", address.city);
+        fillIfEmpty("province", address.state);
+        fillIfEmpty("zip", address.postalCode);
+        fillIfEmpty("country", address.country);
+
+        if (Object.keys(patch).length > 0) update(patch);
+      } catch {
+        // The cached-user prefill already ran; a failed refresh just means no fresh address.
+      }
+    })();
+
+    return () => { alive = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, isPreview]);
 
   useEffect(() => {
     if (isPreview) return;
