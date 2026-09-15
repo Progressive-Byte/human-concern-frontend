@@ -393,26 +393,39 @@ const Step3Addons = () => {
       ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
       paymentMethod: gatewayState.gateway,
       ...(data.anonymous && { isAnonymous: true }),
-      ...(customNoteFields.length > 0 && {
-        customNotes: Object.fromEntries(
-          customNoteFields
-            .map((f) => {
-              if (f.type === "checkbox") {
-                return [f.key, !!customNoteValues[f.key]];
-              }
-              const val = customNoteValues[f.key] ?? "";
-              return [f.key, typeof val === "string" ? val.trim() : val];
-            })
-            .filter(([_, v]) => {
-              // Include checkbox values even if false (if required), otherwise only include non-empty
-              const field = customNoteFields.find(f => f.key === _);
-              if (field?.type === "checkbox") {
-                return true; // Always include checkbox values
-              }
-              return v;
-            })
-        ),
-      }),
+      // The UI shows form + global notes together, but the API validates them separately:
+      // form-defined answers go in `customNotes`, everything else in `globalNotes`.
+      ...(() => {
+        const formKeys = new Set(
+          normalizeNoteFields(customNotes).map((f) => String(f.key ?? "").trim()).filter(Boolean)
+        );
+        const formValues = {};
+        const globalValues = {};
+
+        for (const f of customNoteFields) {
+          const key = String(f.key ?? "").trim();
+          if (!key) continue;
+
+          let value;
+          if (f.type === "checkbox") {
+            value = !!customNoteValues[f.key];
+          } else {
+            const raw = customNoteValues[f.key] ?? "";
+            value = typeof raw === "string" ? raw.trim() : raw;
+          }
+
+          // Checkboxes are always sent (a false is meaningful); other types are skipped when empty.
+          if (f.type !== "checkbox" && !value) continue;
+
+          if (formKeys.has(key)) formValues[key] = value;
+          else globalValues[key] = value;
+        }
+
+        return {
+          ...(Object.keys(formValues).length > 0 && { customNotes: formValues }),
+          ...(Object.keys(globalValues).length > 0 && { globalNotes: globalValues }),
+        };
+      })(),
       addons: {
         items: computedBreakdown.map((addon) => ({
           addOnId: addon.id,
