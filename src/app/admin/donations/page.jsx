@@ -134,6 +134,15 @@ function normalizeDonation(raw) {
       inputValues: a?.inputValues && typeof a.inputValues === "object" ? a.inputValues : {},
     }));
 
+  const causeAllocations = (Array.isArray(raw?.causeAllocations) ? raw.causeAllocations : [])
+    .filter((a) => a && typeof a === "object")
+    .map((a) => ({
+      causeId: String(a?.causeId || ""),
+      label: String(a?.label || ""),
+      fundCode: String(a?.fundCode || ""),
+      amount: Number(a?.amount || 0),
+    }));
+
   return {
     id,
     donationId,
@@ -143,8 +152,12 @@ function normalizeDonation(raw) {
     campaignName,
     causeLabel,
     causeType,
+    causeAllocations,
     amount,
     tipAmount,
+    platformTipPercent: raw?.platformTipPercent ?? null,
+    installmentIndex: raw?.installmentIndex ?? null,
+    installmentCount: raw?.installmentCount ?? null,
     addons,
     currency,
     status,

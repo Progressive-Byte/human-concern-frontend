@@ -50,6 +50,8 @@ const DonationRowActions = ({ donation }) => {
   const id = String(donation?.id || "");
   const donationId = String(donation?.donationId || "");
   const donorEmail = String(donation?.donor?.email || "");
+  const status = String(donation?.status || donation?.statusLabel || "").toLowerCase();
+  const isCompleted = status === "succeeded" || status === "completed";
 
   async function handleSendReceipt() {
     if (sending) return;
@@ -101,14 +103,16 @@ const DonationRowActions = ({ donation }) => {
 
       {open ? (
         <div className="hc-animate-dropdown absolute right-0 top-10 z-20 w-48 overflow-hidden rounded-xl border border-dashed border-[#E5E7EB] bg-white shadow-lg">
-          <button
-            type="button"
-            onClick={handleSendReceipt}
-            disabled={!donationId || sending}
-            className="w-full cursor-pointer px-4 py-3 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {sending ? "Sending…" : "Send Receipt"}
-          </button>
+          {isCompleted ? (
+            <button
+              type="button"
+              onClick={handleSendReceipt}
+              disabled={!donationId || sending}
+              className="w-full cursor-pointer px-4 py-3 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {sending ? "Sending…" : "Send Receipt"}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={handleCopyId}
