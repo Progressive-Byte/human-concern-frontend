@@ -29,12 +29,19 @@ const DonationsFilters = ({
   datePreset,
   from,
   to,
+  campaignId,
+  formId,
+  campaigns = [],
+  forms = [],
+  campaignsLoading = false,
   onChangeQ,
   onChangeStatus,
   onChangeLimit,
   onChangeDatePreset,
   onChangeFrom,
   onChangeTo,
+  onChangeCampaign,
+  onChangeForm,
 }) => {
   const preset = String(datePreset || "all");
   const showCustom = preset === "custom";
@@ -97,6 +104,36 @@ const DonationsFilters = ({
             <option value="custom">Custom</option>
           </select>
         </div>
+
+        <select
+          value={campaignId || ""}
+          onChange={(e) => onChangeCampaign?.(e.target.value)}
+          disabled={campaignsLoading}
+          aria-label="Filter by campaign"
+          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:cursor-not-allowed disabled:opacity-60 md:w-[180px]"
+        >
+          <option value="">All Campaigns</option>
+          {campaigns.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={formId || ""}
+          onChange={(e) => onChangeForm?.(e.target.value)}
+          disabled={campaignsLoading}
+          aria-label="Filter by form"
+          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:cursor-not-allowed disabled:opacity-60 md:w-[180px]"
+        >
+          <option value="">All Forms</option>
+          {forms.map((f) => (
+            <option key={f.value} value={f.value}>
+              {f.label}
+            </option>
+          ))}
+        </select>
 
         <select
           value={String(limit || "20")}

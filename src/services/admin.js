@@ -433,7 +433,7 @@ export function getAdminDonationsExportUrl({ sort, order, q, status, from, to, c
   return query ? `/admin/donations/export?${query}` : "/admin/donations/export";
 }
 
-export function getAdminTransactions({ page, limit, sort, order, q, status, provider, reconciled, from, to } = {}) {
+export function getAdminTransactions({ page, limit, sort, order, q, status, provider, reconciled, campaignId, formId, from, to } = {}) {
   const params = new URLSearchParams();
 
   if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
@@ -447,6 +447,9 @@ export function getAdminTransactions({ page, limit, sort, order, q, status, prov
 
   if (typeof reconciled === "boolean") params.set("reconciled", reconciled ? "true" : "false");
 
+  if (typeof campaignId === "string" && campaignId.trim()) params.set("campaignId", campaignId.trim());
+  if (typeof formId === "string" && formId.trim()) params.set("formId", formId.trim());
+
   if (typeof from === "string" && from.trim()) params.set("from", from.trim());
   if (typeof to === "string" && to.trim()) params.set("to", to.trim());
 
@@ -454,6 +457,16 @@ export function getAdminTransactions({ page, limit, sort, order, q, status, prov
   const endpoint = query ? `/admin/transactions?${query}` : "/admin/transactions";
 
   return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function sendTransactionReceipt({ donationId, transactionId } = {}) {
+  const body = { donationId };
+  if (transactionId) body.transactionId = transactionId;
+
+  return adminApiRequest("/admin/transactions/send-receipt", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 }
 
 export function getAdminSchedules({ page, limit, sort, order, q, status } = {}) {

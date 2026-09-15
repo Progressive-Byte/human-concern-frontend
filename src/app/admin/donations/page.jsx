@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { formatCurrency } from "@/utils/helpers";
-import { getAdminTransactions } from "@/services/admin";
+import { getAdminTransactions, getAdminCampaigns, getAdminForms } from "@/services/admin";
 import DonationsHeader from "./components/DonationsHeader";
 import DonationsSummaryCards from "./components/DonationsSummaryCards";
 import DonationsFilters from "./components/DonationsFilters";
@@ -170,12 +170,18 @@ const AdminDonationsPage = () => {
     order: "desc",
     q: "",
     status: "",
+    campaignId: "",
+    formId: "",
     datePreset: "all",
     from: "",
     to: "",
   });
 
   const debouncedQ = useDebouncedValue(filters.q, 300);
+
+  const [campaignOptions, setCampaignOptions] = useState([]);
+  const [formOptions, setFormOptions] = useState([]);
+  const [optionsLoading, setOptionsLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -198,6 +204,53 @@ const AdminDonationsPage = () => {
 
   useEffect(() => {
     let alive = true;
+    setOptionsLoading(true);
+
+    Promise.all([
+      getAdminCampaigns({ page: "1", limit: "200", order: "desc" }),
+      getAdminForms({ page: "1", limit: "500", order: "desc" }),
+    ])
+      .then(([campaignsRes, formsRes]) => {
+        if (!alive) return;
+
+        const cItems = campaignsRes?.data?.items || campaignsRes?.items || [];
+        const fItems = formsRes?.data?.items || formsRes?.items || [];
+
+        setCampaignOptions(
+          (Array.isArray(cItems) ? cItems : [])
+            .map((c) => ({
+              value: String(c?.id || c?._id || ""),
+              label: String(c?.name || c?.slug || "—"),
+            }))
+            .filter((o) => o.value)
+        );
+
+        setFormOptions(
+          (Array.isArray(fItems) ? fItems : [])
+            .map((f) => ({
+              value: String(f?.id || f?._id || ""),
+              label: String(f?.name || f?.title || "—"),
+              campaignId: String(f?.campaignId || f?.campaign?._id || f?.campaign || ""),
+            }))
+            .filter((o) => o.value)
+        );
+      })
+      .catch(() => {
+        if (!alive) return;
+        setCampaignOptions([]);
+        setFormOptions([]);
+      })
+      .finally(() => {
+        if (alive) setOptionsLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
 
     async function load() {
       setLoading(true);
@@ -211,6 +264,8 @@ const AdminDonationsPage = () => {
           order: filters.order,
           q: debouncedQ,
           status: filters.status,
+          campaignId: filters.campaignId || undefined,
+          formId: filters.formId || undefined,
           from: filters.from || undefined,
           to: filters.to || undefined,
         });
@@ -259,6 +314,8 @@ const AdminDonationsPage = () => {
     filters.sort,
     filters.order,
     filters.status,
+    filters.campaignId,
+    filters.formId,
     filters.from,
     filters.to,
     debouncedQ,
@@ -343,6 +400,11 @@ const AdminDonationsPage = () => {
   const currentPage = Number(pagination?.page || 1);
   const totalPages = Number(pagination?.totalPages || 1);
 
+  // Forms cascade from the selected campaign (falls back to all forms).
+  const visibleForms = filters.campaignId
+    ? formOptions.filter((f) => f.campaignId === filters.campaignId)
+    : formOptions;
+
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
       <DonationsHeader
@@ -368,9 +430,24 @@ const AdminDonationsPage = () => {
           datePreset={filters.datePreset}
           from={filters.from}
           to={filters.to}
+          campaignId={filters.campaignId}
+          formId={filters.formId}
+          campaigns={campaignOptions}
+          forms={visibleForms}
+          campaignsLoading={optionsLoading}
           onChangeQ={(next) => setFilters((prev) => ({ ...prev, page: "1", q: next }))}
           onChangeStatus={(next) => setFilters((prev) => ({ ...prev, page: "1", status: next }))}
           onChangeLimit={(next) => setFilters((prev) => ({ ...prev, page: "1", limit: next }))}
+          onChangeCampaign={(next) =>
+            setFilters((prev) => {
+              const campaignId = String(next || "");
+              const formStillValid = formOptions.some(
+                (f) => f.value === prev.formId && (!campaignId || f.campaignId === campaignId)
+              );
+              return { ...prev, page: "1", campaignId, formId: formStillValid ? prev.formId : "" };
+            })
+          }
+          onChangeForm={(next) => setFilters((prev) => ({ ...prev, page: "1", formId: String(next || "") }))}
           onChangeDatePreset={(next) => {
             const key = String(next || "all");
             if (key === "custom") {

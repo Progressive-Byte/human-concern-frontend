@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
+import { sendTransactionReceipt } from "@/services/admin";
 
 function DotsIcon() {
   return (
@@ -24,6 +25,7 @@ async function copyText(value) {
 const DonationRowActions = ({ donation }) => {
   const toast = useToast();
   const [open, setOpen] = useState(false);
+  const [sending, setSending] = useState(false);
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -46,7 +48,23 @@ const DonationRowActions = ({ donation }) => {
   }, []);
 
   const id = String(donation?.id || "");
+  const donationId = String(donation?.donationId || "");
   const donorEmail = String(donation?.donor?.email || "");
+
+  async function handleSendReceipt() {
+    if (sending) return;
+    setSending(true);
+    try {
+      const res = await sendTransactionReceipt({ donationId, transactionId: id });
+      const sentTo = String(res?.data?.email || donorEmail || "");
+      toast.success(sentTo ? `Receipt sent to ${sentTo}` : "Receipt sent");
+      setOpen(false);
+    } catch (e) {
+      toast.error(e?.message || "Failed to send receipt");
+    } finally {
+      setSending(false);
+    }
+  }
 
   async function handleCopyId() {
     try {
@@ -83,6 +101,14 @@ const DonationRowActions = ({ donation }) => {
 
       {open ? (
         <div className="hc-animate-dropdown absolute right-0 top-10 z-20 w-48 overflow-hidden rounded-xl border border-dashed border-[#E5E7EB] bg-white shadow-lg">
+          <button
+            type="button"
+            onClick={handleSendReceipt}
+            disabled={!donationId || sending}
+            className="w-full cursor-pointer px-4 py-3 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {sending ? "Sending…" : "Send Receipt"}
+          </button>
           <button
             type="button"
             onClick={handleCopyId}
