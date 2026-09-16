@@ -79,8 +79,7 @@ function StatusIcon() {
 }
 
 const SOURCE_LABEL = {
-  admin: "Admin settings",
-  env: "Environment variables",
+  admin: "Configured",
   none: "Not configured",
 };
 
@@ -104,24 +103,10 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
       <SettingsSectionCard
         icon={<MailIcon />}
         title="SMTP Configuration"
-        subtitle="Server used to send password resets, donation receipts and donor notifications"
+        subtitle="The server this platform uses to send password resets, donation receipts and donor notifications"
       >
-        <div className="flex items-center justify-between gap-6 border-b border-[#F3F4F6] pb-5">
-          <div className="min-w-0">
-            <div className="text-[13px] font-semibold text-[#111827]">Use this SMTP server</div>
-            <div className="mt-1 text-[12px] text-[#6B7280]">
-              When off, the platform falls back to the SMTP configured through environment variables.
-            </div>
-          </div>
-          <ToggleSwitch
-            enabled={Boolean(email.enabled)}
-            onChange={(next) => onChange?.((prev) => ({ ...(prev || {}), enabled: Boolean(next) }))}
-            disabled={loading}
-          />
-        </div>
-
-        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="SMTP Host">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Field label="SMTP Host" hint="Required — email cannot be sent until a host and From Email are saved.">
             <TextInput
               value={email.host || ""}
               onChange={(e) => onChange?.((prev) => ({ ...(prev || {}), host: e.target.value }))}
@@ -191,7 +176,7 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
           </Field>
           <Field
             label="From Email"
-            hint="Required when the SMTP server is enabled — this is the address donors see."
+            hint="Required — this is the address donors see."
           >
             <TextInput
               type="email"
