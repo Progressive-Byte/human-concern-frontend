@@ -725,15 +725,21 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
     const { errors, payload, suggErrors, presetsErrors, notesErrors } = validate();
     if (Object.keys(errors).length) {
-      if (!silent) {
-        setFieldErrors(errors);
-        setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
-        setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
-        setCustomNotesErrors(Array.isArray(notesErrors) ? notesErrors : []);
-        toast.error("Fix the highlighted fields");
-      }
+      // Highlight even on autosave: the guard surfaces "Fix the highlighted fields", so the
+      // fields must actually be marked or the message is meaningless.
+      setFieldErrors(errors);
+      setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
+      setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
+      setCustomNotesErrors(Array.isArray(notesErrors) ? notesErrors : []);
+      if (!silent) toast.error("Fix the highlighted fields");
       return { ok: false, error: "Fix the highlighted fields" };
     }
+
+    // Valid again — drop highlights left over from an earlier failed attempt.
+    setFieldErrors({});
+    setSuggestedAmountsErrors([]);
+    setRecurringPresetsErrors([]);
+    setCustomNotesErrors([]);
 
     if (!silent) setSaving(true);
     try {

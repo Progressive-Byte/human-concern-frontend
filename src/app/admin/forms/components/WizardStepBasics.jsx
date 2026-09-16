@@ -368,6 +368,18 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
 
     if (pub.description && pub.description.length > 500) errors["public.description"] = "Max 500 characters";
 
+    // Collaboration is stored as the name/image pair, so "switched on with nothing entered" isn't
+    // representable server-side: the payload would carry neither key, and the post-save refresh
+    // (which re-derives the toggle from those fields) would flip it straight back off.
+    if (
+      collaborating
+      && !pub.collaborationOrganizationName
+      && !pub.collaborationOrganizationImage
+      && !collaborationImageFile
+    ) {
+      errors["public.collaborationOrganizationName"] = "Add an organisation name or logo";
+    }
+
     if (!["normal", "ramadan", "qurbani"].includes(pub.campaignType)) errors["public.campaignType"] = "Choose a campaign type";
 
     const uniqueCats = Array.from(new Set(pub.categoryIds.map((x) => String(x).trim()).filter(Boolean)));
@@ -389,14 +401,17 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         // Keep '' (cleared) rather than dropping the key — an omitted description means
         // "leave unchanged", so clearing it would otherwise never save.
         description: pub.description ?? undefined,
-        ...(collaborating
-          ? {
-              collaborationOrganizationName: pub.collaborationOrganizationName || undefined,
-              collaborationOrganizationImage: collaborationImageRemoved
-                ? null
-                : pub.collaborationOrganizationImage || undefined,
-            }
-          : {}),
+        // Always sent — null explicitly clears. Omitting the key means "leave unchanged", so
+        // switching Collaboration off would never clear the stored name/image, and the post-save
+        // refresh (which re-derives the toggle from those fields) would flip it back on.
+        collaborationOrganizationName: collaborating
+          ? pub.collaborationOrganizationName || undefined
+          : null,
+        collaborationOrganizationImage: collaborating
+          ? collaborationImageRemoved
+            ? null
+            : pub.collaborationOrganizationImage || undefined
+          : null,
         campaignType: pub.campaignType,
         categoryIds: uniqueCats,
         // Always send the boolean — `false || undefined` would drop the key and leave "Featured" on.
@@ -454,12 +469,15 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
 
     const { errors, payload } = validate();
     if (Object.keys(errors).length) {
-      if (!silent) {
-        setFieldErrors(errors);
-        toast.error("Fix the highlighted fields");
-      }
+      // Highlight even on autosave: the guard surfaces "Fix the highlighted fields", so the
+      // fields must actually be marked or the message is meaningless.
+      setFieldErrors(errors);
+      if (!silent) toast.error("Fix the highlighted fields");
       return { ok: false, error: "Fix the highlighted fields" };
     }
+
+    // Valid again — drop highlights left over from an earlier failed attempt.
+    setFieldErrors({});
 
     if (!campaignId) {
       if (!silent) toast.error("Missing campaignId");
@@ -775,6 +793,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                       className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                       disabled={saving}
                     />
+                    <FieldError message={fieldErrors["public.collaborationOrganizationName"]} />
                   </div>
 
                   <div>
