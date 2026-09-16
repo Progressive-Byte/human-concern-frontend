@@ -740,7 +740,16 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         const d = normalizeGoalsDatesResponse(res);
         const availableCurrencyCodes = currencyOptions.map((item) => item.code);
         setCurrencies(availableCurrencyCodes.length ? normalizeSelectedCurrencies(d, availableCurrencyCodes) : []);
-        setSuggestedAmounts(normalizeSuggestedAmountsState(d?.suggestedAmounts));
+        // A suggested-amount row that was just added but not filled in yet is intentionally never
+        // persisted (blank rows are skipped by validate), so the server's copy doesn't contain it.
+        // Re-applying that copy here would wipe the empty row the user is about to type into, so
+        // keep any locally-added blank rows on top of the saved ones (not autosave-specific — a
+        // manual save would drop them too).
+        const savedSuggested = normalizeSuggestedAmountsState(d?.suggestedAmounts);
+        const blankSuggestedDrafts = (Array.isArray(suggestedAmounts) ? suggestedAmounts : []).filter(
+          (row) => !String(row?.value ?? "").trim() && !String(row?.description ?? "").trim()
+        );
+        setSuggestedAmounts(blankSuggestedDrafts.length ? [...savedSuggested, ...blankSuggestedDrafts] : savedSuggested);
         setCustomNotes(normalizeCustomNotesState(d?.customNotes));
         setAllowOneTimeDonations(d?.allowOneTimeDonations === undefined ? true : Boolean(d?.allowOneTimeDonations));
         setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
