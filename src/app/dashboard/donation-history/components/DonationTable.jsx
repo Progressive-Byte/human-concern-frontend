@@ -26,6 +26,7 @@ const HEADERS = [
   { label: "Campaign", className: "px-4 py-4 font-medium" },
   { label: "Cause",    className: "hidden sm:table-cell px-4 py-4 font-medium" },
   { label: "Amount",   className: "px-4 py-4 font-medium" },
+  { label: "Tip",      className: "hidden sm:table-cell px-4 py-4 font-medium" },
   { label: "Status",   className: "hidden md:table-cell px-4 py-4 font-medium" },
   { label: "Actions",  className: "px-4 py-4 font-medium text-right" },
 ];
@@ -76,6 +77,14 @@ function DonationRow({ r, isLast, onError }) {
       </td>
       <td className="px-4 py-4 text-[#111827] font-semibold whitespace-nowrap">
         {formatCurrency(r.amount, r.currency)}
+        {r.tip > 0 ? (
+          <span className="sm:hidden mt-1 block text-[11px] font-normal text-[#6B7280]">
+            Tip {formatCurrency(r.tip, r.currency)}
+          </span>
+        ) : null}
+      </td>
+      <td className="hidden sm:table-cell px-4 py-4 text-[#111827] whitespace-nowrap">
+        {r.tip > 0 ? formatCurrency(r.tip, r.currency) : "—"}
       </td>
       <td className="hidden md:table-cell px-4 py-4">
         <StatusBadge statusKey={r.statusKey} status={r.status} />
@@ -110,14 +119,14 @@ export function DonationTable({ loading, rows, onError }) {
           </thead>
           <tbody>
             {loading ? (
-              <SkeletonRows rows={5} cols={6} />
+              <SkeletonRows rows={5} cols={7} />
             ) : rows.length ? (
               rows.map((r, idx) => (
                 <DonationRow key={r.id} r={r} isLast={idx === rows.length - 1} onError={onError} />
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-5 py-12 text-center text-sm text-[#6B7280]">
+                <td colSpan={7} className="px-5 py-12 text-center text-sm text-[#6B7280]">
                   No donations found.
                 </td>
               </tr>

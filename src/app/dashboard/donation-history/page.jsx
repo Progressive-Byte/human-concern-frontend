@@ -99,6 +99,7 @@ function DonationHistoryPage() {
       campaign:  String(it?.campaign?.name || "").trim() || "—",
       cause:     String(it?.causeTag?.label || "").trim() || "—",
       amount:    Number(it?.amount ?? 0),
+      tip:       Number(it?.tipAmount ?? 0),
       currency:  String(it?.currency || "USD"),
       status:    String(it?.status?.label || "").trim() || "—",
       statusKey: String(it?.status?.key || ""),
