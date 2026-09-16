@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { requestDonationTrackLink } from "@/services/trackDonationService";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_COOLDOWN_SECONDS = 60;
 
 const TrackEmailForm = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [sentTo, setSentTo] = useState("");
+  const [registeredMessage, setRegisteredMessage] = useState("");
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -23,7 +26,13 @@ const TrackEmailForm = () => {
     setError("");
     setSubmitting(true);
     try {
-      await requestDonationTrackLink({ email: value });
+      const res = await requestDonationTrackLink({ email: value });
+      if (res?.data?.registered) {
+        setRegisteredMessage(res.data.message || "This email address is already registered. Log in to see your donations.");
+        setSentTo("");
+        return;
+      }
+      setRegisteredMessage("");
       setSentTo(value);
       setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (e) {
@@ -57,8 +66,18 @@ const TrackEmailForm = () => {
 
   function useAnotherEmail() {
     setSentTo("");
+    setRegisteredMessage("");
     setError("");
     setCooldown(0);
+  }
+
+  function goToLogin() {
+    try {
+      sessionStorage.setItem("hc_redirect_after_login", "/dashboard/donation-history");
+    } catch {
+      // ignore storage failures
+    }
+    router.push("/user/login");
   }
 
   return (
@@ -91,6 +110,28 @@ const TrackEmailForm = () => {
       >
         {submitting ? "Sending link…" : "Email me an access link"}
       </button>
+
+      {registeredMessage ? (
+        <div className="mt-5 rounded-2xl border border-[#D9E2F5] bg-[#F5F8FF] px-5 py-4">
+          <p className="m-0 text-[14px] leading-relaxed text-[#383838]">{registeredMessage}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={goToLogin}
+              className="cursor-pointer rounded-full bg-[#CC1F1F] px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#A81A1A]"
+            >
+              Log in
+            </button>
+            <button
+              type="button"
+              onClick={useAnotherEmail}
+              className="cursor-pointer rounded-full px-4 py-2 text-[13px] font-medium text-[#777777] transition-colors hover:text-[#111111]"
+            >
+              Use a different email
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {sentTo ? (
         <div className="mt-5 rounded-2xl border border-[#D7EAD9] bg-[#F3FAF4] px-5 py-4">
