@@ -1,79 +1,132 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getTrackedDonations } from "@/services/trackDonationService";
+import TrackEmailForm from "./components/TrackEmailForm";
+import TrackedDonations from "./components/TrackedDonations";
 
-const TrackDonationPage = () => {
-  const [email, setEmail] = useState("");
+const INVALID_LINK_MESSAGE = "This link is invalid or has expired. Request a new one.";
+
+function LoadingPanel() {
+  return (
+    <div className="mt-8 rounded-3xl border border-[#EBEBEB] bg-white p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
+      <div className="flex items-center gap-3 text-[15px] text-[#555555]">
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#CC1F1F] border-t-transparent" />
+        Verifying your link…
+      </div>
+    </div>
+  );
+}
+
+function TrackDonationPageInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = String(searchParams?.get("token") || "").trim();
+
+  const [loading, setLoading] = useState(Boolean(token));
   const [error, setError] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState(null);
 
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    const value = String(email || "").trim();
-    if (!value) {
-      setError("Please enter the email address you used when donating.");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      setError("Please enter a valid email address.");
-      return;
+  useEffect(() => {
+    if (!token) {
+      setLoading(false);
+      setResult(null);
+      setError("");
+      return undefined;
     }
 
+    let alive = true;
+    setLoading(true);
     setError("");
-    setSubmitted(true);
+    setResult(null);
+
+    (async () => {
+      try {
+        const res = await getTrackedDonations({ token });
+        if (!alive) return;
+        const data = res?.data || {};
+        setResult({
+          email: String(data.email || ""),
+          hasAccount: Boolean(data.hasAccount),
+          items: Array.isArray(data.items) ? data.items : [],
+        });
+      } catch (e) {
+        if (!alive) return;
+        setResult(null);
+        setError(
+          e?.code === "TRACK_LINK_INVALID"
+            ? INVALID_LINK_MESSAGE
+            : e?.message || "We couldn't load your donations. Please try again.",
+        );
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [token]);
+
+  function startOver() {
+    router.replace("/track-donation");
+    setResult(null);
+    setError("");
   }
 
   return (
     <main className="min-h-[60vh] px-4 sm:px-6 lg:px-20 py-14 sm:py-20">
-      <div className="max-w-[720px] mx-auto">
+      <div className="max-w-[900px] mx-auto">
         <h1 className="text-[28px] sm:text-[36px] font-bold text-[#111111] m-0">Track Your Donation</h1>
-        <p className="mt-3 text-[15px] sm:text-[17px] text-[#383838] leading-relaxed">
-          Enter the email address you used when you donated and we&apos;ll show you the status of your gift.
-        </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 rounded-3xl border border-[#EBEBEB] bg-white p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.06)]"
-        >
-          <label htmlFor="track-email" className="mb-2 block text-[14px] font-semibold text-[#383838]">
-            Email address
-          </label>
-          <input
-            id="track-email"
-            type="email"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              if (error) setError("");
-            }}
-            placeholder="you@example.com"
-            className="w-full rounded-full border border-[#DDDDDD] px-5 py-3.5 text-[15px] text-[#1A1A1A] placeholder:text-[#BBBBBB] outline-none transition-colors duration-200 focus:border-[#CC1F1F]"
+        {!token ? (
+          <>
+            <p className="mt-3 text-[15px] sm:text-[17px] text-[#383838] leading-relaxed">
+              Enter the email address you used when you donated and we&apos;ll email you a secure link to
+              your donation history.
+            </p>
+            <TrackEmailForm />
+          </>
+        ) : loading ? (
+          <LoadingPanel />
+        ) : error ? (
+          <div className="mt-8 rounded-3xl border border-[#F5D9D9] bg-[#FFF6F6] p-6 sm:p-8">
+            <h2 className="m-0 text-[18px] font-bold text-[#111111]">We couldn&apos;t open that link</h2>
+            <p className="mt-2 text-[14px] leading-relaxed text-[#555555]">{error}</p>
+            <button
+              type="button"
+              onClick={startOver}
+              className="mt-5 cursor-pointer rounded-full bg-[#CC1F1F] px-6 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#A81A1A]"
+            >
+              Request a new link
+            </button>
+          </div>
+        ) : result ? (
+          <TrackedDonations
+            email={result.email}
+            hasAccount={result.hasAccount}
+            items={result.items}
           />
-          {error ? <p className="mt-2 text-[13px] text-[#CC1F1F]">{error}</p> : null}
-
-          <button
-            type="submit"
-            className="mt-5 w-full cursor-pointer rounded-full bg-[#CC1F1F] px-6 py-3.5 text-[16px] font-semibold text-white transition-colors duration-200 hover:bg-[#A81A1A]"
-          >
-            Track Donation
-          </button>
-
-          {submitted ? (
-            <div className="mt-5 rounded-2xl border border-[#F5D9D9] bg-[#FFF6F6] px-5 py-4">
-              <p className="m-0 text-[14px] leading-relaxed text-[#383838]">
-                Donation tracking is still being built and isn&apos;t live yet. In the meantime, email us at{" "}
-                <a href="mailto:info@humanconcernusa.org" className="font-semibold text-[#CC1F1F] underline">
-                  info@humanconcernusa.org
-                </a>{" "}
-                or call 1-800-583-5841 and we&apos;ll gladly help with a receipt or the status of your donation.
-              </p>
-            </div>
-          ) : null}
-        </form>
+        ) : null}
       </div>
     </main>
   );
-};
+}
+
+const TrackDonationPage = () => (
+  <Suspense
+    fallback={
+      <main className="min-h-[60vh] px-4 sm:px-6 lg:px-20 py-14 sm:py-20">
+        <div className="max-w-[900px] mx-auto">
+          <h1 className="text-[28px] sm:text-[36px] font-bold text-[#111111] m-0">Track Your Donation</h1>
+          <LoadingPanel />
+        </div>
+      </main>
+    }
+  >
+    <TrackDonationPageInner />
+  </Suspense>
+);
 
 export default TrackDonationPage;
