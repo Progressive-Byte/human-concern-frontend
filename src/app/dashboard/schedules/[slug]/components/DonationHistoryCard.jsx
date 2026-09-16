@@ -231,9 +231,6 @@ export function DonationHistoryCard({
     <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
         <h2 className="text-base font-semibold text-[#111827]">Donation History</h2>
-        <span className="text-[12px] text-[#6B7280]">
-          Use the pencil on an upcoming payment to change just that amount.
-        </span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm min-w-120">
