@@ -76,9 +76,9 @@ function TrackDonationPageInner() {
   }
 
   return (
-    <main className="min-h-[60vh] px-4 sm:px-6 lg:px-20 py-14 sm:py-20">
-      <div className="max-w-[900px] mx-auto">
-        <h1 className="text-[28px] sm:text-[36px] font-bold text-[#111111] m-0">Track Your Donation</h1>
+    <main className="min-h-[70vh] px-4 sm:px-6 lg:px-8 pt-[140px] pb-16 sm:pb-20">
+      <div className={`mx-auto w-full ${token ? "max-w-[900px]" : "max-w-[560px]"}`}>
+        <h1 className="m-0 text-[28px] sm:text-[36px] font-bold text-[#111111]">Track Your Donation</h1>
 
         {!token ? (
           <>
@@ -117,9 +117,9 @@ function TrackDonationPageInner() {
 const TrackDonationPage = () => (
   <Suspense
     fallback={
-      <main className="min-h-[60vh] px-4 sm:px-6 lg:px-20 py-14 sm:py-20">
-        <div className="max-w-[900px] mx-auto">
-          <h1 className="text-[28px] sm:text-[36px] font-bold text-[#111111] m-0">Track Your Donation</h1>
+      <main className="min-h-[70vh] px-4 sm:px-6 lg:px-8 pt-[140px] pb-16 sm:pb-20">
+        <div className="mx-auto w-full max-w-[560px]">
+          <h1 className="m-0 text-[28px] sm:text-[36px] font-bold text-[#111111]">Track Your Donation</h1>
           <LoadingPanel />
         </div>
       </main>

@@ -53,6 +53,8 @@ const TrackedDonations = ({ email, hasAccount = false, items = [] }) => {
     currency: String(item?.currency || "USD"),
     status: String(item?.status?.label || "").trim() || "—",
     statusKey: String(item?.status?.key || ""),
+    // A receipt only exists once the payment has actually completed.
+    hasReceipt: String(item?.status?.key || "") === "succeeded",
     recurring: isRecurring(item),
   }));
 
@@ -144,14 +146,16 @@ const TrackedDonations = ({ email, hasAccount = false, items = [] }) => {
                     <td className={`hidden px-4 py-4 md:table-cell ${statusClass(row.statusKey)}`}>{row.status}</td>
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleReceipt(row)}
-                          disabled={busyId === row.id}
-                          className="cursor-pointer rounded-full border border-[#DDDDDD] px-3.5 py-1.5 text-[12px] font-semibold text-[#111111] transition-colors hover:border-[#CC1F1F] hover:text-[#CC1F1F] disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {busyId === row.id ? "Preparing…" : "Receipt"}
-                        </button>
+                        {row.hasReceipt ? (
+                          <button
+                            type="button"
+                            onClick={() => handleReceipt(row)}
+                            disabled={busyId === row.id}
+                            className="cursor-pointer rounded-full border border-[#DDDDDD] px-3.5 py-1.5 text-[12px] font-semibold text-[#111111] transition-colors hover:border-[#CC1F1F] hover:text-[#CC1F1F] disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {busyId === row.id ? "Preparing…" : "Receipt"}
+                          </button>
+                        ) : null}
                         {row.recurring ? (
                           <button
                             type="button"
@@ -160,6 +164,9 @@ const TrackedDonations = ({ email, hasAccount = false, items = [] }) => {
                           >
                             Manage recurring
                           </button>
+                        ) : null}
+                        {!row.hasReceipt && !row.recurring ? (
+                          <span className="text-[12px] text-[#9CA3AF]">—</span>
                         ) : null}
                       </div>
                     </td>
