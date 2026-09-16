@@ -6,10 +6,13 @@ import { createAdminCampaignForm, getAdminCategories, getAdminFormBasics, getAdm
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 
 // Hardcoded for now. "Special" is a UI grouping only — the stored value is always the concrete type.
+// "Normal" is deliberately absent: it's already the top-level option, so repeating it inside the
+// special list was redundant. Disabled entries are placeholders — they can't be selected, so their
+// `value` is only a React key and never reaches the API.
 const SPECIAL_TYPES = [
-  { value: "normal", label: "Normal Campaign", hint: "No special handling" },
   { value: "ramadan", label: "Ramadan Campaign", hint: "Extra requirements apply" },
   { value: "qurbani", label: "Qurbani Campaign", hint: "Coming soon", disabled: true },
+  { value: "other", label: "Other Special Campaign", hint: "Coming soon", disabled: true },
 ];
 import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
