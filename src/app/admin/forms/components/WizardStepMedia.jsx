@@ -336,7 +336,8 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
         JSON.stringify(serverSliderImages.map((x) => x?.path).filter(Boolean))
       );
       for (const f of sliderFiles) fd.append("sliderImages", f);
-      if (nextVideoUrl) fd.append("videoUrl", nextVideoUrl);
+      // Always send the URL, even when cleared — omitting it would leave the stored one in place.
+      fd.append("videoUrl", nextVideoUrl);
       body = fd;
     } else {
       body = JSON.stringify({
@@ -346,7 +347,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
         sliderImages: serverSliderImages
           .filter((x) => x?.path)
           .map((x) => ({ path: x.path, alt: x.alt || undefined })),
-        ...(nextVideoUrl ? { videoUrl: nextVideoUrl } : {}),
+        videoUrl: nextVideoUrl,
       });
     }
 

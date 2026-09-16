@@ -386,7 +386,9 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       },
       public: {
         displayName: pub.displayName,
-        description: pub.description || undefined,
+        // Keep '' (cleared) rather than dropping the key — an omitted description means
+        // "leave unchanged", so clearing it would otherwise never save.
+        description: pub.description ?? undefined,
         ...(collaborating
           ? {
               collaborationOrganizationName: pub.collaborationOrganizationName || undefined,
@@ -397,7 +399,8 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
           : {}),
         campaignType: pub.campaignType,
         categoryIds: uniqueCats,
-        featured: pub.featured || undefined,
+        // Always send the boolean — `false || undefined` would drop the key and leave "Featured" on.
+        featured: pub.featured,
       },
     };
 

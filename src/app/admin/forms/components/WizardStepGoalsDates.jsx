@@ -690,10 +690,13 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       maximumDonation: maxN === null ? undefined : maxN,
       paymentMethods: normalizedPaymentMethods,
       allowOneTimeDonations: Boolean(oneTimeEnabled),
-      suggestedAmounts: oneTimeEnabled && normalizedSuggested.length ? normalizedSuggested : undefined,
-      customNotes: normalizedNotes.length ? normalizedNotes : undefined,
+      // Always send the list while the feature is on, even when empty: omitting the key means
+      // "leave unchanged" to the API, so deleting the last row would silently not stick (and the
+      // post-save re-read would bring the rows back).
+      suggestedAmounts: oneTimeEnabled ? normalizedSuggested : undefined,
+      customNotes: normalizedNotes,
       allowRecurringDonations: Boolean(recurringEnabled),
-      recurringPresets: recurringEnabled && normalizedPresets.length ? normalizedPresets : undefined,
+      recurringPresets: recurringEnabled ? normalizedPresets : undefined,
       enableTipping: Boolean(enableTipping),
       allowAnonymousDonations: Boolean(allowAnonymousDonations),
       showGlobalNote: Boolean(showGlobalNote),
