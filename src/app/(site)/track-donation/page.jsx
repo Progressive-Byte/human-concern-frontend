@@ -107,6 +107,7 @@ function TrackDonationPageInner() {
             email={result.email}
             hasAccount={result.hasAccount}
             items={result.items}
+            token={token}
           />
         ) : null}
       </div>
