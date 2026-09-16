@@ -37,22 +37,22 @@ function isSelectableCause(cause) {  if (!cause) return false;
   return true;
 }
 
-// The form's per-cause designations come back as [{ causeId, designationId }]; the wizard
-// edits them as a simple causeId -> designationId map.
-function normalizeCauseDesignations(res) {
+// The form's designations come back as a flat `designationIds` list, independent of the causes.
+function normalizeSelectedDesignationIds(res) {
   const raw =
-    res?.data?.causeDesignations ||
-    res?.data?.data?.causeDesignations ||
-    res?.causeDesignations ||
+    res?.data?.designationIds ||
+    res?.data?.data?.designationIds ||
+    res?.designationIds ||
     [];
   const list = Array.isArray(raw) ? raw : [];
-  const map = {};
-  for (const link of list) {
-    const causeId = String(link?.causeId || "").trim();
-    const designationId = String(link?.designationId || "").trim();
-    if (causeId && designationId) map[causeId] = designationId;
-  }
-  return map;
+  return Array.from(
+    new Set(
+      list
+        .map((x) => (typeof x === "string" ? x : x?._id || x?.id))
+        .map((x) => String(x || "").trim())
+        .filter(Boolean)
+    )
+  );
 }
 
 function SkeletonGrid() {
@@ -84,20 +84,21 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
   const [allCauses, setAllCauses] = useState([]);
   const [selectedCauseIds, setSelectedCauseIds] = useState([]);
   const [allDesignations, setAllDesignations] = useState([]);
-  const [designationByCause, setDesignationByCause] = useState({});
+  const [selectedDesignationIds, setSelectedDesignationIds] = useState([]);
 
   const causes = useMemo(() => (Array.isArray(allCauses) ? allCauses : []), [allCauses]);
   const designations = useMemo(() => (Array.isArray(allDesignations) ? allDesignations : []), [allDesignations]);
-  const selectedCauseIdSet = useMemo(
-    () => new Set(selectedCauseIds.map((id) => String(id).trim()).filter(Boolean)),
-    [selectedCauseIds]
+  const selectedDesignationIdSet = useMemo(
+    () => new Set(selectedDesignationIds.map((id) => String(id).trim()).filter(Boolean)),
+    [selectedDesignationIds]
   );
   const selectedCount = selectedCauseIds.length;
+  const selectedDesignationCount = selectedDesignationIds.length;
 
   // Autosave once the step has loaded (the draft must already exist).
   useStepAutosave({
     formId,
-    deps: [selectedCauseIds, designationByCause],
+    deps: [selectedCauseIds, selectedDesignationIds],
     ready: !loading,
     persist: () => save({ silent: true }),
   });
@@ -132,13 +133,13 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
         setAllCauses(nextAll);
         setSelectedCauseIds(nextSelected.filter((id) => enabledIdSet.has(id)));
         setAllDesignations(normalizeItemsResponse(designationsRes));
-        setDesignationByCause(normalizeCauseDesignations(selectedRes));
+        setSelectedDesignationIds(normalizeSelectedDesignationIds(selectedRes));
       } catch (e) {
         if (!alive) return;
         setAllCauses([]);
         setSelectedCauseIds([]);
         setAllDesignations([]);
-        setDesignationByCause({});
+        setSelectedDesignationIds([]);
         setTopError(e?.message || "Failed to load causes.");
       } finally {
         if (!alive) return;
@@ -157,6 +158,18 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
     if (!isSelectableCause(cause)) return;
 
     setSelectedCauseIds((prev) => {
+      const current = Array.isArray(prev) ? prev.map((x) => String(x).trim()).filter(Boolean) : [];
+      const has = current.includes(id);
+      if (has) return current.filter((x) => x !== id);
+      return Array.from(new Set([...current, id]));
+    });
+  }
+
+  function toggleDesignationId(designation) {
+    const id = String(designation?._id || designation?.id || "").trim();
+    if (!id) return;
+
+    setSelectedDesignationIds((prev) => {
       const current = Array.isArray(prev) ? prev.map((x) => String(x).trim()).filter(Boolean) : [];
       const has = current.includes(id);
       if (has) return current.filter((x) => x !== id);
@@ -184,12 +197,19 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
     const selectedIds = Array.from(new Set(selectedCauseIds.map((x) => String(x).trim()).filter(Boolean))).filter((id) =>
       enabledIdSet.has(id)
     );
+    const enabledDesignationIdSet = new Set(
+      designations
+        .map((d) => String(d?._id || d?.id || "").trim())
+        .filter(Boolean)
+    );
+    const selectedDesignationIdsToSave = Array.from(
+      new Set(selectedDesignationIds.map((x) => String(x).trim()).filter(Boolean))
+    ).filter((id) => enabledDesignationIdSet.has(id));
+
     const payload = {
       causeIds: selectedIds,
-      // Optional — a cause with no designation simply reports as "Unassigned".
-      causeDesignations: selectedIds
-        .map((causeId) => ({ causeId, designationId: designationByCause[causeId] }))
-        .filter((link) => Boolean(link.designationId)),
+      // Optional, flat and independent of the cause selection.
+      designationIds: selectedDesignationIdsToSave,
     };
 
     if (!silent) setSaving(true);
@@ -320,60 +340,75 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
           </div>
         )}
 
-        {selectedCount > 0 ? (
-          <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-4">
-            <div className="text-[13px] font-semibold text-[#111827]">Designation per selected cause</div>
-            <p className="mt-0.5 text-[12px] text-[#6B7280]">
-              Optional — a cause with no designation reports as “Unassigned”.
+      </section>
+
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Designations</h2>
+            <p className="mt-1 text-[13px] text-[#6B7280]">
+              Optional — select one or more designations. They are independent of the causes above.
             </p>
-
-            <div className="mt-3 space-y-2">
-              {causes
-                .filter((cause) => selectedCauseIdSet.has(String(cause?._id || cause?.id || "").trim()))
-                .map((cause) => {
-                  const causeId = String(cause?._id || cause?.id || "").trim();
-                  return (
-                    <div key={causeId} className="flex flex-wrap items-center gap-3">
-                      <div className="min-w-[200px] flex-1 text-[13px] text-[#111827]">
-                        {String(cause?.name || "Cause")}
-                        {cause?.fundCode ? (
-                          <span className="ml-2 inline-flex items-center rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-semibold text-white">
-                            {cause.fundCode}
-                          </span>
-                        ) : null}
-                      </div>
-
-                      <select
-                        value={designationByCause[causeId] || ""}
-                        onChange={(event) => {
-                          const nextValue = event.target.value;
-                          setDesignationByCause((prev) => {
-                            const next = { ...(prev || {}) };
-                            if (nextValue) next[causeId] = nextValue;
-                            else delete next[causeId];
-                            return next;
-                          });
-                        }}
-                        className="w-full max-w-[300px] cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#383838] outline-none focus:border-[#171717]/30"
-                      >
-                        <option value="">— None —</option>
-                        {designations.map((designation) => {
-                          const id = String(designation?._id || designation?.id || "").trim();
-                          if (!id) return null;
-                          return (
-                            <option key={id} value={id}>
-                              {designation?.code ? `${designation.code} — ` : ""}
-                              {String(designation?.name || "")}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  );
-                })}
-            </div>
           </div>
-        ) : null}
+
+          <div className="text-[13px] text-[#6B7280] sm:text-right">
+            <span className="text-[#111827] font-semibold">{selectedDesignationCount} Selected</span> Out of {designations.length}
+          </div>
+        </div>
+
+        {loading ? (
+          <SkeletonGrid />
+        ) : designations.length === 0 ? (
+          <div className="py-10 text-center text-[13px] text-[#6B7280]">No designations available.</div>
+        ) : (
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {designations.map((designation) => {
+              const id = String(designation?._id || designation?.id || "").trim();
+              const selected = id ? selectedDesignationIdSet.has(id) : false;
+              const code = String(designation?.code || "").trim();
+              const name = String(designation?.name || "").trim();
+
+              return (
+                <button
+                  key={id || code || name}
+                  type="button"
+                  onClick={() => toggleDesignationId(designation)}
+                  disabled={!id || saving}
+                  className={`hc-hover-lift relative w-full text-left rounded-2xl border p-4 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600/40 focus-visible:ring-offset-2 ${
+                    selected ? "border-red-600/40 bg-red-600/5" : "border-[#E5E7EB] bg-[#F9FAFB] hover:bg-white"
+                  } ${!id || saving ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex h-9 min-w-9 items-center justify-center rounded-xl bg-white border border-[#E5E7EB] px-2">
+                      <span className="text-[12px] font-semibold text-[#111827]">{code || "—"}</span>
+                    </div>
+
+                    <div
+                      className={`flex h-5 w-5 items-center justify-center rounded-full border ${
+                        selected ? "border-[#111827] bg-[#111827]" : "border-[#D1D5DB] bg-white"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {selected ? (
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M10 3.25L4.75 8.5L2 5.75"
+                            stroke="white"
+                            strokeWidth="1.6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 text-[14px] font-semibold text-[#111827]">{name || "Designation"}</div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <WizardFooterNav

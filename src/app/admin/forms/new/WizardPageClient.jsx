@@ -174,7 +174,7 @@ const WizardContent = () => {
     const base = [
       { key: "basics", label: "Basics" },
       { key: "goals-dates", label: "Goals & Dates" },
-      { key: "causes", label: "Causes" },
+      { key: "causes", label: "Causes & Designation" },
       { key: "objectives", label: "Objectives" },
       { key: "addons", label: "Add-ons" },
       { key: "media", label: "Media" },
