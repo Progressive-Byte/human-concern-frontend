@@ -174,6 +174,16 @@ export function submitScheduleEditForm(scheduleId, payload) {
   });
 }
 
+// Change the amount of ONE scheduled payment (leaves the other installments untouched).
+export function updateUserInstallmentAmount({ scheduleId, installmentId, amount } = {}) {
+  const sid = encodeURIComponent(String(scheduleId || "").trim());
+  const iid = encodeURIComponent(String(installmentId || "").trim());
+  return apiRequest(`/user/schedules/${sid}/installments/${iid}`, {
+    method: "PATCH",
+    body: JSON.stringify({ amount: Number(amount) }),
+  });
+}
+
 export function pauseUserSchedule(scheduleId, reason = "") {
   const id = encodeURIComponent(String(scheduleId || "").trim());
   return apiRequest(`/user/schedules/${id}/pause`, {
