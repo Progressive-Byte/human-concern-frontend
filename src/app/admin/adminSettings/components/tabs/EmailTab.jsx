@@ -2,21 +2,30 @@
 
 import SettingsSectionCard from "../SettingsSectionCard";
 
-function Field({ label, hint, children }) {
+function Field({ label, hint, error, children }) {
   return (
     <label className="block">
       <div className="mb-2 text-[13px] font-semibold text-[#111827]">{label}</div>
       {children}
-      {hint ? <div className="mt-1.5 text-[12px] text-[#6B7280]">{hint}</div> : null}
+      {error ? (
+        <div className="mt-1.5 text-[12px] text-red-600">{error}</div>
+      ) : hint ? (
+        <div className="mt-1.5 text-[12px] text-[#6B7280]">{hint}</div>
+      ) : null}
     </label>
   );
 }
 
-function TextInput(props) {
+function TextInput({ invalid, ...props }) {
   return (
     <input
       {...props}
-      className={`w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:bg-[#F9FAFB] disabled:text-[#9CA3AF] ${props.className || ""}`.trim()}
+      aria-invalid={invalid ? "true" : undefined}
+      className={`w-full rounded-xl border bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition disabled:bg-[#F9FAFB] disabled:text-[#9CA3AF] ${
+        invalid
+          ? "border-[#EA3335] focus:border-[#EA3335]"
+          : "border-[#E5E7EB] focus:border-[#111827]/30"
+      } ${props.className || ""}`.trim()}
     />
   );
 }
@@ -83,6 +92,45 @@ const SOURCE_LABEL = {
   none: "Not configured",
 };
 
+const HOSTNAME_RE = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)*$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Mirrors the API validator (settingsValidators.emailPatchBody) plus the service's
+// "host and From Email must be set together" rule.
+export function validateSmtpConfig(email) {
+  const errors = {};
+  const host = String(email?.host || "").trim();
+  const fromEmail = String(email?.fromEmail || "").trim();
+  const portRaw = String(email?.port ?? "").trim();
+
+  if (host && !HOSTNAME_RE.test(host)) {
+    errors.host = "Enter a valid hostname (no protocol, port or path).";
+  }
+  if (host && !fromEmail) {
+    errors.fromEmail = "From Email is required when an SMTP host is set.";
+  }
+  if (!host && fromEmail) {
+    errors.host = "SMTP host is required when a From Email is set.";
+  }
+
+  const port = Number(portRaw);
+  if (!portRaw) {
+    errors.port = "Port is required.";
+  } else if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    errors.port = "Port must be a whole number between 1 and 65535.";
+  }
+
+  if (fromEmail && !EMAIL_RE.test(fromEmail)) {
+    errors.fromEmail = "Enter a valid email address.";
+  }
+
+  if (String(email?.fromName || "").length > 120) errors.fromName = "Maximum 120 characters.";
+  if (String(email?.username || "").length > 255) errors.username = "Maximum 255 characters.";
+  if (String(email?.password || "").length > 255) errors.password = "Maximum 255 characters.";
+
+  return errors;
+}
+
 function formatDateTime(value) {
   if (!value) return "";
   try {
@@ -98,6 +146,15 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
   const source = String(transport.source || "none");
   const passwordSet = Boolean(email.hasPassword);
 
+  const errors = validateSmtpConfig(email);
+  const hasErrors = Object.keys(errors).length > 0;
+  const testToError = testTo && !EMAIL_RE.test(String(testTo).trim()) ? "Enter a valid email address." : "";
+
+  const handleSave = () => {
+    if (hasErrors) return;
+    onSave?.();
+  };
+
   return (
     <div className="space-y-6">
       <SettingsSectionCard
@@ -106,16 +163,21 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
         subtitle="The server this platform uses to send password resets, donation receipts and donor notifications"
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="SMTP Host" hint="Required — email cannot be sent until a host and From Email are saved.">
+          <Field
+            label="SMTP Host"
+            hint="Required — email cannot be sent until a host and From Email are saved."
+            error={errors.host}
+          >
             <TextInput
               value={email.host || ""}
               onChange={(e) => onChange?.((prev) => ({ ...(prev || {}), host: e.target.value }))}
               placeholder="smtp.example.com"
+              invalid={Boolean(errors.host)}
               disabled={loading}
             />
           </Field>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Port">
+            <Field label="Port" error={errors.port}>
               <TextInput
                 type="number"
                 min={1}
@@ -123,6 +185,7 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
                 value={email.port ?? 587}
                 onChange={(e) => onChange?.((prev) => ({ ...(prev || {}), port: e.target.value }))}
                 placeholder="587"
+                invalid={Boolean(errors.port)}
                 disabled={loading}
               />
             </Field>
@@ -138,12 +201,13 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
             </div>
           </div>
 
-          <Field label="Username" hint="Leave blank for relays that authenticate by IP.">
+          <Field label="Username" hint="Leave blank for relays that authenticate by IP." error={errors.username}>
             <TextInput
               value={email.username || ""}
               onChange={(e) => onChange?.((prev) => ({ ...(prev || {}), username: e.target.value }))}
               placeholder="mailer@example.com"
               autoComplete="off"
+              invalid={Boolean(errors.username)}
               disabled={loading}
             />
           </Field>
@@ -152,6 +216,7 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
             hint={passwordSet
               ? `A password is saved (••••${email.passwordLast4 || ""}). Leave blank to keep it.`
               : "Stored encrypted. Leave blank to keep the current value."}
+            error={errors.password}
           >
             <TextInput
               type="password"
@@ -159,6 +224,7 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
               onChange={(e) => onChange?.((prev) => ({ ...(prev || {}), password: e.target.value }))}
               placeholder={passwordSet ? "••••••••" : "SMTP password"}
               autoComplete="new-password"
+              invalid={Boolean(errors.password)}
               disabled={loading}
             />
           </Field>
@@ -166,39 +232,34 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
           <Field
             label="From Name"
             hint="Defaults to your organization name from the General tab."
+            error={errors.fromName}
           >
             <TextInput
               value={email.fromName || ""}
               onChange={(e) => onChange?.((prev) => ({ ...(prev || {}), fromName: e.target.value }))}
               placeholder="Helping Hands"
+              invalid={Boolean(errors.fromName)}
               disabled={loading}
             />
           </Field>
           <Field
             label="From Email"
             hint="Required — this is the address donors see."
+            error={errors.fromEmail}
           >
             <TextInput
               type="email"
               value={email.fromEmail || ""}
               onChange={(e) => onChange?.((prev) => ({ ...(prev || {}), fromEmail: e.target.value }))}
               placeholder="no-reply@example.com"
-              disabled={loading}
-            />
-          </Field>
-          <Field label="Reply-To" hint="Optional. Defaults to none.">
-            <TextInput
-              type="email"
-              value={email.replyTo || ""}
-              onChange={(e) => onChange?.((prev) => ({ ...(prev || {}), replyTo: e.target.value }))}
-              placeholder="support@example.com"
+              invalid={Boolean(errors.fromEmail)}
               disabled={loading}
             />
           </Field>
         </div>
 
         <div className="mt-6">
-          <SaveButton onClick={onSave} disabled={saving || loading}>
+          <SaveButton onClick={handleSave} disabled={saving || loading || hasErrors}>
             Save Changes
           </SaveButton>
         </div>
@@ -248,17 +309,22 @@ const EmailTab = ({ value, resolved, testTo, onChangeTestTo, onChange, loading, 
 
         <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
-            <Field label="Send test to" hint="Leave blank to use the From Email / organization contact.">
+            <Field
+              label="Send test to"
+              hint="Leave blank to use the From Email / organization contact."
+              error={testToError}
+            >
               <TextInput
                 type="email"
                 value={testTo || ""}
                 onChange={(e) => onChangeTestTo?.(e.target.value)}
                 placeholder="you@example.com"
+                invalid={Boolean(testToError)}
                 disabled={loading || testing}
               />
             </Field>
           </div>
-          <SaveButton onClick={onSendTest} disabled={testing || loading}>
+          <SaveButton onClick={onSendTest} disabled={testing || loading || Boolean(testToError)}>
             {testing ? "Sending…" : "Send test email"}
           </SaveButton>
         </div>

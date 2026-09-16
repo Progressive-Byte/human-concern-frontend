@@ -36,7 +36,7 @@ import SecurityTab from "./components/tabs/SecurityTab";
 import BrandingTab from "./components/tabs/BrandingTab";
 import PaymentTab from "./components/tabs/PaymentTab";
 import ExchangeRatesTab from "./components/tabs/ExchangeRatesTab";
-import EmailTab from "./components/tabs/EmailTab";
+import EmailTab, { validateSmtpConfig } from "./components/tabs/EmailTab";
 
 function normalizeObj(res) {
   if (res?.data && typeof res.data === "object" && !Array.isArray(res.data)) return res.data;
@@ -508,6 +508,14 @@ const SettingsPageClient = () => {
     setEmailSaving(true);
     setError("");
     try {
+      const validationErrors = validateSmtpConfig(email);
+      const firstError = Object.values(validationErrors)[0];
+      if (firstError) {
+        setError(firstError);
+        toast.error(firstError);
+        return;
+      }
+
       const { password, ...rest } = email || {};
       const payload = diffObject(emailInitial || {}, rest);
       if (typeof password === "string" && password.length > 0) payload.password = password;
