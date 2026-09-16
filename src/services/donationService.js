@@ -184,6 +184,15 @@ export function updateUserInstallmentAmount({ scheduleId, installmentId, amount 
   });
 }
 
+// Drop ONE scheduled payment from the plan (one-way — the row is kept but never charged).
+export function skipUserInstallment({ scheduleId, installmentId } = {}) {
+  const sid = encodeURIComponent(String(scheduleId || "").trim());
+  const iid = encodeURIComponent(String(installmentId || "").trim());
+  return apiRequest(`/user/schedules/${sid}/installments/${iid}/skip`, {
+    method: "POST",
+  });
+}
+
 export function pauseUserSchedule(scheduleId, reason = "") {
   const id = encodeURIComponent(String(scheduleId || "").trim());
   return apiRequest(`/user/schedules/${id}/pause`, {
