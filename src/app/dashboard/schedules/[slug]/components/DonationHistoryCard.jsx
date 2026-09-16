@@ -66,11 +66,16 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
     && Number.isFinite(dueAt)
     && dueAt > Date.now();
 
+  // The FIRST payment's stored amount includes the one-time tip + add-ons, so the donor
+  // edits the base and the API keeps the extras on top.
+  const rowBase = Number.isFinite(Number(row?.baseAmount)) ? Number(row.baseAmount) : amount;
+  const extras = Number(row?.extrasAmount) || 0;
+
   const base = Number(installmentBaseAmount);
-  const isCustomAmount = Number.isFinite(base) && base > 0 && Math.abs(amount - base) > 0.005;
+  const isCustomAmount = Number.isFinite(base) && base > 0 && Math.abs(rowBase - base) > 0.005;
 
   const startEditing = () => {
-    setDraft(String(amount));
+    setDraft(String(rowBase));
     setEditing(true);
   };
 
@@ -85,7 +90,7 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
       onError?.("Enter an amount greater than 0.");
       return;
     }
-    if (Math.abs(next - amount) < 0.005) {
+    if (Math.abs(next - rowBase) < 0.005) {
       cancelEditing();
       return;
     }
@@ -159,6 +164,14 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
         ) : (
           <div className="flex items-center gap-2">
             <span className="text-[#111827] font-semibold whitespace-nowrap">{formatCurrency(amount, cur)}</span>
+            {extras > 0 ? (
+              <span
+                className="text-[11px] text-[#6B7280] whitespace-nowrap"
+                title="One-time tip and add-ons, charged with the first payment"
+              >
+                incl. {formatCurrency(extras, cur)}
+              </span>
+            ) : null}
             {isCustomAmount ? (
               <span
                 className="rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-semibold text-[#1D4ED8]"

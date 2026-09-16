@@ -222,7 +222,7 @@ const ScheduleDetailPage = () => {
               onError={setError}
               onSaved={() => refreshRef.current?.()}
               scheduleStatusKey={String(schedule?.status?.key || "").trim().toLowerCase()}
-              installmentBaseAmount={Number(schedule?.installmentAmount ?? 0)}
+              installmentBaseAmount={Number(schedule?.installmentBaseAmount ?? schedule?.installmentAmount ?? 0)}
             />
             {schedule?.providerOutage?.down && schedule?.providerOutage?.alternateAvailable ? (
               <ProviderSwitchCard
