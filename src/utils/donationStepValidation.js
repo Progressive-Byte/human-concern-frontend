@@ -22,6 +22,7 @@ export function validateAmountScheduleStep({
   scheduleType,
   scheduleConfig,
   campaignEndDate,
+  makeUpMissedDates,
 }) {
   const value = Number(amount);
   if (!Number.isFinite(value) || value <= 0) {
@@ -64,7 +65,9 @@ export function validateAmountScheduleStep({
     return `A schedule can have at most ${MAX_INSTALLMENTS} payments. Please shorten the date range.`;
   }
 
-  if (dueDates.some((d) => !isDueDateAllowed(d))) {
+  // Make-up schedules intentionally include preset dates that already passed; the API verifies
+  // they belong to the chosen preset.
+  if (!makeUpMissedDates && dueDates.some((d) => !isDueDateAllowed(d))) {
     return `All scheduled dates must be in the future. Please choose dates from ${earliestAllowedDateStr()} onwards.`;
   }
 

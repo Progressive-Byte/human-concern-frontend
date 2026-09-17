@@ -530,6 +530,19 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
             </div>
           </div>
 
+          <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+            <div>
+              <div className="text-[13px] font-semibold text-[#111827]">Allow make-up for missed dates</div>
+              <div className="mt-1 text-[12px] text-[#6B7280]">
+                Let donors who start mid-period also pay the preset dates that already passed
+              </div>
+            </div>
+            <Toggle
+              enabled={Boolean(v.allowMissedMakeUp)}
+              onChange={disabled ? () => {} : (next) => setField({ allowMissedMakeUp: Boolean(next) })}
+            />
+          </div>
+
           {scheduleType === "date_range" ? (
             <DateRangeEditor
               value={config}
@@ -601,7 +614,7 @@ const RecurringPresetsEditor = ({
   function addPreset() {
     onChange?.([
       ...(presets || []),
-      { name: "", enabled: true, sortOrder: String((presets.length + 1) * 10), scheduleType: "date_range", scheduleConfig: {} },
+      { name: "", enabled: true, allowMissedMakeUp: false, sortOrder: String((presets.length + 1) * 10), scheduleType: "date_range", scheduleConfig: {} },
     ]);
   }
 

@@ -10,6 +10,7 @@ import RecurringSchedule from "./StepComponents/Step2components/RecurringSchedul
 import AmountSelector    from "./StepComponents/Step2components/AmountSelector";
 import SectionStep from "./StepComponents/Step2components/SectionStep";
 import { validateAmountScheduleStep } from "@/utils/donationStepValidation";
+import { earliestAllowedDateStr } from "@/utils/scheduleDateLimits";
 
 const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
@@ -104,10 +105,28 @@ const Step2Payment = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Occurrences that are NOT make-up (i.e. dated today or later). Divide mode splits the donor's
+  // amount across these only, so the per-date amount is unchanged by make-up (the total grows).
+  const initRemainingOccurrences = useMemo(() => {
+    const sc = data.scheduleConfig;
+    if (!sc || !isRecurring) return 1;
+    const minStr = earliestAllowedDateStr();
+    if (data.scheduleType === "specific_dates") {
+      const future = (sc.dates ?? []).filter((d) => String(d).split("T")[0] >= minStr);
+      return future.length || (sc.dates?.length ?? 1);
+    }
+    const all = generateDatesInRange(sc.startDate?.split("T")[0], sc.endDate?.split("T")[0], sc.frequency ?? "daily", sc.customInterval ?? 1, sc.daysOfWeek ?? []);
+    const future = all.filter((d) => d >= minStr);
+    return future.length || all.length || 1;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [effectiveAmount, setEffectiveAmount] = useState(initAmount);
   const [amountError,     setAmountError]     = useState(false);
   const [stepError,       setStepError]       = useState("");
   const [occurrences,     setOccurrences]     = useState(isRecurring ? initOccurrences : 1);
+  const [remainingOccurrences, setRemainingOccurrences] = useState(isRecurring ? initRemainingOccurrences : 1);
+  const [makeUpMissedDates, setMakeUpMissedDates] = useState(Boolean(data.makeUpMissedDates));
   const [splitMode,       setSplitMode]       = useState(data.splitMode ?? "repeat");
   const [activePreset,    setActivePreset]    = useState(data.schedulePreset ?? "custom");
   const [scheduleState,   setScheduleState]   = useState({
@@ -115,9 +134,11 @@ const Step2Payment = () => {
     scheduleConfig: data.scheduleConfig ?? {},
   });
 
-  // Per-date default amount based on split mode
-  const defaultPerDate = isRecurring && splitMode === "divide" && occurrences > 0
-    ? Math.round((effectiveAmount / occurrences) * 100) / 100
+  // Per-date default amount based on split mode. Divide splits across the NON-make-up dates only,
+  // so ticking make-up keeps the per-date amount and grows the total (rather than shrinking it).
+  const divideDenominator = remainingOccurrences > 0 ? remainingOccurrences : (occurrences > 0 ? occurrences : 1);
+  const defaultPerDate = isRecurring && splitMode === "divide"
+    ? Math.round((effectiveAmount / divideDenominator) * 100) / 100
     : effectiveAmount;
 
   const perDateTotal = useMemo(() => {
@@ -164,21 +185,31 @@ const Step2Payment = () => {
       schedulePreset:   isRecurring ? activePreset : undefined,
       installmentCount: isRecurring ? occurrences : 1,
       numberOfDays:     isRecurring ? occurrences : 1,
+      makeUpMissedDates: isRecurring ? makeUpMissedDates : undefined,
       frequency:        isRecurring && scheduleState.scheduleType === "date_range"
         ? scheduleState.scheduleConfig?.frequency
         : undefined,
       perDateTotal: isRecurring && perDateTotal !== null ? perDateTotal : undefined,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveAmount, defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset]);
+  }, [effectiveAmount, defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset, makeUpMissedDates]);
 
   const handleAmountChange = (amount, hasError) => {
     setEffectiveAmount(amount);
     setAmountError(hasError);
   };
 
-  const handleScheduleChange = ({ scheduleType, scheduleConfig, occurrences: occ, activePreset: preset }) => {
+  const handleScheduleChange = ({
+    scheduleType,
+    scheduleConfig,
+    occurrences: occ,
+    remainingOccurrences: remOcc,
+    makeUpMissedDates: mk,
+    activePreset: preset,
+  }) => {
     setOccurrences(occ);
+    if (remOcc !== undefined) setRemainingOccurrences(remOcc);
+    if (mk !== undefined) setMakeUpMissedDates(Boolean(mk));
     setScheduleState({ scheduleType, scheduleConfig });
     if (preset !== undefined) setActivePreset(preset);
     setStepError("");
@@ -195,6 +226,7 @@ const Step2Payment = () => {
     scheduleType:     scheduleState.scheduleType,
     scheduleConfig:   scheduleState.scheduleConfig,
     campaignEndDate,
+    makeUpMissedDates,
   });
 
   const handleSplitModeChange = (val) => {
@@ -380,6 +412,7 @@ const Step2Payment = () => {
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}
+                initialMakeUpMissedDates={data.makeUpMissedDates}
                 defaultPresetId={defaultPresetId}
                 apiPresets={recurringPresets}
                 causeSplit={causeSplit}

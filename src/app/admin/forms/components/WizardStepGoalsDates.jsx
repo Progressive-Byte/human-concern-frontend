@@ -141,6 +141,7 @@ function normalizeRecurringPresetsState(value) {
     enabled: p?.enabled === undefined ? true : Boolean(p.enabled),
     sortOrder: p?.sortOrder === null || p?.sortOrder === undefined ? "" : String(p.sortOrder),
     isDefault: Boolean(p?.isDefault),
+    allowMissedMakeUp: Boolean(p?.allowMissedMakeUp),
     scheduleType: String(p?.scheduleType || "date_range"),
     scheduleConfig: p?.scheduleConfig && typeof p.scheduleConfig === "object" ? p.scheduleConfig : {},
   }));
@@ -604,6 +605,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           name,
           enabled,
           isDefault: Boolean(preset.isDefault),
+          allowMissedMakeUp: Boolean(preset.allowMissedMakeUp),
           sortOrder: Number.isFinite(sortOrderNum) ? sortOrderNum : (idx + 1) * 10,
           scheduleType,
           scheduleConfig: cfgOut,

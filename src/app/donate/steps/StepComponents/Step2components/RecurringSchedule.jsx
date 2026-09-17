@@ -31,6 +31,7 @@ const RecurringSchedule = ({
   initialConfig,
   initialActivePreset,
   defaultPresetId = null,
+  initialMakeUpMissedDates = false,
   apiPresets = [],
   causeSplit,
   causeLabelById,
@@ -39,7 +40,10 @@ const RecurringSchedule = ({
 }) => {
   // Earliest date the API accepts as a due date (now + lead time, at UTC midnight).
   const minDateStr = useMemo(() => earliestAllowedDateStr(), []);
+  // A preset date strictly before today is "missed" (make-up eligible).
+  const todayKey = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [activePreset,   setActivePreset]   = useState(initialActivePreset ?? "custom");
+  const [makeUpMissedDates, setMakeUpMissedDates] = useState(Boolean(initialMakeUpMissedDates));
   const [scheduleType,   setScheduleType]   = useState(initialScheduleType ?? "specific_dates");
   const [selectedDates,  setSelectedDates]  = useState(() =>
     (initialConfig?.dates ?? []).map((d) => d.split("T")[0])
@@ -72,23 +76,52 @@ const RecurringSchedule = ({
     ? generatedDates
     : [...selectedDates].sort();
 
-  const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset, daysOverride) => {
+  // Full date list a preset covers (past AND future), as YYYY-MM-DD keys.
+  const fullPresetDates = (preset) => {
+    if (!preset) return [];
+    const cfg = preset.scheduleConfig && typeof preset.scheduleConfig === "object" ? preset.scheduleConfig : {};
+    if (preset.scheduleType === "date_range") {
+      const start = cfg.startDate?.split("T")[0] ?? "";
+      const end = cfg.endDate?.split("T")[0] ?? "";
+      const interval = cfg.intervalValue ?? 1;
+      const freq = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
+      const days = freq === "weekly"
+        ? (Array.isArray(cfg.daysOfWeek) && cfg.daysOfWeek.length
+            ? cfg.daysOfWeek
+            : (weekdayOf(start) === null ? [] : [weekdayOf(start)]))
+        : [];
+      return generateDatesInRange(start, end, freq, interval > 1 ? interval : 1, days);
+    }
+    return (Array.isArray(cfg.dates) ? cfg.dates : []).map((d) => String(d).split("T")[0]);
+  };
+
+  const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset, daysOverride, opts = {}) => {
     const days = daysOverride !== undefined ? daysOverride : effectiveWeekDays;
-    const futureDates = type === "specific_dates" ? dates.filter((d) => d >= minDateStr) : dates;
-    const futureAmounts = type === "specific_dates"
+    // `includePast` is only set when applying a preset with make-up ticked; manual edits always drop past dates.
+    const keepAll = opts.includePast === true;
+    const futureDates = (type === "specific_dates" && !keepAll) ? dates.filter((d) => d >= minDateStr) : dates;
+    const futureAmounts = (type === "specific_dates" && !keepAll)
       ? Object.fromEntries(Object.entries(amounts).filter(([d]) => d >= minDateStr))
       : amounts;
     const occ    = type === "specific_dates"
       ? futureDates.length
       : countOccurrences(start, end, freq, interval, days);
     const config = buildConfig(type, futureDates, start, end, freq, futureAmounts, interval, days);
-    onChange({ scheduleType: type, scheduleConfig: config, occurrences: occ, activePreset: preset });
+    onChange({
+      scheduleType: type,
+      scheduleConfig: config,
+      occurrences: occ,
+      remainingOccurrences: opts.remainingOccurrences !== undefined ? opts.remainingOccurrences : occ,
+      makeUpMissedDates: Boolean(opts.makeUpMissedDates),
+      activePreset: preset,
+    });
   };
 
-  const handlePreset = (presetId) => {
+  const handlePreset = (presetId, makeUpOverride) => {
     setActivePreset(presetId);
 
     if (presetId === "custom") {
+      setMakeUpMissedDates(false);
       setScheduleType("specific_dates");
       setSelectedDates([]);
       setDateAmounts({});
@@ -101,60 +134,51 @@ const RecurringSchedule = ({
     if (!preset) return;
     const cfg = preset.scheduleConfig ?? {};
 
-    
-    if (isTemplate(preset)) {
-      // Template presets open the form pre-configured — no summary banner
-      if (preset.scheduleType === "date_range") {
-        const start    = cfg.startDate?.split("T")[0] ?? "";
-        const end      = cfg.endDate?.split("T")[0]   ?? "";
-        const interval = cfg.intervalValue ?? 1;
-        const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
-        const presetDays = freq === "weekly"
-          ? (Array.isArray(cfg.daysOfWeek) && cfg.daysOfWeek.length ? cfg.daysOfWeek : (weekdayOf(start) === null ? [] : [weekdayOf(start)]))
-          : [];
-        setScheduleType("date_range");
-        setRangeStart(start);
-        setRangeEnd(end);
-        setRangeFreq(freq);
-        setCustomInterval(interval > 1 ? interval : 1);
-        setSelectedDates([]);
-        setDateAmounts({});
-        setWeekDays(presetDays);
-        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId, presetDays);
-      } else {
-        // "Specific Dates" template — open empty calendar
-        setScheduleType("specific_dates");
-        setSelectedDates([]);
-        setDateAmounts({});
-        notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
-      }
-    } else {
-      // Fixed presets — apply config directly, show summary banner
-      if (preset.scheduleType === "date_range") {
-        const start    = cfg.startDate?.split("T")[0] ?? "";
-        const end      = cfg.endDate?.split("T")[0]   ?? "";
-        const interval = cfg.intervalValue ?? 1;
-        const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
-        const presetDays = freq === "weekly"
-          ? (Array.isArray(cfg.daysOfWeek) && cfg.daysOfWeek.length ? cfg.daysOfWeek : (weekdayOf(start) === null ? [] : [weekdayOf(start)]))
-          : [];
-        setScheduleType("date_range");
-        setRangeStart(start);
-        setRangeEnd(end);
-        setRangeFreq(freq);
-        setCustomInterval(interval > 1 ? interval : 1);
-        setSelectedDates([]);
-        setDateAmounts({});
-        setWeekDays(presetDays);
-        notify("date_range", [], start, end, freq, {}, interval > 1 ? interval : 1, presetId, presetDays);
-      } else {
-        const dates = (cfg.dates ?? []).map((d) => d.split("T")[0]);
-        setScheduleType("specific_dates");
-        setSelectedDates(dates);
-        setDateAmounts({});
-        notify("specific_dates", dates, rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId);
-      }
+    // "Missed" = preset dates strictly before today. Make-up is only offered for a real preset
+    // that allows it and actually has passed dates.
+    const allPresetDates = fullPresetDates(preset);
+    const missedDates = allPresetDates.filter((d) => d < todayKey);
+    const futurePresetDates = allPresetDates.filter((d) => d >= minDateStr);
+    const canMakeUp = Boolean(preset.allowMissedMakeUp) && missedDates.length > 0;
+    const wantMakeUp = makeUpOverride !== undefined ? Boolean(makeUpOverride) : makeUpMissedDates;
+    const nextMakeUp = canMakeUp && wantMakeUp;
+    setMakeUpMissedDates(nextMakeUp);
+
+    if (preset.scheduleType === "date_range") {
+      const start    = cfg.startDate?.split("T")[0] ?? "";
+      const end      = cfg.endDate?.split("T")[0]   ?? "";
+      const interval = cfg.intervalValue ?? 1;
+      const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
+      const presetDays = freq === "weekly"
+        ? (Array.isArray(cfg.daysOfWeek) && cfg.daysOfWeek.length ? cfg.daysOfWeek : (weekdayOf(start) === null ? [] : [weekdayOf(start)]))
+        : [];
+      // With make-up OFF, clamp the range start so already-passed dates are excluded — otherwise
+      // the API rejects the schedule (past dates).
+      const effectiveStart = nextMakeUp ? start : (futurePresetDates[0] ?? start);
+      setScheduleType("date_range");
+      setRangeStart(effectiveStart);
+      setRangeEnd(end);
+      setRangeFreq(freq);
+      setCustomInterval(interval > 1 ? interval : 1);
+      setSelectedDates([]);
+      setDateAmounts({});
+      setWeekDays(presetDays);
+      notify(
+        "date_range", [], effectiveStart, end, freq, {}, interval > 1 ? interval : 1, presetId, presetDays,
+        { includePast: nextMakeUp, makeUpMissedDates: nextMakeUp, remainingOccurrences: futurePresetDates.length },
+      );
+      return;
     }
+
+    // specific_dates (including the "Specific Dates" template, whose list is empty)
+    const dates = nextMakeUp ? [...missedDates, ...futurePresetDates] : futurePresetDates;
+    setScheduleType("specific_dates");
+    setSelectedDates(dates);
+    setDateAmounts({});
+    notify(
+      "specific_dates", dates, rangeStart, rangeEnd, rangeFreq, {}, customInterval, presetId, undefined,
+      { includePast: nextMakeUp, makeUpMissedDates: nextMakeUp, remainingOccurrences: futurePresetDates.length },
+    );
   };
 
   // Pre-select the admin-configured default preset once, unless the donor already has a
@@ -276,6 +300,16 @@ const RecurringSchedule = ({
     ? activeApiPreset.scheduleConfig.intervalValue
     : null;
 
+  // Make-up offer: only for a real preset that allows it and has already-passed dates.
+  const presetMissedDates = activeApiPreset && !isTemplateActive
+    ? fullPresetDates(activeApiPreset).filter((d) => d < todayKey)
+    : [];
+  const showMakeUp = Boolean(activeApiPreset?.allowMissedMakeUp) && presetMissedDates.length > 0;
+  const makeUpAmount = presetMissedDates.length * (Number(effectiveAmount) || 0);
+  const scheduledDateCount = makeUpMissedDates
+    ? (scheduleType === "date_range" ? generatedDates.length : selectedDates.length)
+    : presetDateCount;
+
   return (
     <div className="flex flex-col gap-4">
 
@@ -302,12 +336,34 @@ const RecurringSchedule = ({
         </div>
       )}
 
+      {/* Make up for missed dates — only when the active preset allows it and has passed dates */}
+      {showMakeUp && (
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E5E5E5] bg-white px-4 py-3">
+          <input
+            type="checkbox"
+            checked={makeUpMissedDates}
+            onChange={(e) => handlePreset(activePreset, e.target.checked)}
+            className="mt-0.5 h-4 w-4 cursor-pointer"
+            style={{ accentColor: "#EA3335" }}
+          />
+          <span className="text-[12px] text-[#383838]">
+            <span className="font-medium">Make up for {presetMissedDates.length} missed date{presetMissedDates.length !== 1 ? "s" : ""}</span>
+            {makeUpAmount > 0 ? (
+              <span className="text-[#EA3335] font-medium"> (+{sym}{makeUpAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })})</span>
+            ) : null}
+            <span className="mt-0.5 block text-[11px] text-[#737373]">
+              You&apos;ll pay for the dates that already passed, in addition to the remaining ones.
+            </span>
+          </span>
+        </label>
+      )}
+
       {/* Summary banner — only for fixed presets (not template, not custom) */}
-      {!showFullControls && (presetDateCount > 0 || pastPresetCount > 0) && (
+      {!showFullControls && (scheduledDateCount > 0 || (!makeUpMissedDates && pastPresetCount > 0)) && (
         <div className="flex items-center justify-between bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-2.5">
           <span className="text-[12px] text-[#EA3335] font-medium flex items-center gap-1.5">
-            {presetDateCount} date{presetDateCount !== 1 ? "s" : ""} selected from preset
-            {pastPresetCount > 0 && (
+            {scheduledDateCount} date{scheduledDateCount !== 1 ? "s" : ""} selected from preset
+            {!makeUpMissedDates && pastPresetCount > 0 && (
               <span className="text-[11px] text-[#AEAEAE] font-normal">
                 ({pastPresetCount} past, disabled)
               </span>

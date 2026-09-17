@@ -49,6 +49,7 @@ function RowChips({ row }) {
   if (row?.displayState === "skipped") chips.push(<StatusChip key="skipped" tone="gray">Skipped</StatusChip>);
   else if (row?.scheduled) chips.push(<StatusChip key="scheduled" tone="blue">Scheduled</StatusChip>);
 
+  if (row?.isMakeUp) chips.push(<StatusChip key="makeup" tone="amber">Make-up</StatusChip>);
   if (row?.missed) chips.push(<StatusChip key="missed" tone="amber">Missed</StatusChip>);
 
   if (row?.retried) {

@@ -450,6 +450,9 @@ const Step3Addons = () => {
           : {}),
         scheduleType,
         scheduleConfig: buildApiScheduleConfig(scheduleType, scheduleConfig),
+        ...(data.makeUpMissedDates && data.schedulePreset && data.schedulePreset !== "custom"
+          ? { makeUpMissedDates: true, presetId: String(data.schedulePreset) }
+          : {}),
       };
     } else {
       body.payment = {
