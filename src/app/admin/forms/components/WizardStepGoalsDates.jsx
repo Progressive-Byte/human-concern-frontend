@@ -119,16 +119,32 @@ function normalizeSuggestedAmountsState(value) {
   return [];
 }
 
+// Keeps at most ONE default but, unlike suggested amounts, never invents one when none is
+// set — a form with no default deliberately leaves the donor on "Custom".
+function enforceSingleDefaultPreset(items) {
+  const list = Array.isArray(items) ? items : [];
+  let found = false;
+  return list.map((p) => {
+    if (p?.isDefault && !found) {
+      found = true;
+      return p;
+    }
+    return p?.isDefault ? { ...p, isDefault: false } : p;
+  });
+}
+
 function normalizeRecurringPresetsState(value) {
   if (!Array.isArray(value)) return [];
-  return value.map((p) => ({
+  const list = value.map((p) => ({
     id: p?.id,
     name: String(p?.name ?? ""),
     enabled: p?.enabled === undefined ? true : Boolean(p.enabled),
     sortOrder: p?.sortOrder === null || p?.sortOrder === undefined ? "" : String(p.sortOrder),
+    isDefault: Boolean(p?.isDefault),
     scheduleType: String(p?.scheduleType || "date_range"),
     scheduleConfig: p?.scheduleConfig && typeof p.scheduleConfig === "object" ? p.scheduleConfig : {},
   }));
+  return enforceSingleDefaultPreset(list);
 }
 
 function normalizeCustomNotesState(value) {
@@ -587,6 +603,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           ...(preset.id ? { id: preset.id } : {}),
           name,
           enabled,
+          isDefault: Boolean(preset.isDefault),
           sortOrder: Number.isFinite(sortOrderNum) ? sortOrderNum : (idx + 1) * 10,
           scheduleType,
           scheduleConfig: cfgOut,

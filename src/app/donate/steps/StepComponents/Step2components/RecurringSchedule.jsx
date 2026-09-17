@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import countOccurrences, { generateDatesInRange } from "../countOccurrences";
 import { buildConfig, resolveFreq } from "./scheduleUtils";
 import { earliestAllowedDateStr } from "@/utils/scheduleDateLimits";
@@ -30,6 +30,7 @@ const RecurringSchedule = ({
   initialScheduleType,
   initialConfig,
   initialActivePreset,
+  defaultPresetId = null,
   apiPresets = [],
   causeSplit,
   causeLabelById,
@@ -155,6 +156,17 @@ const RecurringSchedule = ({
       }
     }
   };
+
+  // Pre-select the admin-configured default preset once, unless the donor already has a
+  // selection to restore (a stored choice, including "custom", always wins). Reusing
+  // handlePreset means the default goes through the exact same mapping as a click.
+  useEffect(() => {
+    if (initialActivePreset) return;
+    if (!defaultPresetId) return;
+    if (!apiPresets.some((p) => p.id === defaultPresetId)) return;
+    handlePreset(defaultPresetId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleDate = (dateStr) => {
     const isSelected  = selectedDates.includes(dateStr);

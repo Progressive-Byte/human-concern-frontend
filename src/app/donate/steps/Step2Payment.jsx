@@ -60,6 +60,9 @@ const Step2Payment = () => {
     }
   }, [isPreview]);
 
+  // recurringPresets already excludes disabled ones, so a default on a disabled preset is ignored.
+  const defaultPresetId = recurringPresets.find((p) => p.isDefault === true)?.id ?? null;
+
   useEffect(() => {
     if (!allowRecurring && data.paymentType === "recurring") update({ paymentType: "one-time" });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -377,6 +380,7 @@ const Step2Payment = () => {
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}
+                defaultPresetId={defaultPresetId}
                 apiPresets={recurringPresets}
                 causeSplit={causeSplit}
                 causeLabelById={causeLabelById}

@@ -447,7 +447,7 @@ function SpecificDatesEditor({ value, onChange, disabled, errors, campaignStartD
   );
 }
 
-function PresetCard({ value, onChange, onRemove, disabled, errors, campaignStartDate, campaignEndDate }) {
+function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors, campaignStartDate, campaignEndDate }) {
   const v = value && typeof value === "object" ? value : {};
   const scheduleType = String(v.scheduleType || "date_range");
   const config = v.scheduleConfig && typeof v.scheduleConfig === "object" ? v.scheduleConfig : {};
@@ -499,6 +499,21 @@ function PresetCard({ value, onChange, onRemove, disabled, errors, campaignStart
                 <div className="mt-1 text-[12px] text-[#6B7280]">Show this preset to donors</div>
               </div>
               <Toggle enabled={Boolean(v.enabled)} onChange={disabled ? () => {} : (next) => setField({ enabled: Boolean(next) })} />
+            </div>
+            <div className="md:flex-1">
+              <div className="mb-2 text-[13px] font-semibold text-[#111827]">Default</div>
+              <label className="flex h-[42px] items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+                <input
+                  type="radio"
+                  name="recurringPresetDefault"
+                  checked={Boolean(v.isDefault)}
+                  onChange={() => onSetDefault?.()}
+                  disabled={disabled}
+                  className="h-4 w-4"
+                  style={{ accentColor: "var(--admin-accent-600, #111827)" }}
+                />
+                <span className={Boolean(v.isDefault) ? "font-semibold" : "text-[#6B7280]"}>Use as default</span>
+              </label>
             </div>
             <div className="md:flex-1">
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">Schedule Type</div>
@@ -569,8 +584,18 @@ const RecurringPresetsEditor = ({
     onChange?.(presets.map((p, i) => (i === idx ? { ...(p || {}), ...(patch || {}) } : p)));
   }
 
+  function setDefault(idx) {
+    onChange?.(presets.map((p, i) => ({ ...(p || {}), isDefault: i === idx })));
+  }
+
   function removePreset(idx) {
-    onChange?.(presets.filter((_, i) => i !== idx));
+    const next = presets.filter((_, i) => i !== idx);
+    // Keep exactly one default when presets remain — move it to the first row if the
+    // defaulted row was the one removed.
+    if (next.length && !next.some((p) => Boolean(p?.isDefault))) {
+      next[0] = { ...(next[0] || {}), isDefault: true };
+    }
+    onChange?.(next);
   }
 
   function addPreset() {
@@ -624,6 +649,7 @@ const RecurringPresetsEditor = ({
                 value={p}
                 onChange={(next) => setPreset(idx, next)}
                 onRemove={() => removePreset(idx)}
+                onSetDefault={() => setDefault(idx)}
                 disabled={disabled}
                 errors={errors?.[idx]}
                 campaignStartDate={campaignStartDate}
