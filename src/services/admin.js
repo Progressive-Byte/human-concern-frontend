@@ -493,6 +493,13 @@ export function cancelAdminSchedule(donationId) {
   return adminApiRequest(`/admin/schedules/${donationId}/cancel`, { method: "POST" });
 }
 
+export function retryAdminScheduleInstallment({ donationId, installmentId } = {}) {
+  return adminApiRequest(
+    `/admin/schedules/${donationId}/installments/${installmentId}/retry`,
+    { method: "POST" },
+  );
+}
+
 // -----------------------------
 // Fund Breakdown
 // -----------------------------

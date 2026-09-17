@@ -18,6 +18,7 @@ const ScheduleStatsCard = ({ stats, loading = false }) => {
   const totalContributed = formatCurrency(Number(s?.totalContributed ?? s?.totalAmount ?? 0), currency);
   const successRate = `${Number(s?.successRate ?? 0)}%`;
   const failedPayments = Number(s?.failedPayments ?? 0);
+  const missedPayments = Number(s?.missedPayments ?? 0);
   const avgAmount = formatCurrency(Number(s?.avgAmount ?? s?.averageAmount ?? 0), currency);
 
   return (
@@ -34,6 +35,7 @@ const ScheduleStatsCard = ({ stats, loading = false }) => {
         <StatBox label="Total Contributed" value={loading ? "—" : totalContributed} dark />
         <StatBox label="Success Rate" value={loading ? "—" : successRate} />
         <StatBox label="Failed Payments" value={loading ? "—" : String(failedPayments)} />
+        <StatBox label="Missed Payments" value={loading ? "—" : String(missedPayments)} />
         <StatBox label="Avg. Amount" value={loading ? "—" : avgAmount} />
       </div>
     </section>

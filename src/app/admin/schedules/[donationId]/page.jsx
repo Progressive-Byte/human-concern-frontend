@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
-import { cancelAdminSchedule, getAdminScheduleByDonationId } from "@/services/admin";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+import { cancelAdminSchedule, getAdminScheduleByDonationId, retryAdminScheduleInstallment } from "@/services/admin";
 import ScheduleDetailHeader from "./components/ScheduleDetailHeader";
 import ScheduleDonorCard from "./components/ScheduleDonorCard";
 import ScheduleDetailsCard from "./components/ScheduleDetailsCard";
@@ -30,6 +31,26 @@ function unwrapObject(res) {
   return res && typeof res === "object" ? res : null;
 }
 
+function useHasPermission(perm) {
+  try {
+    const ctx = useAdminAuth();
+    const admin = ctx?.admin;
+    if (!admin) return true;
+    const role = String(admin?.role || "").toLowerCase();
+    if (role === "super_admin" || role === "super-admin" || role === "admin" || role === "owner") return true;
+    const perms = Array.isArray(admin?.permissions) ? admin.permissions : [];
+    if (perms.length === 0) return true;
+    const required = String(perm || "").toLowerCase();
+    const prefix = required.split(".")[0];
+    return perms.some((x) => {
+      const p = String(x || "").toLowerCase();
+      return p === required || p === `${prefix}.*` || p === "*";
+    });
+  } catch {
+    return true;
+  }
+}
+
 const AdminScheduleDetailPage = () => {
   const toast = useToast();
   const router = useRouter();
@@ -42,6 +63,8 @@ const AdminScheduleDetailPage = () => {
   const [payload, setPayload] = useState(null);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [retryingId, setRetryingId] = useState("");
+  const canRetrySchedule = useHasPermission("schedules.write");
 
   function refresh() {
     setRefreshKey((v) => v + 1);
@@ -94,6 +117,21 @@ const AdminScheduleDetailPage = () => {
     }
   }
 
+  async function handleRetry(row) {
+    const installmentId = row?.transactionId;
+    if (!donationId || !installmentId) return;
+    setRetryingId(String(installmentId));
+    try {
+      await retryAdminScheduleInstallment({ donationId, installmentId });
+      toast.success("Retry queued");
+      refresh();
+    } catch (e) {
+      toast.error(e?.message || "Retry failed");
+    } finally {
+      setRetryingId("");
+    }
+  }
+
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between gap-3">
@@ -134,7 +172,13 @@ const AdminScheduleDetailPage = () => {
         </div>
       </div>
 
-      <SchedulePaymentHistoryTable paymentHistory={paymentHistory} loading={loading} />
+      <SchedulePaymentHistoryTable
+        paymentHistory={paymentHistory}
+        loading={loading}
+        canRetry={canRetrySchedule}
+        retryingId={retryingId}
+        onRetry={handleRetry}
+      />
     </main>
   );
 }
