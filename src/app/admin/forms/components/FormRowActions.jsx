@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import RowActionsPanel from "@/app/admin/components/RowActionsPanel";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
@@ -120,8 +121,11 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
         </svg>
       </button>
 
-      {open ? (
-        <div className="hc-animate-dropdown absolute right-0 top-[44px] z-20 w-[200px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-2 shadow-lg">
+      <RowActionsPanel
+        open={open}
+        anchorRef={wrapRef}
+        className="w-[200px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-2 shadow-lg"
+      >
           {menu.map((m) => (
             <button
               key={m.key}
@@ -157,8 +161,7 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
               <span>{m.label}</span>
             </button>
           ))}
-        </div>
-      ) : null}
+      </RowActionsPanel>
 
       <ConfirmDialog
         open={Boolean(confirmAction)}

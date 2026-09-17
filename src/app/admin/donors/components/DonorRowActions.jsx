@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import RowActionsPanel from "@/app/admin/components/RowActionsPanel";
 
 const DonorRowActions = ({ donor, onViewDetails, onEditProfile, onToggleStatus, onSendEmail }) => {
   const wrapRef = useRef(null);
@@ -32,8 +33,11 @@ const DonorRowActions = ({ donor, onViewDetails, onEditProfile, onToggleStatus, 
         </svg>
       </button>
 
-      {open ? (
-        <div className="hc-animate-dropdown absolute right-0 top-[44px] z-20 w-[200px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-2 shadow-lg">
+      <RowActionsPanel
+        open={open}
+        anchorRef={wrapRef}
+        className="w-[200px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-2 shadow-lg"
+      >
           <button
             type="button"
             onClick={() => {
@@ -74,8 +78,7 @@ const DonorRowActions = ({ donor, onViewDetails, onEditProfile, onToggleStatus, 
           >
             Send email
           </button>
-        </div>
-      ) : null}
+      </RowActionsPanel>
     </div>
   );
 }

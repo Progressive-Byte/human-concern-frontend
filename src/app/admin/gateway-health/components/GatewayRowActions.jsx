@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import RowActionsPanel from "@/app/admin/components/RowActionsPanel";
 
 function DotsIcon() {
   return (
@@ -123,8 +124,11 @@ const GatewayRowActions = ({ row, onViewDetail, onForceClose, onForceOpen, onCan
         </button>
       </div>
 
-      {open ? (
-        <div className="hc-animate-dropdown absolute right-0 top-10 z-20 w-56 overflow-hidden rounded-xl border border-dashed border-[#E5E7EB] bg-white shadow-lg">
+      <RowActionsPanel
+        open={open}
+        anchorRef={rootRef}
+        className="w-56 overflow-hidden rounded-xl border border-dashed border-[#E5E7EB] bg-white shadow-lg"
+      >
           <button
             type="button"
             onClick={() => {
@@ -173,8 +177,7 @@ const GatewayRowActions = ({ row, onViewDetail, onForceClose, onForceOpen, onCan
             <RocketIcon />
             Run Canary Probe
           </button>
-        </div>
-      ) : null}
+      </RowActionsPanel>
     </div>
   );
 };

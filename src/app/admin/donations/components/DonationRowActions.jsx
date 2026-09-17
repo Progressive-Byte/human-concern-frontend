@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import RowActionsPanel from "@/app/admin/components/RowActionsPanel";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { sendTransactionReceipt } from "@/services/admin";
 
@@ -106,8 +107,11 @@ const DonationRowActions = ({ donation, onViewBreakdown }) => {
         <DotsIcon />
       </button>
 
-      {open ? (
-        <div className="hc-animate-dropdown absolute right-0 top-10 z-20 w-48 overflow-hidden rounded-xl border border-dashed border-[#E5E7EB] bg-white shadow-lg">
+      <RowActionsPanel
+        open={open}
+        anchorRef={rootRef}
+        className="w-48 overflow-hidden rounded-xl border border-dashed border-[#E5E7EB] bg-white shadow-lg"
+      >
           <button
             type="button"
             onClick={handleViewBreakdown}
@@ -141,8 +145,7 @@ const DonationRowActions = ({ donation, onViewBreakdown }) => {
           >
             Copy Donor Email
           </button>
-        </div>
-      ) : null}
+      </RowActionsPanel>
     </div>
   );
 }
