@@ -73,6 +73,7 @@ const SchedulesPage = () => {
         totalDonated,
         statusKey,
         status: statusLabel,
+        canModifySchedule: s?.canModifySchedule !== false,
       };
     });
   }, [items]);
@@ -109,6 +110,7 @@ const SchedulesPage = () => {
                 isPaused={isPaused}
                 isCancelled={isCancelled}
                 isCompleted={isCompleted}
+                canModifySchedule={s.canModifySchedule}
                 onPauseResume={(newStatus) =>
                   setItems((prev) =>
                     prev.map((item) =>

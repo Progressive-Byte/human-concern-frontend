@@ -553,6 +553,8 @@ function PresetCard({ value, onChange, onRemove, disabled, errors, campaignStart
 const RecurringPresetsEditor = ({
   allowRecurringDonations,
   onChangeAllowRecurringDonations,
+  allowFlexibleRecurringSchedule = true,
+  onChangeAllowFlexibleRecurringSchedule,
   value = [],
   onChange,
   disabled,
@@ -595,6 +597,23 @@ const RecurringPresetsEditor = ({
         </div>
         <FieldError message={allowError} />
       </div>
+
+      {allowRecurringDonations ? (
+        <div className="mt-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="text-[13px] font-semibold text-[#111827]">Enable Flexible Recurring Schedule</div>
+              <div className="mt-1 text-[12px] text-[#6B7280]">
+                Let donors change, skip, or edit payments after the schedule is created.
+              </div>
+            </div>
+            <Toggle
+              enabled={Boolean(allowFlexibleRecurringSchedule)}
+              onChange={disabled ? () => {} : onChangeAllowFlexibleRecurringSchedule}
+            />
+          </div>
+        </div>
+      ) : null}
 
       {allowRecurringDonations ? (
         <div className="mt-4 space-y-3">

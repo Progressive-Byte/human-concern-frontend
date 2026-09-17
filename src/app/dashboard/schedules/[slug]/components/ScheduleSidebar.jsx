@@ -178,7 +178,7 @@ async function openScheduleEditSession(scheduleId, router) {
   router.push(slug ? `/${slug}/1` : "/donate/1");
 }
 
-export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, frequency, nextAmount, statusKey, scheduleId, onPauseResume, onCancel }) {
+export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, frequency, nextAmount, statusKey, scheduleId, onPauseResume, onCancel, canModifySchedule = true }) {
   const router = useRouter();
   const [editLoading, setEditLoading] = useState(false);
   const [activeModal, setActiveModal] = useState(null); // "pause" | "resume" | "cancel" | null
@@ -187,7 +187,7 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
 
   const isActive = String(statusKey || "").toLowerCase() === "active";
   const isPaused = String(statusKey || "").toLowerCase() === "paused";
-  const canEdit = isActive;
+  const canEdit = isActive && canModifySchedule !== false;
   const canPauseResume = isActive || isPaused;
   const canCancel = isActive || isPaused;
 

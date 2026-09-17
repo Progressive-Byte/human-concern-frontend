@@ -223,6 +223,7 @@ const ScheduleDetailPage = () => {
               onSaved={() => refreshRef.current?.()}
               scheduleStatusKey={String(schedule?.status?.key || "").trim().toLowerCase()}
               installmentBaseAmount={Number(schedule?.installmentBaseAmount ?? schedule?.installmentAmount ?? 0)}
+              canModifySchedule={schedule?.canModifySchedule !== false}
             />
             {schedule?.providerOutage?.down && schedule?.providerOutage?.alternateAvailable ? (
               <ProviderSwitchCard
@@ -243,6 +244,7 @@ const ScheduleDetailPage = () => {
             nextAmount={nextAmount}
             statusKey={String(schedule?.status?.key || "").trim().toLowerCase()}
             scheduleId={scheduleId}
+            canModifySchedule={schedule?.canModifySchedule !== false}
             onPauseResume={() => refreshRef.current?.()}
             onCancel={() => refreshRef.current?.()}
           />

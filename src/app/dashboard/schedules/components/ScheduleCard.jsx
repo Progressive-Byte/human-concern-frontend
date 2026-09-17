@@ -6,7 +6,7 @@ import { formatCurrency } from "@/utils/helpers";
 
 const frequencyLabel = { Weekly: "per week", Monthly: "per month", Daily: "per day" };
 
-const ScheduleCard = ({ s, isActive, isPaused, isCancelled, isCompleted, onPauseResume, onCancel }) => {
+const ScheduleCard = ({ s, isActive, isPaused, isCancelled, isCompleted, onPauseResume, onCancel, canModifySchedule = true }) => {
   return (
     <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-4 md:p-5 hover:border-red-500/30 hover:shadow-sm transition-all">
       <div className="flex items-start gap-3 md:gap-4">
@@ -44,6 +44,7 @@ const ScheduleCard = ({ s, isActive, isPaused, isCancelled, isCompleted, onPause
                 isCancelled={isCancelled}
                 isCompleted={isCompleted}
                 slug={s.slug}
+                canModifySchedule={canModifySchedule}
                 onPauseResume={onPauseResume}
                 onCancel={onCancel}
               />

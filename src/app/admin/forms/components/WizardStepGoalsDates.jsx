@@ -273,6 +273,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
   const [allowOneTimeDonations, setAllowOneTimeDonations] = useState(true);
   const [allowRecurringDonations, setAllowRecurringDonations] = useState(false);
+  const [allowFlexibleRecurringSchedule, setAllowFlexibleRecurringSchedule] = useState(true);
   const [recurringPresets, setRecurringPresets] = useState([]);
   const [enableTipping, setEnableTipping] = useState(false);
   const [allowAnonymousDonations, setAllowAnonymousDonations] = useState(false);
@@ -295,6 +296,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       recurringPresets,
       allowOneTimeDonations,
       allowRecurringDonations,
+      allowFlexibleRecurringSchedule,
       enableTipping,
       allowAnonymousDonations,
       showGlobalNote,
@@ -337,6 +339,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
         setAllowOneTimeDonations(d?.allowOneTimeDonations === undefined ? true : Boolean(d?.allowOneTimeDonations));
         setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
+        setAllowFlexibleRecurringSchedule(d?.allowFlexibleRecurringSchedule === undefined ? true : Boolean(d?.allowFlexibleRecurringSchedule));
         setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
         setEnableTipping(Boolean(d?.enableTipping));
         setAllowAnonymousDonations(Boolean(d?.allowAnonymousDonations));
@@ -696,6 +699,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       suggestedAmounts: oneTimeEnabled ? normalizedSuggested : undefined,
       customNotes: normalizedNotes,
       allowRecurringDonations: Boolean(recurringEnabled),
+      allowFlexibleRecurringSchedule: Boolean(allowFlexibleRecurringSchedule),
       recurringPresets: recurringEnabled ? normalizedPresets : undefined,
       enableTipping: Boolean(enableTipping),
       allowAnonymousDonations: Boolean(allowAnonymousDonations),
@@ -762,6 +766,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         setCustomNotes(normalizeCustomNotesState(d?.customNotes));
         setAllowOneTimeDonations(d?.allowOneTimeDonations === undefined ? true : Boolean(d?.allowOneTimeDonations));
         setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
+        setAllowFlexibleRecurringSchedule(d?.allowFlexibleRecurringSchedule === undefined ? true : Boolean(d?.allowFlexibleRecurringSchedule));
         setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
         setPaymentMethods(filterPaymentMethodsToOptions(d?.paymentMethods, paymentMethodOptions));
       } catch {}
@@ -1030,6 +1035,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       <RecurringPresetsEditor
         allowRecurringDonations={allowRecurringDonations}
         onChangeAllowRecurringDonations={setAllowRecurringDonations}
+        allowFlexibleRecurringSchedule={allowFlexibleRecurringSchedule}
+        onChangeAllowFlexibleRecurringSchedule={setAllowFlexibleRecurringSchedule}
         value={recurringPresets}
         onChange={setRecurringPresets}
         disabled={disabled}

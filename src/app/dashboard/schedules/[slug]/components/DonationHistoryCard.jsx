@@ -42,7 +42,7 @@ const HEADERS = ["Date", "Amount", "Cause", "Status", "Receipt"];
 const EDITABLE_ROW_STATUSES = new Set(["pending", "failed"]);
 const EDITABLE_SCHEDULE_STATUSES = new Set(["active", "paused"]);
 
-function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatusKey, installmentBaseAmount, skipEligible, onRequestSkip }) {
+function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatusKey, installmentBaseAmount, skipEligible, onRequestSkip, canModifySchedule = true }) {
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -59,9 +59,11 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
   const isSkipped = Boolean(row?.skipped) || String(row?.planState || "").toLowerCase() === "skipped_by_donor";
   const receiptAvailable = rowStatusKey === "succeeded" && !isSkipped;
 
-  // Mirrors the API rule so we never offer an edit that would be rejected.
+  // Mirrors the API rule so we never offer an edit that would be rejected. The form-level
+  // "flexible recurring schedule" setting also locks the whole plan for the donor.
   const dueAt = row?.date ? new Date(row.date).getTime() : NaN;
-  const canEdit = !isSkipped
+  const canEdit = canModifySchedule !== false
+    && !isSkipped
     && Boolean(transactionId)
     && EDITABLE_SCHEDULE_STATUSES.has(String(scheduleStatusKey || "").toLowerCase())
     && EDITABLE_ROW_STATUSES.has(rowStatusKey)
@@ -263,6 +265,7 @@ export function DonationHistoryCard({
   onSaved,
   scheduleStatusKey,
   installmentBaseAmount,
+  canModifySchedule = true,
 }) {
   const [pendingSkip, setPendingSkip] = useState(null);
   const [skipping, setSkipping] = useState(false);
@@ -327,6 +330,7 @@ export function DonationHistoryCard({
                   installmentBaseAmount={installmentBaseAmount}
                   skipEligible={skipEligible}
                   onRequestSkip={setPendingSkip}
+                  canModifySchedule={canModifySchedule}
                 />
               ))
             ) : (
