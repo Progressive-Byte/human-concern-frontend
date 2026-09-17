@@ -377,7 +377,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
       onSaved?.();
 
       if (goNext) {
-        onExit?.({ nextStep: "review" });
+        onExit?.({ nextStep: "unavailable-page" });
       }
       return { ok: true };
     } catch (e) {

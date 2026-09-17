@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/services/api";
 import { buildCampaignData } from "@/utils/campaignData";
+import UnavailablePage from "@/components/campaign/UnavailablePage";
 
 function isScheduleEditMode() {
   try {
@@ -20,6 +21,8 @@ function isScheduleEditMode() {
 // `hc_schedule_edit` — both are left untouched.
 const CampaignConfigLoader = ({ campaignSlug, children }) => {
   const [ready, setReady] = useState(false);
+  // null = servable (or transient error). {} / config = render the unavailable page.
+  const [unavailable, setUnavailable] = useState(null);
 
   useEffect(() => {
     // Schedule-edit sessions reach the wizard through this same route, but their
@@ -48,8 +51,15 @@ const CampaignConfigLoader = ({ campaignSlug, children }) => {
           sessionStorage.setItem("campaignData", JSON.stringify(buildCampaignData(campaign, globalNote)));
         }
       } catch (e) {
-        // Never block a donation: fall through and render with the existing config.
-        console.error("[CampaignConfigLoader] refresh failed:", e);
+        // A form that exists but is not published (or an unknown slug) shows the configured
+        // unavailable page. Any other failure is transient and must never block a donation.
+        if (e?.code === "FORM_UNAVAILABLE") {
+          setUnavailable(e?.body?.error?.details?.unavailablePage ?? {});
+        } else if (e?.code === "FORM_NOT_FOUND") {
+          setUnavailable({});
+        } else {
+          console.error("[CampaignConfigLoader] refresh failed:", e);
+        }
       } finally {
         if (alive) setReady(true);
       }
@@ -67,6 +77,10 @@ const CampaignConfigLoader = ({ campaignSlug, children }) => {
         Loading…
       </div>
     );
+  }
+
+  if (unavailable !== null) {
+    return <UnavailablePage config={unavailable} />;
   }
 
   return children;

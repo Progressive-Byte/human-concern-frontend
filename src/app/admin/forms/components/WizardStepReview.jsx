@@ -341,6 +341,18 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
                 <div className="text-[12px] text-[#6B7280]">No add-ons selected.</div>
               )}
             </SummaryCard>
+
+            <SummaryCard
+              label="Unavailable page"
+              onEdit={() => onExit?.({ nextStep: "unavailable-page" })}
+            >
+              <div className="text-[14px] font-semibold text-[#111827]">
+                {String(form?.unavailablePage?.title || "").trim() || "Default page"}
+              </div>
+              <div className="mt-1 text-[12px] text-[#6B7280]">
+                Shown on the public page while this form is not published.
+              </div>
+            </SummaryCard>
           </div>
         )}
       </section>
@@ -356,7 +368,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
           <div className="flex flex-wrap items-center justify-between gap-3">
             <button
               type="button"
-              onClick={() => onExit?.({ nextStep: "media" })}
+              onClick={() => onExit?.({ nextStep: "unavailable-page" })}
               disabled={publishing || drafting}
               className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
             >

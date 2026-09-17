@@ -797,6 +797,14 @@ export function updateAdminFormMedia(formId, body) {
   return adminApiRequest(`/admin/forms/${formId}/media`, { method: "PATCH", body });
 }
 
+export function getAdminFormUnavailablePage(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/unavailable-page`, { method: "GET" });
+}
+
+export function updateAdminFormUnavailablePage(formId, payload) {
+  return adminApiRequest(`/admin/forms/${formId}/unavailable-page`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
 export function getAdminFormReview(formId, options = {}) {
   return adminApiRequest(`/admin/forms/${formId}/review`, { method: "GET", ...(options || {}) });
 }

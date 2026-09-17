@@ -10,6 +10,7 @@ import WizardStepCauses from "../components/WizardStepCauses";
 import WizardStepObjectives from "../components/WizardStepObjectives";
 import WizardStepAddons from "../components/WizardStepAddons";
 import WizardStepMedia from "../components/WizardStepMedia";
+import WizardStepUnavailable from "../components/WizardStepUnavailable";
 import WizardStepReview from "../components/WizardStepReview";
 import WizardStepPlaceholder from "../components/WizardStepPlaceholder";
 import { getAdminCategories, getAdminFormBasics, getAdminFormById } from "@/services/admin";
@@ -178,6 +179,7 @@ const WizardContent = () => {
       { key: "objectives", label: "Objectives" },
       { key: "addons", label: "Add-ons" },
       { key: "media", label: "Media" },
+      { key: "unavailable-page", label: "Unavailable page" },
       { key: "review", label: "Review" },
     ];
     if (isRamadanForm === false) return base.filter((s) => s.key !== "objectives");
@@ -193,11 +195,13 @@ const WizardContent = () => {
     if (Boolean(s?.causes)) done.add("causes");
     if (Boolean(s?.addons)) done.add("addons");
     if (Boolean(s?.media)) done.add("media");
+    if (Boolean(s?.unavailablePage)) done.add("unavailable-page");
     if (isRamadanForm !== false && Boolean(s?.objectives)) done.add("objectives");
 
+    // "Unavailable page" is optional, so it must never gate the Review step.
     const required = steps
       .map((x) => x.key)
-      .filter((k) => k !== "review");
+      .filter((k) => k !== "review" && k !== "unavailable-page");
     const reviewReady = required.length > 0 && required.every((k) => done.has(k));
     if (reviewReady) done.add("review");
 
@@ -312,6 +316,19 @@ const WizardContent = () => {
         />
       ) : step === "media" ? (
         <WizardStepMedia
+          campaignId={campaignId}
+          formId={initialFormId}
+          onSaved={() => refreshFormMeta(initialFormId)}
+          onExit={({ nextStep } = {}) => {
+            if (nextStep) {
+              navigateToStep(nextStep, initialFormId);
+              return;
+            }
+            exitToForms();
+          }}
+        />
+      ) : step === "unavailable-page" ? (
+        <WizardStepUnavailable
           campaignId={campaignId}
           formId={initialFormId}
           onSaved={() => refreshFormMeta(initialFormId)}

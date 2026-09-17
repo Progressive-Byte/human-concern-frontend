@@ -5,6 +5,7 @@ import { siteUrl, serverApiBase } from "@/utils/constants";
 import CampaignTabs from "./components/CampaignTabs";
 import DonationWidget from "./components/DonationWidget";
 import CampaignGallery from "./components/CampaignGallery";
+import UnavailablePage from "@/components/campaign/UnavailablePage";
 
 function resolveImageUrl(path) {
   if (!path) return null;
@@ -22,6 +23,9 @@ export default async function CampaignPage({ params }) {
   const { slug } = await params;
 
   let campaign = null;
+  // null = form is servable (or a transient error): fall through to the normal page / 404.
+  // {} = form is not published, or the slug is unknown: render the unavailable page.
+  let unavailable = null;
 
   try {
     const url = `${serverApiBase}campaigns/${slug}`;
@@ -31,12 +35,24 @@ export default async function CampaignPage({ params }) {
       headers: { Accept: "application/json" },
     });
 
+    const json = await res.json().catch(() => null);
+
     if (res.ok) {
-      const json = await res.json();
-      campaign   = json?.data ?? null;
+      campaign = json?.data ?? null;
+    } else {
+      const code = json?.error?.code;
+      if (code === "FORM_UNAVAILABLE") {
+        unavailable = json?.error?.details?.unavailablePage ?? {};
+      } else if (code === "FORM_NOT_FOUND") {
+        unavailable = {};
+      }
     }
   } catch (error) {
     console.error("[CampaignPage] fetch error:", error);
+  }
+
+  if (unavailable !== null) {
+    return <UnavailablePage config={unavailable} />;
   }
 
   if (!campaign) return notFound();
