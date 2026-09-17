@@ -210,6 +210,16 @@ function Icon({ name }) {
     );
   }
 
+  if (name === "translation") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M3 6h9M7.5 4v2c0 4-2 7-4.5 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M5 11c1.8 2.2 3.9 3.7 6 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12.5 20l3.5-9 3.5 9M14 17h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
   if (name === "gateway-health") {
     return (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
@@ -276,6 +286,7 @@ const navItems = [
   { href: null, label: "Reconciliation", icon: "reconciliation", disabled: true },
   { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
   { href: "/admin/logs", label: "Logs", icon: "logs" },
+  { href: "/admin/translation", label: "Translation", icon: "translation", permission: "settings.read" },
   { href: "/admin/adminSettings", label: "Settings", icon: "settings" },
 ];
 

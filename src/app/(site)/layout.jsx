@@ -1,7 +1,9 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import TopNoticeBar from "@/components/layout/Topnoticebar";
+import SiteShell from "@/components/layout/SiteShell";
 import { BrandingProvider } from "@/context/BrandingContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 import { HomepageContentProvider } from "@/context/HomepageContentContext";
 
 export const metadata = {
@@ -13,14 +15,18 @@ export const metadata = {
 const SiteLayout = ({ children }) => {
   return (
     <BrandingProvider>
-      <HomepageContentProvider>
-        <div className="fixed top-0 left-0 right-0 z-50 flex flex-col">
-          <TopNoticeBar />
-          <Navbar />
-        </div>
-        {children}
-        <Footer />
-      </HomepageContentProvider>
+      <LanguageProvider>
+        <HomepageContentProvider>
+          <SiteShell>
+            <div className="fixed top-0 left-0 right-0 z-50 flex flex-col">
+              <TopNoticeBar />
+              <Navbar />
+            </div>
+            {children}
+            <Footer />
+          </SiteShell>
+        </HomepageContentProvider>
+      </LanguageProvider>
     </BrandingProvider>
   );
 }

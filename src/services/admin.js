@@ -600,6 +600,20 @@ export function uploadAdminHomepageMedia(file) {
   return adminApiRequest("/admin/settings/homepage/media", { method: "POST", body });
 }
 
+export function getAdminTranslationSettings() {
+  return adminApiRequest("/admin/settings/translation", { method: "GET" });
+}
+
+export function updateAdminTranslationSettings(payload) {
+  return adminApiRequest("/admin/settings/translation", { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function translateAdminTranslation({ locale, keys } = {}) {
+  const body = { locale };
+  if (Array.isArray(keys) && keys.length) body.keys = keys;
+  return adminApiRequest("/admin/settings/translation/translate", { method: "POST", body: JSON.stringify(body) });
+}
+
 export function getAdminSettingsPayment() {
   return adminApiRequest("/admin/settings/payment", { method: "GET" });
 }

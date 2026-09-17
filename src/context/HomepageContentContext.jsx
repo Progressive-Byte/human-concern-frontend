@@ -1,18 +1,19 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { apiRequest } from "@/services/api";
-import { HOMEPAGE_DEFAULTS, resolveHomepageContent } from "@/utils/homepageDefaults";
+import { HOMEPAGE_DEFAULTS, resolveHomepageContent, applyHomepageTranslations } from "@/utils/homepageDefaults";
+import { useLanguage } from "@/context/LanguageContext";
 
 const HomepageContentContext = createContext(HOMEPAGE_DEFAULTS);
 
 /**
- * Loads the landing-page CMS content once and makes it available to the header, homepage sections
- * and footer. Fails safe: any error (or an empty response) leaves the built-in defaults in place, so
- * the page renders exactly as it did before the CMS existed.
+ * Loads the landing-page CMS content once, then overlays the visitor's language translations on top
+ * of it. Fails safe: any error (or an empty response) leaves the built-in defaults in place.
  */
 export function HomepageContentProvider({ children }) {
-  const [content, setContent] = useState(HOMEPAGE_DEFAULTS);
+  const { strings } = useLanguage();
+  const [raw, setRaw] = useState(HOMEPAGE_DEFAULTS);
 
   useEffect(() => {
     let alive = true;
@@ -21,7 +22,7 @@ export function HomepageContentProvider({ children }) {
         const res = await apiRequest("settings/homepage", { cache: "no-store" });
         const data = res?.data?.homepage ?? res?.data ?? null;
         if (!alive || !data || typeof data !== "object") return;
-        setContent(resolveHomepageContent(data));
+        setRaw(resolveHomepageContent(data));
       } catch (e) {
         // Keep the defaults — never let a content fetch break the page.
         console.error("[HomepageContent] load failed:", e);
@@ -31,6 +32,9 @@ export function HomepageContentProvider({ children }) {
       alive = false;
     };
   }, []);
+
+  // CMS copy is the English source; `strings` only contains the active (non-default) locale.
+  const content = useMemo(() => applyHomepageTranslations(raw, strings), [raw, strings]);
 
   return (
     <HomepageContentContext.Provider value={content}>{children}</HomepageContentContext.Provider>

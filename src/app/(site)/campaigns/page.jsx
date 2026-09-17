@@ -6,14 +6,8 @@ import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import Pagination from "@/components/common/Pagination";
 import { FilterIcon, SearchIcon } from "@/components/common/SvgIcon";
+import { useLanguage } from "@/context/LanguageContext";
 import { apiBase } from "@/utils/constants";
-
-const SORT_OPTIONS = [
-  { label: "Newest", value: "new_first" },
-  { label: "Oldest", value: "old_first" },
-  { label: "A → Z",  value: "a_to_z"   },
-  { label: "Z → A",  value: "z_to_a"   },
-];
 
 const ALL_OPTION          = { label: "All", value: "" };
 const PAGE_SIZE           = 10;
@@ -59,6 +53,17 @@ const CampaignsPageInner = () => {
   const router       = useRouter();
   const pathname     = usePathname();
   const searchParams = useSearchParams();
+  const { t }        = useLanguage();
+
+  const sortOptions = useMemo(
+    () => [
+      { label: t("campaigns.sort.newest", "Newest"), value: "new_first" },
+      { label: t("campaigns.sort.oldest", "Oldest"), value: "old_first" },
+      { label: t("campaigns.sort.aToZ", "A → Z"), value: "a_to_z" },
+      { label: t("campaigns.sort.zToA", "Z → A"), value: "z_to_a" },
+    ],
+    [t],
+  );
 
   const urlSearch   = searchParams.get("q")        ?? "";
   const urlCategory = searchParams.get("category") ?? "";
@@ -262,10 +267,10 @@ const CampaignsPageInner = () => {
         </div>
         <div className="max-w-[1611px] mx-auto pt-[140px] pb-[92px] px-4 sm:px-6">
           <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white mb-1">
-            All Campaigns
+            {t("campaigns.title", "All Campaigns")}
           </h1>
           <p className="text-[13px] sm:text-sm text-white mb-6">
-            Browse active campaigns and find causes you want to support
+            {t("campaigns.subtitle", "Browse active campaigns and find causes you want to support")}
           </p>
 
           {/* Search + Filters + Sort */}
@@ -280,7 +285,7 @@ const CampaignsPageInner = () => {
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search campaigns..."
+                placeholder={t("campaigns.searchPlaceholder", "Search campaigns...")}
                 className="w-full bg-[#FFFFFF40] rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/80 outline-none focus:ring-1 focus:ring-white/30 transition-all hover:bg-[#FFFFFF4D] focus:shadow-[0_18px_40px_rgba(0,0,0,0.14)]"
               />
             </div>
@@ -290,7 +295,7 @@ const CampaignsPageInner = () => {
                 options={categories}
                 value={activeCategory}
                 onChange={handleCategoryChange}
-                label="CAMPAIGN CATEGORY"
+                label={t("campaigns.categoryLabel", "CAMPAIGN CATEGORY")}
                 icon={FilterIcon}
                 showDot={!!activeCategory}
                 maxHeight="260px"
@@ -304,7 +309,7 @@ const CampaignsPageInner = () => {
                 options={causes}
                 value={activeCause}
                 onChange={handleCauseChange}
-                label="CAMPAIGN CAUSES"
+                label={t("campaigns.causesLabel", "CAMPAIGN CAUSES")}
                 icon={FilterIcon}
                 showDot={!!activeCause}
                 maxHeight="260px"
@@ -316,10 +321,10 @@ const CampaignsPageInner = () => {
             {/* Sort */}
             <div className="w-full md:w-auto">
               <CustomDropdown
-                options={SORT_OPTIONS}
+                options={sortOptions}
                 value={sortBy}
                 onChange={handleSortChange}
-                label="SORT BY"
+                label={t("campaigns.sortLabel", "SORT BY")}
                 maxHeight="180px"
                 width="w-full md:w-52"
                 className="hc-campaigns-filter"
@@ -335,9 +340,7 @@ const CampaignsPageInner = () => {
         {/* Result count bar */}
         <div className="flex flex-wrap gap-2 items-start md:items-center justify-between mb-6">
           <p className="text-[13px] text-[#737373]">
-            Viewing{" "}
-            <span className="font-semibold text-[#383838]">{totalItems}</span>{" "}
-            campaign{totalItems !== 1 ? "s" : ""}
+            {t("campaigns.viewing", "Viewing {count} campaigns").replace("{count}", String(totalItems))}
             {activeCategoryLabel && activeCategoryLabel !== "All" && (
               <> in <span className="font-semibold text-[#EA3335]">{activeCategoryLabel}</span></>
             )}
@@ -378,15 +381,15 @@ const CampaignsPageInner = () => {
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <span className="text-5xl mb-4">🔍</span>
-            <h3 className="text-lg font-semibold text-[#383838] mb-2">No campaigns found</h3>
+            <h3 className="text-lg font-semibold text-[#383838] mb-2">{t("campaigns.empty", "No campaigns found")}</h3>
             <p className="text-sm text-[#737373] max-w-xs">
-              Try adjusting your search or filters to find what you&apos;re looking for.
+              {t("campaigns.emptyHint", "Try adjusting your search or filters to find what you're looking for.")}
             </p>
             <button
               onClick={handleClearAll}
               className="mt-5 px-5 py-2.5 bg-[#EA3335] text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors cursor-pointer"
             >
-              Clear All
+              {t("campaigns.clearFilters", "Clear All")}
             </button>
           </div>
         )}

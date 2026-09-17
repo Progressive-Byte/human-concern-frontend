@@ -6,11 +6,13 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useBranding } from "@/context/BrandingContext";
 import { useHomepageContent } from "@/context/HomepageContentContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { siteUrl } from "@/utils/constants";
 import { UserIcon } from "../common/SvgIcon";
 
 const Navbar = () => {
   const content = useHomepageContent();
+  const { languages, locale, setLanguage, t } = useLanguage();
   const { logoPath } = useBranding();
   const logoSrc = logoPath
     ? (logoPath.startsWith("http") ? logoPath : `${siteUrl}${logoPath}`)
@@ -64,6 +66,22 @@ const Navbar = () => {
             ))}
           </div>
 
+          {/* Language switcher */}
+          {languages.length > 1 ? (
+            <select
+              value={locale}
+              onChange={(e) => setLanguage(e.target.value)}
+              aria-label={t("nav.language", "Language")}
+              className="hidden md:block cursor-pointer rounded-full border border-gray-200 bg-white/70 px-3 py-1.5 text-sm text-gray-700 outline-none"
+            >
+              {languages.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.name || l.code.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          ) : null}
+
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center">
             {/* Skeleton while loading */}
@@ -74,7 +92,7 @@ const Navbar = () => {
               <div className="relative group">
                 <button className="flex items-center gap-2 pl-2 pr-4 py-1.5 text-sm font-semibold text-white bg-[#383838] hover:bg-gray-700 rounded-full transition-all duration-200 cursor-pointer">
                   {UserIcon}
-                  Hello, {displayName.split(" ")[0]} !
+                  {t("nav.hello", "Hello, {name} !").replace("{name}", displayName.split(" ")[0])}
                 </button>
 
                 {/* Hover dropdown */}
@@ -84,14 +102,14 @@ const Navbar = () => {
                       href="/dashboard"
                       className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 no-underline transition-colors"
                     >
-                      Dashboard
+                      {t("nav.dashboard", "Dashboard")}
                     </Link>
                     <div className="border-t border-gray-100 mt-1 pt-1">
                       <button
                         onClick={logout}
                         className="w-full text-left px-4 py-2.5 text-sm font-semibold text-[#EA3335] hover:bg-red-50 transition-colors cursor-pointer"
                       >
-                        Log out
+                        {t("nav.logOut", "Log out")}
                       </button>
                     </div>
                   </div>
@@ -103,7 +121,7 @@ const Navbar = () => {
                 href="/user/login"
                 className="px-6 py-2 text-lg font-normal text-white bg-[#383838] hover:bg-gray-700 rounded-full transition-all duration-200 no-underline"
               >
-                Sign In
+                {t("nav.signIn", "Sign In")}
               </Link>
             )}
           </div>
@@ -140,6 +158,21 @@ const Navbar = () => {
               </Link>
             ))}
 
+            {languages.length > 1 ? (
+              <select
+                value={locale}
+                onChange={(e) => setLanguage(e.target.value)}
+                aria-label={t("nav.language", "Language")}
+                className="mt-2 w-full cursor-pointer rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none"
+              >
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.name || l.code.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            ) : null}
+
             <div className="flex gap-2 mt-2 pt-3 border-t border-gray-100">
               {!showAuth ? (
                 <div className="flex-1 h-10 rounded-full bg-gray-200 animate-pulse" />
@@ -158,7 +191,7 @@ const Navbar = () => {
                     onClick={() => { logout(); setMenuOpen(false); }}
                     className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-[#EA3335] rounded-full hover:bg-red-700 transition-all cursor-pointer min-w-0 whitespace-nowrap"
                   >
-                    Log out
+                    {t("nav.logOut", "Log out")}
                   </button>
                 </>
               ) : (
@@ -167,7 +200,7 @@ const Navbar = () => {
                   onClick={() => setMenuOpen(false)}
                   className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-full hover:bg-gray-800 transition-all no-underline min-w-0 whitespace-nowrap"
                 >
-                  Sign In
+                  {t("nav.signIn", "Sign In")}
                 </Link>
               )}
 
@@ -176,7 +209,7 @@ const Navbar = () => {
                 onClick={() => setMenuOpen(false)}
                 className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-red-600 rounded-full hover:bg-red-700 transition-all no-underline min-w-0 whitespace-nowrap"
               >
-                Donate
+                {t("nav.donate", "Donate")}
               </Link>
             </div>
           </div>

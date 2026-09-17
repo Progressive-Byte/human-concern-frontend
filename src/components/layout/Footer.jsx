@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useBranding } from "@/context/BrandingContext";
 import { useHomepageContent } from "@/context/HomepageContentContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { siteUrl } from "@/utils/constants";
 import { EmailIcon, FacebookIcon, InstagramIcon, LinkedInIcon, LocationIcon, PhoneIcon, TaxIcon, WhatsAppIcon, XIcon, YoutubeIcon } from "../common/SvgIcon";
 
@@ -22,6 +23,7 @@ const Footer = () => {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const content = useHomepageContent();
+  const { t } = useLanguage();
   const { logoPath } = useBranding();
   const footer = content?.footer || {};
 
@@ -66,7 +68,7 @@ const Footer = () => {
             {/* Col 2 — Contact Us */}
             <div className="w-full md:w-1/2 lg:w-[35%]">
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#383838] mb-4 sm:mb-5">
-                Contact Us
+                {t("footer.contactUs", "Contact Us")}
               </h3>
               <ul className="flex flex-col gap-[6px] list-none p-0 m-0">
                 {contactItems.map(({ icon, text }, i) => (
@@ -88,11 +90,11 @@ const Footer = () => {
               ) : null}
               <input
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t("footer.emailPlaceholder", "Enter your email")}
                 className="w-full border border-[#DDDDDD] rounded-full px-4 py-3 text-sm sm:text-[13px] text-[#1A1A1A] placeholder:text-[#BBBBBB] outline-none focus:border-[#CC1F1F] transition-colors duration-200 mb-3"
               />
               <button className="w-full bg-[#383838] hover:bg-[#111111] text-white font-semibold text-sm sm:text-[16px] rounded-full px-4 py-3 sm:py-3.5 transition-colors duration-200 shadow-[0px_6px_18px_0px_#00000047,0px_18px_40px_0px_#00000073] cursor-pointer">
-                {footer.newsletter?.buttonLabel || "Subscribe"}
+                {footer.newsletter?.buttonLabel || t("footer.subscribe", "Subscribe")}
               </button>
               <div className="flex items-center justify-center sm:justify-start md:justify-center gap-[11px] mt-6 flex-wrap">
                 {socials.map(({ label, href }, i) => {
@@ -118,7 +120,9 @@ const Footer = () => {
           {/* Copyright */}
           <div className="py-6 text-center">
             <p className="text-[13px] text-[#999999] m-0">
-              Copyright © {year} {footer.copyrightName || "HC USA"}. All rights reserved.
+              {t("footer.copyright", "Copyright © {year} {name}. All rights reserved.")
+                .replace("{year}", String(year))
+                .replace("{name}", footer.copyrightName || "HC USA")}
             </p>
           </div>
         </div>

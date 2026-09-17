@@ -158,6 +158,29 @@ export function resolveHomepageContent(raw) {
 }
 
 /**
+ * Overlays translated CMS strings onto the resolved homepage content. Keys are the field paths
+ * (`homepage.sections.hero.title`); anything without a translation keeps the English source.
+ */
+export function applyHomepageTranslations(content, strings) {
+  const map = strings && typeof strings === "object" ? strings : {};
+  const walk = (node, path) => {
+    if (typeof node === "string") {
+      const key = `homepage.${path}`;
+      const value = map[key];
+      return typeof value === "string" && value.trim() ? value : node;
+    }
+    if (Array.isArray(node)) return node.map((item, i) => walk(item, `${path}.${i}`));
+    if (node && typeof node === "object") {
+      const out = {};
+      for (const [k, v] of Object.entries(node)) out[k] = walk(v, path ? `${path}.${k}` : k);
+      return out;
+    }
+    return node;
+  };
+  return walk(content, "");
+}
+
+/**
  * Resolves a stored image path (or a bundled default) to a browsable src.
  * Bundled `/images/...` files live on the frontend; uploaded `/uploads/...` files are served by
  * the API, so they get the `siteUrl` prefix.
