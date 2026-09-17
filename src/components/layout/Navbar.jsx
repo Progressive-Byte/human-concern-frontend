@@ -4,15 +4,18 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useBranding } from "@/context/BrandingContext";
+import { useHomepageContent } from "@/context/HomepageContentContext";
+import { siteUrl } from "@/utils/constants";
 import { UserIcon } from "../common/SvgIcon";
 
-const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Campaigns", href: "/campaigns" },
-  { label: "Track Your Donation", href: "/track-donation", guestOnly: true },
-];
-
 const Navbar = () => {
+  const content = useHomepageContent();
+  const { logoPath } = useBranding();
+  const logoSrc = logoPath
+    ? (logoPath.startsWith("http") ? logoPath : `${siteUrl}${logoPath}`)
+    : "/icons/hcu-icon.png";
+  const navLinks = Array.isArray(content?.header?.navLinks) ? content.header.navLinks : [];
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -26,7 +29,9 @@ const Navbar = () => {
   const showAuth = mounted && !loading;
   const displayName = user?.name || user?.firstName || "User";
   // "Track Your Donation" is for guests only.
-  const visibleNavLinks = navLinks.filter((link) => !link.guestOnly || !isAuthenticated);
+  const visibleNavLinks = navLinks.filter(
+    (link) => !(isAuthenticated && String(link?.href || "") === "/track-donation")
+  );
 
   return (
     <header
@@ -36,7 +41,7 @@ const Navbar = () => {
         <nav className="bg-white/85 backdrop-blur-md rounded-full px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-3 sm:gap-4 shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
           <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-2 no-underline">
             <img
-              src="/icons/hcu-icon.png"
+              src={logoSrc}
               alt="Human Concern Logo"
               className="w-[140px] h-[36px] sm:w-[170px] sm:h-[44px] md:w-[212px] md:h-[54px] object-contain"
             />

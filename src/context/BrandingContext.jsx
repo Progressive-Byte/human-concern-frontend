@@ -74,6 +74,7 @@ export function BrandingProvider({ children }) {
   const [brandingState, setBrandingState] = useState({
     primaryColor: DEFAULT_PRIMARY,
     accentColor: DEFAULT_ACCENT,
+    logoPath: "",
   });
 
   useEffect(() => {
@@ -90,10 +91,11 @@ export function BrandingProvider({ children }) {
         setBrandingState({
           primaryColor: normalizeHex(branding?.primaryColor, DEFAULT_PRIMARY),
           accentColor: normalizeHex(branding?.accentColor, DEFAULT_ACCENT),
+          logoPath: branding?.logo?.path ? String(branding.logo.path) : "",
         });
       } catch {
         if (!alive) return;
-        setBrandingState({ primaryColor: DEFAULT_PRIMARY, accentColor: DEFAULT_ACCENT });
+        setBrandingState({ primaryColor: DEFAULT_PRIMARY, accentColor: DEFAULT_ACCENT, logoPath: "" });
       }
     })();
 

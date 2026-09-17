@@ -1,35 +1,28 @@
+"use client";
+
 import {
   ActiveDonerIcon,
   AidDeleveryIcon,
   CountryReachIcon,
   ImpactIcon,
 } from "@/components/common/SvgIcon";
+import { useHomepageContent } from "@/context/HomepageContentContext";
 import React from "react";
 
-const stats = [
-  {
-    value: "$2.4M+",
-    label: "In Aids Delivered",
-    icon: AidDeleveryIcon,
-  },
-  {
-    value: "15K+",
-    label: "Active Donors",
-    icon: ActiveDonerIcon,
-  },
-  {
-    value: "48+",
-    label: "Countries Reached",
-    icon: CountryReachIcon,
-  },
-  {
-    value: "250K+",
-    label: "Lives Impacted",
-    icon: ImpactIcon,
-  },
-];
+const ICONS = {
+  aid: AidDeleveryIcon,
+  donor: ActiveDonerIcon,
+  country: CountryReachIcon,
+  impact: ImpactIcon,
+};
 
 const Activity = () => {
+  const content = useHomepageContent();
+  const section = content?.sections?.stats;
+
+  if (section?.enabled === false) return null;
+  const stats = Array.isArray(section?.items) ? section.items : [];
+
   return (
     <section className="w-full bg-[#FFFFFF] pt-10 pb-8 sm:pb-16 lg:pb-[110px] sm:pt-12 lg:pt-20">
       <div className="max-w-[1450px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,7 +41,7 @@ const Activity = () => {
                 </p>
               </div>
               <div className="absolute bottom-2.5 right-2.5 sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6 w-8 h-8 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center opacity-100">
-                {item.icon}
+                {ICONS[item.icon] || AidDeleveryIcon}
               </div>
             </div>
           ))}

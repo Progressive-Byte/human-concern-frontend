@@ -8,6 +8,7 @@ const items = [
   { key: "notifications", label: "Notifications" },
   { key: "security", label: "Security" },
   { key: "branding", label: "Branding" },
+  { key: "homepage", label: "Homepage" },
 ];
 
 const SettingsTabs = ({ value, onChange }) => {

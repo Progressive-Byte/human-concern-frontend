@@ -1,10 +1,66 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useHomepageContent } from "@/context/HomepageContentContext";
+import { resolveHomepageImage } from "@/utils/homepageDefaults";
 
 const overlay = "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out bg-gradient-to-br from-[#055A46]/10 to-transparent pointer-events-none z-[1]";
 
+// Layout for the first five bento cards; the sixth is rendered separately (horizontal card).
+const CARD_LAYOUT = [
+  {
+    wrap: "bg-white rounded-[20px] overflow-hidden flex flex-col sm:row-span-1 lg:row-span-2",
+    delay: "160ms",
+    body: "p-6 mt-4 ml-1",
+    imgWrap: "flex-1 flex items-center justify-center",
+    imgBox: "hc-float-soft-2 motion-reduce:animate-none lg:-ml-[220px]",
+    imgDelay: "0ms",
+    imgClass: "w-[150%] sm:w-[128%] lg:w-[255%] max-w-none",
+  },
+  {
+    wrap: "bg-white rounded-[20px] overflow-hidden flex flex-col",
+    delay: "280ms",
+    body: "p-6 mt-4 ml-1",
+    imgWrap: "flex-1 flex items-center justify-center",
+    imgBox: "hc-float-soft-2 motion-reduce:animate-none lg:-mt-4",
+    imgDelay: "180ms",
+    imgClass: "w-[90%] sm:w-[84%] lg:w-[165%]",
+  },
+  {
+    wrap: "bg-white rounded-[20px] overflow-hidden flex flex-col",
+    delay: "400ms",
+    body: "p-6 mt-4 ml-1",
+    imgWrap: "flex-1 flex items-center justify-center pb-4",
+    imgBox: "hc-float-soft-3 motion-reduce:animate-none",
+    imgDelay: "320ms",
+    imgClass: "w-3/6",
+  },
+  {
+    wrap: "bg-white rounded-[20px] overflow-hidden flex flex-col",
+    delay: "520ms",
+    body: "p-6 mt-4 ml-1",
+    imgWrap: "flex-1 flex items-center justify-center mt-0 sm:mt-4 lg:mt-[70px]",
+    imgBox: "hc-float-soft motion-reduce:animate-none",
+    imgDelay: "260ms",
+    imgClass: "w-3/6",
+  },
+  {
+    wrap: "bg-white rounded-[20px] overflow-hidden flex flex-col lg:row-span-2 lg:col-start-3 lg:row-start-2",
+    delay: "640ms",
+    body: "p-6",
+    bodyText: "mr-0 lg:mr-[80px]",
+    imgWrap: "flex-1 flex items-end justify-end sm:justify-center lg:justify-center pt-4 pb-0 min-h-[200px] lg:min-h-[260px]",
+    imgBox: "hc-float-soft-2 motion-reduce:animate-none ml-[20%] sm:ml-0 lg:ml-0",
+    imgDelay: "120ms",
+    imgClass: "w-full",
+  },
+];
+
 const WaysToGive = () => {
+  const content = useHomepageContent();
+  const section = content?.sections?.waysToGive;
+  const cards = Array.isArray(section?.cards) ? section.cards : [];
+
   const sectionRef = useRef(null);
   const [inView, setInView] = useState(false);
 
@@ -36,10 +92,11 @@ const WaysToGive = () => {
     "hc-reveal motion-reduce:transition-none transition-[transform,opacity,filter] duration-[700ms] ease-out";
   const revealIn = inView ? "hc-reveal-in" : "";
   const cardHover = "group relative";
-  const imgHover =
-    "transition-transform duration-500 ease-in-out group-hover:scale-105";
-  const zakatImgSize = "w-[150%] sm:w-[128%] lg:w-[255%] max-w-none";
-  const sadaqahImgSize = "w-[90%] sm:w-[84%] lg:w-[165%]";
+  const imgHover = "transition-transform duration-500 ease-in-out group-hover:scale-105";
+
+  if (section?.enabled === false) return null;
+
+  const last = cards[5];
 
   return (
 
@@ -47,100 +104,52 @@ const WaysToGive = () => {
         <div className="max-w-[1350px] mx-auto px-6 md:px-3 xl:px-0">
             <div className={`${revealBase} ${revealIn} text-center mb-12`} style={{ transitionDelay: "0ms" }}>
                 <h2 className="text-2xl lg:text-[28px] font-bold text-[#1A1A1A] m-0 tracking-tight">
-                    Ways to Give
+                    {section?.title || "Ways to Give"}
                 </h2>
                 <p className="text-[15px] text-[#737373] mt-3 mb-0 leading-relaxed">
-                    Multiple donation types to fulfill your religious <br className="hidden sm:block" />
-                    obligations and charitable aspirations.
+                    {section?.subtitle || "Multiple donation types to fulfill your religious obligations and charitable aspirations."}
                 </p>
             </div>
 
             {/* Bento Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-4 xl:gap-8">
-                <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col sm:row-span-1 lg:row-span-2 ${cardHover}`} style={{ transitionDelay: "160ms" }}>
-                    <div className={overlay} />
-                    <div className="p-6 mt-4 ml-1">
-                        <h4 className="text-[20px] xl:text-[32px] md:text-[25px] font-semibold text-[#383838]">Zakat</h4>
-                        <p className="text-[13px] xl:text-[18px] md:text-[15px] font-semibold text-[#38383899]">
-                            Obligatory charity for eligible Muslims. Pay your Zakat to purify your wealth.
-                        </p>
-                    </div>
-                    <div className="flex-1 flex items-center justify-center">
-                        <div className="hc-float-soft-2 motion-reduce:animate-none lg:-ml-[220px]" style={{ animationDelay: "0ms" }}>
-                          <img src="/images/zakat.png" alt="Zakat" className={`${zakatImgSize} object-contain ${imgHover}`} />
+                {CARD_LAYOUT.map((cfg, i) => {
+                  const card = cards[i];
+                  if (!card) return null;
+                  return (
+                    <div key={i} className={`${revealBase} ${revealIn} ${cfg.wrap} ${cardHover}`} style={{ transitionDelay: cfg.delay }}>
+                        <div className={overlay} />
+                        <div className={cfg.body}>
+                            <h4 className="text-[20px] xl:text-[32px] md:text-[25px] font-semibold text-[#383838]">{card.title}</h4>
+                            <p className={`text-[13px] xl:text-[18px] md:text-[15px] font-semibold text-[#38383899] ${cfg.bodyText || ""}`}>
+                                {card.description}
+                            </p>
+                        </div>
+                        <div className={cfg.imgWrap}>
+                            <div className={cfg.imgBox} style={{ animationDelay: cfg.imgDelay }}>
+                                <img src={resolveHomepageImage(card.image)} alt={card.image?.alt || card.title || ""} className={`${cfg.imgClass} object-contain ${imgHover}`} />
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col ${cardHover}`} style={{ transitionDelay: "280ms" }}>
-                    <div className={overlay} />
-                    <div className="p-6 mt-4 ml-1">
-                    <h4 className="text-[20px] xl:text-[32px] md:text-[25px] font-semibold text-[#383838]">Sadaqah</h4>
-                    <p className="text-[13px] xl:text-[18px] md:text-[15px] font-semibold text-[#38383899]">
-                        Voluntary charity that can be given at any time to aid those in need.
-                    </p>
-                    </div>
-                    <div className="flex-1 flex items-center justify-center">
-                        <div className="hc-float-soft-2 motion-reduce:animate-none lg:-mt-4" style={{ animationDelay: "180ms" }}>
-                          <img src="/images/sadaqah.png" alt="Sadaqah" className={`${sadaqahImgSize} object-contain ${imgHover}`} />
-                        </div>
-                    </div>
-                </div>
-                <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col ${cardHover}`} style={{ transitionDelay: "400ms" }}>
-                    <div className={overlay} />
-                    <div className="p-6 mt-4 ml-1">
-                        <h4 className="text-[20px] xl:text-[32px] md:text-[25px] font-semibold text-[#383838]">Emergency Relief</h4>
-                        <p className="text-[13px] xl:text-[18px] md:text-[15px] font-semibold text-[#38383899]">
-                            Rapid responses and aid to disaster areas to help communities recover.
-                        </p>
-                        </div>
-                    <div className="flex-1 flex items-center justify-center pb-4">
-                        <div className="hc-float-soft-3 motion-reduce:animate-none" style={{ animationDelay: "320ms" }}>
-                          <img src="/images/relief.png" alt="Emergency Relief" className={`w-3/6 object-contain ${imgHover}`} />
-                        </div>
-                    </div>
-                </div>
-                <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col ${cardHover}`} style={{ transitionDelay: "520ms" }}>
-                    <div className={overlay} />
-                    <div className="p-6 mt-4 ml-1">
-                        <h4 className="text-[20px] xl:text-[32px] md:text-[25px] font-semibold text-[#383838]">Water Aid</h4>
-                        <p className="text-[13px] xl:text-[18px] md:text-[15px] font-semibold text-[#38383899]">
-                            Build sustainable wells and systems to provide clean, safe water for entire villages.
-                        </p>
-                    </div>
-                    <div className="flex-1 flex items-center justify-center mt-0 sm:mt-4 lg:mt-[70px]">
-                    <div className="hc-float-soft motion-reduce:animate-none" style={{ animationDelay: "260ms" }}>
-                      <img src="/images/water-aid.png" alt="Water Aid" className={`w-3/6 object-contain ${imgHover}`} />
-                    </div>
-                    </div>
-                </div>
-                <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col lg:row-span-2 lg:col-start-3 lg:row-start-2 ${cardHover}`} style={{ transitionDelay: "640ms" }}>
-                    <div className={overlay} />
-                    <div className="p-6">
-                    <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Food Aid</h4>
-                    <p className="text-[13px] lg:text-[18px] mr-0 lg:mr-[80px] font-semibold text-[#38383899]">
-                        Deliver life-saving meals and nutrition packs to families facing hunger and crisis.
-                    </p>
-                    </div>
-                    <div className="flex-1 flex items-end justify-end sm:justify-center lg:justify-center pt-4 pb-0 min-h-[200px] lg:min-h-[260px]">
-                    <div className="hc-float-soft-2 motion-reduce:animate-none ml-[20%] sm:ml-0 lg:ml-0" style={{ animationDelay: "120ms" }}>
-                      <img src="/images/food-aid.png" alt="Food Aid" className={`w-full object-contain ${imgHover}`} />
-                    </div>
-                    </div>
-                </div>
-                <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col md:flex-row items-start sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3 ${cardHover}`} style={{ transitionDelay: "760ms" }}>
-                    <div className={overlay} />
-                    <div className="p-6 sm:p-7 flex-1 w-full">
-                    <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">Child Sponsorship</h4>
-                    <p className="text-[13px] lg:text-[18px] font-semibold text-[#38383899]">
-                        Provide education, healthcare, and daily essentials to transform an orphan's life.
-                    </p>
-                    </div>
-                    <div className="flex-[0_0_auto] md:flex-1 flex items-end justify-center md:justify-end pt-2 md:pt-4 shrink-0 max-h-[200px] md:max-h-[260px] w-full md:w-auto self-end">
-                    <div className="hc-float-soft-3 motion-reduce:animate-none w-full md:w-auto flex justify-center md:justify-end" style={{ animationDelay: "420ms" }}>
-                      <img src="/images/child-sponsorship.png" alt="Child Sponsorship" className={`h-full max-h-[200px] md:max-h-[260px] w-auto object-contain ${imgHover}`} />
-                    </div>
-                    </div>
-                </div>
+                  );
+                })}
+
+                {last ? (
+                  <div className={`${revealBase} ${revealIn} bg-white rounded-[20px] overflow-hidden flex flex-col md:flex-row items-start sm:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-start-3 ${cardHover}`} style={{ transitionDelay: "760ms" }}>
+                      <div className={overlay} />
+                      <div className="p-6 sm:p-7 flex-1 w-full">
+                      <h4 className="text-[20px] lg:text-[32px] font-semibold text-[#383838]">{last.title}</h4>
+                      <p className="text-[13px] lg:text-[18px] font-semibold text-[#38383899]">
+                          {last.description}
+                      </p>
+                      </div>
+                      <div className="flex-[0_0_auto] md:flex-1 flex items-end justify-center md:justify-end pt-2 md:pt-4 shrink-0 max-h-[200px] md:max-h-[260px] w-full md:w-auto self-end">
+                      <div className="hc-float-soft-3 motion-reduce:animate-none w-full md:w-auto flex justify-center md:justify-end" style={{ animationDelay: "420ms" }}>
+                        <img src={resolveHomepageImage(last.image)} alt={last.image?.alt || last.title || ""} className={`h-full max-h-[200px] md:max-h-[260px] w-auto object-contain ${imgHover}`} />
+                      </div>
+                      </div>
+                  </div>
+                ) : null}
             </div>
         </div>
     </section>

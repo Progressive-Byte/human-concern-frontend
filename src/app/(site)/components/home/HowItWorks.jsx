@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useHomepageContent } from "@/context/HomepageContentContext";
+import { resolveHomepageImage } from "@/utils/homepageDefaults";
 
 const HowItWorks = () => {
+  const content = useHomepageContent();
+  const section = content?.sections?.howItWorks;
 
 const sectionRef = useRef(null);
 const [inView, setInView] = useState(false);
@@ -12,29 +16,12 @@ const reducedMotion = useMemo(() => {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }, []);
 
-const steps = [
-  {
-    signUpText: "Sign up &",
-    title: "Choose Your Cause",
-    description:
-      "Select from Zakat, Sadaqah, emergency relief, or specific campaigns that align with your giving goals.",
-    bg: "/images/cause-card.png",
-  },
-  {
-    signUpText: "Sign up or Login to",
-    title: "Donate Securely",
-    description:
-      "SMake one-time or recurring donations with secure payment processing. Set up automated giving schedules.",
-    bg: "/images/security-card.png",
-  },
-  {
-    signUpText: "Login and",
-    title: "Track Your Impact",
-    description:
-      "Monitor your giving history, see where your donations go, and understand the real impact you're making.",
-    bg: "/images/impact-card.png",
-  },
-];
+const steps = (Array.isArray(section?.steps) ? section.steps : []).map((s) => ({
+  signUpText: s?.eyebrow || "",
+  title: s?.title || "",
+  description: s?.description || "",
+  bg: resolveHomepageImage(s?.image),
+}));
 
 useEffect(() => {
   if (reducedMotion) {
@@ -64,18 +51,21 @@ const cardHover = "group";
 const iconHover =
   "transition-transform duration-500 ease-in-out will-change-transform group-hover:-translate-y-1 group-hover:rotate-2";
 
+  if (section?.enabled === false) return null;
+
   return (
-    <section className="pt-[60px] pb-[80px] sm:pt-[80px] sm:pb-[100px] lg:pt-[140px] lg:pb-[170px] bg-[url('/images/bg/how-it-works.png')] bg-cover bg-center"
+    <section className="pt-[60px] pb-[80px] sm:pt-[80px] sm:pb-[100px] lg:pt-[140px] lg:pb-[170px] bg-cover bg-center"
       id="how-it-works"
       ref={sectionRef}
+      style={{ backgroundImage: `url(${resolveHomepageImage(section?.backgroundImage, "/images/bg/how-it-works.png")})` }}
     >
       <div className="max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`${revealBase} ${revealIn} text-center mb-10 sm:mb-14`} style={{ transitionDelay: "0ms" }}>
           <h2 className="text-2xl sm:text-3xl lg:text-[40px] font-bold text-white">
-            How It Works
+            {section?.title || "How It Works"}
           </h2>
           <p className="text-sm sm:text-[18px] text-white mt-2">
-            Simple, secure, and transparent donation process
+            {section?.subtitle || "Simple, secure, and transparent donation process"}
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-[18px]">

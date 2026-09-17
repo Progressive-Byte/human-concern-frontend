@@ -13,6 +13,7 @@ import {
   getAdminSettingsBranding,
   getAdminSettingsExchangeRates,
   getAdminSettingsGeneral,
+  getAdminSettingsHomepage,
   getAdminSettingsEmail,
   getAdminSettingsNotifications,
   getAdminSettingsPayment,
@@ -25,15 +26,18 @@ import {
   updateAdminSettingsEmail,
   updateAdminSettingsExchangeRates,
   updateAdminSettingsGeneral,
+  updateAdminSettingsHomepage,
   updateAdminSettingsNotifications,
   updateAdminSettingsSecurity,
   uploadAdminBrandingLogo,
+  uploadAdminHomepageMedia,
 } from "@/services/admin";
 import SettingsTabs from "./components/SettingsTabs";
 import GeneralTab from "./components/tabs/GeneralTab";
 import NotificationsTab from "./components/tabs/NotificationsTab";
 import SecurityTab from "./components/tabs/SecurityTab";
 import BrandingTab from "./components/tabs/BrandingTab";
+import HomepageTab from "./components/tabs/HomepageTab";
 import PaymentTab from "./components/tabs/PaymentTab";
 import ExchangeRatesTab from "./components/tabs/ExchangeRatesTab";
 import EmailTab, { validateSmtpConfig } from "./components/tabs/EmailTab";
@@ -67,7 +71,7 @@ function diffList(prev, next) {
   return JSON.stringify(p) === JSON.stringify(n) ? null : n;
 }
 
-const tabs = ["general", "exchange-rates", "payment", "email", "notifications", "security", "branding"];
+const tabs = ["general", "exchange-rates", "payment", "email", "notifications", "security", "branding", "homepage"];
 
 const SettingsPageClient = () => {
   const toast = useToast();
@@ -116,6 +120,11 @@ const SettingsPageClient = () => {
   const [brandingLoading, setBrandingLoading] = useState(false);
   const [brandingSaving, setBrandingSaving] = useState(false);
   const [brandingLogoBusy, setBrandingLogoBusy] = useState(false);
+
+  const [homepage, setHomepage] = useState({});
+  const [homepageInitial, setHomepageInitial] = useState({});
+  const [homepageLoading, setHomepageLoading] = useState(false);
+  const [homepageSaving, setHomepageSaving] = useState(false);
 
   const [payment, setPayment] = useState({});
   const [paymentLoading, setPaymentLoading] = useState(false);
@@ -197,6 +206,15 @@ const SettingsPageClient = () => {
           setBranding(data);
           setBrandingInitial(data);
         }
+        if (activeTab === "homepage") {
+          setHomepageLoading(true);
+          const res = await getAdminSettingsHomepage();
+          if (!alive) return;
+          const data = normalizeObj(res);
+          const h = data?.homepage && typeof data.homepage === "object" ? data.homepage : data;
+          setHomepage(h);
+          setHomepageInitial(h);
+        }
         if (activeTab === "payment") {
           setPaymentLoading(true);
           const res = await getAdminSettingsPayment();
@@ -228,6 +246,7 @@ const SettingsPageClient = () => {
         setNotificationsLoading(false);
         setSecurityLoading(false);
         setBrandingLoading(false);
+        setHomepageLoading(false);
         setPaymentLoading(false);
         setExchangeRatesLoading(false);
         setEmailLoading(false);
@@ -406,6 +425,50 @@ const SettingsPageClient = () => {
       toast.error(e?.message || "Remove failed.");
     } finally {
       setBrandingLogoBusy(false);
+    }
+  }
+
+  async function saveHomepage() {
+    setHomepageSaving(true);
+    setError("");
+    try {
+      // Top-level keys only (sections / header / footer); nested arrays are replaced wholesale server-side.
+      const payload = {};
+      for (const key of Object.keys(homepage || {})) {
+        if (JSON.stringify(homepage[key]) !== JSON.stringify((homepageInitial || {})[key])) {
+          payload[key] = homepage[key];
+        }
+      }
+      if (!Object.keys(payload).length) {
+        toast.info("No changes to save.");
+        return;
+      }
+      const res = await updateAdminSettingsHomepage(payload);
+      const data = normalizeObj(res);
+      const h = data?.homepage && typeof data.homepage === "object" ? data.homepage : data;
+      setHomepage(h);
+      setHomepageInitial(h);
+      toast.success("Saved");
+    } catch (e) {
+      setError(e?.message || "Save failed.");
+      toast.error(e?.message || "Save failed.");
+    } finally {
+      setHomepageSaving(false);
+    }
+  }
+
+  // Uploads one image and returns its public path; the tab stores it in the right slot.
+  async function uploadHomepageImage(file) {
+    if (!file) return "";
+    setError("");
+    try {
+      const res = await uploadAdminHomepageMedia(file);
+      const data = normalizeObj(res);
+      return data?.path || "";
+    } catch (e) {
+      setError(e?.message || "Upload failed.");
+      toast.error(e?.message || "Upload failed.");
+      return "";
     }
   }
 
@@ -658,6 +721,17 @@ const SettingsPageClient = () => {
           onUploadLogo={uploadLogo}
           onRemoveLogo={removeLogo}
           onSave={saveBranding}
+        />
+      ) : null}
+
+      {activeTab === "homepage" ? (
+        <HomepageTab
+          value={homepage}
+          onChange={setHomepage}
+          loading={homepageLoading}
+          saving={homepageSaving}
+          onSave={saveHomepage}
+          onUploadImage={uploadHomepageImage}
         />
       ) : null}
     </main>

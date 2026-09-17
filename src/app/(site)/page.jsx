@@ -4,6 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import VideoModal from "@/components/common/VideoModal";
 import { CheckIcon, VideoIcon } from "@/components/common/SvgIcon";
 import Link from "next/link";
+import { useHomepageContent } from "@/context/HomepageContentContext";
+import { resolveHomepageImage } from "@/utils/homepageDefaults";
+import { youtubeIdFromUrl } from "@/utils/youtube";
 import Activity from "./components/home/Activity";
 import HighlightCampaigns from "./components/home/HighlightCampaigns";
 import SharedLove from "./components/home/SharedLove";
@@ -65,6 +68,10 @@ function Reveal({ children, delayMs = 0, reducedMotion = false }) {
 /* ─── Page ───── */
 const HomePage = () => {
 
+  const content = useHomepageContent();
+  const hero = content?.sections?.hero || {};
+  const sections = content?.sections || {};
+
   const [openVideo, setOpenVideo] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
   const heroBgRef = useRef(null);
@@ -95,20 +102,18 @@ const HomePage = () => {
     };
   }, [reducedMotion]);
 
-  const trustBadges = useMemo(
-    () => ["Secure Payments", "100% Zakat Compliant", "Tax Deductible"],
-    []
-  );
-
+  const trustBadges = Array.isArray(hero.trustBadges) ? hero.trustBadges : [];
 
   return (
     <>
       <main data-page="home" className="overflow-hidden text-white">
         {/* ── Hero ── */}
+        {hero.enabled === false ? null : (
         <section className="relative w-full h-[520px] sm:h-[620px] md:h-[750px] lg:h-[950px] xl:h-[1200px] overflow-hidden">
           <div
             ref={heroBgRef}
-            className="absolute inset-0 bg-[url('/images/hero.png')] bg-center bg-cover bg-no-repeat"
+            className="absolute inset-0 bg-center bg-cover bg-no-repeat"
+            style={{ backgroundImage: `url(${resolveHomepageImage(hero.backgroundImage, "/images/hero.png")})` }}
             aria-hidden="true"
           />
           <div className="absolute inset-0 pointer-events-none opacity-70">
@@ -124,24 +129,29 @@ const HomePage = () => {
             <div className="w-full max-w-[1611px] mt-27 sm:mt-27 md:mt-27 lg:mt-[-108px] mx-auto px-4 sm:px-6 lg:px-8">
               <div className="w-full md:max-w-[560px] lg:max-w-[652px] bg-[#FFFFFFB2] backdrop-blur-[100px] px-4 py-5 sm:px-6 sm:py-6 md:px-[77px] md:py-[60px] rounded-3xl">
                 <h1 className="text-2xl sm:text-3xl md:text-[56px] md:leading-[1.1] font-semibold text-[#383838] leading-tight [text-shadow:0px_4px_25px_rgba(255,255,255,0.25)]">
-                  Give with <span className="font-bold font-playfair italic">Purpose. Transform</span> lives.
+                  {hero.title || "Give with"}{" "}
+                  {hero.titleAccent ? <span className="font-bold font-playfair italic">{hero.titleAccent}</span> : null}
                 </h1>
                 <p className="text-[#383838] font-medium py-4 sm:py-5 md:py-7 text-sm sm:text-base md:text-2xl [text-shadow:0px_0px_3px_rgba(255,255,255,1)]">
-                  Your trusted platform for Zakat, Sadaqah, and humanitarian giving.
+                  {hero.subtitle || "Your trusted platform for Zakat, Sadaqah, and humanitarian giving."}
                 </p>
                 <div className="flex items-center gap-3 flex-wrap mb-5 sm:mb-7">
-                  <Link
-                    href="/campaigns"
-                    className="px-4 sm:px-6 py-2 sm:py-3 bg-[#EA3335] hover:bg-red-700 text-white font-normal text-[15px] sm:text-[18px] rounded-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(234,51,53,0.26)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                  >
-                    All campaigns
-                  </Link>
-                  <Link
-                    href="/user/register"
-                    className="px-4 sm:px-6 py-2 sm:py-3 text-[#383838] font-normal text-[15px] sm:text-[18px] rounded-full border border-[#383838] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#383838]/30"
-                  >
-                    Get started
-                  </Link>
+                  {hero.primaryButton?.label ? (
+                    <Link
+                      href={hero.primaryButton.href || "/campaigns"}
+                      className="px-4 sm:px-6 py-2 sm:py-3 bg-[#EA3335] hover:bg-red-700 text-white font-normal text-[15px] sm:text-[18px] rounded-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(234,51,53,0.26)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                    >
+                      {hero.primaryButton.label}
+                    </Link>
+                  ) : null}
+                  {hero.secondaryButton?.label ? (
+                    <Link
+                      href={hero.secondaryButton.href || "/user/register"}
+                      className="px-4 sm:px-6 py-2 sm:py-3 text-[#383838] font-normal text-[15px] sm:text-[18px] rounded-full border border-[#383838] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#383838]/30"
+                    >
+                      {hero.secondaryButton.label}
+                    </Link>
+                  ) : null}
                 </div>
 
                 {/* Trust badges */}
@@ -165,6 +175,7 @@ const HomePage = () => {
           </div>
 
           {/* ── Watch Video ── */}
+          {youtubeIdFromUrl(hero.videoUrl) ? (
           <div className="absolute left-9/12 top-[250px] hidden lg:block">
             <button
               onClick={() => setOpenVideo(true)}
@@ -174,35 +185,49 @@ const HomePage = () => {
               <span>{VideoIcon}</span>
             </button>
           </div>
+          ) : null}
         </section>
+        )}
 
         {/* Activity */}
-        <Reveal reducedMotion={reducedMotion}>
-          <Activity />
-        </Reveal>
+        {sections.stats?.enabled === false ? null : (
+          <Reveal reducedMotion={reducedMotion}>
+            <Activity />
+          </Reveal>
+        )}
 
         {/* Featured Campaigns */}
-        <Reveal delayMs={60} reducedMotion={reducedMotion}>
-          <HighlightCampaigns />
-        </Reveal>
+        {sections.featured?.enabled === false ? null : (
+          <Reveal delayMs={60} reducedMotion={reducedMotion}>
+            <HighlightCampaigns />
+          </Reveal>
+        )}
 
         {/* Shared love Section */}
-        <Reveal delayMs={60} reducedMotion={reducedMotion}>
-          <SharedLove />
-        </Reveal>
+        {sections.sharedLove?.enabled === false ? null : (
+          <Reveal delayMs={60} reducedMotion={reducedMotion}>
+            <SharedLove />
+          </Reveal>
+        )}
 
         {/* ── How It Works ── */}
-        <Reveal delayMs={60} reducedMotion={reducedMotion}>
-          <HowItWorks />
-        </Reveal>
+        {sections.howItWorks?.enabled === false ? null : (
+          <Reveal delayMs={60} reducedMotion={reducedMotion}>
+            <HowItWorks />
+          </Reveal>
+        )}
 
-        <Reveal delayMs={60} reducedMotion={reducedMotion}>
-          <WaysToGive />
-        </Reveal>
+        {sections.waysToGive?.enabled === false ? null : (
+          <Reveal delayMs={60} reducedMotion={reducedMotion}>
+            <WaysToGive />
+          </Reveal>
+        )}
 
-        <Reveal delayMs={60} reducedMotion={reducedMotion}>
-          <CtaBanner />
-        </Reveal>
+        {sections.ctaBanner?.enabled === false ? null : (
+          <Reveal delayMs={60} reducedMotion={reducedMotion}>
+            <CtaBanner />
+          </Reveal>
+        )}
 
       </main>
 
@@ -210,7 +235,7 @@ const HomePage = () => {
       <VideoModal
         isOpen={openVideo}
         onClose={() => setOpenVideo(false)}
-        videoId="tX0eDRmropU"
+        videoId={youtubeIdFromUrl(hero.videoUrl)}
       />
     </>
   );

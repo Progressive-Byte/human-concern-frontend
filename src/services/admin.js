@@ -586,6 +586,20 @@ export function deleteAdminBrandingLogo() {
   return adminApiRequest("/admin/settings/branding/logo", { method: "DELETE" });
 }
 
+export function getAdminSettingsHomepage() {
+  return adminApiRequest("/admin/settings/homepage", { method: "GET" });
+}
+
+export function updateAdminSettingsHomepage(payload) {
+  return adminApiRequest("/admin/settings/homepage", { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function uploadAdminHomepageMedia(file) {
+  const body = new FormData();
+  body.append("file", file);
+  return adminApiRequest("/admin/settings/homepage/media", { method: "POST", body });
+}
+
 export function getAdminSettingsPayment() {
   return adminApiRequest("/admin/settings/payment", { method: "GET" });
 }

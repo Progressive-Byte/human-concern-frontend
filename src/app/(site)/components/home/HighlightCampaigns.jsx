@@ -2,11 +2,14 @@
 
 import CampaignCard from "@/app/(site)/campaigns/components/CampaignCard";
 import { arrowIcon } from "@/components/common/SvgIcon";
+import { useHomepageContent } from "@/context/HomepageContentContext";
 import { apiBase } from "@/utils/constants";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 const HighlightCampaigns = () => {
+  const content = useHomepageContent();
+  const section = content?.sections?.featured;
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,6 +29,8 @@ const HighlightCampaigns = () => {
     fetchCampaigns();
   }, []);
 
+  if (section?.enabled === false) return null;
+
   return (
     <section className="py-16 sm:py-20 lg:py-[130px] bg-[#F6F6F6]" id="campaigns">
       <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,20 +39,20 @@ const HighlightCampaigns = () => {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <h2 className="text-xl md:text-left text-center sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A] m-0">
-              Featured Campaigns
+              {section?.title || "Featured Campaigns"}
             </h2>
 
             <p className="text-xs md:text-left text-center sm:text-sm md:text-base font-normal mt-2 sm:mt-[10px] text-[#737373]">
-              Support causes that matter. Every donation makes a difference.
+              {section?.subtitle || "Support causes that matter. Every donation makes a difference."}
             </p>
           </div>
 
           <div className="md:text-left text-center">
             <Link
-              href="/campaigns"
+              href={section?.ctaHref || "/campaigns"}
               className="group inline-flex items-center gap-2 bg-white text-[#383838] text-sm sm:text-base md:text-lg font-normal rounded-full px-4 sm:px-5 py-2.5 sm:py-3 transition-all duration-300 whitespace-nowrap hover:-translate-y-0.5 hover:bg-gray-50 active:translate-y-0 self-start sm:self-auto"
             >
-              View All Campaigns
+              {section?.ctaLabel || "View All Campaigns"}
               <span className="flex items-center transition-transform duration-300 group-hover:translate-x-1">
                 {arrowIcon}
               </span>
