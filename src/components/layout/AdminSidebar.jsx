@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useAdminBranding } from "@/app/admin/components/AdminBrandingProvider";
+import { adminHasPermission } from "@/utils/adminPermissions";
 import NotificationBell from "@/components/common/NotificationBell";
 
 function Icon({ name }) {
@@ -156,6 +157,33 @@ function Icon({ name }) {
     );
   }
 
+  if (name === "users") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path
+          d="M15 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 3 18.5V20"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M21 20v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 4.2a3.5 3.5 0 0 1 0 6.6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
   if (name === "settings") {
     return (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
@@ -299,6 +327,7 @@ const navItems = [
   { href: "/admin/logs", label: "Logs", icon: "logs" },
   { href: "/admin/translation", label: "Translation", icon: "translation", permission: "settings.read" },
   { href: "/admin/data-export", label: "Data Export", icon: "data-export", permission: "data.export" },
+  { href: "/admin/system-users", label: "System Users", icon: "users", permission: "users.read" },
   { href: "/admin/adminSettings", label: "Settings", icon: "settings" },
 ];
 
@@ -309,19 +338,7 @@ const AdminSidebar = ({ onNavigate }) => {
 
   const isActive = (href) => (href ? (href === "/admin" ? pathname === href : pathname?.startsWith(href)) : false);
 
-  const hasPermission = (required) => {
-    if (!required) return true;
-    if (!admin) return true;
-    const role = String(admin.role || "").toLowerCase();
-    if (role === "super_admin" || role === "super-admin" || role === "owner") return true;
-    if (role === "admin") return true;
-    if (Array.isArray(admin.permissions)) {
-      if (admin.permissions.includes(required)) return true;
-      const prefix = required.split(".")[0];
-      if (admin.permissions.includes(`${prefix}.*`) || admin.permissions.includes("*")) return true;
-    }
-    return false;
-  };
+  const hasPermission = (required) => adminHasPermission(admin, required);
 
   const visibleNavItems = navItems.filter((item) => hasPermission(item.permission));
 

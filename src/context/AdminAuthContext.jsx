@@ -3,7 +3,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminLogin as apiAdminLogin } from "@/services/adminAuthService";
-import { setCookie, deleteCookie } from "@/utils/cookies";
+import { getAdminMe } from "@/services/admin";
+import { setCookie, deleteCookie, getCookie } from "@/utils/cookies";
 
 const AdminAuthContext = createContext(null);
 
@@ -37,6 +38,30 @@ export function AdminAuthProvider({ children }) {
     window.addEventListener("admin:unauthorized", handleUnauthorized);
     return () => window.removeEventListener("admin:unauthorized", handleUnauthorized);
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Restore the admin identity (roles + permissions) after a page reload. Without
+  // this, `admin` is null on refresh and permission-gated menus would be unreliable.
+  useEffect(() => {
+    let alive = true;
+    const token = getCookie("adminToken");
+    if (!token) return () => { alive = false; };
+
+    setLoading(true);
+    (async () => {
+      try {
+        const res = await getAdminMe();
+        if (!alive) return;
+        const me = res?.data?.admin || res?.admin;
+        if (me) setAdmin(me);
+      } catch {
+        // A 401 fires the global `admin:unauthorized` listener, which logs out.
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+
+    return () => { alive = false; };
   }, []);
 
   return (

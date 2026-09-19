@@ -946,3 +946,77 @@ export function getAdminAuditLogs({
   const endpoint = query ? `/admin/audit-logs?${query}` : "/admin/audit-logs";
   return adminApiRequest(endpoint, { method: "GET" });
 }
+
+// -----------------------------
+// System Users
+// -----------------------------
+export function getAdminMe() {
+  return adminApiRequest("/admin/me", { method: "GET" });
+}
+
+export function getAdminSystemUsers({ page, limit, sort, order, q, roleId, status } = {}) {
+  const params = new URLSearchParams();
+
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  if (typeof sort === "string" && sort.trim()) params.set("sort", sort.trim());
+  if (typeof order === "string" && order.trim()) params.set("order", order.trim());
+  if (typeof q === "string" && q.trim()) params.set("q", q.trim());
+  if (typeof roleId === "string" && roleId.trim()) params.set("roleId", roleId.trim());
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/system-users?${query}` : "/admin/system-users";
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminSystemUserById(userId) {
+  return adminApiRequest(`/admin/system-users/${userId}`, { method: "GET" });
+}
+
+export function createAdminSystemUser(payload) {
+  return adminApiRequest("/admin/system-users", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function updateAdminSystemUser(userId, payload) {
+  return adminApiRequest(`/admin/system-users/${userId}`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function activateAdminSystemUser(userId) {
+  return adminApiRequest(`/admin/system-users/${userId}/activate`, { method: "POST" });
+}
+
+export function deactivateAdminSystemUser(userId) {
+  return adminApiRequest(`/admin/system-users/${userId}/deactivate`, { method: "POST" });
+}
+
+export function resetAdminSystemUserPassword(userId, newPassword) {
+  return adminApiRequest(`/admin/system-users/${userId}/reset-password`, {
+    method: "POST",
+    body: JSON.stringify({ newPassword }),
+  });
+}
+
+// -----------------------------
+// Roles & Permissions
+// -----------------------------
+export function getAdminRoles() {
+  return adminApiRequest("/admin/roles", { method: "GET" });
+}
+
+export function getAdminPermissions() {
+  return adminApiRequest("/admin/roles/permissions", { method: "GET" });
+}
+
+export function createAdminRole(payload) {
+  return adminApiRequest("/admin/roles", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function updateAdminRole(roleId, payload) {
+  return adminApiRequest(`/admin/roles/${roleId}`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function deleteAdminRole(roleId) {
+  return adminApiRequest(`/admin/roles/${roleId}`, { method: "DELETE" });
+}
