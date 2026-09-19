@@ -7,6 +7,7 @@ import {
   storeIdempotencyKey,
   clearIdempotencyKey,
 } from "@/utils/idempotency";
+import { readUtmFromSearch } from "@/utils/utm";
 
 const DonationContext = createContext(null);
 
@@ -49,6 +50,12 @@ const initialState = {
   grandTotal: 0,
   unifiedChallenge: null,
   manualCauseIds: [],
+  // Attribution captured from the donation form URL (utm_* query params on entry).
+  utm_source: "",
+  utm_medium: "",
+  utm_campaign: "",
+  utm_term: "",
+  utm_content: "",
 };
 
 function hashIntentFields(state) {
@@ -94,6 +101,27 @@ export function DonationProvider({ children }) {
     prevHashRef.current = currentHash;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.amount, data.paymentMethod, data.email, data.causeIds]);
+
+  // Capture UTM attribution once on entry so it survives every later step. The provider is
+  // mounted by both layouts (/donate/[step] and /[campaignSlug]/[step]), so this covers both
+  // entry points. First touch wins: a later URL never overwrites an already-captured value.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const captured = readUtmFromSearch(window.location.search);
+    const keys = Object.keys(captured);
+    if (!keys.length) return;
+
+    setData((prev) => {
+      const patch = {};
+      for (const key of keys) {
+        if (!prev[key]) patch[key] = captured[key];
+      }
+      if (!Object.keys(patch).length) return prev;
+      const next = { ...prev, ...patch };
+      try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, []);
 
   const regenerateIdempotencyKey = () => {
     const newKey = generatePaymentIdempotencyKey("pay");

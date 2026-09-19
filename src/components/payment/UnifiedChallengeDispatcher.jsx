@@ -22,6 +22,8 @@ export const DONOR_RETURN_PARAM_KEYS = [
   "utm_source",
   "utm_campaign",
   "utm_medium",
+  "utm_term",
+  "utm_content",
 ];
 
 export function loadUnifiedChallengeFromSession() {
@@ -152,6 +154,8 @@ export function buildDonorReturnParams(formData = {}, context = {}) {
     utm_source: getUtm("utm_source"),
     utm_campaign: getUtm("utm_campaign"),
     utm_medium: getUtm("utm_medium"),
+    utm_term: getUtm("utm_term"),
+    utm_content: getUtm("utm_content"),
     ...(effectiveBase ? { baseUrl: effectiveBase } : {}),
     ...(constructedReturn ? { returnUrl: formData.returnUrl ?? context.returnUrl ?? constructedReturn } : {}),
     ...(constructedCancel ? { cancelUrl: formData.cancelUrl ?? context.cancelUrl ?? constructedCancel } : {}),

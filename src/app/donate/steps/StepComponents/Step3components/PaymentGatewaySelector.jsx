@@ -66,6 +66,8 @@ function buildPayPalReturnUrl({ donorData, currency, amount }) {
       utm_source: donorData?.utm_source,
       utm_campaign: donorData?.utm_campaign,
       utm_medium: donorData?.utm_medium,
+      utm_term: donorData?.utm_term,
+      utm_content: donorData?.utm_content,
       info: donorData?.info || donorData,
     }
   );
