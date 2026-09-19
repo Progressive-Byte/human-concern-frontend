@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import countOccurrences, { generateDatesInRange } from "../countOccurrences";
-import { buildConfig, resolveFreq } from "./scheduleUtils";
+import { buildConfig, resolveFreq, isPeriodFreq, periodStartFor, earliestPeriodStartFor } from "./scheduleUtils";
 import { earliestAllowedDateStr } from "@/utils/scheduleDateLimits";
 import SpecificDatesSection from "./SpecificDatesSection";
 import DateRangeSection from "./DateRangeSection";
@@ -65,11 +65,33 @@ const RecurringSchedule = ({
     return d === null ? [] : [d];
   }, [rangeFreq, weekDays, rangeStart]);
 
+  const hasPresets       = apiPresets.length > 0;
+  const isCustom         = activePreset === "custom";
+  const activeApiPreset  = apiPresets.find((p) => p.id === activePreset);
+  const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
+  // Show full controls for: Custom pill, template presets, or no API presets at all
+  const showFullControls = isCustom || isTemplateActive || !hasPresets;
+  // Only snap monthly/yearly onto whole periods while the donor is editing the range. A
+  // fixed admin preset keeps its exact anchor day (e.g. a monthly preset on the 15th).
+  const anchorPeriods = showFullControls;
+
+  // Monthly/yearly choose whole periods, so anchor them to the 1st. This keeps the month
+  // picker, the dates table and the submitted config consistent, and guarantees the
+  // submitted dates match the API generator without month-end clamping.
+  const effRangeStart = useMemo(
+    () => (anchorPeriods ? periodStartFor(rangeFreq, rangeStart) : rangeStart),
+    [anchorPeriods, rangeFreq, rangeStart]
+  );
+  const effRangeEnd = useMemo(
+    () => (anchorPeriods ? periodStartFor(rangeFreq, rangeEnd) : rangeEnd),
+    [anchorPeriods, rangeFreq, rangeEnd]
+  );
+
   const generatedDates = useMemo(
     () => scheduleType === "date_range"
-      ? generateDatesInRange(rangeStart, rangeEnd, rangeFreq, customInterval, effectiveWeekDays)
+      ? generateDatesInRange(effRangeStart, effRangeEnd, rangeFreq, customInterval, effectiveWeekDays)
       : [],
-    [scheduleType, rangeStart, rangeEnd, rangeFreq, customInterval, effectiveWeekDays]
+    [scheduleType, effRangeStart, effRangeEnd, rangeFreq, customInterval, effectiveWeekDays]
   );
 
   const activeDates = scheduleType === "date_range"
@@ -97,6 +119,10 @@ const RecurringSchedule = ({
 
   const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset, daysOverride, opts = {}) => {
     const days = daysOverride !== undefined ? daysOverride : effectiveWeekDays;
+    // While editing, monthly/yearly always anchor on the 1st of the month/year. Fixed presets
+    // keep whatever anchor day the admin configured.
+    const anchorStart = anchorPeriods ? periodStartFor(freq, start) : start;
+    const anchorEnd = anchorPeriods ? periodStartFor(freq, end) : end;
     // `includePast` is only set when applying a preset with make-up ticked; manual edits always drop past dates.
     const keepAll = opts.includePast === true;
     const futureDates = (type === "specific_dates" && !keepAll) ? dates.filter((d) => d >= minDateStr) : dates;
@@ -105,8 +131,8 @@ const RecurringSchedule = ({
       : amounts;
     const occ    = type === "specific_dates"
       ? futureDates.length
-      : countOccurrences(start, end, freq, interval, days);
-    const config = buildConfig(type, futureDates, start, end, freq, futureAmounts, interval, days);
+      : countOccurrences(anchorStart, anchorEnd, freq, interval, days);
+    const config = buildConfig(type, futureDates, anchorStart, anchorEnd, freq, futureAmounts, interval, days);
     onChange({
       scheduleType: type,
       scheduleConfig: config,
@@ -251,18 +277,26 @@ const RecurringSchedule = ({
       days = weekdayOf(val) === null ? [] : [weekdayOf(val)];
       setWeekDays(days);
     }
+    // Period frequencies pick whole months/years: never let the end fall before the start.
+    let nextEnd = rangeEnd;
+    if (isPeriodFreq(nextFreq) && val && nextEnd && nextEnd < val) {
+      nextEnd = val;
+      setRangeEnd(nextEnd);
+    }
     const next = Object.fromEntries(Object.entries(dateAmounts).filter(([d]) => d >= val));
     setDateAmounts(next);
-    notify(scheduleType, selectedDates, val, rangeEnd, nextFreq, next, customInterval, activePreset, days);
+    notify(scheduleType, selectedDates, val, nextEnd, nextFreq, next, customInterval, activePreset, days);
   };
 
   const handleRangeEnd = (val) => {
-    setRangeEnd(val);
-    const nextFreq = resolveFreq(rangeStart, val, rangeFreq);
+    // Defensive clamp: the end can never precede the start for period frequencies.
+    const clamped = isPeriodFreq(rangeFreq) && rangeStart && val && val < rangeStart ? rangeStart : val;
+    setRangeEnd(clamped);
+    const nextFreq = resolveFreq(rangeStart, clamped, rangeFreq);
     if (nextFreq !== rangeFreq) setRangeFreq(nextFreq);
-    const next = Object.fromEntries(Object.entries(dateAmounts).filter(([d]) => d <= val));
+    const next = Object.fromEntries(Object.entries(dateAmounts).filter(([d]) => d <= clamped));
     setDateAmounts(next);
-    notify(scheduleType, selectedDates, rangeStart, val, nextFreq, next, customInterval);
+    notify(scheduleType, selectedDates, rangeStart, clamped, nextFreq, next, customInterval);
   };
 
   const handleRangeFreq = (val) => {
@@ -272,7 +306,22 @@ const RecurringSchedule = ({
       ? (weekDays.length ? weekDays : (weekdayOf(rangeStart) === null ? [] : [weekdayOf(rangeStart)]))
       : [];
     setWeekDays(days);
-    notify(scheduleType, selectedDates, rangeStart, rangeEnd, val, {}, customInterval, activePreset, days);
+
+    // Switching to Monthly/Yearly: snap the range onto whole periods and keep it in the
+    // future, so the picker is valid immediately (instead of downgrading back to Daily).
+    let nextStart = rangeStart;
+    let nextEnd = rangeEnd;
+    if (isPeriodFreq(val)) {
+      const floor = earliestPeriodStartFor(val, minDateStr);
+      const snappedStart = rangeStart ? periodStartFor(val, rangeStart) : floor;
+      nextStart = snappedStart && snappedStart >= floor ? snappedStart : floor;
+      const snappedEnd = rangeEnd ? periodStartFor(val, rangeEnd) : nextStart;
+      nextEnd = snappedEnd && snappedEnd >= nextStart ? snappedEnd : nextStart;
+      setRangeStart(nextStart);
+      setRangeEnd(nextEnd);
+    }
+
+    notify(scheduleType, selectedDates, nextStart, nextEnd, val, {}, customInterval, activePreset, days);
   };
 
   const handleCustomInterval = (val) => {
@@ -282,12 +331,6 @@ const RecurringSchedule = ({
     notify(scheduleType, selectedDates, rangeStart, rangeEnd, rangeFreq, {}, n);
   };
 
-  const hasPresets       = apiPresets.length > 0;
-  const isCustom         = activePreset === "custom";
-  const activeApiPreset  = apiPresets.find((p) => p.id === activePreset);
-  const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
-  // Show full controls for: Custom pill, template presets, or no API presets at all
-  const showFullControls = isCustom || isTemplateActive || !hasPresets;
   const futureSelectedDates = selectedDates.filter((d) => d >= minDateStr);
   const presetDateCount  = !showFullControls
     ? (scheduleType === "date_range" ? generatedDates.length : futureSelectedDates.length)
@@ -415,8 +458,8 @@ const RecurringSchedule = ({
             />
           ) : (
             <DateRangeSection
-              rangeStart={rangeStart}
-              rangeEnd={rangeEnd}
+              rangeStart={effRangeStart}
+              rangeEnd={effRangeEnd}
               rangeFreq={rangeFreq}
               customInterval={customInterval}
               weekDays={effectiveWeekDays}

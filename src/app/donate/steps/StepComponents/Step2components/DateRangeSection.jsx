@@ -2,8 +2,9 @@
 
 import { useMemo } from "react";
 import countOccurrences from "../countOccurrences";
-import { FREQ_OPTIONS } from "./scheduleUtils";
+import { FREQ_OPTIONS, isPeriodFreq } from "./scheduleUtils";
 import MiniCalendar from "./MiniCalendar";
+import PeriodRangePicker from "./PeriodRangePicker";
 import { WEEKDAYS, recurringFrequencyHint } from "@/utils/recurringFrequency";
 
 const DateRangeSection = ({
@@ -21,53 +22,28 @@ const DateRangeSection = ({
     return diff > 0 ? diff : 0;
   }, [rangeStart, rangeEnd]);
 
+  // Monthly/yearly pick whole periods, so the day-count guard never disables them.
   const freqDisabled = useMemo(
-    () => Object.fromEntries(FREQ_OPTIONS.map(({ value, minDays }) => [value, rangeDays > 0 && rangeDays < minDays])),
+    () =>
+      Object.fromEntries(
+        FREQ_OPTIONS.map(({ value, minDays }) => [
+          value,
+          isPeriodFreq(value) ? false : rangeDays > 0 && rangeDays < minDays,
+        ])
+      ),
     [rangeDays]
   );
 
+  const showPeriodPicker = isPeriodFreq(rangeFreq);
+
   const occurrences = countOccurrences(rangeStart, rangeEnd, rangeFreq, customInterval, rangeFreq === "weekly" ? weekDays : []);
+
+  const hint = recurringFrequencyHint({ frequency: rangeFreq, interval: lockedInterval ?? customInterval, daysOfWeek: weekDays });
 
   return (
     <div className="flex flex-col gap-3">
 
-      {/* Start / end date calendars — hidden when interval is locked by preset */}
-      {lockedInterval == null && (
-        <div className="flex flex-col gap-4">
-          <div>
-            <label className="block text-[13px] font-medium text-[#383838] mb-2">
-              Start Date
-              {rangeStart && (
-                <span className="ml-2 text-[12px] font-normal text-[#737373]">{rangeStart}</span>
-              )}
-            </label>
-            <MiniCalendar
-              mode="single"
-              selectedDates={rangeStart ? [rangeStart] : []}
-              minDateStr={minDateStr}
-              maxDateStr={maxDateStr}
-              onToggleDate={(d) => onRangeStart(d)}
-            />
-          </div>
-          <div>
-            <label className="block text-[13px] font-medium text-[#383838] mb-2">
-              {rangeFreq === "custom" ? "Until Date" : "End Date"}
-              {rangeEnd && (
-                <span className="ml-2 text-[12px] font-normal text-[#737373]">{rangeEnd}</span>
-              )}
-            </label>
-            <MiniCalendar
-              mode="single"
-              selectedDates={rangeEnd ? [rangeEnd] : []}
-              minDateStr={rangeStart || minDateStr}
-              maxDateStr={maxDateStr}
-              onToggleDate={(d) => onRangeEnd(d)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Frequency section */}
+      {/* Frequency — always first, so the selector below can adapt to it */}
       <div>
         <label className="block text-[13px] font-medium text-[#383838] mb-2">Frequency</label>
         {lockedInterval != null ? (
@@ -110,6 +86,7 @@ const DateRangeSection = ({
                 {`${FREQ_OPTIONS.find((o) => o.value === rangeFreq)?.label} requires at least ${FREQ_OPTIONS.find((o) => o.value === rangeFreq)?.minDays} days — switched to Daily.`}
               </p>
             )}
+
             {/* Custom interval input — only when frequency is "custom" and not locked */}
             {rangeFreq === "custom" && (
               <div className="flex items-center gap-3 bg-[#F9F9F9] border border-[#EBEBEB] rounded-xl px-4 py-3 mt-3">
@@ -164,10 +141,56 @@ const DateRangeSection = ({
         )}
       </div>
 
-      {recurringFrequencyHint({ frequency: rangeFreq, interval: lockedInterval ?? customInterval, daysOfWeek: weekDays }) ? (
-        <p className="text-[11px] text-[#6B7280] px-0.5">
-          {recurringFrequencyHint({ frequency: rangeFreq, interval: lockedInterval ?? customInterval, daysOfWeek: weekDays })}
-        </p>
+      {/* Period/date selector — adapts to the chosen frequency */}
+      {lockedInterval == null && (
+        showPeriodPicker ? (
+          <PeriodRangePicker
+            frequency={rangeFreq}
+            rangeStart={rangeStart}
+            rangeEnd={rangeEnd}
+            minDateStr={minDateStr}
+            maxDateStr={maxDateStr}
+            onRangeStart={onRangeStart}
+            onRangeEnd={onRangeEnd}
+          />
+        ) : (
+          <div className="flex flex-col gap-4">
+            <div>
+              <label className="block text-[13px] font-medium text-[#383838] mb-2">
+                Start Date
+                {rangeStart && (
+                  <span className="ml-2 text-[12px] font-normal text-[#737373]">{rangeStart}</span>
+                )}
+              </label>
+              <MiniCalendar
+                mode="single"
+                selectedDates={rangeStart ? [rangeStart] : []}
+                minDateStr={minDateStr}
+                maxDateStr={maxDateStr}
+                onToggleDate={(d) => onRangeStart(d)}
+              />
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-[#383838] mb-2">
+                {rangeFreq === "custom" ? "Until Date" : "End Date"}
+                {rangeEnd && (
+                  <span className="ml-2 text-[12px] font-normal text-[#737373]">{rangeEnd}</span>
+                )}
+              </label>
+              <MiniCalendar
+                mode="single"
+                selectedDates={rangeEnd ? [rangeEnd] : []}
+                minDateStr={rangeStart || minDateStr}
+                maxDateStr={maxDateStr}
+                onToggleDate={(d) => onRangeEnd(d)}
+              />
+            </div>
+          </div>
+        )
+      )}
+
+      {hint ? (
+        <p className="text-[11px] text-[#6B7280] px-0.5">{hint}</p>
       ) : null}
 
       {/* Payment count summary */}
