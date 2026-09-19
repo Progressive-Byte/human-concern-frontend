@@ -210,6 +210,16 @@ function Icon({ name }) {
     );
   }
 
+  if (name === "data-export") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+        <path d="M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M4 19h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   if (name === "translation") {
     return (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
@@ -287,6 +297,7 @@ const navItems = [
   { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
   { href: "/admin/logs", label: "Logs", icon: "logs" },
   { href: "/admin/translation", label: "Translation", icon: "translation", permission: "settings.read" },
+  { href: "/admin/data-export", label: "Data Export", icon: "data-export", permission: "data.export" },
   { href: "/admin/adminSettings", label: "Settings", icon: "settings" },
 ];
 

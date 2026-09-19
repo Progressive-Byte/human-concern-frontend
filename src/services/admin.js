@@ -1,4 +1,5 @@
 import { adminApiRequest } from "./api";
+import { apiBase } from "@/utils/constants";
 
 // Admin API service layer.
 // Each function returns the parsed response from the backend and is responsible for building the request URL + query params.
@@ -612,6 +613,50 @@ export function translateAdminTranslation({ locale, keys } = {}) {
   const body = { locale };
   if (Array.isArray(keys) && keys.length) body.keys = keys;
   return adminApiRequest("/admin/settings/translation/translate", { method: "POST", body: JSON.stringify(body) });
+}
+
+export function getAdminExportEntities() {
+  return adminApiRequest("/admin/data-export/entities", { method: "GET" });
+}
+
+export function createAdminExportJob(payload) {
+  return adminApiRequest("/admin/data-export/jobs", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function getAdminExportJobs({ limit } = {}) {
+  const query = limit ? `?limit=${encodeURIComponent(limit)}` : "";
+  return adminApiRequest(`/admin/data-export/jobs${query}`, { method: "GET" });
+}
+
+function getAdminCookie(name) {
+  if (typeof document === "undefined") return "";
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+/** Downloads a completed export via blob (the file is binary for xlsx/pdf). */
+export async function downloadAdminExport(jobId) {
+  const token = getAdminCookie("adminToken");
+  const res = await fetch(`${apiBase}/admin/data-export/jobs/${jobId}/download`, {
+    method: "GET",
+    credentials: "include",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Download failed with status ${res.status}`);
+
+  const blob = await res.blob();
+  const disposition = res.headers.get("content-disposition") || "";
+  const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+  const filename = match ? match[1] : `export-${jobId}`;
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  return filename;
 }
 
 export function getAdminSettingsPayment() {
