@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useAdminBranding } from "@/app/admin/components/AdminBrandingProvider";
+import NotificationBell from "@/components/common/NotificationBell";
 
 function Icon({ name }) {
   if (name === "overview") {
@@ -332,9 +333,12 @@ const AdminSidebar = ({ onNavigate }) => {
         <div className="flex items-center justify-center rounded-full bg-white/10">
           <Image src={brandLogoUrl || "/icons/hcu-icon-light.png"} alt="Human Concern USA" width={30} height={30} />
         </div>
-        <div className="leading-tight">
-          <div className="text-[15px] font-semibold">{organizationName}</div>
+        <div className="min-w-0 leading-tight">
+          <div className="truncate text-[15px] font-semibold">{organizationName}</div>
           <div className="text-[12px] text-white/60">Admin Panel</div>
+        </div>
+        <div className="ml-auto shrink-0">
+          <NotificationBell scope="admin" tone="dark" />
         </div>
       </div>
 

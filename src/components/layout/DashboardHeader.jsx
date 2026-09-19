@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { navItems } from "@/components/layout/DashboardSidebar";
 import { MakeDonerIcon, SignOutIcon } from "@/components/common/SvgIcon";
+import NotificationBell from "@/components/common/NotificationBell";
 
 const DashboardHeader = ({ title, subtitle, actions }) => {
   const { user, logout } = useAuth();
@@ -29,6 +30,8 @@ const DashboardHeader = ({ title, subtitle, actions }) => {
 
         <div className="flex items-center gap-2 shrink-0">
           {actions && <div className="hidden md:flex items-center gap-2">{actions}</div>}
+
+          <NotificationBell scope="donor" />
 
           {/* Hamburger — mobile only */}
           <button

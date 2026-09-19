@@ -4,6 +4,7 @@ import { AdminAuthProvider } from "@/context/AdminAuthContext";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import { AdminBrandingProvider } from "@/app/admin/components/AdminBrandingProvider";
 import { ToastProvider } from "@/app/admin/campaigns/components/ToastProvider";
+import NotificationBell from "@/components/common/NotificationBell";
 import { useState } from "react";
 
 const AdminLayout = ({ children }) => {
@@ -51,6 +52,9 @@ const AdminLayout = ({ children }) => {
                     </svg>
                   </button>
                   <div className="text-sm font-semibold text-gray-900">Admin Panel</div>
+                  <div className="ml-auto">
+                    <NotificationBell scope="admin" />
+                  </div>
                 </div>
 
                 <div className="min-w-0 flex-1 overflow-y-auto">{children}</div>

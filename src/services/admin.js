@@ -561,6 +561,30 @@ export function updateAdminSettingsSecurity(payload) {
   return adminApiRequest("/admin/settings/security", { method: "PATCH", body: JSON.stringify(payload) });
 }
 
+// -----------------------------
+// Notifications (personal inbox — no permission needed)
+// -----------------------------
+export function getAdminNotifications({ page, limit } = {}) {
+  const params = new URLSearchParams();
+  if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
+  if (limit !== undefined && limit !== null && String(limit).trim()) params.set("limit", String(limit).trim());
+  const query = params.toString();
+  const endpoint = query ? `/admin/notifications?${query}` : "/admin/notifications";
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminNotificationsUnreadCount() {
+  return adminApiRequest("/admin/notifications/unread-count", { method: "GET" });
+}
+
+export function markAdminNotificationRead(notificationId) {
+  return adminApiRequest(`/admin/notifications/${notificationId}/read`, { method: "POST" });
+}
+
+export function markAllAdminNotificationsRead() {
+  return adminApiRequest("/admin/notifications/read-all", { method: "POST" });
+}
+
 export function changeAuthPassword(payload) {
   return adminApiRequest("/auth/change-password", { method: "POST", body: JSON.stringify(payload) });
 }
