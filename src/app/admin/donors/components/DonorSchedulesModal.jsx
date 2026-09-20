@@ -2,16 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getAdminDonorSchedules } from "@/services/admin";
-import { formatCurrency } from "@/utils/helpers";
+import { formatCurrency, formatDate } from "@/utils/helpers";
 
-function formatDate(value) {
-  if (!value) return "—";
-  try {
-    return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  } catch {
-    return "—";
-  }
-}
+const STATUS_OPTIONS = [
+  { key: "all", label: "All" },
+  { key: "active", label: "Active" },
+  { key: "paused", label: "Paused" },
+  { key: "completed", label: "Completed" },
+  { key: "cancelled", label: "Cancelled" },
+];
 
 function unwrapArray(res) {
   if (Array.isArray(res?.data)) return res.data;
@@ -25,11 +24,21 @@ function unwrapSummary(res) {
   return res?.summary || res?.data?.summary || res?.data?.data?.summary || null;
 }
 
+function SummaryTile({ label, value }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
+      <div className="text-[12px] text-[#6B7280]">{label}</div>
+      <div className="mt-1 text-[18px] font-semibold text-[#111827]">{value}</div>
+    </div>
+  );
+}
+
 const DonorSchedulesModal = ({ open, donorKey, onClose }) => {
   const key = useMemo(() => String(donorKey || "").trim(), [donorKey]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [status, setStatus] = useState("all");
 
   const [rows, setRows] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -40,6 +49,7 @@ const DonorSchedulesModal = ({ open, donorKey, onClose }) => {
     setLoading(false);
     setRows([]);
     setSummary(null);
+    setStatus("all");
   }, [open]);
 
   useEffect(() => {
@@ -51,7 +61,7 @@ const DonorSchedulesModal = ({ open, donorKey, onClose }) => {
       setLoading(true);
       setError("");
       try {
-        const res = await getAdminDonorSchedules(key);
+        const res = await getAdminDonorSchedules(key, { status });
         if (!alive) return;
         setRows(unwrapArray(res));
         setSummary(unwrapSummary(res));
@@ -70,7 +80,7 @@ const DonorSchedulesModal = ({ open, donorKey, onClose }) => {
     return () => {
       alive = false;
     };
-  }, [open, key]);
+  }, [open, key, status]);
 
   useEffect(() => {
     if (!open) return;
@@ -111,61 +121,78 @@ const DonorSchedulesModal = ({ open, donorKey, onClose }) => {
           ) : null}
 
           {summary ? (
-            <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-              <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
-                <div className="text-[12px] text-[#6B7280]">Active Schedules</div>
-                <div className="mt-1 text-[18px] font-semibold text-[#111827]">{Number(summary?.activeSchedules || 0)}</div>
-              </div>
-              <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
-                <div className="text-[12px] text-[#6B7280]">Total Monthly Amount</div>
-                <div className="mt-1 text-[18px] font-semibold text-[#111827]">{formatCurrency(Number(summary?.totalMonthlyAmount || 0))}</div>
-              </div>
-              <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
-                <div className="text-[12px] text-[#6B7280]">Next Billing Total</div>
-                <div className="mt-1 text-[18px] font-semibold text-[#111827]">{formatCurrency(Number(summary?.nextBillingTotal || 0))}</div>
-              </div>
+            <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-5">
+              <SummaryTile label="Total" value={Number(summary?.totalSchedules || 0)} />
+              <SummaryTile label="Active" value={Number(summary?.activeSchedules || 0)} />
+              <SummaryTile label="Paused" value={Number(summary?.pausedSchedules || 0)} />
+              <SummaryTile label="Completed" value={Number(summary?.completedSchedules || 0)} />
+              <SummaryTile label="Cancelled" value={Number(summary?.cancelledSchedules || 0)} />
             </div>
           ) : null}
 
+          <div className="mb-3 flex items-center gap-1 rounded-lg bg-[#F3F4F6] p-1">
+            {STATUS_OPTIONS.map((option) => {
+              const active = status === option.key;
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  onClick={() => setStatus(option.key)}
+                  className={`rounded-md px-3 py-1.5 text-[12px] font-semibold transition ${
+                    active ? "bg-white text-[#111827] shadow-sm" : "text-[#6B7280] hover:text-[#111827]"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+
           <div className="overflow-x-auto rounded-2xl border border-dashed border-[#E5E7EB]">
-            <table className="w-full min-w-[860px] border-collapse text-[13px] text-[#111827]">
+            <table className="w-full min-w-[960px] border-collapse text-[13px] text-[#111827]">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">
-                  <th className="px-5 py-3">Cause</th>
-                  <th className="py-3 pr-4">Amount</th>
+                  <th className="px-5 py-3">Fund</th>
+                  <th className="py-3 pr-4">Campaign / Form</th>
+                  <th className="py-3 pr-4">Base amount</th>
                   <th className="py-3 pr-4">Frequency</th>
                   <th className="py-3 pr-4">Status</th>
-                  <th className="py-3 pr-5 text-right">Next Billing</th>
+                  <th className="py-3 pr-4">Payment</th>
+                  <th className="py-3 pr-5 text-right">Next charge</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="px-5 py-6 text-center text-sm text-[#6B7280]">
+                    <td colSpan={7} className="px-5 py-6 text-center text-sm text-[#6B7280]">
                       Loading...
                     </td>
                   </tr>
                 ) : rows.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-5 py-6 text-center text-sm text-[#6B7280]">
+                    <td colSpan={7} className="px-5 py-6 text-center text-sm text-[#6B7280]">
                       No schedules.
                     </td>
                   </tr>
                 ) : (
-                  rows.map((s) => {
-                    const id = String(s?.id || "");
-                    const causeName = String(s?.cause?.name || "—");
-                    const amount = Number(s?.amount || 0);
-                    const freq = String(s?.frequency || "—");
-                    const st = String(s?.status || "—");
-                    const nextBilling = s?.nextBillingDate || null;
+                  rows.map((s, idx) => {
+                    const id = String(s?.scheduleId || s?.donationId || idx);
+                    const fund = [s?.fundLabel, s?.fundCode ? `Fund ${s.fundCode}` : "", s?.designationCode ? `Designation ${s.designationCode}` : ""]
+                      .filter(Boolean)
+                      .join(" · ") || "—";
+                    const campaignForm = [s?.campaignName, s?.formName].filter(Boolean).join(" · ") || "—";
+                    const payment = [s?.paymentMethod, s?.paymentMask].filter(Boolean).join(" ").trim() || "Card on file";
                     return (
-                      <tr key={id || `${causeName}-${nextBilling}`} className="border-t border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors duration-200">
-                        <td className="px-5 py-4">{causeName}</td>
-                        <td className="py-4 pr-4 font-semibold">{formatCurrency(amount)}</td>
-                        <td className="py-4 pr-4 text-[#6B7280]">{freq}</td>
-                        <td className="py-4 pr-4">{st}</td>
-                        <td className="py-4 pr-5 text-right text-[#6B7280]">{formatDate(nextBilling)}</td>
+                      <tr key={id} className="border-t border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors duration-200">
+                        <td className="px-5 py-4">{fund}</td>
+                        <td className="py-4 pr-4 text-[#6B7280]">{campaignForm}</td>
+                        <td className="py-4 pr-4 font-semibold">{formatCurrency(Number(s?.baseAmount || 0), String(s?.currency || "USD"))}</td>
+                        <td className="py-4 pr-4 text-[#6B7280]">{s?.frequencyLabel || "—"}</td>
+                        <td className="py-4 pr-4">{s?.scheduleStatus || s?.status || "—"}</td>
+                        <td className="py-4 pr-4 text-[#6B7280]">{payment}</td>
+                        <td className="py-4 pr-5 text-right text-[#6B7280]">
+                          {s?.nextDueDate ? formatDate(s.nextDueDate) : "—"}
+                        </td>
                       </tr>
                     );
                   })

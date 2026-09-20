@@ -351,8 +351,18 @@ export function getAdminDonorCauses(donorKey) {
   return adminApiRequest(`/admin/donors/${donorKey}/causes`, { method: "GET" });
 }
 
-export function getAdminDonorSchedules(donorKey) {
-  return adminApiRequest(`/admin/donors/${donorKey}/schedules`, { method: "GET" });
+export function getAdminDonorSchedules(donorKey, { status } = {}) {
+  const params = new URLSearchParams();
+  if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+
+  const query = params.toString();
+  const endpoint = query ? `/admin/donors/${donorKey}/schedules?${query}` : `/admin/donors/${donorKey}/schedules`;
+
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminDonorBreakdown(donorKey) {
+  return adminApiRequest(`/admin/donors/${donorKey}/breakdown`, { method: "GET" });
 }
 
 export function getAdminDonorActivity(donorKey, { page, limit } = {}) {

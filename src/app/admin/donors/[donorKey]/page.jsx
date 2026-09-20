@@ -6,6 +6,7 @@ import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import {
   getAdminDonorActivity,
+  getAdminDonorBreakdown,
   getAdminDonorByKey,
   getAdminDonorCauses,
   getAdminDonorDonations,
@@ -15,12 +16,14 @@ import {
 import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
 import SendDonorEmailModal from "../components/SendDonorEmailModal";
 import DonorDetailHeader from "../components/DonorDetailHeader";
-import DonorKpisRow from "../components/DonorKpisRow";
+import DonorGivingSummaryCard from "../components/DonorGivingSummaryCard";
 import DonorActionsPanel from "../components/DonorActionsPanel";
 import DonorProfileCard from "../components/DonorProfileCard";
 import DonorCausesCard from "../components/DonorCausesCard";
 import DonorSchedulesCard from "../components/DonorSchedulesCard";
 import DonorDonationsTable from "../components/DonorDonationsTable";
+import DonorFundBreakdownCard from "../components/DonorFundBreakdownCard";
+import DonorCampaignFormBreakdownCard from "../components/DonorCampaignFormBreakdownCard";
 import DonorActivityTimeline from "../components/DonorActivityTimeline";
 import EditDonorProfileModal from "../components/EditDonorProfileModal";
 import DonorTransactionsModal from "../components/DonorTransactionsModal";
@@ -92,10 +95,14 @@ const AdminDonorDetailPage = () => {
 
   const [donor, setDonor] = useState(null);
   const [stats, setStats] = useState(null);
-  const [schedules, setSchedules] = useState({ data: [], summary: null });
   const [causes, setCauses] = useState({ data: [], summary: null });
   const [donations, setDonations] = useState({ data: [], pagination: null, summary: null });
   const [activity, setActivity] = useState({ data: [], pagination: null });
+  const [breakdown, setBreakdown] = useState(null);
+
+  const [schedulesStatus, setSchedulesStatus] = useState("active");
+  const [schedules, setSchedules] = useState({ data: [], summary: null });
+  const [schedulesLoading, setSchedulesLoading] = useState(true);
 
   const [confirmStatusOpen, setConfirmStatusOpen] = useState(false);
   const [confirmStatusLoading, setConfirmStatusLoading] = useState(false);
@@ -115,12 +122,12 @@ const AdminDonorDetailPage = () => {
       setLoading(true);
       setError("");
       try {
-        const [donorRes, schedulesRes, causesRes, donationsRes, activityRes] = await Promise.all([
+        const [donorRes, causesRes, donationsRes, activityRes, breakdownRes] = await Promise.all([
           getAdminDonorByKey(donorKey),
-          getAdminDonorSchedules(donorKey),
           getAdminDonorCauses(donorKey),
           getAdminDonorDonations(donorKey, { page: "1", limit: "10", sort: "createdAt", order: "desc" }),
           getAdminDonorActivity(donorKey),
+          getAdminDonorBreakdown(donorKey),
         ]);
 
         if (!alive) return;
@@ -139,10 +146,6 @@ const AdminDonorDetailPage = () => {
 
         setDonor(normalizedDonor);
         setStats(statsObj);
-        setSchedules({
-          data: unwrapArray(schedulesRes),
-          summary: unwrapSummary(schedulesRes),
-        });
         setCauses({
           data: unwrapArray(causesRes),
           summary: unwrapSummary(causesRes),
@@ -156,6 +159,18 @@ const AdminDonorDetailPage = () => {
           data: unwrapArray(activityRes),
           pagination: unwrapPagination(activityRes),
         });
+
+        const breakdownPayload = unwrapObject(breakdownRes);
+        setBreakdown(
+          breakdownPayload && typeof breakdownPayload === "object"
+            ? {
+                summary: breakdownPayload.summary || null,
+                funds: Array.isArray(breakdownPayload.funds) ? breakdownPayload.funds : [],
+                campaigns: Array.isArray(breakdownPayload.campaigns) ? breakdownPayload.campaigns : [],
+                forms: Array.isArray(breakdownPayload.forms) ? breakdownPayload.forms : [],
+              }
+            : { summary: null, funds: [], campaigns: [], forms: [] },
+        );
       } catch (e) {
         if (!alive) return;
         setError(e?.message || "Failed to load donor details.");
@@ -170,6 +185,33 @@ const AdminDonorDetailPage = () => {
       alive = false;
     };
   }, [donorKey]);
+
+  // Schedules are filtered on their own so switching the tab does not reload the whole page.
+  useEffect(() => {
+    let alive = true;
+    if (!donorKey) return;
+
+    async function loadSchedules() {
+      setSchedulesLoading(true);
+      try {
+        const res = await getAdminDonorSchedules(donorKey, { status: schedulesStatus });
+        if (!alive) return;
+        setSchedules({ data: unwrapArray(res), summary: unwrapSummary(res) });
+      } catch (e) {
+        if (!alive) return;
+        toast.error(e?.message || "Failed to load schedules");
+      } finally {
+        if (!alive) return;
+        setSchedulesLoading(false);
+      }
+    }
+
+    loadSchedules();
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [donorKey, schedulesStatus]);
 
   async function confirmToggleStatus() {
     if (!donorKey) return;
@@ -218,7 +260,7 @@ const AdminDonorDetailPage = () => {
 
       <DonorDetailHeader donor={donor} loading={loading} onSendEmail={() => setEmailOpen(true)} />
 
-      <DonorKpisRow donor={donor} stats={stats} schedulesSummary={schedules?.summary} loading={loading} />
+      <DonorGivingSummaryCard donor={donor} stats={stats} schedulesSummary={schedules?.summary} loading={loading} />
 
       <DonorActionsPanel
         donor={donor}
@@ -229,10 +271,23 @@ const AdminDonorDetailPage = () => {
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <DonorProfileCard donor={donor} loading={loading} onEdit={() => setEditOpen(true)} />
+        <DonorProfileCard donor={donor} stats={stats} loading={loading} onEdit={() => setEditOpen(true)} />
         <DonorCausesCard causes={causes} loading={loading} onViewAll={() => setCausesOpen(true)} />
-        <DonorSchedulesCard schedules={schedules} loading={loading} onViewAll={() => setSchedulesOpen(true)} />
-        <DonorDonationsTable donations={donations} loading={loading} onViewAll={() => setTxOpen(true)} />
+      </div>
+
+      <DonorSchedulesCard
+        schedules={schedules}
+        loading={loading || (schedulesLoading && schedules.data.length === 0)}
+        status={schedulesStatus}
+        onStatusChange={setSchedulesStatus}
+        onViewAll={() => setSchedulesOpen(true)}
+      />
+
+      <DonorDonationsTable donations={donations} loading={loading} onViewAll={() => setTxOpen(true)} />
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <DonorFundBreakdownCard breakdown={breakdown} loading={loading} />
+        <DonorCampaignFormBreakdownCard breakdown={breakdown} loading={loading} />
       </div>
 
       <DonorActivityTimeline activity={activity} loading={loading} />
