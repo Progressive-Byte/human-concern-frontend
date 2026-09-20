@@ -999,6 +999,50 @@ export function resetAdminSystemUserPassword(userId, newPassword) {
 }
 
 // -----------------------------
+// Reporting dashboard
+// -----------------------------
+// Every report endpoint takes the same filter object, so the whole dashboard narrows
+// consistently. Empty values are dropped so the backend falls back to its defaults.
+export function buildReportQuery(filters = {}) {
+  const params = new URLSearchParams();
+  Object.entries(filters || {}).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    const v = String(value).trim();
+    if (v) params.set(key, v);
+  });
+  return params.toString();
+}
+
+function reportRequest(path, filters) {
+  const query = buildReportQuery(filters);
+  return adminApiRequest(query ? `${path}?${query}` : path, { method: "GET" });
+}
+
+export function getAdminReportSummary(filters) {
+  return reportRequest("/admin/reports/summary", filters);
+}
+
+export function getAdminReportCampaigns(filters) {
+  return reportRequest("/admin/reports/campaigns", filters);
+}
+
+export function getAdminReportFunds(filters) {
+  return reportRequest("/admin/reports/funds", filters);
+}
+
+export function getAdminReportTransactions(filters) {
+  return reportRequest("/admin/reports/transactions", filters);
+}
+
+export function getAdminReportAttribution(filters) {
+  return reportRequest("/admin/reports/attribution", filters);
+}
+
+export function getAdminReportFilterOptions() {
+  return adminApiRequest("/admin/reports/filter-options", { method: "GET" });
+}
+
+// -----------------------------
 // Roles & Permissions
 // -----------------------------
 export function getAdminRoles() {

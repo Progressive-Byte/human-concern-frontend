@@ -16,7 +16,7 @@ import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGate
 import { buildDonorReturnParams, saveDonorReturnParams } from "@/components/payment/UnifiedChallengeDispatcher";
 import { resetIdempotencyKeyForChangedIntent } from "@/utils/idempotency";
 import { validateOverviewStep } from "@/utils/donationStepValidation";
-import { buildUtmPayload } from "@/utils/utm";
+import { buildUtmPayload, readFirstTouch } from "@/utils/utm";
 
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
@@ -376,10 +376,12 @@ const Step3Addons = () => {
     const scheduleType   = data.scheduleType   ?? "date_range";
     const scheduleConfig = data.scheduleConfig ?? {};
     const utm            = buildUtmPayload(data);
+    const firstTouch     = readFirstTouch();
 
     const body = {
       ...(data.campaignId ? { formId: data.campaignId } : { formSlug: data.campaign }),
       ...(utm && { utm }),
+      ...(firstTouch && { firstTouch }),
       info: {
         ...(data.organization && { organization: data.organization }),
         firstName:    data.firstName    ?? "",

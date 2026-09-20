@@ -7,7 +7,7 @@ import {
   storeIdempotencyKey,
   clearIdempotencyKey,
 } from "@/utils/idempotency";
-import { readUtmFromSearch } from "@/utils/utm";
+import { readUtmFromSearch, saveFirstTouch } from "@/utils/utm";
 
 const DonationContext = createContext(null);
 
@@ -110,6 +110,9 @@ export function DonationProvider({ children }) {
     const captured = readUtmFromSearch(window.location.search);
     const keys = Object.keys(captured);
     if (!keys.length) return;
+
+    // First touch wins: remember the first UTM this browser saw for later donations.
+    saveFirstTouch(captured);
 
     setData((prev) => {
       const patch = {};

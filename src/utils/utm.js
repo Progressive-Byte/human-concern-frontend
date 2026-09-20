@@ -4,7 +4,14 @@
  * Admins share donation form URLs with UTM parameters (e.g.
  * `/my-campaign/1?utm_source=facebook&utm_medium=social`). These helpers read those
  * params off the URL and convert the donation-context keys into the API payload shape.
+ *
+ * Attribution has two halves:
+ * - **last touch** = the UTM on the URL of the donation itself (stored in the donation context).
+ * - **first touch** = the first UTM this browser ever saw, kept in a long-lived cookie so a
+ *   donor who arrives from Facebook and later donates via Google still credits Facebook.
  */
+
+import { getCookie, setCookie } from "@/utils/cookies";
 
 export const UTM_KEYS = [
   "utm_source",
@@ -13,6 +20,9 @@ export const UTM_KEYS = [
   "utm_term",
   "utm_content",
 ];
+
+const FIRST_TOUCH_COOKIE = "hc_first_touch";
+const FIRST_TOUCH_DAYS = 365;
 
 const UTM_TO_FIELD = {
   utm_source: "source",
@@ -51,4 +61,38 @@ export function buildUtmPayload(data) {
     if (value) out[field] = value;
   }
   return Object.keys(out).length ? out : null;
+}
+
+/** Reads the stored first-touch attribution (null when this browser has none yet). */
+export function readFirstTouch() {
+  const raw = getCookie(FIRST_TOUCH_COOKIE);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    const out = {};
+    for (const field of Object.values(UTM_TO_FIELD)) {
+      const value = String(parsed[field] ?? "").trim();
+      if (value) out[field] = value;
+    }
+    return Object.keys(out).length ? out : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Saves the first UTM this browser has seen. First touch wins — an existing cookie is
+ * never overwritten, so the original source keeps the credit.
+ * Returns the stored first-touch payload (or null when there is nothing to store).
+ */
+export function saveFirstTouch(utmFromUrl) {
+  const existing = readFirstTouch();
+  if (existing) return existing;
+
+  const payload = buildUtmPayload(utmFromUrl);
+  if (!payload) return null;
+
+  setCookie(FIRST_TOUCH_COOKIE, JSON.stringify(payload), FIRST_TOUCH_DAYS);
+  return payload;
 }
