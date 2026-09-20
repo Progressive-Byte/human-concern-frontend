@@ -32,6 +32,18 @@ function normalizeNoteFields(value) {
   return Array.isArray(value) ? value.filter((field) => field && typeof field === "object") : [];
 }
 
+/**
+ * The amount for one schedule date. The resolved map (Step 2) already applied the committed total
+ * and the last-installment remainder, so it wins; explicit per-date overrides are next, and the
+ * plain per-date amount is the fallback.
+ */
+function pickDateAmount({ resolved, overrides, key, fallback }) {
+  const r = resolved ? resolved[key] : undefined;
+  if (r !== undefined && r !== null) return Number(r);
+  if (overrides && overrides[key] !== undefined) return Number(overrides[key]);
+  return fallback;
+}
+
 function calcAddOnTotal(addOn, inputValues) {
   const { pricing, amount } = addOn;
   if (!pricing || pricing.type === "fixed") return amount ?? 0;
@@ -275,7 +287,7 @@ const Step3Addons = () => {
         return (scheduleConfig.dates ?? []).map((isoDate) => {
           const key    = isoDate.split("T")[0];
           const prefill = prefillDateMap[key];
-          const amount = dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier;
+          const amount = pickDateAmount({ resolved: data.resolvedScheduleAmounts, overrides: dateAmounts, key, fallback: amountTier });
           const row = {
             date:   isoDate.includes("T") ? isoDate : `${isoDate}T00:00:00.000Z`,
             amount,
@@ -294,7 +306,7 @@ const Step3Addons = () => {
       const endKey   = scheduleConfig.endDate?.split("T")[0]   ?? "";
       return generateDatesInRange(startKey, endKey, rawFreq, interval, days).map((d) => {
         const prefill = prefillDateMap[d];
-        const amount  = dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier;
+        const amount  = pickDateAmount({ resolved: data.resolvedScheduleAmounts, overrides: dateAmounts, key: d, fallback: amountTier });
         const row = { date: `${d}T00:00:00.000Z`, amount };
         if (prefill && !prefill.removed) row.transactionId = prefill.transactionId;
         return row;
@@ -336,7 +348,7 @@ const Step3Addons = () => {
       return {
         dates: dates.map((isoDate) => {
           const key    = isoDate.split("T")[0];
-          const amount = dateAmounts[key] !== undefined ? Number(dateAmounts[key]) : amountTier;
+          const amount = pickDateAmount({ resolved: data.resolvedScheduleAmounts, overrides: dateAmounts, key, fallback: amountTier });
           return {
             date:   isoDate,
             amount,
@@ -362,7 +374,7 @@ const Step3Addons = () => {
       ...(apiFreq === "interval" && { intervalValue: interval }),
       ...(apiFreq === "weekly" && days.length ? { daysOfWeek: days } : {}),
       dates: allKeys.map((d) => {
-        const amount = dateAmounts[d] !== undefined ? Number(dateAmounts[d]) : amountTier;
+        const amount = pickDateAmount({ resolved: data.resolvedScheduleAmounts, overrides: dateAmounts, key: d, fallback: amountTier });
         return {
           date:   new Date(`${d}T00:00:00.000Z`).toISOString(),
           amount,

@@ -36,6 +36,7 @@ const RecurringSchedule = ({
   causeSplit,
   causeLabelById,
   campaignEndDate = null,
+  resolvedAmounts = null,
   onChange,
 }) => {
   // Earliest date the API accepts as a due date (now + lead time, at UTC midnight).
@@ -484,6 +485,7 @@ const RecurringSchedule = ({
           activeDates={activeDates}
           dateAmounts={dateAmounts}
           effectiveAmount={effectiveAmount}
+          resolvedAmounts={resolvedAmounts}
           sym={sym}
           onChange={handleDateAmountChange}
           minDateStr={minDateStr}

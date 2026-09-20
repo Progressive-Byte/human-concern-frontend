@@ -1,8 +1,11 @@
 import { distributeAmount } from "@/utils/causeSplit";
 
-const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled = false, causeSplit, causeLabelById }) => {
+const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled = false, causeSplit, causeLabelById, resolved = null }) => {
   const isOverridden  = override !== "";
-  const displayAmount = isOverridden ? Number(override) : effectiveAmount;
+  // The resolved amount already carries the last-installment remainder, so it is what the donor
+  // will actually be charged — show it instead of the plain per-date default.
+  const fallbackAmount = resolved !== null && resolved !== undefined ? Number(resolved) : effectiveAmount;
+  const displayAmount = isOverridden ? Number(override) : fallbackAmount;
   const showCauseSplit = causeSplit && Object.keys(causeSplit).length > 1;
   const causeBreakdown = showCauseSplit ? distributeAmount(displayAmount, causeSplit) : [];
 
@@ -29,7 +32,7 @@ const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled =
           <input
             type="number"
             value={override}
-            placeholder={String(effectiveAmount)}
+            placeholder={String(fallbackAmount)}
             min={0}
             onChange={(e) => onChange(d, e.target.value)}
             className={`w-full pl-7 pr-3 py-2 text-[13px] border rounded-xl outline-none transition-colors bg-white ${

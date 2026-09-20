@@ -11,6 +11,7 @@ import AmountSelector    from "./StepComponents/Step2components/AmountSelector";
 import SectionStep from "./StepComponents/Step2components/SectionStep";
 import { validateAmountScheduleStep } from "@/utils/donationStepValidation";
 import { earliestAllowedDateStr } from "@/utils/scheduleDateLimits";
+import { resolveScheduleAmounts, toCents, fromCents } from "@/utils/money";
 
 const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
@@ -138,41 +139,68 @@ const Step2Payment = () => {
   // so ticking make-up keeps the per-date amount and grows the total (rather than shrinking it).
   const divideDenominator = remainingOccurrences > 0 ? remainingOccurrences : (occurrences > 0 ? occurrences : 1);
   const defaultPerDate = isRecurring && splitMode === "divide"
-    ? Math.round((effectiveAmount / divideDenominator) * 100) / 100
+    ? Math.floor((effectiveAmount / divideDenominator) * 100) / 100
     : effectiveAmount;
 
-  const perDateTotal = useMemo(() => {
-    if (!isRecurring) return null;
-    const config    = scheduleState.scheduleConfig ?? {};
-    const overrides = config.dateAmounts ?? {};
-
+  // Every date of the schedule, in order.
+  const scheduleDates = useMemo(() => {
+    if (!isRecurring) return [];
+    const config = scheduleState.scheduleConfig ?? {};
     if (scheduleState.scheduleType === "specific_dates") {
-      const dates = config.dates ?? [];
-      if (!dates.length) return null;
-      return dates.reduce((sum, isoDate) => {
-        const d   = isoDate.split("T")[0];
-        const amt = overrides[d] !== undefined ? Number(overrides[d]) : defaultPerDate;
-        return sum + (isNaN(amt) ? defaultPerDate : amt);
-      }, 0);
+      return (config.dates ?? []).map((d) => String(d).split("T")[0]);
     }
+    const start = config.startDate?.split("T")[0];
+    const end = config.endDate?.split("T")[0];
+    if (!start || !end) return [];
+    return generateDatesInRange(start, end, config.frequency ?? "daily", config.customInterval ?? 1, config.daysOfWeek ?? []);
+  }, [isRecurring, scheduleState]);
 
-    if (scheduleState.scheduleType === "date_range") {
-      const start = config.startDate?.split("T")[0];
-      const end   = config.endDate?.split("T")[0];
-      const freq  = config.frequency ?? "daily";
-      if (!start || !end) return null;
-      const dates = generateDatesInRange(start, end, freq, config.customInterval ?? 1, config.daysOfWeek ?? []);
-      if (!dates.length) return null;
-      const hasOverrides = Object.keys(overrides).length > 0;
-      if (!hasOverrides) return null;
-      return dates.reduce((sum, d) => {
-        const amt = overrides[d] !== undefined ? Number(overrides[d]) : defaultPerDate;
-        return sum + (isNaN(amt) ? defaultPerDate : amt);
-      }, 0);
-    }
+  // Past (make-up) dates are charged at the full default and are not part of the split, so the
+  // commitment grows instead of the per-date amount shrinking.
+  const minDateKey = useMemo(() => earliestAllowedDateStr(), []);
+  const { splitDates, fixedAmounts, committedCents } = useMemo(() => {
+    const overrides = scheduleState.scheduleConfig?.dateAmounts ?? {};
+    const past = scheduleDates.filter((d) => d < minDateKey);
+    const future = scheduleDates.filter((d) => d >= minDateKey);
+    const fixed = {};
+    past.forEach((d) => {
+      const raw = overrides[d];
+      const hasOverride = raw !== undefined && raw !== null && String(raw).trim() !== "" && Number.isFinite(Number(raw));
+      fixed[d] = toCents(hasOverride ? raw : defaultPerDate);
+    });
 
-    return null;
-  }, [isRecurring, scheduleState, defaultPerDate]);
+    // Divide mode: the donor typed the TOTAL, so that is the commitment. Repeat mode: the typed
+    // per-date amount is the commitment, so the total is per-date x dates.
+    const committed = splitMode === "divide"
+      ? toCents(effectiveAmount)
+      : toCents(defaultPerDate) * (future.length || 1);
+
+    return { splitDates: future, fixedAmounts: fixed, committedCents: committed };
+  }, [scheduleDates, scheduleState.scheduleConfig?.dateAmounts, minDateKey, defaultPerDate, splitMode, effectiveAmount]);
+
+  // The single source of truth for what each date is charged: the donor's edits are kept and the
+  // cent remainder lands on the LAST un-edited date, so the schedule always sums exactly.
+  const { amounts: resolvedAmountCents, totalCents: perDateTotalCents } = useMemo(
+    () =>
+      resolveScheduleAmounts({
+        dates: splitDates,
+        overrides: scheduleState.scheduleConfig?.dateAmounts ?? {},
+        committedCents,
+        fixed: fixedAmounts,
+      }),
+    [splitDates, scheduleState.scheduleConfig?.dateAmounts, committedCents, fixedAmounts]
+  );
+
+  const perDateTotal = isRecurring ? fromCents(perDateTotalCents) : null;
+
+  // Same map as dollars, for display and for the submit payload.
+  const resolvedAmountDollars = useMemo(() => {
+    const out = {};
+    Object.entries(resolvedAmountCents || {}).forEach(([date, cents]) => {
+      out[date] = fromCents(cents);
+    });
+    return out;
+  }, [resolvedAmountCents]);
 
   // Sync local state to context in real-time
   useEffect(() => {
@@ -190,6 +218,7 @@ const Step2Payment = () => {
         ? scheduleState.scheduleConfig?.frequency
         : undefined,
       perDateTotal: isRecurring && perDateTotal !== null ? perDateTotal : undefined,
+      resolvedScheduleAmounts: isRecurring ? resolvedAmountDollars : undefined,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveAmount, defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset, makeUpMissedDates]);
@@ -408,6 +437,7 @@ const Step2Payment = () => {
               <RecurringSchedule
                 sym={sym}
                 effectiveAmount={defaultPerDate}
+                resolvedAmounts={resolvedAmountDollars}
                 splitMode={splitMode}
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}

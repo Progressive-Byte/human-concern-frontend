@@ -2,17 +2,23 @@
 
 import DateAmountRow from "./DateAmountRow";
 
-const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange, minDateStr, causeSplit, causeLabelById }) => {
+const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange, minDateStr, causeSplit, causeLabelById, resolvedAmounts = null }) => {
   const cutoff = minDateStr ?? new Date().toISOString().split("T")[0];
 
   const futureDates = activeDates.filter((d) => d >= cutoff);
   const pastDates   = activeDates.filter((d) => d < cutoff);
 
-  const total = futureDates.reduce((sum, d) => {
-    const ov  = dateAmounts[d] ?? "";
+  // Prefer the amount the schedule will actually be charged (which carries the last-installment
+  // remainder) so what the donor reads matches what is submitted.
+  const amountFor = (d) => {
+    const resolved = resolvedAmounts ? resolvedAmounts[d] : undefined;
+    if (resolved !== undefined && resolved !== null) return Number(resolved);
+    const ov = dateAmounts[d] ?? "";
     const amt = ov !== "" ? Number(ov) : effectiveAmount;
-    return sum + (isNaN(amt) ? effectiveAmount : amt);
-  }, 0);
+    return isNaN(amt) ? effectiveAmount : amt;
+  };
+
+  const total = activeDates.reduce((sum, d) => sum + amountFor(d), 0);
 
   return (
     <div className="flex flex-col gap-2 border border-[#EBEBEB] rounded-xl overflow-hidden bg-[#FAFAFA]">
@@ -42,6 +48,7 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
             d={d}
             override={dateAmounts[d] ?? ""}
             effectiveAmount={effectiveAmount}
+            resolved={resolvedAmounts ? resolvedAmounts[d] : undefined}
             sym={sym}
             onChange={onChange}
             disabled={d < cutoff}
