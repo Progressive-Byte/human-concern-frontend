@@ -54,16 +54,24 @@ const NotificationsTab = ({ value, onChange, loading, saving, onSave }) => {
   const v = value || {};
 
   const rows = [
-    { key: "emailEnabled", title: "Email Notifications", desc: "Receive notifications via email" },
-    { key: "newDonationReceived", title: "New donation received", desc: "" },
-    { key: "campaignGoalReached", title: "Campaign goal reached", desc: "" },
-    { key: "newDonorRegistration", title: "New donor registration", desc: "" },
-    { key: "failedTransaction", title: "Failed transaction", desc: "" },
-    { key: "weeklySummaryReport", title: "Weekly summary report", desc: "" },
+    { key: "emailEnabled", title: "Notifications enabled", desc: "Master switch for every email and bell alert" },
+    { key: "newDonationReceived", title: "New donation received", desc: "Email + bell alert when a donation is confirmed" },
+    { key: "highValueDonation", title: "High-value donation", desc: "Bell alert when a donation reaches the amount below" },
+    { key: "newDonorRegistration", title: "New donor registration", desc: "Bell alert when a donor account is created" },
+    { key: "refundIssued", title: "Refund processed", desc: "Bell alert when a donation is refunded" },
+    { key: "failedTransaction", title: "Failed recurring charge", desc: "Bell alert when an installment fails after every retry" },
+    { key: "gatewayFailure", title: "Payment gateway failure", desc: "Bell alert when a gateway looks unhealthy (at most once every 6 hours)" },
+    { key: "exchangeRateFailure", title: "Exchange rate update failure", desc: "Bell alert when the rate sync fails (at most once every 6 hours)" },
+    { key: "campaignGoalReached", title: "Campaign goal reached", desc: "Not wired yet" },
+    { key: "weeklySummaryReport", title: "Weekly summary report", desc: "Not wired yet" },
   ];
 
+  const thresholdValue = Number.isFinite(Number(v.highValueDonationAmount))
+    ? Number(v.highValueDonationAmount)
+    : 1000;
+
   return (
-    <SettingsSectionCard icon={<MailIcon />} title="Email Notifications" subtitle="Configure email notification preferences">
+    <SettingsSectionCard icon={<MailIcon />} title="Email & Alert Notifications" subtitle="Configure email notifications and admin bell alerts">
       <div className="space-y-5">
         {rows.map((r) => (
           <div key={r.key} className="flex items-center justify-between gap-6 border-b border-[#F3F4F6] pb-5 last:border-b-0 last:pb-0">
@@ -78,6 +86,30 @@ const NotificationsTab = ({ value, onChange, loading, saving, onSave }) => {
             />
           </div>
         ))}
+
+        <div className="flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <div className="text-[13px] font-semibold text-[#111827]">High-value threshold (USD)</div>
+            <div className="mt-1 text-[12px] text-[#6B7280]">
+              Donations at or above this amount raise the bell alert. Use 0 to disable it.
+            </div>
+          </div>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            inputMode="numeric"
+            value={thresholdValue}
+            onChange={(e) => {
+              const raw = e.target.value;
+              const parsed = raw === "" ? 0 : Number(raw);
+              const next = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+              onChange?.((prev) => ({ ...(prev || {}), highValueDonationAmount: next }));
+            }}
+            disabled={loading}
+            className="w-32 shrink-0 rounded-xl border border-dashed border-[#E5E7EB] px-3 py-2 text-right text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+          />
+        </div>
       </div>
 
       <div className="mt-6">
