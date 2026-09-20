@@ -366,6 +366,23 @@ export function getAdminDonorActivity(donorKey, { page, limit } = {}) {
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
+export function getAdminDonorBreakdown(donorKey, { from, to } = {}) {
+  const params = new URLSearchParams();
+  if (from) params.set("from", String(from));
+  if (to) params.set("to", String(to));
+  const query = params.toString();
+  const endpoint = query ? `/admin/donors/${donorKey}/breakdown?${query}` : `/admin/donors/${donorKey}/breakdown`;
+  return adminApiRequest(endpoint, { method: "GET" });
+}
+
+export function getAdminDonorCrmStatus(donorKey) {
+  return adminApiRequest(`/admin/donors/${donorKey}/crm-status`, { method: "GET" });
+}
+
+export function updateAdminDonorCrmStatus(donorKey, payload) {
+  return adminApiRequest(`/admin/donors/${donorKey}/crm-status`, { method: "PUT", body: JSON.stringify(payload) });
+}
+
 export function updateAdminDonorStatus(donorKey, payload) {
   return adminApiRequest(`/admin/donors/${donorKey}/status`, { method: "PATCH", body: JSON.stringify(payload) });
 }
