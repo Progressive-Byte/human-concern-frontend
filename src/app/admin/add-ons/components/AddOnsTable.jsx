@@ -86,6 +86,7 @@ const AddOnsTable = ({
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                 <th className="px-5 py-3">Add-On</th>
                 <th className="py-3 pr-4">Amount</th>
+                <th className="py-3 pr-4">Fund / Designation</th>
                 <th className="py-3 pr-4">Pricing Type</th>
                 <th className="py-3 pr-4">Status</th>
                 <th className="py-3 pr-4">Enabled</th>
@@ -116,6 +117,11 @@ const AddOnsTable = ({
                   <td className="py-4 pr-4 align-top">
                     <div className="font-semibold text-[#111827]">{formatCurrency(Number(item?.amount || 0))}</div>
                     {item?.amountFieldLabel ? <div className="mt-1 text-[12px] text-[#6B7280]">{item.amountFieldLabel}</div> : null}
+                  </td>
+
+                  <td className="py-4 pr-4 align-top">
+                    <div className="font-mono text-[12px] text-[#111827]">{item?.fundCode || "—"}</div>
+                    <div className="mt-1 text-[12px] text-[#6B7280]">{item?.designationCode || "General"}</div>
                   </td>
 
                   <td className="py-4 pr-4 align-top">

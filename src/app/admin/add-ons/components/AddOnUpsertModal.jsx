@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
-import { createAdminAddOn, updateAdminAddOn } from "@/services/admin";
+import { createAdminAddOn, updateAdminAddOn, getAdminCauses, getAdminDesignations } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import PricingBuilder from "./PricingBuilder";
 
@@ -195,6 +195,11 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
   const [amount, setAmount] = useState("");
   const [labelUnderAmount, setLabelUnderAmount] = useState("");
   const [enabled, setEnabled] = useState(true);
+  // The add-on's own fund + designation, fixed at creation.
+  const [fundCode, setFundCode] = useState("");
+  const [designationCode, setDesignationCode] = useState("");
+  const [fundOptions, setFundOptions] = useState([]);
+  const [designationOptions, setDesignationOptions] = useState([]);
 
   const [pricingMode, setPricingMode] = useState("fixed");
   const [pricingState, setPricingState] = useState({ formula: "", inputs: [] });
@@ -211,6 +216,37 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
     };
   }, [open]);
 
+  // Fund codes come from existing causes; designations from the Designations list ("General" = none).
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    (async () => {
+      try {
+        const [causesRes, designationsRes] = await Promise.all([
+          getAdminCauses({ limit: "200" }),
+          getAdminDesignations({ limit: "200" }),
+        ]);
+        if (!alive) return;
+        const causes = causesRes?.data?.items || causesRes?.data?.data?.items || [];
+        const designations = designationsRes?.data?.items || designationsRes?.data?.data?.items || [];
+        const codes = Array.from(
+          new Set(causes.map((c) => String(c?.fundCode || "").trim()).filter(Boolean))
+        ).sort();
+        setFundOptions(codes);
+        setDesignationOptions(
+          designations
+            .map((d) => ({ code: String(d?.code || "").trim(), name: String(d?.name || d?.code || "").trim() }))
+            .filter((d) => d.code)
+        );
+      } catch {
+        // The add-on can still be saved with a typed value if these lists fail to load.
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     setError("");
@@ -224,6 +260,8 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
       setAmount("");
       setLabelUnderAmount("");
       setEnabled(true);
+      setFundCode("");
+      setDesignationCode("");
       setPricingMode("fixed");
       setPricingState({ formula: "", inputs: [] });
       return;
@@ -236,6 +274,8 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
     setAmount(addOn?.amount !== undefined && addOn?.amount !== null ? String(addOn.amount) : "");
     setLabelUnderAmount(String(addOn?.labelUnderAmount || ""));
     setEnabled(Boolean(addOn?.enabled));
+    setFundCode(String(addOn?.fundCode || ""));
+    setDesignationCode(String(addOn?.designationCode || ""));
 
     const t = String(addOn?.pricing?.type || "").toLowerCase();
     if (t === "formula") {
@@ -270,6 +310,8 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
       addonName: String(addonName || "").trim(),
       amountFieldLabel: String(amountFieldLabel || "").trim(),
       amount: Number(String(amount || "").trim()),
+      fundCode: String(fundCode || "").trim(),
+      designationCode: String(designationCode || "").trim(),
       enabled: Boolean(enabled),
     };
 
@@ -293,6 +335,10 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
     }
     if (!Number.isFinite(payload.amount) || payload.amount <= 0) {
       setError("Amount must be a number greater than 0.");
+      return;
+    }
+    if (!payload.fundCode) {
+      setError("Fund code is required.");
       return;
     }
 
@@ -412,6 +458,54 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
                 className="min-h-[88px] w-full resize-none rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 placeholder="Optional"
               />
+            </div>
+
+            {/* Fixed at creation: this is the fund/designation every invoice line from this
+                add-on will post to. Editing it later never changes past donations. */}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div>
+                <div className="mb-2 text-[13px] font-semibold text-[#111827]">Fund Code</div>
+                <select
+                  value={fundCode}
+                  onChange={(e) => setFundCode(e.target.value)}
+                  className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                >
+                  <option value="">Select a fund code…</option>
+                  {fundOptions.map((code) => (
+                    <option key={code} value={code}>
+                      {code}
+                    </option>
+                  ))}
+                  {/* Keep an unknown saved value visible rather than silently blanking it. */}
+                  {fundCode && !fundOptions.includes(fundCode) ? (
+                    <option value={fundCode}>{fundCode}</option>
+                  ) : null}
+                </select>
+                <div className="mt-1 text-[12px] text-[#6B7280]">
+                  From the fund codes defined on Causes. Cannot change per form.
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 text-[13px] font-semibold text-[#111827]">Designation Code</div>
+                <select
+                  value={designationCode}
+                  onChange={(e) => setDesignationCode(e.target.value)}
+                  className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                >
+                  <option value="">General</option>
+                  {designationOptions.map((d) => (
+                    <option key={d.code} value={d.code}>
+                      {d.name} ({d.code})
+                    </option>
+                  ))}
+                  {designationCode && !designationOptions.some((d) => d.code === designationCode) ? (
+                    <option value={designationCode}>{designationCode}</option>
+                  ) : null}
+                </select>
+                <div className="mt-1 text-[12px] text-[#6B7280]">
+                  Blank means <strong>General</strong>.
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
