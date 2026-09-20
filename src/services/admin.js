@@ -1042,6 +1042,14 @@ export function getAdminReportFilterOptions() {
   return adminApiRequest("/admin/reports/filter-options", { method: "GET" });
 }
 
+/**
+ * Campaign details report: summary, trend, funds × designations, add-ons, forms and donors —
+ * aggregated across every form of the campaign.
+ */
+export function getAdminCampaignReport(campaignId) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}/report`, { method: "GET" });
+}
+
 // -----------------------------
 // Roles & Permissions
 // -----------------------------

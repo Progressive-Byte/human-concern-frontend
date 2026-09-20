@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   archiveAdminCampaign,
   getAdminCampaignById,
+  getAdminCampaignReport,
   publishAdminCampaign,
   restoreAdminCampaign,
   unpublishAdminCampaign,
@@ -13,6 +14,12 @@ import StatusPill from "../components/StatusPill";
 import CampaignUpsertModal from "../components/CampaignUpsertModal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useToast } from "../components/ToastProvider";
+import CampaignSummaryCards from "./components/CampaignSummaryCards";
+import CampaignBreakdownsSection from "./components/CampaignBreakdownsSection";
+import CampaignPublicDisplaySection from "./components/CampaignPublicDisplaySection";
+import CampaignDonorsSection from "./components/CampaignDonorsSection";
+import TrendChart from "@/app/admin/components/reports/TrendChart";
+import FundPerformanceSection from "@/app/admin/components/reports/FundPerformanceSection";
 
 function actionForStatus(status) {
   const s = String(status || "").toLowerCase();
@@ -31,6 +38,8 @@ const AdminCampaignDetailsPage = ({ params }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
+  const [report, setReport] = useState(null);
+  const [reportLoading, setReportLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [editOpen, setEditOpen] = useState(false);
@@ -63,6 +72,28 @@ const AdminCampaignDetailsPage = ({ params }) => {
       } finally {
         if (!alive) return;
         setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [campaignId, refreshKey]);
+
+  // Report/aggregates load separately so the header renders as soon as the campaign does.
+  useEffect(() => {
+    if (!campaignId) return;
+    let alive = true;
+    setReportLoading(true);
+    (async () => {
+      try {
+        const res = await getAdminCampaignReport(campaignId);
+        if (!alive) return;
+        setReport(res?.data || null);
+      } catch {
+        if (!alive) return;
+        setReport(null);
+      } finally {
+        if (alive) setReportLoading(false);
       }
     })();
     return () => {
@@ -221,6 +252,66 @@ const AdminCampaignDetailsPage = ({ params }) => {
           <div className="py-10 text-center text-sm text-[#6B7280]">Campaign not found</div>
         )}
       </section>
+
+      {/* Report — aggregated across every form of this campaign */}
+      <CampaignSummaryCards data={report} loading={reportLoading} />
+
+      {report ? (
+        <>
+          <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <TrendChart series={report.trend || []} bucket="month" />
+
+            <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+              <h2 className="mb-4 text-[16px] font-semibold text-[#111827]">Campaign overview</h2>
+              <dl className="grid grid-cols-1 gap-4 text-[13px] sm:grid-cols-2">
+                <div>
+                  <dt className="text-[12px] font-medium text-[#6B7280]">Type</dt>
+                  <dd className="mt-1 font-medium">
+                    {(report.campaign?.types || []).length ? report.campaign.types.join(", ") : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[12px] font-medium text-[#6B7280]">Status</dt>
+                  <dd className="mt-1 font-medium">{report.campaign?.status || "—"}</dd>
+                </div>
+                <div>
+                  <dt className="text-[12px] font-medium text-[#6B7280]">Start</dt>
+                  <dd className="mt-1 font-medium">
+                    {report.campaign?.startAt ? new Date(report.campaign.startAt).toLocaleDateString() : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[12px] font-medium text-[#6B7280]">End</dt>
+                  <dd className="mt-1 font-medium">
+                    {report.campaign?.endAt ? new Date(report.campaign.endAt).toLocaleDateString() : "Ongoing"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[12px] font-medium text-[#6B7280]">Forms</dt>
+                  <dd className="mt-1 font-medium">{Number(report.campaign?.formCount || 0)}</dd>
+                </div>
+                <div>
+                  <dt className="text-[12px] font-medium text-[#6B7280]">Active subscriptions</dt>
+                  <dd className="mt-1 font-medium">{Number(report.summary?.activeSubscriptions || 0)}</dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+
+          <FundPerformanceSection
+            data={{
+              currency: report.currency,
+              total: report.summary?.committed || 0,
+              items: report.funds || [],
+            }}
+            loading={reportLoading}
+          />
+
+          <CampaignBreakdownsSection data={report} loading={reportLoading} />
+          <CampaignPublicDisplaySection data={report} loading={reportLoading} />
+          <CampaignDonorsSection data={report} loading={reportLoading} />
+        </>
+      ) : null}
 
       <CampaignUpsertModal
         open={editOpen}

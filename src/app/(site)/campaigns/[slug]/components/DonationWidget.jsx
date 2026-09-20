@@ -56,10 +56,18 @@ const DonationWidget = ({ campaign }) => {
     currenciesWithRates.map(({ currency, rate }) => [currency, parseFloat(rate) || 1])
   );
 
-  const raised      = campaign.raised ?? 0;
-  const goal        = campaign.goal   ?? 0;
-  const pct         = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
-  const hasProgress = campaign.raised != null && goal > 0;
+  // Public display switches. The API already withholds `raised`/`goal` when the matching
+  // switch is off; these checks keep the rule explicit (and safe against an older payload).
+  const display     = campaign.display || {};
+  const raised      = typeof campaign.raised === "number" ? campaign.raised : null;
+  const goal        = typeof campaign.goal === "number" ? campaign.goal : null;
+  const hasGoal     = goal != null && goal > 0;
+  const pct         = hasGoal && raised != null ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+  // CRITICAL: a percentage bar would reveal roughly how much was raised, so it needs BOTH
+  // switches on — hiding only the number is not enough.
+  const barVisible  = display.showProgressBar !== false && display.showAmountRaised !== false && raised != null && hasGoal;
+  const raisedTextVisible = display.showAmountRaised !== false && raised != null;
+  const goalTextVisible   = display.showTargetAmount !== false && hasGoal;
 
   // donors may be a number (old) or an object with pagination (new)
   const donorCount = typeof campaign.donors === "object"
@@ -121,8 +129,8 @@ const DonationWidget = ({ campaign }) => {
       <div className="rounded-2xl border border-dashed border-[#BFBFBF]">
         <div className="px-5 pt-5">
 
-          {/* Raised / Goal */}
-          {hasProgress ? (
+          {/* Raised / Goal — every part respects its own public display switch */}
+          {barVisible ? (
             <>
               <p className="text-[28px] sm:text-[32px] md:text-[36px] font-bold text-[#383838] leading-none whitespace-nowrap overflow-hidden text-ellipsis">
                 ${raised.toLocaleString()}
@@ -142,13 +150,20 @@ const DonationWidget = ({ campaign }) => {
             </>
           ) : (
             <>
-              <p className="text-lg sm:text-[22px] font-bold text-[#383838]">
-                Goal: ${goal.toLocaleString()}
-              </p>
-              <p className="text-[13px] text-[#737373] mt-1">Fundraising in progress</p>
-              <div className="relative h-[12px] sm:h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden mt-3">
-                <div className="h-full bg-[#055A46] rounded-full" style={{ width: "0%" }} />
-              </div>
+              {raisedTextVisible ? (
+                <p className="text-lg sm:text-[22px] font-bold text-[#383838]">
+                  ${raised.toLocaleString()}{" "}
+                  <span className="text-sm sm:text-[16px] font-normal">raised</span>
+                </p>
+              ) : null}
+              {goalTextVisible ? (
+                <>
+                  <p className={`text-lg sm:text-[22px] font-bold text-[#383838] ${raisedTextVisible ? "mt-1" : ""}`}>
+                    Goal: ${goal.toLocaleString()}
+                  </p>
+                  <p className="text-[13px] text-[#737373] mt-1">Fundraising in progress</p>
+                </>
+              ) : null}
             </>
           )}
 
