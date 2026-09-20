@@ -100,6 +100,8 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   const isSpecialType = campaignType === "ramadan" || campaignType === "qurbani";
   const [categoryIds, setCategoryIds] = useState([]);
   const [featured, setFeatured] = useState(false);
+  // Listed = shown in public listings. Unlisted stays reachable by direct link and donatable.
+  const [listed, setListed] = useState(true);
 
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
@@ -123,6 +125,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       campaignType,
       categoryIds,
       featured,
+      listed,
     ],
     ready: !loading,
     persist: () => save({ silent: true }),
@@ -298,6 +301,8 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
             : []
         );
         setFeatured(Boolean(pub?.featured));
+        // Defaults ON when never set.
+        setListed(pub?.listed !== false);
       } catch (e) {
         if (!alive) return;
         setTopError(e?.message || "Failed to load basics.");
@@ -334,6 +339,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       campaignType: String(campaignType || "").trim(),
       categoryIds: Array.isArray(categoryIds) ? categoryIds : [],
       featured: Boolean(featured),
+      listed: Boolean(listed),
     };
 
     if (!internal.campaignId) errors["internal.campaignId"] = "Missing generated id";
@@ -390,6 +396,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         categoryIds: uniqueCats,
         // Always send the boolean — `false || undefined` would drop the key and leave "Featured" on.
         featured: pub.featured,
+        listed: pub.listed,
       },
     };
 
@@ -978,6 +985,19 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                   <div className="mt-1 text-[12px] text-[#6B7280]">Mark this form as featured (optional).</div>
                 </div>
                 <Toggle enabled={featured} onChange={setFeatured} />
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-[13px] font-semibold text-[#111827]">Listed</div>
+                  <div className="mt-1 text-[12px] text-[#6B7280]">
+                    Listed forms appear in public listings. <strong>Unlisted</strong> forms are reachable
+                    only by direct link — the page stays live and can still take donations.
+                  </div>
+                </div>
+                <Toggle enabled={listed} onChange={setListed} />
               </div>
             </div>
 

@@ -68,6 +68,9 @@ const DonationWidget = ({ campaign }) => {
   const barVisible  = display.showProgressBar !== false && display.showAmountRaised !== false && raised != null && hasGoal;
   const raisedTextVisible = display.showAmountRaised !== false && raised != null;
   const goalTextVisible   = display.showTargetAmount !== false && hasGoal;
+  // Ended campaigns keep their page (history + SEO) but stop taking NEW donations.
+  const ended = Boolean(campaign.ended);
+  const donationsOpen = campaign.donationsOpen !== false;
 
   // donors may be a number (old) or an object with pagination (new)
   const donorCount = typeof campaign.donors === "object"
@@ -105,6 +108,7 @@ const DonationWidget = ({ campaign }) => {
     : toDisplay(selectedBaseAmount);
 
   const handleDonate = () => {
+    if (!donationsOpen) return;
     sessionStorage.removeItem("hc_donation");
     sessionStorage.removeItem("hc_donation_done");
     sessionStorage.removeItem("hc_schedule_edit");
@@ -128,6 +132,21 @@ const DonationWidget = ({ campaign }) => {
     <div className="flex flex-col gap-[25px]">
       <div className="rounded-2xl border border-dashed border-[#BFBFBF]">
         <div className="px-5 pt-5">
+
+          {/* Ended — the page stays live for history; new donations are closed. */}
+          {ended ? (
+            <div className="mb-4 rounded-xl border border-[#E5E7EB] bg-[#F5F5F5] px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex rounded-full bg-[#111827] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+                  Ended
+                </span>
+                <span className="text-[13px] font-semibold text-[#383838]">Campaign completed</span>
+              </div>
+              <p className="mt-1.5 text-[12px] text-[#737373]">
+                This campaign has ended and is no longer accepting new donations. Thank you to everyone who gave.
+              </p>
+            </div>
+          ) : null}
 
           {/* Raised / Goal — every part respects its own public display switch */}
           {barVisible ? (
@@ -283,9 +302,15 @@ const DonationWidget = ({ campaign }) => {
         <div className="px-5 pt-5 pb-5 flex flex-col gap-2.5">
           <button
             onClick={handleDonate}
-            className="w-full cursor-pointer bg-[#EA3335] hover:bg-red-700 text-white font-semibold py-3 rounded-xl text-[15px] transition-colors active:scale-95"
+            disabled={!donationsOpen}
+            aria-disabled={!donationsOpen}
+            className={`w-full font-semibold py-3 rounded-xl text-[15px] transition-colors ${
+              donationsOpen
+                ? "cursor-pointer bg-[#EA3335] hover:bg-red-700 text-white active:scale-95"
+                : "cursor-not-allowed bg-[#E5E5E5] text-[#9CA3AF]"
+            }`}
           >
-            Donate Now
+            {donationsOpen ? "Donate Now" : "Donations closed"}
           </button>
           <button
             onClick={handleShare}

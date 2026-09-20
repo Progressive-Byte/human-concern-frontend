@@ -91,7 +91,14 @@ const CampaignsTable = ({
                       </Link>
                     </td>
                     <td className="py-4 pr-4 align-top">
-                      <StatusPill status={item?.status} />
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <StatusPill status={item?.status} />
+                        {item?.ended ? (
+                          <span className="inline-flex rounded-full bg-[#111827] px-2.5 py-1 text-[11px] font-semibold text-white">
+                            Ended
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="py-4 pr-4 align-top">{formatCurrency(item?.goalAmount || 0, currency)}</td>
                     <td className="py-4 pr-4 align-top">{formatCurrency(item?.raisedAmount || 0, currency)}</td>

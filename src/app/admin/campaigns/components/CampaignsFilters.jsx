@@ -32,6 +32,7 @@ const CampaignsFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
             <option value="">All Status</option>
             <option value="draft">Draft</option>
             <option value="published">Published</option>
+            <option value="ended">Ended</option>
             <option value="archived">Archived</option>
           </select>
         </div>
