@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useAdminBranding } from "@/app/admin/components/AdminBrandingProvider";
 import { adminHasPermission } from "@/utils/adminPermissions";
-import NotificationBell from "@/components/common/NotificationBell";
 
 function Icon({ name }) {
   if (name === "overview") {
@@ -353,9 +352,6 @@ const AdminSidebar = ({ onNavigate }) => {
         <div className="min-w-0 leading-tight">
           <div className="truncate text-[15px] font-semibold">{organizationName}</div>
           <div className="text-[12px] text-white/60">Admin Panel</div>
-        </div>
-        <div className="ml-auto shrink-0">
-          <NotificationBell scope="admin" tone="dark" />
         </div>
       </div>
 

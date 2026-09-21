@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { useAdminAuth } from "@/context/AdminAuthContext";
-import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
+import AdminHeaderActions from "@/app/admin/components/AdminHeaderActions";
 import {
   getAdminTranslationSettings,
   updateAdminTranslationSettings,
@@ -213,7 +213,7 @@ const TranslationPageClient = () => {
             Manage the languages of the public website and translate its content. Donation pages stay English.
           </p>
         </div>
-        <AdminAvatarMenu admin={admin} />
+        <AdminHeaderActions admin={admin} />
       </div>
 
       <div className="hc-animate-fade-up overflow-x-auto rounded-2xl bg-[#F3F4F6] p-1">

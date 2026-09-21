@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { useAdminAuth } from "@/context/AdminAuthContext";
-import AdminAvatarMenu from "@/app/admin/components/AdminAvatarMenu";
+import AdminHeaderActions from "@/app/admin/components/AdminHeaderActions";
 import {
   getAdminExportEntities,
   createAdminExportJob,
@@ -215,7 +215,7 @@ const DataExportPageClient = () => {
             Choose tables and columns, then export as CSV, Excel or PDF. Exports run in the background.
           </p>
         </div>
-        <AdminAvatarMenu admin={admin} />
+        <AdminHeaderActions admin={admin} />
       </div>
 
       {error ? (
