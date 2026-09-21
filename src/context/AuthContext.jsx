@@ -141,7 +141,7 @@ export function AuthProvider({ children }) {
     const { user } = res.data;
     saveUser(user);
     setUser(user);
-    router.push("/user/login");
+    router.push("/user/login?registered=1");
     return res;
   }
 

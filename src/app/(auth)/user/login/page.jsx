@@ -9,6 +9,7 @@ import { FormField, FormInput, validateLogin } from "@/components/common/FormInp
 const LoginPage = () => {
   const { login } = useAuth();
   const [redirectTo, setRedirectTo] = useState(null);
+  const [justRegistered, setJustRegistered] = useState(false);
 
   const [values, setValues] = useState({ email: "", password: "" });
   const [touched, setTouched] = useState({});
@@ -25,6 +26,7 @@ const LoginPage = () => {
       const raw = params.get("redirect");
       const next = typeof raw === "string" ? raw.trim() : "";
       if (next && next.startsWith("/")) setRedirectTo(next);
+      if (params.get("registered") === "1") setJustRegistered(true);
     } catch {}
   }, []);
 
@@ -69,6 +71,15 @@ const LoginPage = () => {
   return (
     <div>
       <h2 className="text-[22px] font-semibold text-white mb-6">Nice to see you again</h2>
+
+      {justRegistered && !serverError && (
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5">
+          <AlertIcon size={14} />
+          <p className="text-sm text-emerald-300 leading-snug">
+            Account created. We&apos;ve sent a verification link to your email — please verify it before signing in. If you don&apos;t see it, check your spam folder.
+          </p>
+        </div>
+      )}
 
       {serverError && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5">

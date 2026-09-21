@@ -29,6 +29,8 @@ const userFacingMap = {
     "This payment method does not support scheduled donations yet. Please use Stripe for monthly giving.",
   [ORCHESTRATION_ERROR_CODES.IDEMPOTENCY_LOCK_CONFLICT]:
     "We detected a duplicate submit and kept the first result — no double charge occurred.",
+  EMAIL_NOT_VERIFIED:
+    "Your email isn't verified yet. Please open the verification link we sent you before signing in.",
 };
 
 const bankFailureReasonMap = {
