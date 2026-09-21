@@ -1,11 +1,11 @@
 // import Cookies from 'js-cookie';
 
-export const home = 'http://localhost:3000';
+// export const home = 'http://localhost:3000';
 
-// export const home = 'https://app.humanconcern.com';
+export const home = 'https://human-concern-frontend.vercel.app';
 
-export const siteUrl = 'http://localhost:3001';
-// export const siteUrl = 'https://donation.api.sagsio.com';
+// export const siteUrl = 'http://localhost:3001';
+export const siteUrl = 'https://donation.api.sagsio.com';
 
 export const apiBase = `/api/v1/`;
 
