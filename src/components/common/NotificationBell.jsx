@@ -45,6 +45,7 @@ const NotificationBell = ({ scope = "donor", tone = "light" }) => {
   const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const btnRef = useRef(null);
   const menuRef = useRef(null);
+  const portalNode = typeof document === "undefined" ? null : document.body;
 
   useEffect(() => {
     if (!open) return;
@@ -108,7 +109,7 @@ const NotificationBell = ({ scope = "donor", tone = "light" }) => {
         ) : null}
       </button>
 
-      {open && typeof document !== "undefined"
+      {open && portalNode
         ? createPortal(
             <div
               ref={menuRef}
