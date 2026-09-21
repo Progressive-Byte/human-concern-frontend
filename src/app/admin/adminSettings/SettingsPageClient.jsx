@@ -30,6 +30,8 @@ import {
   updateAdminSettingsNotifications,
   updateAdminSettingsSecurity,
   uploadAdminBrandingLogo,
+  uploadAdminBrandingFavicon,
+  deleteAdminBrandingFavicon,
   uploadAdminHomepageMedia,
 } from "@/services/admin";
 import SettingsTabs from "./components/SettingsTabs";
@@ -120,6 +122,7 @@ const SettingsPageClient = () => {
   const [brandingLoading, setBrandingLoading] = useState(false);
   const [brandingSaving, setBrandingSaving] = useState(false);
   const [brandingLogoBusy, setBrandingLogoBusy] = useState(false);
+  const [brandingFaviconBusy, setBrandingFaviconBusy] = useState(false);
 
   const [homepage, setHomepage] = useState({});
   const [homepageInitial, setHomepageInitial] = useState({});
@@ -428,6 +431,41 @@ const SettingsPageClient = () => {
     }
   }
 
+  async function uploadFavicon(file) {
+    if (!file) return;
+    setBrandingFaviconBusy(true);
+    setError("");
+    try {
+      const res = await uploadAdminBrandingFavicon(file);
+      const data = normalizeObj(res);
+      setBranding(data);
+      setBrandingInitial(data);
+      toast.success("Favicon uploaded");
+    } catch (e) {
+      setError(e?.message || "Upload failed.");
+      toast.error(e?.message || "Upload failed.");
+    } finally {
+      setBrandingFaviconBusy(false);
+    }
+  }
+
+  async function removeFavicon() {
+    setBrandingFaviconBusy(true);
+    setError("");
+    try {
+      const res = await deleteAdminBrandingFavicon();
+      const data = normalizeObj(res);
+      setBranding(data);
+      setBrandingInitial(data);
+      toast.success("Favicon removed");
+    } catch (e) {
+      setError(e?.message || "Remove failed.");
+      toast.error(e?.message || "Remove failed.");
+    } finally {
+      setBrandingFaviconBusy(false);
+    }
+  }
+
   async function saveHomepage() {
     setHomepageSaving(true);
     setError("");
@@ -709,6 +747,9 @@ const SettingsPageClient = () => {
           logoBusy={brandingLogoBusy}
           onUploadLogo={uploadLogo}
           onRemoveLogo={removeLogo}
+          faviconBusy={brandingFaviconBusy}
+          onUploadFavicon={uploadFavicon}
+          onRemoveFavicon={removeFavicon}
           onSave={saveBranding}
         />
       ) : null}

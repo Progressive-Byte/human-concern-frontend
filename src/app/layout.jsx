@@ -3,15 +3,44 @@ import Script from "next/script";
 import { AuthProvider } from "@/context/AuthContext";
 import RouteProgressBar from "@/components/layout/RouteProgressBar";
 import DonationSessionCleaner from "@/components/common/DonationSessionCleaner";
+import { serverApiBase, siteUrl } from "@/utils/constants";
 
-export const metadata = {
-  title: "Human Concern",
-  description: "A platform for connecting people and resources to address human concerns.",
-  icons: {
-    icon: [{ url: "/icons/favicon.png", type: "image/png" }],
-    shortcut: "/icons/favicon.png",
-  },
-};
+const DEFAULT_FAVICON = "/icons/favicon.png";
+
+function absoluteAssetUrl(path) {
+  const p = String(path || "").trim();
+  if (!p) return "";
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  return `${siteUrl}${p.startsWith("/") ? "" : "/"}${p}`;
+}
+
+/**
+ * The browser-tab icon is the "Favicon" uploaded in Admin → Settings → Branding (the logo is a
+ * separate image). A settings outage must never break rendering, so any failure — or an empty
+ * setting — falls back to the bundled icon.
+ */
+export async function generateMetadata() {
+  let faviconUrl = "";
+  try {
+    const res = await fetch(`${serverApiBase}settings/branding`, { next: { revalidate: 300 } });
+    if (res.ok) {
+      const body = await res.json();
+      faviconUrl = absoluteAssetUrl(body?.data?.branding?.favicon?.path);
+    }
+  } catch {
+    faviconUrl = "";
+  }
+
+  const icon = faviconUrl || DEFAULT_FAVICON;
+  return {
+    title: "Human Concern",
+    description: "A platform for connecting people and resources to address human concerns.",
+    icons: {
+      icon: [{ url: icon }],
+      shortcut: icon,
+    },
+  };
+}
 
 const RootLayout = ({ children }) => {
   return (

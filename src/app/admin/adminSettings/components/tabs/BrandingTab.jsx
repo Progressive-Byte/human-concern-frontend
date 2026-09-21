@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { siteUrl } from "@/utils/constants";
 import SettingsSectionCard from "../SettingsSectionCard";
 
@@ -112,18 +112,95 @@ function UploadIcon() {
   );
 }
 
-const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo, onRemoveLogo, onSave }) => {
+function resolveBrandingSrc(path) {
+  const p = String(path || "");
+  if (!p) return "";
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  if (p.startsWith("/")) return `${siteUrl}${p}`;
+  return p;
+}
+
+/**
+ * One brand-image slot (picker + optional preview). Rendered twice — the logo and the favicon are
+ * separate uploads feeding separate places, so they get the same UI without sharing state.
+ */
+function ImageUploadField({
+  label,
+  hint,
+  uploadLabel,
+  previewAlt,
+  previewSize = "h-12",
+  path,
+  busy,
+  disabled,
+  inputRef,
+  onUpload,
+  onRemove,
+}) {
+  const src = resolveBrandingSrc(path);
+  return (
+    <div>
+      <div className="text-[13px] font-semibold text-[#111827]">{label}</div>
+      {hint ? <div className="mt-1 text-[12px] text-[#6B7280]">{hint}</div> : null}
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F3F4F6] text-[#6B7280]">
+          <UploadIcon />
+        </div>
+
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onUpload?.(f);
+            e.target.value = "";
+          }}
+        />
+
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click?.()}
+          disabled={disabled || busy}
+          className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+        >
+          {uploadLabel}
+        </button>
+
+        {path ? (
+          <button
+            type="button"
+            onClick={onRemove}
+            disabled={disabled || busy}
+            className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+          >
+            Remove
+          </button>
+        ) : null}
+      </div>
+
+      {src ? (
+        <div className="mt-4">
+          <img
+            src={src}
+            alt={previewAlt}
+            className={`w-auto rounded-lg border border-[#E5E7EB] bg-white p-2 ${previewSize}`}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo, onRemoveLogo, faviconBusy, onUploadFavicon, onRemoveFavicon, onSave }) => {
   const v = value || {};
   const branding = v?.branding && typeof v.branding === "object" ? v.branding : v;
-  const fileRef = useRef(null);
+  const logoRef = useRef(null);
+  const faviconRef = useRef(null);
 
   const logoPath = branding?.logo?.path ? String(branding.logo.path) : "";
-  const logoSrc = useMemo(() => {
-    if (!logoPath) return "";
-    if (logoPath.startsWith("http://") || logoPath.startsWith("https://")) return logoPath;
-    if (logoPath.startsWith("/")) return `${siteUrl}${logoPath}`;
-    return logoPath;
-  }, [logoPath]);
+  const faviconPath = branding?.favicon?.path ? String(branding.favicon.path) : "";
 
   const primaryColor = String(branding?.primaryColor || "");
   const accentColor = String(branding?.accentColor || "");
@@ -132,52 +209,33 @@ const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo,
   return (
     <SettingsSectionCard icon={<BrandingIcon />} title="Branding" subtitle="Customize your platform appearance">
       <div className="space-y-6">
-        <div>
-          <div className="text-[13px] font-semibold text-[#111827]">Logo</div>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F3F4F6] text-[#6B7280]">
-              <UploadIcon />
-            </div>
+        <ImageUploadField
+          label="Logo"
+          hint="Shown in the site header, footer and admin sidebar."
+          uploadLabel="Upload Logo"
+          previewAlt="Branding logo"
+          previewSize="h-12"
+          path={logoPath}
+          busy={logoBusy}
+          disabled={loading}
+          inputRef={logoRef}
+          onUpload={onUploadLogo}
+          onRemove={onRemoveLogo}
+        />
 
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) onUploadLogo?.(f);
-                e.target.value = "";
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click?.()}
-              disabled={loading || logoBusy}
-              className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-            >
-              Upload Logo
-            </button>
-
-            {logoPath ? (
-              <button
-                type="button"
-                onClick={onRemoveLogo}
-                disabled={loading || logoBusy}
-                className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-              >
-                Remove
-              </button>
-            ) : null}
-          </div>
-
-          {logoSrc ? (
-            <div className="mt-4">
-              <img src={logoSrc} alt="Branding logo" className="h-12 w-auto rounded-lg border border-[#E5E7EB] bg-white p-2" />
-            </div>
-          ) : null}
-        </div>
+        <ImageUploadField
+          label="Favicon"
+          hint="The small icon shown in the browser tab."
+          uploadLabel="Upload Favicon"
+          previewAlt="Branding favicon"
+          previewSize="h-12 w-12"
+          path={faviconPath}
+          busy={faviconBusy}
+          disabled={loading}
+          inputRef={faviconRef}
+          onUpload={onUploadFavicon}
+          onRemove={onRemoveFavicon}
+        />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <ColorPickerField

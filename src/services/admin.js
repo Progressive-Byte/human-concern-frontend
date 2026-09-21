@@ -621,6 +621,16 @@ export function deleteAdminBrandingLogo() {
   return adminApiRequest("/admin/settings/branding/logo", { method: "DELETE" });
 }
 
+export function uploadAdminBrandingFavicon(file) {
+  const body = new FormData();
+  body.append("file", file);
+  return adminApiRequest("/admin/settings/branding/favicon", { method: "POST", body });
+}
+
+export function deleteAdminBrandingFavicon() {
+  return adminApiRequest("/admin/settings/branding/favicon", { method: "DELETE" });
+}
+
 export function getAdminSettingsHomepage() {
   return adminApiRequest("/admin/settings/homepage", { method: "GET" });
 }
