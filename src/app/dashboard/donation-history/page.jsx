@@ -103,8 +103,9 @@ function DonationHistoryPage() {
       currency:  String(it?.currency || "USD"),
       status:    String(it?.status?.label || "").trim() || "—",
       statusKey: String(it?.status?.key || ""),
-      typeKey:   String(it?.type?.key || "one_time"),
-      typeLabel: String(it?.type?.label || "One-time"),
+      // Leave blank when the API didn't tell us, so we never show a wrong "One-time".
+      typeKey:   it?.type?.key ? String(it.type.key) : "",
+      typeLabel: it?.type?.label ? String(it.type.label) : "",
       addons:    Array.isArray(it?.addons) ? it.addons : [],
     })),
   [items]);
