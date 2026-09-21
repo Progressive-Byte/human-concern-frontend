@@ -128,8 +128,11 @@ export const HOMEPAGE_DEFAULTS = {
 /**
  * Merges stored content over the defaults.
  * - Objects merge key by key.
- * - Arrays replace (so removing rows really removes them), but each element merges against the
- *   default element at the same index so a cleared string falls back to the built-in text.
+ * - Arrays replace, but each element merges against the default element at the same index, so a
+ *   cleared string falls back to the built-in text. An EMPTY array falls back to the whole default
+ *   list — a section whose rows were all removed would otherwise render as a blank block (no nav
+ *   links, no stats, no steps, no cards). To drop a section entirely use its `enabled: false`
+ *   toggle instead of emptying its rows.
  * - Empty/blank strings fall back to the default; booleans (e.g. `enabled`) are always respected.
  */
 export function mergeHomepage(base, patch) {
@@ -140,6 +143,7 @@ export function mergeHomepage(base, patch) {
   }
 
   if (Array.isArray(patch)) {
+    if (!patch.length) return Array.isArray(base) ? base : patch;
     const baseArr = Array.isArray(base) ? base : [];
     return patch.map((item, i) => mergeHomepage(baseArr[i], item));
   }
