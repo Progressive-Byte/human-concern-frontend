@@ -64,7 +64,16 @@ function DonationRow({ r, isLast, onError }) {
         </span>
       </td>
       <td className="px-4 py-4">
-        <p className="text-[#111827] text-sm leading-snug">{r.campaign}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-[#111827] text-sm leading-snug">{r.campaign}</p>
+          <span
+            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+              r.typeKey === "recurring" ? "bg-[#FFF5F5] text-[#EA3335]" : "bg-[#F3F4F6] text-[#6B7280]"
+            }`}
+          >
+            {r.typeLabel}
+          </span>
+        </div>
         <AddOnList addons={r.addons} currency={r.currency} className="mt-1.5" max={2} />
         <span className="md:hidden mt-1 block">
           <StatusBadge statusKey={r.statusKey} status={r.status} />

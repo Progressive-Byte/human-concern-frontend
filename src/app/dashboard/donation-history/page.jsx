@@ -103,6 +103,8 @@ function DonationHistoryPage() {
       currency:  String(it?.currency || "USD"),
       status:    String(it?.status?.label || "").trim() || "—",
       statusKey: String(it?.status?.key || ""),
+      typeKey:   String(it?.type?.key || "one_time"),
+      typeLabel: String(it?.type?.label || "One-time"),
       addons:    Array.isArray(it?.addons) ? it.addons : [],
     })),
   [items]);
