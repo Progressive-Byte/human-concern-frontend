@@ -106,6 +106,8 @@ const DonationPreview = ({ currentStep }) => {
     scheduleType: data.scheduleType,
     scheduleConfig: data.scheduleConfig,
     amountTier: effectiveAmountTier,
+    resolvedAmounts: data.resolvedScheduleAmounts,
+    makeUpEnabled: Boolean(data.makeUpMissedDates),
     addOnsTotal: data.addOnsTotal,
     tipAmount,
   });

@@ -250,6 +250,8 @@ const Step3Addons = () => {
     scheduleType: data.scheduleType,
     scheduleConfig: data.scheduleConfig,
     amountTier,
+    resolvedAmounts: data.resolvedScheduleAmounts,
+    makeUpEnabled: Boolean(data.makeUpMissedDates),
     addOnsTotal,
     tipAmount,
   });
