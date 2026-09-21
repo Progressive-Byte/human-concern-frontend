@@ -4,27 +4,44 @@ import { useState } from "react";
 import { SkeletonRows } from "@/components/ui/Skeleton";
 import { DownloadIcon, EditIcon } from "@/components/common/SvgIcon";
 import { formatCurrency } from "@/utils/helpers";
-import { downloadReceipt, skipUserInstallment, updateUserInstallmentAmount } from "@/services/donationService";
+import { downloadReceipt, retryUserInstallment, skipUserInstallment, updateUserInstallmentAmount } from "@/services/donationService";
 const causeBadgeStyles = {
   Zakat:     "bg-[#ECFDF5] text-[#047857]",
   Sadaqah:   "bg-[#FFF8EC] text-[#B45309]",
   Emergency: "bg-[#FFF5F5] text-[#EA3335]",
   Fitrana:   "bg-[#EFF6FF] text-[#1D4ED8]",
 };
+
+// The API sends a derived `state` covering every payment outcome; the label the donor sees comes
+// from here so all six stay distinguishable (scheduled / successful / failed / skipped / missed,
+// with "retried" shown as a marker beside the outcome).
+const STATE_LABELS = {
+  scheduled: "Scheduled",
+  successful: "Successful",
+  failed: "Failed",
+  missed: "Missed",
+  skipped: "Skipped",
+  superseded: "Replaced",
+  refunded: "Refunded",
+  requires_action: "Action Required",
+  processing: "Processing",
+  pending: "Pending",
+};
+
 function statusClass(key) {
   const s = String(key || "").toLowerCase();
-  if (s === "succeeded") return "text-[#047857]";
+  if (s === "successful" || s === "succeeded") return "text-[#047857]";
+  if (s === "failed" || s === "missed") return "text-[#EA3335]";
   if (s === "pending" || s === "processing" || s === "requires_action") return "text-[#B45309]";
-  if (s === "failed") return "text-[#EA3335]";
-  if (s === "refunded") return "text-[#6B7280]";
+  if (s === "refunded" || s === "scheduled" || s === "skipped" || s === "superseded") return "text-[#6B7280]";
   return "text-[#047857]";
 }
 function statusDotClass(key) {
   const s = String(key || "").toLowerCase();
-  if (s === "succeeded") return "bg-[#047857]";
+  if (s === "successful" || s === "succeeded") return "bg-[#047857]";
+  if (s === "failed" || s === "missed") return "bg-[#EA3335]";
   if (s === "pending" || s === "processing" || s === "requires_action") return "bg-[#B45309]";
-  if (s === "failed") return "bg-[#EA3335]";
-  if (s === "refunded") return "bg-[#6B7280]";
+  if (s === "refunded" || s === "scheduled" || s === "skipped" || s === "superseded") return "bg-[#6B7280]";
   return "bg-[#047857]";
 }
 function formatShortDate(value) {
@@ -42,7 +59,7 @@ const HEADERS = ["Date", "Amount", "Cause", "Status", "Receipt"];
 const EDITABLE_ROW_STATUSES = new Set(["pending", "failed"]);
 const EDITABLE_SCHEDULE_STATUSES = new Set(["active", "paused"]);
 
-function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatusKey, installmentBaseAmount, skipEligible, onRequestSkip, canModifySchedule = true }) {
+function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatusKey, installmentBaseAmount, skipEligible, onRequestSkip, onRequestRetry, canModifySchedule = true }) {
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -57,7 +74,15 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
   const transactionId = String(row?.transactionId || "").trim();
   const targetDonationId = String(row?.donationId || donationId || "").trim();
   const isSkipped = Boolean(row?.skipped) || String(row?.planState || "").toLowerCase() === "skipped_by_donor";
+  const isMissed = Boolean(row?.missed);
+  const retryCount = Number(row?.retryCount) || 0;
   const receiptAvailable = rowStatusKey === "succeeded" && !isSkipped;
+
+  // Prefer the API's derived state so Missed/Scheduled/etc. read correctly; fall back to the raw
+  // status label for older payloads.
+  const rowState = String(row?.state || "").trim().toLowerCase();
+  const stateKey = rowState || rowStatusKey;
+  const stateLabel = STATE_LABELS[rowState] || rowStatusLabel;
 
   // Mirrors the API rule so we never offer an edit that would be rejected. The form-level
   // "flexible recurring schedule" setting also locks the whole plan for the donor.
@@ -71,6 +96,9 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
     && dueAt > Date.now();
   // Same eligibility as the amount edit, plus "not the last remaining payment" (the API refuses it).
   const canSkip = canEdit && Boolean(skipEligible);
+  // Retrying is NOT a schedule change — it just attempts the payment the donor already committed
+  // to — so it stays available even when flexible scheduling is off. The API decides eligibility.
+  const canRetry = Boolean(row?.canRetry) && Boolean(transactionId);
 
   // The FIRST payment's stored amount includes the one-time tip + add-ons, so the donor
   // edits the base and the API keeps the extras on top.
@@ -140,6 +168,11 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
               Skipped
             </span>
           ) : null}
+          {isMissed && !isSkipped ? (
+            <span className="rounded-full bg-[#FFF5F5] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#EA3335]">
+              Missed
+            </span>
+          ) : null}
         </div>
       </td>
       <td className="py-3.5 px-2">
@@ -195,6 +228,17 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
                 Custom
               </span>
             ) : null}
+            {canRetry ? (
+              <button
+                type="button"
+                onClick={() => onRequestRetry?.(row)}
+                title="Retry this payment"
+                aria-label="Retry this payment"
+                className="shrink-0 cursor-pointer whitespace-nowrap rounded-lg bg-[#EA3335] px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-red-700"
+              >
+                Retry Payment
+              </button>
+            ) : null}
             {canEdit ? (
               <button
                 type="button"
@@ -226,10 +270,20 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
         </span>
       </td>
       <td className="py-3.5 px-2">
-        <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${statusClass(rowStatusKey)}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${statusDotClass(rowStatusKey)}`} />
-          {rowStatusLabel}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${statusClass(stateKey)}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${statusDotClass(stateKey)}`} />
+            {stateLabel}
+          </span>
+          {retryCount > 0 ? (
+            <span
+              className="rounded-full bg-[#F3F4F6] px-2 py-0.5 text-[10px] font-semibold text-[#6B7280]"
+              title={`Retried ${retryCount} time${retryCount === 1 ? "" : "s"}`}
+            >
+              Retried ×{retryCount}
+            </span>
+          ) : null}
+        </div>
       </td>
       <td className="py-3.5 px-2 last:pr-0">
         {receiptAvailable && transactionId ? (
@@ -267,8 +321,8 @@ export function DonationHistoryCard({
   installmentBaseAmount,
   canModifySchedule = true,
 }) {
-  const [pendingSkip, setPendingSkip] = useState(null);
-  const [skipping, setSkipping] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+  const [working, setWorking] = useState(false);
 
   // Skipped rows stay visible but no longer count toward the plan, so the confirm dialog quotes the
   // donor's real commitment before and after.
@@ -277,23 +331,27 @@ export function DonationHistoryCard({
   // The API refuses to skip the last remaining payment, so we never offer an action it would reject.
   const skipEligible = activeRows.length > 1;
 
-  const confirmSkip = async () => {
-    const transactionId = String(pendingSkip?.transactionId || "").trim();
-    const scheduleId = String(pendingSkip?.donationId || donationId || "").trim();
-    if (!transactionId || !scheduleId || skipping) return;
-    setSkipping(true);
+  const confirmAction = async () => {
+    const row = pendingAction?.row;
+    const transactionId = String(row?.transactionId || "").trim();
+    const scheduleId = String(row?.donationId || donationId || "").trim();
+    if (!transactionId || !scheduleId || working) return;
+    const isRetry = pendingAction?.type === "retry";
+    setWorking(true);
     try {
-      await skipUserInstallment({ scheduleId, installmentId: transactionId });
-      setPendingSkip(null);
+      if (isRetry) await retryUserInstallment({ scheduleId, installmentId: transactionId });
+      else await skipUserInstallment({ scheduleId, installmentId: transactionId });
+      setPendingAction(null);
       onSaved?.();
     } catch (e) {
-      onError?.(e?.message || "Could not skip this payment.");
+      onError?.(e?.message || `Could not ${isRetry ? "retry" : "skip"} this payment.`);
     } finally {
-      setSkipping(false);
+      setWorking(false);
     }
   };
 
-  const newTotal = Math.max(0, totalPlanned - (Number(pendingSkip?.amount) || 0));
+  const newTotal = Math.max(0, totalPlanned - (Number(pendingAction?.row?.amount) || 0));
+  const isRetryAction = pendingAction?.type === "retry";
 
   return (
     <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
@@ -329,7 +387,8 @@ export function DonationHistoryCard({
                   scheduleStatusKey={scheduleStatusKey}
                   installmentBaseAmount={installmentBaseAmount}
                   skipEligible={skipEligible}
-                  onRequestSkip={setPendingSkip}
+                  onRequestSkip={(r) => setPendingAction({ type: "skip", row: r })}
+                  onRequestRetry={(r) => setPendingAction({ type: "retry", row: r })}
                   canModifySchedule={canModifySchedule}
                 />
               ))
@@ -344,39 +403,57 @@ export function DonationHistoryCard({
         </table>
       </div>
 
-      {pendingSkip ? (
+      {pendingAction ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="skip-payment-title"
+          aria-labelledby="history-action-title"
         >
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h3 id="skip-payment-title" className="text-base font-semibold text-[#111827]">
-              Skip this payment?
+            <h3 id="history-action-title" className="text-base font-semibold text-[#111827]">
+              {isRetryAction ? "Retry this payment?" : "Skip this payment?"}
             </h3>
-            <p className="mt-2 text-sm text-[#4B5563]">
-              Skip the payment on {formatShortDate(pendingSkip.date) || "this date"}? Your schedule total drops
-              from <span className="font-semibold text-[#111827]">{formatCurrency(totalPlanned, currency)}</span> to{" "}
-              <span className="font-semibold text-[#111827]">{formatCurrency(newTotal, currency)}</span>. This
-              can&apos;t be undone.
-            </p>
+            {isRetryAction ? (
+              <p className="mt-2 text-sm text-[#4B5563]">
+                We&apos;ll try to charge{" "}
+                <span className="font-semibold text-[#111827]">
+                  {formatCurrency(Number(pendingAction.row?.amount) || 0, currency)}
+                </span>{" "}
+                for the payment on {formatShortDate(pendingAction.row?.date) || "this date"} again, using your
+                saved payment method.
+              </p>
+            ) : (
+              <p className="mt-2 text-sm text-[#4B5563]">
+                Skip the payment on {formatShortDate(pendingAction.row?.date) || "this date"}? Your schedule total
+                drops from{" "}
+                <span className="font-semibold text-[#111827]">{formatCurrency(totalPlanned, currency)}</span> to{" "}
+                <span className="font-semibold text-[#111827]">{formatCurrency(newTotal, currency)}</span>. This
+                can&apos;t be undone.
+              </p>
+            )}
             <div className="mt-5 flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setPendingSkip(null)}
-                disabled={skipping}
+                onClick={() => setPendingAction(null)}
+                disabled={working}
                 className="cursor-pointer rounded-lg px-3 py-2 text-[13px] font-semibold text-[#6B7280] transition-colors hover:text-[#111827] disabled:opacity-60"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                onClick={confirmSkip}
-                disabled={skipping}
+                onClick={confirmAction}
+                disabled={working}
                 className="cursor-pointer rounded-lg bg-[#EA3335] px-3 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {skipping ? "Skipping…" : "Skip payment"}
+                {working
+                  ? isRetryAction
+                    ? "Retrying…"
+                    : "Skipping…"
+                  : isRetryAction
+                    ? "Retry payment"
+                    : "Skip payment"}
               </button>
             </div>
           </div>

@@ -193,6 +193,15 @@ export function skipUserInstallment({ scheduleId, installmentId } = {}) {
   });
 }
 
+// Manually retry ONE failed/missed scheduled payment (queues the attempt; the worker charges).
+export function retryUserInstallment({ scheduleId, installmentId } = {}) {
+  const sid = encodeURIComponent(String(scheduleId || "").trim());
+  const iid = encodeURIComponent(String(installmentId || "").trim());
+  return apiRequest(`/user/schedules/${sid}/installments/${iid}/retry`, {
+    method: "POST",
+  });
+}
+
 export function pauseUserSchedule(scheduleId, reason = "") {
   const id = encodeURIComponent(String(scheduleId || "").trim());
   return apiRequest(`/user/schedules/${id}/pause`, {
