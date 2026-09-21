@@ -40,7 +40,7 @@ const ReportKpiCards = ({ data, loading }) => {
         <StatCard label="Committed" value={money(kpis.committed)} sub="Full value of paid donations" />
         <StatCard label="Collected" value={money(kpis.collected)} sub="Payments actually received" />
         <StatCard label="Donations" value={Number(kpis.donationCount || 0).toLocaleString()} sub="Paid invoices" />
-        <StatCard label="Average gift" value={money(kpis.averageGift)} sub="Committed ÷ donations" />
+        <StatCard label="Average donation" value={money(kpis.averageGift)} sub="Committed ÷ donations" />
       </section>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">

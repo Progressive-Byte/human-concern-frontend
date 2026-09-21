@@ -52,7 +52,7 @@ const CampaignSummaryCards = ({ data, loading }) => {
         value={Number(s.donorCount || 0).toLocaleString()}
         sub={`${Number(s.newDonors || 0).toLocaleString()} new · ${Number(s.returningDonors || 0).toLocaleString()} returning`}
       />
-      <Stat label="Average gift" value={money(s.averageGift)} sub="Committed ÷ donations" />
+      <Stat label="Average donation" value={money(s.averageGift)} sub="Committed ÷ donations" />
       <Stat
         label="One-time / Recurring"
         value={`${money(s.oneTime?.amount)} / ${money(s.recurring?.amount)}`}

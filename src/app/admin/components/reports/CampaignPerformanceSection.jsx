@@ -3,6 +3,11 @@
 import { formatCurrency } from "@/utils/helpers";
 import TrendChart from "./TrendChart";
 
+function donationCountLabel(value) {
+  const n = Number(value || 0);
+  return `${n.toLocaleString()} ${n === 1 ? "donation" : "donations"}`;
+}
+
 function MiniList({ title, items, currency, valueKey }) {
   return (
     <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
@@ -18,7 +23,7 @@ function MiniList({ title, items, currency, valueKey }) {
                 {c.campaignName}
               </span>
               <span className="shrink-0 text-[13px] font-semibold text-[#111827]">
-                {valueKey === "donations" ? `${Number(c.donations || 0).toLocaleString()} gifts` : formatCurrency(c.committed, currency)}
+                {valueKey === "donations" ? donationCountLabel(c.donations) : formatCurrency(c.committed, currency)}
               </span>
             </li>
           ))}

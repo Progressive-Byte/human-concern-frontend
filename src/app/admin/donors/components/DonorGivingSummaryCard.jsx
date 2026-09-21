@@ -71,7 +71,7 @@ const DonorGivingSummaryCard = ({ donor, stats, schedulesSummary, loading }) => 
         <StatTile label="One-time Total" value={formatCurrency(oneTimeTotal)} hint={`${oneTimeCount} receipts`} />
         <StatTile label="Recurring Collected" value={formatCurrency(recurringCollected)} hint="Charged so far" />
         <StatTile label="Recurring Committed" value={formatCurrency(recurringCommitted)} hint="Full schedule value" />
-        <StatTile label="Average Gift" value={formatCurrency(averageGift)} />
+        <StatTile label="Average Donation" value={formatCurrency(averageGift)} />
         <StatTile label="Largest Donation" value={formatCurrency(largest)} />
         <StatTile
           label="Refunded"
