@@ -428,32 +428,18 @@ const ReturnChallengeClient = () => {
     if (outcome !== OUTCOMES.SUCCESS || finalizing) return;
     const receipt = outcomeResult?.receipt || {};
     const nav = () => {
-      if (isAuthenticated) {
-        try {
-          const merged = {
-            donationId: receipt.donationId,
-            amount: receipt.amount ?? donationAmount,
-            currency: receipt.currency ?? data.currency,
-            frequency: receipt.frequency ?? data.frequency,
-            isRecurring: Boolean(receipt.isRecurring ?? data.isRecurring),
-            causes: receipt.causes ?? data.causes ?? null,
-            campaign: receipt.campaign ?? null,
-            causeAllocations: receipt.causeAllocations ?? null,
-            donor: receipt.donor ?? { email: receipt.donorEmail ?? data.email },
-            receiptId: receipt.receiptId ?? null,
-            donorEmail: receipt.donorEmail ?? data.email,
-          };
-          sessionStorage.setItem("thankyouData", JSON.stringify(merged));
-          clearDonationSession();
-        } catch (_) {}
-        router.replace("/dashboard/donation-history?thankyou=1");
-      } else {
-        router.replace("/donate/thank-you");
-      }
+      // Everyone lands on the receipt page — the donation id goes in the URL so the page can load
+      // the receipt even after the wizard session is cleared.
+      const id = String(receipt.donationId ?? queryReturnParams.donationId ?? data.donationId ?? "").trim();
+      try {
+        sessionStorage.setItem("hc_finalize_result", JSON.stringify(receipt));
+      } catch (_) {}
+      clearDonationSession();
+      router.replace(id ? `/donate/thank-you?donationId=${encodeURIComponent(id)}` : "/donate/thank-you");
     };
     const t = setTimeout(nav, 80);
     return () => clearTimeout(t);
-  }, [outcome, finalizing, isAuthenticated, outcomeResult?.receipt, donationAmount, data.currency, data.frequency, data.isRecurring, data.causes, data.email, clearDonationSession, router]);
+  }, [outcome, finalizing, outcomeResult?.receipt, queryReturnParams.donationId, data.donationId, clearDonationSession, router]);
 
   const handleRetryFinalize = useCallback(() => {
     finalizeRef.current = false;
@@ -494,29 +480,13 @@ const ReturnChallengeClient = () => {
   const handleNavigateHome = useCallback(() => router.replace("/"), [router]);
   const handleNavigateThankYou = useCallback(() => {
     const receipt = outcomeResult?.receipt || {};
-    if (isAuthenticated) {
-      try {
-        const merged = {
-          donationId: receipt.donationId,
-          amount: receipt.amount ?? donationAmount,
-          currency: receipt.currency ?? data.currency,
-          frequency: receipt.frequency ?? data.frequency,
-          isRecurring: Boolean(receipt.isRecurring ?? data.isRecurring),
-          causes: receipt.causes ?? data.causes ?? null,
-          campaign: receipt.campaign ?? null,
-          causeAllocations: receipt.causeAllocations ?? null,
-          donor: receipt.donor ?? { email: receipt.donorEmail ?? data.email },
-          receiptId: receipt.receiptId ?? null,
-          donorEmail: receipt.donorEmail ?? data.email,
-        };
-        sessionStorage.setItem("thankyouData", JSON.stringify(merged));
-        clearDonationSession();
-      } catch (_) {}
-      router.replace("/dashboard/donation-history?thankyou=1");
-    } else {
-      router.replace("/donate/thank-you");
-    }
-  }, [isAuthenticated, outcomeResult?.receipt, donationAmount, data.currency, data.frequency, data.isRecurring, data.causes, data.email, clearDonationSession, router]);
+    const id = String(receipt.donationId ?? queryReturnParams.donationId ?? data.donationId ?? "").trim();
+    try {
+      sessionStorage.setItem("hc_finalize_result", JSON.stringify(receipt));
+    } catch (_) {}
+    clearDonationSession();
+    router.replace(id ? `/donate/thank-you?donationId=${encodeURIComponent(id)}` : "/donate/thank-you");
+  }, [outcomeResult?.receipt, queryReturnParams.donationId, data.donationId, clearDonationSession, router]);
 
   return (
     <main className="min-h-screen bg-[#F6F6F6] flex items-start justify-center py-16 px-4 sm:px-6">

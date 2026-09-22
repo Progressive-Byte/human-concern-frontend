@@ -1,14 +1,12 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "@/components/layout/DashboardHeader";
 import { DownloadIcon } from "@/components/common/SvgIcon";
 import { exportUserDonationsCsv, getUserDonationsList } from "@/services/donationService";
 import { FilterBar } from "./components/FilterBar";
 import { DonationTable } from "./components/DonationTable";
 import { DonationHistoryFallback } from "./components/DonationHistoryFallback";
-import ThankYouModal from "./components/ThankYouModal";
 function formatDate(value) {
   if (!value) return "";
   try {
@@ -30,32 +28,14 @@ function useDebouncedValue(value, delayMs) {
 }
 
 function DonationHistoryPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
   const [search, setSearch] = useState("");
   const [cause, setCause] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [items, setItems] = useState([]);
   const [causeOptions, setCauseOptions] = useState(DEFAULT_CAUSE_OPTIONS);
-  const [showPopup, setShowPopup] = useState(false);
-  const [thankyouData, setThankyouData] = useState(null);
 
   const debouncedSearch = useDebouncedValue(search, 300);
-
-  useEffect(() => {
-    if (searchParams.get("thankyou") !== "1") return;
-    try {
-      const raw = sessionStorage.getItem("thankyouData");
-      if (raw) {
-        setThankyouData(JSON.parse(raw));
-        setShowPopup(true);
-        sessionStorage.removeItem("thankyouData");
-      }
-    } catch {}
-    router.replace("/dashboard/donation-history", { scroll: false });
-  }, [searchParams, router]);
 
   useEffect(() => {
     let alive = true;
@@ -161,10 +141,6 @@ function DonationHistoryPage() {
 
         <DonationTable loading={loading} rows={rows} onError={setError} />
       </div>
-
-      {showPopup && thankyouData && (
-        <ThankYouModal thankyouData={thankyouData} onClose={() => setShowPopup(false)} />
-      )}
     </>
   );
 }

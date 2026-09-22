@@ -6,9 +6,11 @@ import Image from "next/image";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import { apiRequest } from "@/services/api";
+import { getReceiptDetail } from "@/services/donationService";
 import { apiBase } from "@/utils/constants";
 import { CircleCheckIcon, ShareCampaignIcon, DashboardTabIcon, BrowserIcon } from "@/components/common/SvgIcon";
 import CauseAllocationBreakdown from "@/components/thank-you/CauseAllocationBreakdown";
+import PaymentReceiptCard from "@/components/thank-you/PaymentReceiptCard";
 import ResendReceiptWithEditableEmail from "@/components/thank-you/ResendReceiptWithEditableEmail";
 import SmartRetryInfoBanner from "@/components/thank-you/SmartRetryInfoBanner";
 import FailoverBanner from "@/components/thank-you/FailoverBanner";
@@ -29,10 +31,11 @@ const DISPATCH_STATES = {
 function loadLocalDonationState() {
   if (typeof window === "undefined") return {};
   try {
+    // ReturnChallengeClient writes these to sessionStorage — read the same store.
     const raw =
-      localStorage.getItem("hc_finalize_result") ||
-      localStorage.getItem("hc_thankyou_result") ||
-      localStorage.getItem("hc_donation_done");
+      sessionStorage.getItem("hc_finalize_result") ||
+      sessionStorage.getItem("hc_thankyou_result") ||
+      sessionStorage.getItem("hc_donation_done");
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     return parsed && typeof parsed === "object" ? parsed : {};
@@ -57,6 +60,11 @@ const ThankYouClient = () => {
   const [failoverOccurred, setFailoverOccurred] = useState(false);
   const [failoverPath, setFailoverPath] = useState("");
   const [smartRetryActive, setSmartRetryActive] = useState(false);
+  const [receipt, setReceipt] = useState(null);
+  const [receiptError, setReceiptError] = useState("");
+  const [receiptAttempt, setReceiptAttempt] = useState(0);
+
+  const receiptTargetRef = useRef(null);
 
   const sym = CURRENCY_SYMBOLS[data.currency] || "$";
   const donationAmount = data.grandTotal ?? data.amountTier;
@@ -249,27 +257,42 @@ const ThankYouClient = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [needsFinalize, finalizeAttempt]);
 
+  // Load the receipt (JSON) for this donation. The target is captured once, before the wizard
+  // session is cleared, so the request still has the donation id/email it needs.
   useEffect(() => {
-    if (isAuthenticated && !needsFinalize && !finalizeLoading && !finalizeError && dispatchState === DISPATCH_STATES.SUCCESS) {
-      sessionStorage.setItem(
-        "thankyouData",
-        JSON.stringify({
-          donationAmount,
-          currency: data.currency ?? "USD",
-          campaignTitle,
-          isRamadan: data.isRamadan ?? false,
-          causes,
-          isRecurring,
-          frequency,
-          numberOfDays,
-          paymentType: data.paymentType ?? "one-time",
-        })
-      );
-      clearDonationSession();
-      router.replace("/dashboard/donation-history?thankyou=1");
+    if (dispatchState !== DISPATCH_STATES.SUCCESS) return;
+    if (needsFinalize || finalizeLoading || finalizeError) return;
+
+    if (!receiptTargetRef.current) {
+      const id = String(
+        finalizeResult?.donationId ??
+          data.finalizedDonationId ??
+          data.donationId ??
+          challengeData.donationId ??
+          ""
+      ).trim();
+      if (!id) return;
+      receiptTargetRef.current = { donationId: id, email: String(donorEmail || "").trim() };
     }
+
+    const target = receiptTargetRef.current;
+    let alive = true;
+    setReceiptError("");
+    getReceiptDetail(target)
+      .then((res) => {
+        if (!alive) return;
+        setReceipt(res?.data?.receipt || null);
+      })
+      .catch((e) => {
+        if (!alive) return;
+        setReceipt(null);
+        setReceiptError(e?.message || "We couldn't load your receipt right now.");
+      });
+    return () => {
+      alive = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, needsFinalize, finalizeLoading, finalizeError, dispatchState]);
+  }, [dispatchState, needsFinalize, finalizeLoading, finalizeError, receiptAttempt, isAuthenticated]);
 
   useEffect(() => {
     fetch(`${apiBase}campaigns/featured`)
@@ -279,18 +302,13 @@ const ThankYouClient = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  // Clear the wizard session once we're on the success screen — for guests AND signed-in donors
+  // (the receipt request above already captured what it needs).
   useEffect(() => {
-    if (
-      isAuthenticated ||
-      needsFinalize ||
-      finalizeLoading ||
-      finalizeError ||
-      dispatchState !== DISPATCH_STATES.SUCCESS
-    )
-      return;
+    if (needsFinalize || finalizeLoading || finalizeError) return;
+    if (dispatchState !== DISPATCH_STATES.SUCCESS) return;
     clearDonationSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, needsFinalize, finalizeLoading, finalizeError, dispatchState]);
+  }, [needsFinalize, finalizeLoading, finalizeError, dispatchState]);
 
   const handleShare = async () => {
     const url = window.location.origin + "/campaigns";
@@ -528,6 +546,12 @@ const ThankYouClient = () => {
           <div className="max-w-[820px] mx-auto flex flex-col gap-5">
             {failoverOccurred && <FailoverBanner providerFallbackPath={failoverPath} />}
             {smartRetryActive && <SmartRetryInfoBanner />}
+
+            <PaymentReceiptCard
+              receipt={receipt}
+              error={receiptError}
+              onRetry={() => setReceiptAttempt((n) => n + 1)}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <CauseAllocationBreakdown

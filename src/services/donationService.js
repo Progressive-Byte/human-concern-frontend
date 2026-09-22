@@ -64,6 +64,21 @@ export function downloadReceipt({ donationId, transactionId, email } = {}) {
   });
 }
 
+/**
+ * Fetch the receipt for a donation as JSON, for the post-payment receipt page.
+ * `email` is required for the guest path; signed-in donors are authorized by their token alone.
+ */
+export function getReceiptDetail({ donationId, transactionId, email } = {}) {
+  const id = String(donationId || "").trim();
+  if (!id) return Promise.reject(new Error("Missing donation reference."));
+
+  const body = { donationId: id };
+  if (transactionId) body.transactionId = String(transactionId).trim();
+  if (email) body.email = String(email).trim();
+
+  return apiRequest("/receipt/detail", { method: "POST", body: JSON.stringify(body) });
+}
+
 export function createDonation(payload) {
   return apiRequest("/donations", {
     method: "POST",
