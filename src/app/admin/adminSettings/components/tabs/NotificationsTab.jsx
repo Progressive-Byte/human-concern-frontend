@@ -62,7 +62,7 @@ const NotificationsTab = ({ value, onChange, loading, saving, onSave }) => {
     { key: "failedTransaction", title: "Failed recurring charge", desc: "Bell alert when an installment fails after every retry" },
     { key: "gatewayFailure", title: "Payment gateway failure", desc: "Bell alert when a gateway looks unhealthy (at most once every 6 hours)" },
     { key: "exchangeRateFailure", title: "Exchange rate update failure", desc: "Bell alert when the rate sync fails (at most once every 6 hours)" },
-    { key: "campaignGoalReached", title: "Campaign goal reached", desc: "Not wired yet" },
+    { key: "campaignGoalReached", title: "Campaign goal reached", desc: "Bell alert when a form's collected total reaches its goal" },
     { key: "weeklySummaryReport", title: "Weekly summary report", desc: "Not wired yet" },
   ];
 
