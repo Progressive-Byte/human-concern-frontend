@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { adminLogin as apiAdminLogin } from "@/services/adminAuthService";
 import { getAdminMe } from "@/services/admin";
 import { setCookie, deleteCookie, getCookie } from "@/utils/cookies";
+import { firstAllowedAdminHref } from "@/utils/adminNav";
 
 const AdminAuthContext = createContext(null);
 
@@ -20,7 +21,8 @@ export function AdminAuthProvider({ children }) {
       const { admin, accessToken } = res.data;
       setCookie("adminToken", accessToken);
       setAdmin(admin);
-      router.push("/admin");
+      // Land on the first page this role may actually open (Overview needs `dashboard.read`).
+      router.push(firstAllowedAdminHref(admin) || "/admin");
       return res;
     } finally {
       setLoading(false);

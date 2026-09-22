@@ -18,8 +18,11 @@ import CampaignPerformanceSection from "./components/reports/CampaignPerformance
 import FundPerformanceSection from "./components/reports/FundPerformanceSection";
 import TransactionHealthSection from "./components/reports/TransactionHealthSection";
 import AttributionSection from "./components/reports/AttributionSection";
+import Link from "next/link";
 import { AlertIcon } from "@/components/common/SvgIcon";
 import { useAdminAuth } from "@/context/AdminAuthContext";
+import { adminHasPermission } from "@/utils/adminPermissions";
+import { firstAllowedAdminHref } from "@/utils/adminNav";
 
 // Every filter the report endpoints accept. Keeping them in the URL makes a view shareable
 // and keeps every section on the page reading the same values.
@@ -35,6 +38,9 @@ const DashboardClient = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // The Overview page is itself permission-gated; a role without it is sent to a page it can open.
+  const canView = adminHasPermission(admin, "dashboard.read");
 
   const filters = useMemo(() => {
     const out = {};
@@ -73,6 +79,7 @@ const DashboardClient = () => {
   const resetFilters = useCallback(() => router.replace(pathname, { scroll: false }), [pathname, router]);
 
   useEffect(() => {
+    if (!admin || !canView) return undefined;
     let alive = true;
     getAdminReportFilterOptions()
       .then((res) => {
@@ -85,9 +92,10 @@ const DashboardClient = () => {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [admin, canView]);
 
   useEffect(() => {
+    if (!admin || !canView) return undefined;
     let alive = true;
 
     async function load() {
@@ -121,7 +129,38 @@ const DashboardClient = () => {
     };
     // `filterKey` is the serialized filters, so the effects re-run exactly when they change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterKey]);
+  }, [filterKey, admin, canView]);
+
+  // No overview access → bounce to the first page this role CAN open.
+  useEffect(() => {
+    if (!admin || canView) return;
+    const next = firstAllowedAdminHref(admin);
+    if (next && next !== "/admin") router.replace(next);
+  }, [admin, canView, router]);
+
+  if (admin && !canView) {
+    const next = firstAllowedAdminHref(admin);
+    return (
+      <main className="min-w-0 space-y-6 p-4 md:p-6">
+        <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-6">
+          <div className="text-[18px] font-semibold text-[#111827]">No access to the dashboard</div>
+          <p className="mt-1 text-[13px] text-[#6B7280]">
+            Your role doesn&apos;t include the <span className="font-mono">dashboard.read</span> permission.
+          </p>
+          {next && next !== "/admin" ? (
+            <Link
+              href={next}
+              className="mt-4 inline-flex rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] no-underline transition hover:bg-[#F9FAFB]"
+            >
+              Go to {next}
+            </Link>
+          ) : (
+            <p className="mt-3 text-[13px] text-[#6B7280]">Ask an administrator to grant you access.</p>
+          )}
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
