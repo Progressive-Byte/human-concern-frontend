@@ -9,9 +9,7 @@ import { apiRequest } from "@/services/api";
 import { getReceiptDetail } from "@/services/donationService";
 import { apiBase } from "@/utils/constants";
 import { CircleCheckIcon, ShareCampaignIcon, DashboardTabIcon, BrowserIcon } from "@/components/common/SvgIcon";
-import CauseAllocationBreakdown from "@/components/thank-you/CauseAllocationBreakdown";
 import PaymentReceiptCard from "@/components/thank-you/PaymentReceiptCard";
-import ResendReceiptWithEditableEmail from "@/components/thank-you/ResendReceiptWithEditableEmail";
 import SmartRetryInfoBanner from "@/components/thank-you/SmartRetryInfoBanner";
 import FailoverBanner from "@/components/thank-you/FailoverBanner";
 import PendingRetryScheduleCard from "@/components/thank-you/PendingRetryScheduleCard";
@@ -72,7 +70,6 @@ const ThankYouClient = () => {
   const frequency = FREQUENCY_LABELS[data.frequency?.toLowerCase()] ?? data.frequency ?? "";
   const numberOfDays = data.numberOfDays ?? 0;
   const campaignTitle = data.campaignTitle ?? "";
-  const causes = data.causes ?? [];
   const donorEmail = data.email ?? data.donorEmail ?? "";
   const donationId = data.donationId ?? data.finalizedDonationId ?? "";
 
@@ -169,39 +166,6 @@ const ThankYouClient = () => {
         "",
     };
   }, [searchParams, finalizeResult, donationId, dispatchState]);
-
-  const allocatedCauses = useMemo(() => {
-    if (!causes || causes.length === 0) return [];
-    const total = Number(donationAmount) || 0;
-    if (!Array.isArray(causes)) return [];
-    return causes.map((c) => {
-      if (typeof c === "string") {
-        return { name: c, amount: causes.length > 0 ? total / causes.length : 0 };
-      }
-      return c;
-    });
-  }, [causes, donationAmount]);
-
-  const paymentInfo = useMemo(() => {
-    const local = loadLocalDonationState();
-    return {
-      last4: data.last4 ?? local.payment?.last4 ?? finalizeResult?.payment?.last4 ?? "",
-      brand: data.cardBrand ?? local.payment?.brand ?? finalizeResult?.payment?.brand ?? "",
-      cardName: data.cardName ?? local.payment?.cardName ?? finalizeResult?.payment?.cardName ?? "",
-      fee: data.processingFee ?? local.payment?.fee ?? finalizeResult?.payment?.fee ?? null,
-      netAmount: data.netAmount ?? local.payment?.netAmount ?? finalizeResult?.payment?.netAmount ?? null,
-      paymentIdRef:
-        data.paymentId ??
-        data.chargeId ??
-        local.payment?.id ??
-        local.payment?.chargeId ??
-        finalizeResult?.paymentId ??
-        finalizeResult?.chargeId ??
-        finalizeResult?.payment?.id ??
-        "",
-      provider: data.gateway ?? local.payment?.provider ?? finalizeResult?.provider ?? "",
-    };
-  }, [data, finalizeResult]);
 
   const clearDonationSession = () => {
     try {
@@ -551,100 +515,10 @@ const ThankYouClient = () => {
               receipt={receipt}
               error={receiptError}
               onRetry={() => setReceiptAttempt((n) => n + 1)}
+              donationId={effectiveDonationId}
+              email={donorEmail}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <CauseAllocationBreakdown
-                causes={allocatedCauses}
-                totalAmount={Number(donationAmount) || 0}
-                currency={data.currency ?? "USD"}
-              />
-
-              <div className="flex flex-col gap-5">
-                <div className="w-full bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-                  <div className="flex items-center gap-2 mb-4">
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="text-gray-500">
-                      <rect x="1" y="3" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M1 7H19" stroke="currentColor" strokeWidth="1.5" />
-                    </svg>
-                    <h3 className="text-[13px] font-semibold uppercase tracking-widest text-gray-500">
-                      Payment Method
-                    </h3>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="shrink-0 w-12 h-8 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border border-gray-200">
-                      <svg width="20" height="14" viewBox="0 0 32 22" fill="none" className="text-gray-500">
-                        <rect x="0.5" y="0.5" width="31" height="21" rx="3" fill="white" stroke="currentColor" strokeWidth="0.75" />
-                        <path d="M1 7H31" stroke="currentColor" strokeWidth="0.75" />
-                        <rect x="4" y="13" width="10" height="4" rx="1" fill="currentColor" fillOpacity="0.2" />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {paymentInfo.brand && (
-                          <span className="text-[12px] font-bold uppercase tracking-wider text-gray-700">
-                            {paymentInfo.brand}
-                          </span>
-                        )}
-                        {paymentInfo.last4 && (
-                          <span className="text-[13px] font-mono font-semibold text-gray-800">
-                            •••• {paymentInfo.last4}
-                          </span>
-                        )}
-                      </div>
-                      {paymentInfo.cardName && (
-                        <p className="text-[12.5px] text-gray-600 mt-1">{paymentInfo.cardName}</p>
-                      )}
-                      {paymentInfo.provider && (
-                        <p className="text-[11px] text-gray-400 mt-0.5">
-                          Processed via {paymentInfo.provider}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[15px] font-bold text-[#055A46]">
-                        {sym}
-                        {Number(donationAmount).toFixed(2)}
-                      </p>
-                      {paymentInfo.fee !== null && paymentInfo.fee !== undefined && (
-                        <p className="text-[10.5px] text-gray-500 mt-0.5">
-                          Fee: {sym}
-                          {Number(paymentInfo.fee).toFixed(2)}
-                          {paymentInfo.netAmount !== null && paymentInfo.netAmount !== undefined && (
-                            <>
-                              {" "}• Net: {sym}
-                              {Number(paymentInfo.netAmount).toFixed(2)}
-                            </>
-                          )}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {paymentInfo.paymentIdRef && (
-                    <div className="mt-4 pt-3 border-t border-gray-100">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] uppercase tracking-wider text-gray-400 font-medium">
-                          Payment Reference
-                        </span>
-                        <span
-                          className="text-[11.5px] font-mono text-gray-600 truncate"
-                          title={paymentInfo.paymentIdRef}
-                        >
-                          {paymentInfo.paymentIdRef}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <ResendReceiptWithEditableEmail
-                  donationId={effectiveDonationId}
-                  initialEmail={donorEmail}
-                />
-              </div>
-            </div>
           </div>
         </div>
       )}

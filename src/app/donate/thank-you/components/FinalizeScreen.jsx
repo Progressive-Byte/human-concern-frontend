@@ -14,7 +14,7 @@ const FinalizeScreen = ({ loading, error, onRetry, onGoHistory }) => {
     return (
       <main className="min-h-screen bg-[#F6F6F6] pt-[140px] px-4">
         <div className="max-w-[720px] mx-auto bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6">
-          <h1 className="text-[20px] font-bold text-[#383838]">We couldn't finalize your donation</h1>
+          <h1 className="text-[20px] font-bold text-[#383838]">We couldn&apos;t finalize your donation</h1>
           <p className="text-[13px] text-[#737373] mt-1">{error}</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <button

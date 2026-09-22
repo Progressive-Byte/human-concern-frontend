@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { downloadReceipt } from "@/services/donationService";
+import { Spinner } from "@/components/common/SvgIcon";
 import { formatCurrency } from "@/utils/helpers";
 
 function formatDate(value) {
@@ -50,7 +53,48 @@ function LineItem({ label, amount, currency }) {
 }
 
 // The same receipt the PDF/email renders, drawn on screen. Data comes from POST /receipt/detail.
-const PaymentReceiptCard = ({ receipt, error, onRetry }) => {
+const PaymentReceiptCard = ({ receipt, error, onRetry, donationId, email }) => {
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState("");
+
+  const handleDownload = async () => {
+    if (!donationId || downloading) return;
+    setDownloading(true);
+    setDownloadError("");
+    try {
+      await downloadReceipt({ donationId, email });
+    } catch (e) {
+      setDownloadError(e?.message || "Could not download the receipt. Please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  // The PDF is built from the same data as this card, so the download is offered even when the
+  // JSON request failed. Direct download — the donor's email is taken from the checkout.
+  const downloadButton = donationId ? (
+    <div className="pt-3 mt-3 border-t border-[#E5E5E5]">
+      <button
+        type="button"
+        onClick={handleDownload}
+        disabled={downloading}
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#EA3335] hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed px-4 py-3 text-[13px] font-semibold text-white transition-colors active:scale-[0.98] cursor-pointer"
+      >
+        {downloading ? (
+          <>
+            <span className="text-white">{Spinner}</span>
+            Preparing...
+          </>
+        ) : (
+          <>Download Receipt</>
+        )}
+      </button>
+      {downloadError ? (
+        <p className="mt-2 text-[12px] font-medium text-[#EA3335]">{downloadError}</p>
+      ) : null}
+    </div>
+  ) : null;
+
   if (error) {
     return (
       <div className="w-full bg-white rounded-2xl border border-dashed border-[#E5E5E5] p-5 sm:p-6 text-left">
@@ -65,6 +109,7 @@ const PaymentReceiptCard = ({ receipt, error, onRetry }) => {
             Try again
           </button>
         ) : null}
+        {downloadButton}
       </div>
     );
   }
@@ -160,6 +205,8 @@ const PaymentReceiptCard = ({ receipt, error, onRetry }) => {
         {organization.statement ? (
           <p className="text-[11px] text-[#737373] mt-3 italic">{organization.statement}</p>
         ) : null}
+
+        {downloadButton}
       </div>
     </div>
   );
