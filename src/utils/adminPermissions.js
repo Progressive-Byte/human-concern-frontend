@@ -11,7 +11,10 @@
  * - Wildcards: `prefix.*` and `*`.
  */
 export function adminHasPermission(admin, required) {
-  if (!required) return true;
+  // `required` may be one key or a list — a list passes when ANY key is held, mirroring the
+  // backend's `requireAnyPermission` (e.g. Forms via `forms.read` or the older `campaigns.read`).
+  const requiredKeys = (Array.isArray(required) ? required : [required]).filter(Boolean);
+  if (requiredKeys.length === 0) return true;
   if (!admin) return true;
 
   const roles = [];
@@ -22,10 +25,10 @@ export function adminHasPermission(admin, required) {
   if (normalizedRoles.includes("owner")) return true;
 
   const permissions = Array.isArray(admin.permissions) ? admin.permissions : [];
-  if (permissions.includes(required)) return true;
 
-  const prefix = required.split(".")[0];
-  if (permissions.includes(`${prefix}.*`) || permissions.includes("*")) return true;
-
-  return false;
+  return requiredKeys.some((key) => {
+    if (permissions.includes(key)) return true;
+    const prefix = key.split(".")[0];
+    return permissions.includes(`${prefix}.*`) || permissions.includes("*");
+  });
 }

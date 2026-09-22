@@ -307,27 +307,29 @@ function NavIcon({ name, className = "" }) {
   );
 }
 
+// Every item carries the permission its API requires, so the menu mirrors the role exactly. Forms
+// accepts either key (the backend allows both — see requireAnyPermission).
 const navItems = [
-  { href: "/admin", label: "Overview", icon: "overview" },
-  { href: "/admin/campaigns", label: "Campaigns", icon: "campaigns" },
-  { href: "/admin/forms", label: "Forms", icon: "forms" },
-  { href: "/admin/categories", label: "FC Categories", icon: "categories" },
-  { href: "/admin/causes", label: "Causes", icon: "causes" },
-  { href: "/admin/designations", label: "Designations", icon: "designations" },
-  { href: "/admin/objectives", label: "Objectives", icon: "objectives" },
-  { href: "/admin/add-ons", label: "Addons", icon: "addons" },
-  { href: "/admin/donors", label: "Donors", icon: "donors" },
-  { href: "/admin/donations", label: "Transactions", icon: "transactions" },
-  { href: "/admin/schedules", label: "Schedules", icon: "schedules" },
+  { href: "/admin", label: "Overview", icon: "overview", permission: "dashboard.read" },
+  { href: "/admin/campaigns", label: "Campaigns", icon: "campaigns", permission: "campaigns.read" },
+  { href: "/admin/forms", label: "Forms", icon: "forms", permission: ["forms.read", "campaigns.read"] },
+  { href: "/admin/categories", label: "FC Categories", icon: "categories", permission: "categories.read" },
+  { href: "/admin/causes", label: "Causes", icon: "causes", permission: "causes.read" },
+  { href: "/admin/designations", label: "Designations", icon: "designations", permission: "designations.read" },
+  { href: "/admin/objectives", label: "Objectives", icon: "objectives", permission: "objectives.read" },
+  { href: "/admin/add-ons", label: "Addons", icon: "addons", permission: "addons.read" },
+  { href: "/admin/donors", label: "Donors", icon: "donors", permission: "donors.read" },
+  { href: "/admin/donations", label: "Transactions", icon: "transactions", permission: "transactions.read" },
+  { href: "/admin/schedules", label: "Schedules", icon: "schedules", permission: "schedules.read" },
   { href: "/admin/fund-breakdown", label: "Fund Breakdown", icon: "fund-breakdown", permission: "transactions.read" },
   { href: "/admin/gateway-health", label: "Gateway Health", icon: "gateway-health", permission: "settings.read" },
   { href: null, label: "Reconciliation", icon: "reconciliation", disabled: true },
   { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
-  { href: "/admin/logs", label: "Logs", icon: "logs" },
+  { href: "/admin/logs", label: "Logs", icon: "logs", permission: "audit.read" },
   { href: "/admin/translation", label: "Translation", icon: "translation", permission: "settings.read" },
   { href: "/admin/data-export", label: "Data Export", icon: "data-export", permission: "data.export" },
   { href: "/admin/system-users", label: "System Users", icon: "users", permission: "users.read" },
-  { href: "/admin/adminSettings", label: "Settings", icon: "settings" },
+  { href: "/admin/adminSettings", label: "Settings", icon: "settings", permission: "settings.read" },
 ];
 
 const AdminSidebar = ({ onNavigate }) => {
