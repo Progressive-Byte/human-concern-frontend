@@ -7,7 +7,7 @@ import {
   storeIdempotencyKey,
   clearIdempotencyKey,
 } from "@/utils/idempotency";
-import { readUtmFromSearch, saveFirstTouch } from "@/utils/utm";
+import { readUtmFromSearch, saveFirstTouch, storeLastTouch, readStoredLastTouch } from "@/utils/utm";
 
 const DonationContext = createContext(null);
 
@@ -107,17 +107,25 @@ export function DonationProvider({ children }) {
   // entry points. First touch wins: a later URL never overwrites an already-captured value.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const captured = readUtmFromSearch(window.location.search);
-    const keys = Object.keys(captured);
-    if (!keys.length) return;
 
-    // First touch wins: remember the first UTM this browser saw for later donations.
-    saveFirstTouch(captured);
+    const fromUrl = readUtmFromSearch(window.location.search);
+    const hasUrl = Object.keys(fromUrl).length > 0;
+    if (hasUrl) {
+      // First touch wins; the URL's values are also this session's last touch.
+      saveFirstTouch(fromUrl);
+      storeLastTouch(fromUrl);
+    }
+
+    // The form's own URL wins; otherwise reuse the last touch a public page recorded earlier —
+    // e.g. the visitor clicked through from a link that dropped the query string.
+    const source = hasUrl ? fromUrl : (readStoredLastTouch() || {});
+    const keys = Object.keys(source);
+    if (!keys.length) return;
 
     setData((prev) => {
       const patch = {};
       for (const key of keys) {
-        if (!prev[key]) patch[key] = captured[key];
+        if (!prev[key]) patch[key] = source[key];
       }
       if (!Object.keys(patch).length) return prev;
       const next = { ...prev, ...patch };

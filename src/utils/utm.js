@@ -81,6 +81,58 @@ export function readFirstTouch() {
   }
 }
 
+const LAST_TOUCH_KEY = "hc_utm_last";
+
+/**
+ * Remembers this session's last touch. Kept in its own sessionStorage key (NOT inside
+ * `hc_donation`) so resetting the donation session does not erase the attribution.
+ */
+export function storeLastTouch(utmFromUrl) {
+  const payload = buildUtmPayload(utmFromUrl);
+  if (!payload) return null;
+  try {
+    sessionStorage.setItem(LAST_TOUCH_KEY, JSON.stringify(payload));
+  } catch {
+    // private mode / storage full — attribution is best-effort
+  }
+  return payload;
+}
+
+/**
+ * The last touch recorded earlier in this session, in the donation-context shape
+ * (`{ utm_source: "facebook", ... }`), ready to patch straight into the context.
+ * Null when nothing was recorded.
+ */
+export function readStoredLastTouch() {
+  try {
+    const raw = sessionStorage.getItem(LAST_TOUCH_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    const out = {};
+    for (const [utmKey, field] of Object.entries(UTM_TO_FIELD)) {
+      const value = String(parsed[field] ?? "").trim();
+      if (value) out[utmKey] = value;
+    }
+    return Object.keys(out).length ? out : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * One call for every public page: when the URL carries UTM params, record the first touch and the
+ * last touch straight away — so attribution is kept even if the visitor never reaches the form, or
+ * arrives at the form through a link that dropped the query.
+ */
+export function captureAttribution(search) {
+  const utm = readUtmFromSearch(search);
+  if (!Object.keys(utm).length) return null;
+  saveFirstTouch(utm);
+  storeLastTouch(utm);
+  return utm;
+}
+
 /**
  * Saves the first UTM this browser has seen. First touch wins — an existing cookie is
  * never overwritten, so the original source keeps the credit.

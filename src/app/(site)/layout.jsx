@@ -2,6 +2,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import TopNoticeBar from "@/components/layout/Topnoticebar";
 import SiteShell from "@/components/layout/SiteShell";
+import AttributionCapture from "@/components/tracking/AttributionCapture";
 import { BrandingProvider } from "@/context/BrandingContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { HomepageContentProvider } from "@/context/HomepageContentContext";
@@ -18,6 +19,8 @@ const SiteLayout = ({ children }) => {
       <LanguageProvider>
         <HomepageContentProvider>
           <SiteShell>
+            {/* Records utm_* as soon as any public page is opened. */}
+            <AttributionCapture />
             <div className="fixed top-0 left-0 right-0 z-50 flex flex-col">
               <TopNoticeBar />
               <Navbar />
