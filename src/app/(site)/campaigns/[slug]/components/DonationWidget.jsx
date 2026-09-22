@@ -6,6 +6,7 @@ import CustomDropdown from "@/components/common/CustomDropdown";
 import { CircleCheckIcon, ShareCampaignIcon } from "@/components/common/SvgIcon";
 import { apiRequest } from "@/services/api";
 import { buildCampaignData } from "@/utils/campaignData";
+import { readUtmFromSearch, saveFirstTouch } from "@/utils/utm";
 
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
@@ -115,6 +116,14 @@ const DonationWidget = ({ campaign }) => {
     sessionStorage.setItem("campaignData", JSON.stringify(buildCampaignData(campaign, globalNote)));
 
     const params = new URLSearchParams({ amount: String(finalAmount), currency });
+
+    // Carry this page's attribution into the form URL: the form only reads its OWN query string,
+    // so without this the utm_* params are lost the moment the donor clicks Donate. The first
+    // touch is recorded here too, so it survives even if they never finish the form.
+    const utm = readUtmFromSearch(typeof window !== "undefined" ? window.location.search : "");
+    for (const [key, value] of Object.entries(utm)) params.set(key, value);
+    if (Object.keys(utm).length) saveFirstTouch(utm);
+
     router.push(`/${campaign.slug}/1?${params}`);
   };
 
