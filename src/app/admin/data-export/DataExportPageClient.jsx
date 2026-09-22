@@ -10,6 +10,7 @@ import {
   createAdminExportJob,
   getAdminExportJobs,
   downloadAdminExport,
+  deleteAdminExport,
 } from "@/services/admin";
 
 function useHasPermission(perm) {
@@ -80,6 +81,7 @@ const DataExportPageClient = () => {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [downloadingId, setDownloadingId] = useState("");
+  const [deletingId, setDeletingId] = useState("");
   const [expanded, setExpanded] = useState({});
   const [error, setError] = useState("");
 
@@ -192,6 +194,20 @@ const DataExportPageClient = () => {
       toast.error(e?.message || "Download failed");
     } finally {
       setDownloadingId("");
+    }
+  }
+
+  async function handleDelete(job) {
+    if (!window.confirm("Delete this export? Its file is removed from the server.")) return;
+    setDeletingId(job.id);
+    try {
+      await deleteAdminExport(job.id);
+      toast.success("Export deleted");
+      await loadJobs();
+    } catch (e) {
+      toast.error(e?.message || "Could not delete the export.");
+    } finally {
+      setDeletingId("");
     }
   }
 
@@ -389,18 +405,38 @@ const DataExportPageClient = () => {
                     </td>
                     <td className="py-4 pr-4 text-[#6B7280]">{formatBytes(job.fileSize)}</td>
                     <td className="py-4 pr-5 text-right">
-                      {job.downloadable ? (
+                      <div className="flex items-center justify-end gap-2">
+                        {job.downloadable ? (
+                          <button
+                            type="button"
+                            onClick={() => handleDownload(job)}
+                            disabled={downloadingId === job.id}
+                            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                          >
+                            {downloadingId === job.id ? "Downloading…" : "Download"}
+                          </button>
+                        ) : (
+                          <span className="text-[12px] text-[#9CA3AF]">{job.expired ? "Expired" : "—"}</span>
+                        )}
+
                         <button
                           type="button"
-                          onClick={() => handleDownload(job)}
-                          disabled={downloadingId === job.id}
-                          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                          onClick={() => handleDelete(job)}
+                          disabled={
+                            deletingId === job.id ||
+                            job.status === "queued" ||
+                            job.status === "processing"
+                          }
+                          title={
+                            job.status === "queued" || job.status === "processing"
+                              ? "This export is still running — you can delete it once it finishes"
+                              : "Delete this export"
+                          }
+                          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-red-600 transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                          {downloadingId === job.id ? "Downloading…" : "Download"}
+                          {deletingId === job.id ? "Deleting…" : "Delete"}
                         </button>
-                      ) : (
-                        <span className="text-[12px] text-[#9CA3AF]">{job.expired ? "Expired" : "—"}</span>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))

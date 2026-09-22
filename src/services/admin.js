@@ -672,6 +672,11 @@ export function getAdminExportJobs({ limit } = {}) {
   return adminApiRequest(`/admin/data-export/jobs${query}`, { method: "GET" });
 }
 
+/** Deletes a finished export job and its file. */
+export function deleteAdminExport(jobId) {
+  return adminApiRequest(`/admin/data-export/jobs/${encodeURIComponent(String(jobId || "").trim())}`, { method: "DELETE" });
+}
+
 function getAdminCookie(name) {
   if (typeof document === "undefined") return "";
   const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
