@@ -6,7 +6,7 @@ const GROUP_LABELS = {
   dashboard: "Dashboard",
   campaigns: "Campaigns",
   forms: "Forms",
-  categories: "Categories",
+  categories: "FC Categories",
   causes: "Causes",
   designations: "Designations",
   objectives: "Objectives",
