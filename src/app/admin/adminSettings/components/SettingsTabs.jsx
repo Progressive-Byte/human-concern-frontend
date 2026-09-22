@@ -9,6 +9,7 @@ const items = [
   { key: "security", label: "Security" },
   { key: "branding", label: "Branding" },
   { key: "homepage", label: "Homepage" },
+  { key: "translation", label: "Translation" },
 ];
 
 const SettingsTabs = ({ value, onChange }) => {

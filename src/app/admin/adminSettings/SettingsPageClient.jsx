@@ -40,6 +40,7 @@ import NotificationsTab from "./components/tabs/NotificationsTab";
 import SecurityTab from "./components/tabs/SecurityTab";
 import BrandingTab from "./components/tabs/BrandingTab";
 import HomepageTab from "./components/tabs/HomepageTab";
+import TranslationTab from "./components/tabs/TranslationTab";
 import PaymentTab from "./components/tabs/PaymentTab";
 import ExchangeRatesTab from "./components/tabs/ExchangeRatesTab";
 import EmailTab, { validateSmtpConfig } from "./components/tabs/EmailTab";
@@ -73,7 +74,7 @@ function diffList(prev, next) {
   return JSON.stringify(p) === JSON.stringify(n) ? null : n;
 }
 
-const tabs = ["general", "exchange-rates", "payment", "email", "notifications", "security", "branding", "homepage"];
+const tabs = ["general", "exchange-rates", "payment", "email", "notifications", "security", "branding", "homepage", "translation"];
 
 const SettingsPageClient = () => {
   const toast = useToast();
@@ -764,6 +765,8 @@ const SettingsPageClient = () => {
           onUploadImage={uploadHomepageImage}
         />
       ) : null}
+
+      {activeTab === "translation" ? <TranslationTab /> : null}
     </main>
   );
 }
