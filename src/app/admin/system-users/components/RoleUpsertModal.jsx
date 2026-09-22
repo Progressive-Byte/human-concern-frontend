@@ -111,7 +111,7 @@ const RoleUpsertModal = ({ open, mode, role, permissionGroups, onClose, onSucces
     <div className="fixed inset-0 z-[80] flex items-center justify-center px-4">
       <button type="button" aria-label="Close modal overlay" className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      <div className="hc-animate-dropdown relative max-h-[calc(100vh-32px)] w-full max-w-[640px] overflow-y-auto rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
+      <div className="hc-animate-dropdown relative max-h-[calc(100vh-32px)] w-full max-w-[880px] overflow-y-auto rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">{title}</div>
@@ -169,10 +169,7 @@ const RoleUpsertModal = ({ open, mode, role, permissionGroups, onClose, onSucces
             </div>
 
             <div>
-              <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-                Permissions
-                <span className="ml-2 text-[12px] font-normal text-[#6B7280]">{permissionKeys.length} selected</span>
-              </div>
+              <div className="mb-2 text-[13px] font-semibold text-[#111827]">Permissions</div>
               <PermissionMatrix
                 groups={permissionGroups}
                 value={permissionKeys}
