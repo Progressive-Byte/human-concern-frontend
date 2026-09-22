@@ -32,6 +32,10 @@ const Step1Info = ({ campaignSlug }) => {
   const [addressExpanded,  setAddressExpanded]  = useState(true);
   const prevAuthRef = useRef(isAuthenticated);
 
+  // Which fields the signed-in donor's PROFILE actually supplied. Only those are read-only until
+  // they press "Edit change" — a field the donor types into must never lock itself mid-typing.
+  const profilePrefilledRef = useRef({});
+
   // Latest draft, so the async profile refresh never clobbers what the donor has typed.
   const dataRef = useRef(data);
   useEffect(() => { dataRef.current = data; }, [data]);
@@ -124,7 +128,7 @@ const Step1Info = ({ campaignSlug }) => {
   useEffect(() => {
     if (isPreview) return;
     if (isAuthenticated && user) {
-      update({
+      const prefill = {
         organization: user.organization           ?? "",
         firstName:    user.firstName              ?? "",
         lastName:     user.lastName               ?? "",
@@ -136,7 +140,12 @@ const Step1Info = ({ campaignSlug }) => {
         zip:          user.address?.postalCode    ?? user.postalCode   ?? "",
         country:      user.country                ?? user.address?.country ?? "",
         donorCountryCode: user.countryCode ?? user.donorCountryCode ?? "",
-      });
+      };
+      profilePrefilledRef.current = {
+        ...profilePrefilledRef.current,
+        ...Object.fromEntries(Object.entries(prefill).filter(([, v]) => String(v ?? "").trim() !== "")),
+      };
+      update(prefill);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user, isPreview]);
@@ -171,7 +180,10 @@ const Step1Info = ({ campaignSlug }) => {
         fillIfEmpty("zip", address.postalCode);
         fillIfEmpty("country", address.country);
 
-        if (Object.keys(patch).length > 0) update(patch);
+        if (Object.keys(patch).length > 0) {
+          profilePrefilledRef.current = { ...profilePrefilledRef.current, ...patch };
+          update(patch);
+        }
       } catch {
         // The cached-user prefill already ran; a failed refresh just means no fresh address.
       }
@@ -198,7 +210,10 @@ const Step1Info = ({ campaignSlug }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isPreview]);
 
-  const isLocked = (key) => !isPreview && isAuthenticated && !editMode && Boolean(data[key]?.trim());
+  // Locked = the profile supplied this value and the donor hasn't opened "Edit change". Reading the
+  // CAPTURED prefill (not the live value) is what stops a field locking itself on the first keystroke.
+  const isLocked = (key) =>
+    !isPreview && isAuthenticated && !editMode && Boolean(profilePrefilledRef.current[key]);
 
   const personalField = (key) => ({
     value:    data[key] ?? "",
