@@ -51,20 +51,9 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
       return;
     }
 
-    const abort = new AbortController();
-    (async () => {
-      try {
-        const res = await fetch("https://ipapi.co/json/", { signal: abort.signal });
-        if (!res.ok) return;
-        const json = await res.json();
-        const iso = resolveCountryIso(json?.country_code || "");
-        if (!iso) return;
-        const c = Country.getCountryByCode(iso);
-        setCountryCode(iso);
-        if (c) update({ country: c.name, donorCountryCode: c.isoCode });
-      } catch {}
-    })();
-    return () => abort.abort();
+    // No country from the draft or the donor's profile: the donor picks one from the dropdown.
+    // (There used to be an ipapi.co IP lookup here — dropped: it needed a third-party request on
+    // the donate path, failed CORS intermittently, and only replaced one manual selection.)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.donorCountryCode, data.country, user]);
 
