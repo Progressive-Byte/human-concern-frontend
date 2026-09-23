@@ -141,6 +141,10 @@ function normalizeDonation(raw) {
       label: String(a?.label || ""),
       fundCode: String(a?.fundCode || ""),
       amount: Number(a?.amount || 0),
+      // Kept so the breakdown modal can tell add-on rows (charged on top of the gift) from gift
+      // allocations. Dropping them here made the modal's base amount read as the full charge.
+      isAddOn: a?.isAddOn === true,
+      addOnId: String(a?.addOnId || ""),
     }));
 
   return {

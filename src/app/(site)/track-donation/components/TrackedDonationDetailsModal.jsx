@@ -132,7 +132,10 @@ const TrackedDonationDetailsModal = ({
   const summary = item.scheduleSummary || {};
   const upcoming = Array.isArray(summary.upcoming) ? summary.upcoming : [];
   const next = upcoming[0] || null;
-  const allocations = Array.isArray(item.causeAllocations) ? item.causeAllocations : [];
+  // Add-on allocations are charged on top of the gift and are itemised separately, so they are not
+  // part of the fund split.
+  const allocations = (Array.isArray(item.causeAllocations) ? item.causeAllocations : [])
+    .filter((a) => !(a && (a.isAddOn === true || a.addOnId)));
   const addons = Array.isArray(item.addons) ? item.addons : [];
   const allocationsTotal = allocations.reduce((sum, a) => sum + (Number(a?.amount) || 0), 0);
   const addonsTotal = addons.reduce((sum, a) => sum + (Number(a?.amount) || 0), 0);

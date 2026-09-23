@@ -37,7 +37,12 @@ const DonationBreakdownModal = ({ donation, onClose, formatAmount }) => {
   // add-ons to every installment row (same rule the receipt applies).
   const isFirstPayment = !installmentIndex || installmentIndex === 1;
   const addons = isFirstPayment && Array.isArray(donation?.addons) ? donation.addons : [];
-  const allocations = Array.isArray(donation?.causeAllocations) ? donation.causeAllocations : [];
+  // Add-on allocations carry `isAddOn`/`addOnId`. They are charged on top of the gift and are listed
+  // in their own section below, so they must not count as gift allocations — the same rule the API
+  // receipt applies (receiptService.computeReceiptAmounts). Counting them inflated the base amount
+  // ($75 instead of $50) and repeated the row in the fund-codes table.
+  const allocations = (Array.isArray(donation?.causeAllocations) ? donation.causeAllocations : [])
+    .filter((a) => !(a && (a.isAddOn === true || a.addOnId)));
 
   const allocationsTotal = allocations.reduce((sum, a) => sum + (Number(a?.amount) || 0), 0);
   const addonsTotal = addons.reduce((sum, a) => sum + (Number(a?.amount) || 0), 0);
