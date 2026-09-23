@@ -125,7 +125,9 @@ export function DonationProvider({ children }) {
     setData((prev) => {
       const patch = {};
       for (const key of keys) {
-        if (!prev[key]) patch[key] = source[key];
+        // The URL the donor arrived with IS this visit's last touch, so it always wins. The stored
+        // fallback only fills keys the session doesn't already have.
+        if (hasUrl || !prev[key]) patch[key] = source[key];
       }
       if (!Object.keys(patch).length) return prev;
       const next = { ...prev, ...patch };
