@@ -13,6 +13,23 @@ import { loadPayPalScript, unloadPayPalScript } from "@/components/payment/PayPa
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
+// PayPal's own wording is not donor-facing, and a raw 502 tells the donor nothing. Map the failures
+// we actually see to something actionable.
+function paypalFailureMessage(err) {
+  const code = String(err?.code || "").toUpperCase();
+  const raw = `${err?.message || ""}`;
+  if (/INSTRUMENT_DECLINED|instrument presented/i.test(raw) || code === "PAYMENT_DECLINED") {
+    return "Your bank declined this payment. Please try again with another card or your PayPal balance.";
+  }
+  if (code === "PAYPAL_ORDER_NOT_APPROVED") {
+    return "The PayPal approval did not finish. Please try again.";
+  }
+  if (/already.*captur/i.test(raw)) {
+    return "This payment was already captured — check your donation history before paying again.";
+  }
+  return err?.message || "Payment finalization failed. Please try again.";
+}
+
 function readSessionChallengeIds() {
   try {
     const challenge = loadUnifiedChallengeFromSession();
@@ -340,8 +357,14 @@ const PayPalCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
             router.push("/donate/thank-you");
             return finalized;
           } catch (err) {
-            setError(err?.message ?? "Payment finalization failed. Please try again.");
-            return actions?.redirect ? actions.redirect() : null;
+            setError(paypalFailureMessage(err));
+            // Never call actions.redirect() without a URL: the SDK then renders its own
+            // "Expected redirect url" notice instead of anything the donor can act on. Restart the
+            // buttons so the donor can retry with another funding source.
+            if (actions && typeof actions.restart === "function") {
+              try { actions.restart(); } catch (_e) { /* ignore */ }
+            }
+            return null;
           } finally {
             setLoading(false);
           }
