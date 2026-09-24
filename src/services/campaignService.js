@@ -11,3 +11,7 @@ export function getCampaignById(id) {
 export function getPublicBranding() {
   return apiRequest("/settings/branding");
 }
+
+export function getPublicIntegrations() {
+  return apiRequest("/settings/integrations");
+}

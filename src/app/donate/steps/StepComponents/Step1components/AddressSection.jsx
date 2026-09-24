@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Country, State, City } from "country-state-city";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
+import { useBranding } from "@/context/BrandingContext";
 import Field from "@/components/ui/Field";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import GooglePlacesInput from "@/components/common/GooglePlacesInput";
@@ -13,6 +14,11 @@ import { resolveCountryIso, resolveStateIso } from "@/utils/isoHelpers";
 const AddressSection = ({ setError, addressExpanded, setAddressExpanded, addressManual, setAddressManual }) => {
   const { data, update } = useDonation();
   const { user } = useAuth();
+  // null = the key is still loading, '' = loaded and not configured.
+  const { googleMapsApiKey } = useBranding();
+  const noKey = googleMapsApiKey === "";
+  // With no key there is nothing to search, so the full field set is the only usable mode.
+  const isManual = addressManual || noKey;
 
   // Country is the single source of truth for this form. Selecting it writes both
   // `country` (name, used for the address) and `donorCountryCode` (ISO, used for
@@ -157,27 +163,32 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
               <label className="text-[13px] font-medium text-[#111827]">
                 Address Line 1<span className="text-[#EA3335] ml-0.5">*</span>
               </label>
-              <button
-                type="button"
-                onClick={() => setAddressManual((v) => !v)}
-                className="shrink-0 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
-              >
-                {addressManual ? "Use address search" : "Enter address manually"}
-              </button>
+              {!noKey && (
+                <button
+                  type="button"
+                  onClick={() => setAddressManual((v) => !v)}
+                  className="shrink-0 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
+                >
+                  {addressManual ? "Use address search" : "Enter address manually"}
+                </button>
+              )}
             </div>
             <GooglePlacesInput
               value={data.addressLine1 ?? ""}
               onChange={(e) => { update({ addressLine1: e.target.value }); setError(""); }}
               onPlaceSelect={handlePlaceSelect}
               placeholder="Start typing your address…"
+              apiKey={googleMapsApiKey || ""}
             />
             <p className="text-[11px] text-[#AEAEAE]">
-              Select from suggestions to auto-fill country, state and city — or type manually.
+              {noKey
+                ? "Enter your full address below."
+                : "Select from suggestions to auto-fill country, state and city — or type manually."}
             </p>
           </div>
 
           {/* Search mode hides these: picking a suggestion fills them behind the scenes. */}
-          {addressManual && (
+          {isManual && (
             <>
               <div className="flex flex-col gap-1">
                 <label className="text-[13px] font-medium text-[#111827]">

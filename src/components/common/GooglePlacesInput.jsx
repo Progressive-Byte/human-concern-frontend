@@ -3,9 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 
-const GooglePlacesInput = ({ value, onChange, onPlaceSelect, placeholder }) => {
+// setOptions may only be applied once per page, before any library is imported — the loader
+// rejects a later change. The key comes from admin settings, so it is read on first load;
+// changing it afterwards needs a page reload.
+let optionsApplied = false;
+
+const GooglePlacesInput = ({ value, onChange, onPlaceSelect, placeholder, apiKey = "" }) => {
   const inputRef = useRef(null);
   const autocompleteRef = useRef(null);
+  const didInitRef = useRef(false);
   const [inputValue, setInputValue] = useState(value ?? "");
 
   // keep in sync when parent sets value (e.g. auth pre-fill)
@@ -14,10 +20,16 @@ const GooglePlacesInput = ({ value, onChange, onPlaceSelect, placeholder }) => {
   }, [value]);
 
   useEffect(() => {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (!apiKey || apiKey === "AIzaSyAGJQEr8MSBv3Vf8OFhggbe01JbArhISeU") return;
+    // The key arrives from the server after mount, so this must re-run when it appears —
+    // hence the apiKey dependency. didInitRef stops a second Autocomplete binding to the
+    // same input when the effect re-runs for any other reason.
+    if (!apiKey || didInitRef.current || !inputRef.current) return;
+    didInitRef.current = true;
 
-    setOptions({ apiKey });
+    if (!optionsApplied) {
+      setOptions({ apiKey });
+      optionsApplied = true;
+    }
 
     importLibrary("places")
       .then(({ Autocomplete }) => {
@@ -59,15 +71,19 @@ const GooglePlacesInput = ({ value, onChange, onPlaceSelect, placeholder }) => {
           onPlaceSelect?.(parsed);
         });
       })
-      .catch(() => {});
+      .catch(() => {
+        didInitRef.current = false;
+      });
 
     return () => {
       if (autocompleteRef.current && window.google?.maps?.event) {
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
+      autocompleteRef.current = null;
+      didInitRef.current = false;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [apiKey]);
 
   const handleChange = (e) => {
     setInputValue(e.target.value);

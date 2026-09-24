@@ -268,14 +268,18 @@ const SettingsPageClient = () => {
     try {
       const orgPatch = diffObject(generalInitial?.organization, general?.organization);
       const locPatch = diffObject(generalInitial?.localization, general?.localization);
+      const intPatch = diffObject(generalInitial?.integrations, general?.integrations);
       const payload = {};
       if (section === "organization") {
         if (Object.keys(orgPatch).length) payload.organization = orgPatch;
       } else if (section === "localization") {
         if (Object.keys(locPatch).length) payload.localization = locPatch;
+      } else if (section === "integrations") {
+        if (Object.keys(intPatch).length) payload.integrations = intPatch;
       } else {
         if (Object.keys(orgPatch).length) payload.organization = orgPatch;
         if (Object.keys(locPatch).length) payload.localization = locPatch;
+        if (Object.keys(intPatch).length) payload.integrations = intPatch;
       }
 
       if (!Object.keys(payload).length) {
@@ -682,7 +686,7 @@ const SettingsPageClient = () => {
       ) : null}
 
       {activeTab === "general" ? (
-        <GeneralTab value={general} onChange={setGeneral} loading={generalLoading} saving={generalSaving} onSaveOrganization={() => saveGeneral("organization")} onSaveLocalization={() => saveGeneral("localization")} />
+        <GeneralTab value={general} onChange={setGeneral} loading={generalLoading} saving={generalSaving} onSaveOrganization={() => saveGeneral("organization")} onSaveLocalization={() => saveGeneral("localization")} onSaveIntegrations={() => saveGeneral("integrations")} />
       ) : null}
 
       {activeTab === "exchange-rates" ? (

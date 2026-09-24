@@ -98,9 +98,19 @@ function NoteIcon() {
   );
 }
 
-const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSaveLocalization }) => {
+function KeyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+      <circle cx="7.5" cy="15.5" r="4.5" stroke="currentColor" strokeWidth="2" />
+      <path d="M10.8 12.2 20 3M17 6l2 2M14 9l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSaveLocalization, onSaveIntegrations }) => {
   const organization = value?.organization || {};
   const localization = value?.localization || {};
+  const integrations = value?.integrations || {};
 
   return (
     <div className="space-y-6">
@@ -258,6 +268,30 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
 
         <div className="mt-6">
           <SaveButton onClick={onSaveLocalization} disabled={saving || loading}>
+            Save Changes
+          </SaveButton>
+        </div>
+      </SettingsSectionCard>
+
+      <SettingsSectionCard icon={<KeyIcon />} title="Integrations" subtitle="Third-party keys used by the public site">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <Field label="Google Maps API Key">
+              <TextInput
+                value={integrations.googleMapsApiKey || ""}
+                onChange={(e) => onChange?.((prev) => ({ ...prev, integrations: { ...(prev?.integrations || {}), googleMapsApiKey: e.target.value } }))}
+                placeholder="AIza…"
+                disabled={loading}
+              />
+            </Field>
+            <p className="mt-1.5 text-[12px] text-[#6B7280]">
+              Powers the address autocomplete on the donation form. Enable “Places API” for this key and restrict it by HTTP referrer in Google Cloud. Without a key, donors type their address manually.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <SaveButton onClick={onSaveIntegrations} disabled={saving || loading}>
             Save Changes
           </SaveButton>
         </div>

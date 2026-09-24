@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getPublicBranding } from "@/services/campaignService";
+import { getPublicBranding, getPublicIntegrations } from "@/services/campaignService";
 
 const DEFAULT_PRIMARY = "#EA3335";
 const DEFAULT_ACCENT = "#055A46";
@@ -9,6 +9,7 @@ const DEFAULT_ACCENT = "#055A46";
 const BrandingContext = createContext({
   primaryColor: DEFAULT_PRIMARY,
   accentColor: DEFAULT_ACCENT,
+  googleMapsApiKey: null,
 });
 
 function normalizeHex(value, fallback) {
@@ -75,28 +76,34 @@ export function BrandingProvider({ children }) {
     primaryColor: DEFAULT_PRIMARY,
     accentColor: DEFAULT_ACCENT,
     logoPath: "",
+    // null = still loading, '' = loaded but not configured, string = the key.
+    googleMapsApiKey: null,
   });
 
   useEffect(() => {
     let alive = true;
 
     (async () => {
-      try {
-        const res = await getPublicBranding();
-        if (!alive) return;
+      // Branding and the public integration keys are independent, so fetch them together.
+      // Each has its own catch: a failed integrations call must not blank out the branding.
+      const [brandingRes, integrationsRes] = await Promise.all([
+        getPublicBranding().catch(() => null),
+        getPublicIntegrations().catch(() => null),
+      ]);
+      if (!alive) return;
 
-        const body = res?.data && typeof res.data === "object" ? res.data : res;
-        const branding = body?.branding && typeof body.branding === "object" ? body.branding : body;
+      const body = brandingRes?.data && typeof brandingRes.data === "object" ? brandingRes.data : brandingRes;
+      const branding = body?.branding && typeof body.branding === "object" ? body.branding : body;
 
-        setBrandingState({
-          primaryColor: normalizeHex(branding?.primaryColor, DEFAULT_PRIMARY),
-          accentColor: normalizeHex(branding?.accentColor, DEFAULT_ACCENT),
-          logoPath: branding?.logo?.path ? String(branding.logo.path) : "",
-        });
-      } catch {
-        if (!alive) return;
-        setBrandingState({ primaryColor: DEFAULT_PRIMARY, accentColor: DEFAULT_ACCENT, logoPath: "" });
-      }
+      const intBody = integrationsRes?.data && typeof integrationsRes.data === "object" ? integrationsRes.data : integrationsRes;
+      const integrations = intBody?.integrations && typeof intBody.integrations === "object" ? intBody.integrations : intBody;
+
+      setBrandingState({
+        primaryColor: normalizeHex(branding?.primaryColor, DEFAULT_PRIMARY),
+        accentColor: normalizeHex(branding?.accentColor, DEFAULT_ACCENT),
+        logoPath: branding?.logo?.path ? String(branding.logo.path) : "",
+        googleMapsApiKey: String(integrations?.googleMapsApiKey || ""),
+      });
     })();
 
     return () => {
