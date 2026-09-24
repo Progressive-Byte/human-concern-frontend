@@ -38,7 +38,7 @@ const StepLayout = ({
   const showPreview = step >= 1;
 
   return (
-    <main className="min-h-screen bg-[#F9F9F9] pt-[100px] sm:pt-[120px] md:pt-[130px] lg:pt-[160px] pb-12 sm:pb-16 px-3 sm:px-4">
+    <main className="min-h-screen bg-[#F9F9F9] pt-[88px] pb-12 sm:pb-16 px-3 sm:px-4">
       <DonateFormHeader />
 
       {/* Form column always centered at max-w-[700px] */}

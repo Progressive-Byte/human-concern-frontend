@@ -39,7 +39,7 @@ const DonateFormHeader = ({ maxWidth = "max-w-[700px]" }) => {
       <div className={`mx-auto ${maxWidth} px-3 sm:px-4 py-3`}>
         <div className="mb-2 flex items-center justify-between gap-3">
           <p className="truncate text-[14px] font-semibold text-[#383838]">
-            {formName || "Donation Form"}
+            {formName || "Donation"}
           </p>
           <span className="shrink-0 text-[12px] font-semibold text-[#737373]">
             {percent}% complete

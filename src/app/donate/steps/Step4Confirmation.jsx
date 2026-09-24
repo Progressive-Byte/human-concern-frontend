@@ -343,7 +343,7 @@ const Step4Confirmation = () => {
   };
 
   return (
-    <main className="min-h-screen bg-[#F9F9F9] pt-30 lg:pt-40 pb-16 px-4">
+    <main className="min-h-screen bg-[#F9F9F9] pt-[88px] pb-16 px-4">
       <DonateFormHeader maxWidth="max-w-5xl" />
 
       <div className="max-w-5xl mx-auto">
