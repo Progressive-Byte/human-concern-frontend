@@ -73,6 +73,19 @@ const DonationWidget = ({ campaign }) => {
   const ended = Boolean(campaign.ended);
   const donationsOpen = campaign.donationsOpen !== false;
 
+  // Both follow their own switch: the API withholds the donor payload when "Show Donor Count" is
+  // off (so null means "hidden", not zero), and the end date when "Show Start/End Dates" is off.
+  const donorCountHidden = campaign.donors == null;
+  const donorCount = donorCountHidden
+    ? 0
+    : (typeof campaign.donors === "object"
+      ? (campaign.donors?.meta?.pagination?.total ?? 0)
+      : (campaign.donors ?? 0));
+
+  const daysLeftValue = campaign.endAt
+    ? Math.max(0, Math.ceil((new Date(campaign.endAt) - Date.now()) / 86400000))
+    : null;
+
   const defaultBaseAmount =
     suggestedAmountsData.find((a) => a.isDefault)?.value ??
     suggestedAmounts[0] ??
@@ -189,6 +202,24 @@ const DonationWidget = ({ campaign }) => {
               ) : null}
             </>
           )}
+
+          {/* Donors / Days Left — each hides on its own switch. */}
+          {!donorCountHidden || daysLeftValue != null ? (
+            <div className={`grid gap-3 mt-4 ${!donorCountHidden && daysLeftValue != null ? "grid-cols-2" : "grid-cols-1"}`}>
+              {!donorCountHidden ? (
+                <div className="bg-[#F6F6F6] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-[#383838]">{donorCount}</p>
+                  <p className="text-[12px] sm:text-[14px] font-normal text-[#383838] mt-0.5">Donors</p>
+                </div>
+              ) : null}
+              {daysLeftValue != null ? (
+                <div className="bg-[#F6F6F6] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-[#383838]">{daysLeftValue}</p>
+                  <p className="text-[12px] sm:text-[14px] font-normal text-[#383838] mt-0.5">Days Left</p>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           {/* How Your Donation Helps */}
           {suggestedAmounts.length > 0 && (

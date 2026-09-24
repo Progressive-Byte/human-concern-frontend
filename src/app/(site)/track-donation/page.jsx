@@ -2,18 +2,19 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { getTrackedDonations } from "@/services/trackDonationService";
 import TrackEmailForm from "./components/TrackEmailForm";
 import TrackedDonations from "./components/TrackedDonations";
 
 const INVALID_LINK_MESSAGE = "This link is invalid or has expired. Request a new one.";
 
-function LoadingPanel() {
+function LoadingPanel({ message = "Verifying your link…" }) {
   return (
     <div className="mt-8 rounded-3xl border border-[#EBEBEB] bg-white p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
       <div className="flex items-center gap-3 text-[15px] text-[#555555]">
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#CC1F1F] border-t-transparent" />
-        Verifying your link…
+        {message}
       </div>
     </div>
   );
@@ -22,11 +23,19 @@ function LoadingPanel() {
 function TrackDonationPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const token = String(searchParams?.get("token") || "").trim();
 
   const [loading, setLoading] = useState(Boolean(token));
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
+
+  // This page is for guests. A signed-in donor has a dashboard, so send them there. An emailed
+  // link (?token=…) is always honoured, because it may reach a mailbox they are not signed in as.
+  useEffect(() => {
+    if (token || authLoading) return;
+    if (isAuthenticated) router.replace("/dashboard/donation-history");
+  }, [token, authLoading, isAuthenticated, router]);
 
   useEffect(() => {
     if (!token) {
@@ -81,13 +90,17 @@ function TrackDonationPageInner() {
         <h1 className="m-0 text-[28px] sm:text-[36px] font-bold text-[#111111]">Track Your Donation</h1>
 
         {!token ? (
-          <>
-            <p className="mt-3 text-[15px] sm:text-[17px] text-[#383838] leading-relaxed">
-              Enter the email address you used when you donated and we&apos;ll email you a secure link to
-              your donation history.
-            </p>
-            <TrackEmailForm />
-          </>
+          authLoading || isAuthenticated ? (
+            <LoadingPanel message="Taking you to your dashboard…" />
+          ) : (
+            <>
+              <p className="mt-3 text-[15px] sm:text-[17px] text-[#383838] leading-relaxed">
+                Enter the email address you used when you donated and we&apos;ll email you a secure link to
+                your donation history.
+              </p>
+              <TrackEmailForm />
+            </>
+          )
         ) : loading ? (
           <LoadingPanel />
         ) : error ? (
