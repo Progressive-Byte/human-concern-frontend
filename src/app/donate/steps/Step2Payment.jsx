@@ -402,7 +402,7 @@ const Step2Payment = () => {
                     locked
                       ? "border-[#E5E5E5] bg-white opacity-40 cursor-not-allowed"
                       : active
-                      ? "border-[#EA3335] bg-[#FFF5F5] cursor-pointer"
+                      ? "border-[#EA3335] bg-[#FFF5F5] shadow-[0_16px_34px_rgba(234,51,53,0.26)] cursor-pointer"
                       : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40 cursor-pointer"
                   }`}
                 >
@@ -412,13 +412,13 @@ const Step2Payment = () => {
                     {active && <span className="w-2.5 h-2.5 rounded-full bg-[#EA3335]" />}
                   </span>
                   <div className="min-w-0">
-                    <p className="flex items-center gap-1.5 text-[15px] font-semibold text-[#383838] leading-snug">
+                    <p className="flex flex-wrap items-center gap-1.5 text-[15px] font-semibold text-[#383838] leading-snug">
+                      {type.label}
                       {type.value === "recurring" && (
                         <span className={`inline-flex shrink-0 ${active ? "text-[#EA3335]" : "text-[#CCCCCC]"}`}>
                           {HeartIcon}
                         </span>
                       )}
-                      {type.label}
                     </p>
                     <p className="text-[12px] text-[#737373] mt-0.5">{type.desc(effectiveAmount, sym)}</p>
                   </div>
