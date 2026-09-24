@@ -150,7 +150,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Public Display</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
-            Choose what this campaign&apos;s public page shows. These are display settings only — they never
+            Choose what this form&apos;s public page shows. These are display settings only — they never
             change donation data or reporting.
           </p>
         </div>
@@ -170,7 +170,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Show Days Left</div>
-                <div className="mt-1 text-[12px] text-[#6B7280]">Display how many days are left until the campaign ends</div>
+                <div className="mt-1 text-[12px] text-[#6B7280]">Display how many days are left until the end date</div>
               </div>
               <Toggle enabled={showStartEndDates} onChange={loading || saving ? () => {} : setShowStartEndDates} />
             </div>
@@ -201,7 +201,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Show Donor Count</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">
-                  Display the number of donors — on the campaign page and on the campaign cards
+                  Display the number of donors on the public page and in listings
                 </div>
               </div>
               <Toggle enabled={showDonorCount} onChange={loading || saving ? () => {} : setShowDonorCount} />
@@ -216,7 +216,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
           ) : null}
 
           <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] px-4 py-3 text-[12px] text-[#6B7280]">
-            Leave the goal empty for an open-ended campaign — then no progress bar, target or remaining amount is
+            Leave the goal empty for an open-ended form — then no progress bar, target or remaining amount is
             shown anywhere.
           </div>
         </div>
@@ -226,7 +226,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Donate Button</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
-            The label used on the Donate button, on both the campaign card and the campaign page.
+            The label used on the Donate button, on this form&apos;s public page and in listings.
           </p>
         </div>
 
