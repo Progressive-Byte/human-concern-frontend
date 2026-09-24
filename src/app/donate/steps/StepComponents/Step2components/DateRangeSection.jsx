@@ -154,7 +154,9 @@ const DateRangeSection = ({
             onRangeEnd={onRangeEnd}
           />
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Side by side from sm up: two stacked month grids made this section very
+                tall. They share a row and stack again on a phone. */}
             <div>
               <label className="block text-[13px] font-medium text-[#383838] mb-2">
                 Start Date

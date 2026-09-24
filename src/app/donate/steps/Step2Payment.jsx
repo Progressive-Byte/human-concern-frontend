@@ -133,7 +133,9 @@ const Step2Payment = () => {
   const [occurrences,     setOccurrences]     = useState(isRecurring ? initOccurrences : 1);
   const [remainingOccurrences, setRemainingOccurrences] = useState(isRecurring ? initRemainingOccurrences : 1);
   const [makeUpMissedDates, setMakeUpMissedDates] = useState(Boolean(data.makeUpMissedDates));
-  const [splitMode,       setSplitMode]       = useState(data.splitMode ?? "repeat");
+  // First option in splitModes is "Divide total across dates" — that is the default a
+  // first-time recurring donor should land on. A stored value still wins.
+  const [splitMode,       setSplitMode]       = useState(data.splitMode ?? "divide");
   const [activePreset,    setActivePreset]    = useState(data.schedulePreset ?? "custom");
   const [scheduleState,   setScheduleState]   = useState({
     scheduleType:   data.scheduleType   ?? "specific_dates",
