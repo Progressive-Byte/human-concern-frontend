@@ -342,7 +342,7 @@ const Step1Info = ({ campaignSlug }) => {
           setShowMessage={setShowMessage}
         />
 
-        {error && <p className="text-[#EA3335] text-[13px]">{error}</p>}
+        {error && <p className="text-red-600 text-[13px]">{error}</p>}
 
       </div>
     </StepLayout>

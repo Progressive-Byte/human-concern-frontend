@@ -445,7 +445,7 @@ const Step4Confirmation = () => {
             ) : isStripe ? (
               <>
                 {showStripeDiagnostic && (
-                  <div className="mb-5 rounded-xl border border-[#FFB4B4] bg-[#FFF5F5] px-4 py-3">
+                  <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
                     <p className="text-[13px] font-semibold text-[#B91C1C] mb-1">Payment configuration issue (backend)</p>
                     <ul className="text-[12px] text-[#9B1C1C] space-y-1 list-disc pl-5">
                       {hasSdkKeyMissing && (

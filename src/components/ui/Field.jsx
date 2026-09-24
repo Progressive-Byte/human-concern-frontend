@@ -35,7 +35,7 @@ const Field = ({
       />
 
       {error && (
-        <p className="text-[#EA3335] text-[12px] mt-1">{error}</p>
+        <p className="text-red-600 text-[12px] mt-1">{error}</p>
       )}
     </div>
   );

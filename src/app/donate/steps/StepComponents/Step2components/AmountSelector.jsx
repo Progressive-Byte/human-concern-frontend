@@ -238,7 +238,7 @@ const AmountSelector = ({
           />
         </div>
         {customAmountError && (
-          <p className="text-[12px] text-[#EA3335] mt-1.5 px-1">{customAmountError}</p>
+          <p className="text-[12px] text-red-600 mt-1.5 px-1">{customAmountError}</p>
         )}
       </div>
     </div>

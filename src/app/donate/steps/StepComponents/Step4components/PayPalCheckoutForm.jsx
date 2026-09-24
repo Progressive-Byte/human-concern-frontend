@@ -510,8 +510,8 @@ const PayPalCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
         )}
 
         {sdkState === PAYPAL_STATES.ERROR && (
-          <div className="rounded-xl border border-[#FFB4B4] bg-[#FFF5F5] px-4 py-3">
-            <p className="text-[13px] text-[#EA3335]">{sdkError || "PayPal failed to load."}</p>
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+            <p className="text-[13px] text-red-600">{sdkError || "PayPal failed to load."}</p>
           </div>
         )}
 
@@ -558,7 +558,7 @@ const PayPalCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
         )}
 
         {error && (
-          <p className="text-[13px] text-[#EA3335] bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-3">
+          <p className="text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
             {error}
           </p>
         )}

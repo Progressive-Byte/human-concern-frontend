@@ -82,7 +82,7 @@ const DateRangeSection = ({
               })}
             </div>
             {rangeDays > 0 && freqDisabled[rangeFreq] && (
-              <p className="text-[11px] text-[#EA3335] mt-1.5 px-0.5">
+              <p className="text-[11px] text-red-600 mt-1.5 px-0.5">
                 {`${FREQ_OPTIONS.find((o) => o.value === rangeFreq)?.label} requires at least ${FREQ_OPTIONS.find((o) => o.value === rangeFreq)?.minDays} days — switched to Daily.`}
               </p>
             )}

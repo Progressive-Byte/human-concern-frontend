@@ -520,12 +520,12 @@ const ReturnChallengeClient = () => {
         )}
 
         {sessionExpired && (
-          <div className="bg-[#FFF5F5] border border-[#FECACA] rounded-2xl p-4 shadow-sm">
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-3">
-              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 text-[#EA3335] shrink-0">
+              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 text-red-600 shrink-0">
                 <path d="M12 8v5m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <p className="text-[13px] text-[#EA3335] font-medium">
+              <p className="text-[13px] text-red-600 font-medium">
                 Session expired. Start a new donation.
               </p>
             </div>
