@@ -10,6 +10,17 @@ import WizardFooterNav from "./WizardFooterNav";
 const DEFAULT_DONATE_BUTTON_LABEL = "Support";
 const MAX_LABEL_LENGTH = 40;
 
+/**
+ * The API wraps every payload as `{ data: { publicDisplay, sectionsCompleted } }` and the client
+ * returns that body as-is. Read it without relying on the exact nesting, so a missing shape can
+ * never be mistaken for "everything defaulted to ON".
+ */
+function readPublicDisplay(res) {
+  const d = res?.data?.data || res?.data || {};
+  const pd = d?.publicDisplay || d;
+  return pd && typeof pd === "object" ? pd : {};
+}
+
 const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
   const toast = useToast();
 
@@ -51,7 +62,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
       try {
         const res = await getAdminFormPublicDisplay(formId);
         if (!alive) return;
-        applyServerValue(res?.data?.data?.publicDisplay);
+        applyServerValue(readPublicDisplay(res));
       } catch (e) {
         if (!alive) return;
         toast.error(e?.message || "Failed to load public display settings.");
@@ -97,7 +108,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
         donateButtonLabel: String(donateButtonLabel || "").trim(),
       });
       // Reflect exactly what the server stored, so autosave and Save agree.
-      applyServerValue(res?.data?.data?.publicDisplay);
+      applyServerValue(readPublicDisplay(res));
       if (!silent) toast.success("Public display saved");
       onSaved?.();
       if (goNext) onExit?.({ nextStep: "review" });
@@ -151,7 +162,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
                 <div className="text-[13px] font-semibold text-[#111827]">Show Progress Bar</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Render the fundraising progress bar</div>
               </div>
-              <Toggle enabled={showProgressBar} onChange={saving ? () => {} : setShowProgressBar} />
+              <Toggle enabled={showProgressBar} onChange={loading || saving ? () => {} : setShowProgressBar} />
             </div>
           </div>
 
@@ -161,7 +172,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
                 <div className="text-[13px] font-semibold text-[#111827]">Show Start/End Dates</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Display the campaign&apos;s start and end dates</div>
               </div>
-              <Toggle enabled={showStartEndDates} onChange={saving ? () => {} : setShowStartEndDates} />
+              <Toggle enabled={showStartEndDates} onChange={loading || saving ? () => {} : setShowStartEndDates} />
             </div>
           </div>
 
@@ -171,7 +182,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
                 <div className="text-[13px] font-semibold text-[#111827]">Show Amount Raised</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Display the raised total as a number</div>
               </div>
-              <Toggle enabled={showAmountRaised} onChange={saving ? () => {} : setShowAmountRaised} />
+              <Toggle enabled={showAmountRaised} onChange={loading || saving ? () => {} : setShowAmountRaised} />
             </div>
           </div>
 
@@ -181,7 +192,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
                 <div className="text-[13px] font-semibold text-[#111827]">Show Target Amount</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Display the fundraising goal as a number</div>
               </div>
-              <Toggle enabled={showTargetAmount} onChange={saving ? () => {} : setShowTargetAmount} />
+              <Toggle enabled={showTargetAmount} onChange={loading || saving ? () => {} : setShowTargetAmount} />
             </div>
           </div>
 
@@ -193,7 +204,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
                   Display the number of donors — on the campaign page and on the campaign cards
                 </div>
               </div>
-              <Toggle enabled={showDonorCount} onChange={saving ? () => {} : setShowDonorCount} />
+              <Toggle enabled={showDonorCount} onChange={loading || saving ? () => {} : setShowDonorCount} />
             </div>
           </div>
 
