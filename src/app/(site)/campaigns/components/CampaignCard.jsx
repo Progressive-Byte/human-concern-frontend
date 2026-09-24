@@ -164,10 +164,18 @@ const CampaignCard = ({ campaign }) => {
         {/* Donors & Days */}
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[#383838] mt-2">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] sm:text-[13px] font-normal min-w-0">
-            <Image src="/images/donars.png" alt="donor" width={15} height={15} />
-            <span className="shrink-0">{campaign.donors ?? 0} <span className="hidden sm:inline">donors</span><span className="sm:hidden inline">d</span></span>
-            <Image src="/images/calander.png" alt="calendar" width={15} height={15} />
-            {daysLeft > 0 && <span className="shrink-0 truncate">{daysLeft}<span className="hidden sm:inline"> days left</span><span className="sm:hidden inline">d</span></span>}
+            {campaign.donors != null ? (
+              <>
+                <Image src="/images/donars.png" alt="donor" width={15} height={15} />
+                <span className="shrink-0">{Number(campaign.donors).toLocaleString()} <span className="hidden sm:inline">donors</span><span className="sm:hidden inline">d</span></span>
+              </>
+            ) : null}
+            {daysLeft > 0 ? (
+              <>
+                <Image src="/images/calander.png" alt="calendar" width={15} height={15} />
+                <span className="shrink-0 truncate">{daysLeft}<span className="hidden sm:inline"> days left</span><span className="sm:hidden inline">d</span></span>
+              </>
+            ) : null}
           </div>
           <div className="text-[#AEAEAE] font-semibold text-[13px] sm:text-[15px] shrink-0">{pct}%</div>
         </div>

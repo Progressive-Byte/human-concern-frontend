@@ -21,6 +21,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
   const [showStartEndDates, setShowStartEndDates] = useState(true);
   const [showAmountRaised, setShowAmountRaised] = useState(true);
   const [showTargetAmount, setShowTargetAmount] = useState(true);
+  const [showDonorCount, setShowDonorCount] = useState(true);
   // Blank means "use the default label" (Support) on the public Donate buttons.
   const [donateButtonLabel, setDonateButtonLabel] = useState("");
 
@@ -30,6 +31,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
     setShowStartEndDates(pd?.showStartEndDates !== false);
     setShowAmountRaised(pd?.showAmountRaised !== false);
     setShowTargetAmount(pd?.showTargetAmount !== false);
+    setShowDonorCount(pd?.showDonorCount !== false);
     // The API resolves the label, so strip the default back out to keep the field honest about
     // what is actually stored (empty = default).
     const label = String(pd?.donateButtonLabel || "").trim();
@@ -68,7 +70,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
   // Same autosave contract as every other step.
   useStepAutosave({
     formId,
-    deps: [showProgressBar, showStartEndDates, showAmountRaised, showTargetAmount, donateButtonLabel],
+    deps: [showProgressBar, showStartEndDates, showAmountRaised, showTargetAmount, showDonorCount, donateButtonLabel],
     ready: !loading,
     persist: () => save({ silent: true }),
   });
@@ -91,6 +93,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
         showStartEndDates: Boolean(showStartEndDates),
         showAmountRaised: Boolean(showAmountRaised),
         showTargetAmount: Boolean(showTargetAmount),
+        showDonorCount: Boolean(showDonorCount),
         donateButtonLabel: String(donateButtonLabel || "").trim(),
       });
       // Reflect exactly what the server stored, so autosave and Save agree.
@@ -179,6 +182,18 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
                 <div className="mt-1 text-[12px] text-[#6B7280]">Display the fundraising goal as a number</div>
               </div>
               <Toggle enabled={showTargetAmount} onChange={saving ? () => {} : setShowTargetAmount} />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-[13px] font-semibold text-[#111827]">Show Donor Count</div>
+                <div className="mt-1 text-[12px] text-[#6B7280]">
+                  Display the number of donors — on the campaign page and on the campaign cards
+                </div>
+              </div>
+              <Toggle enabled={showDonorCount} onChange={saving ? () => {} : setShowDonorCount} />
             </div>
           </div>
 

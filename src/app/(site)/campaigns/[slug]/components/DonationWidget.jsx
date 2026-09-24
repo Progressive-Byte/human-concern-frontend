@@ -73,10 +73,20 @@ const DonationWidget = ({ campaign }) => {
   const ended = Boolean(campaign.ended);
   const donationsOpen = campaign.donationsOpen !== false;
 
-  // donors may be a number (old) or an object with pagination (new)
-  const donorCount = typeof campaign.donors === "object"
-    ? (campaign.donors?.meta?.pagination?.total ?? 0)
-    : (campaign.donors ?? 0);
+  // The API withholds the donor payload entirely when "Show Donor Count" is off, so a null means
+  // "hidden" rather than zero. It may be a number (old) or an object with pagination (new).
+  const donorCountHidden = campaign.donors == null;
+  const donorCount = donorCountHidden
+    ? 0
+    : (typeof campaign.donors === "object"
+      ? (campaign.donors?.meta?.pagination?.total ?? 0)
+      : (campaign.donors ?? 0));
+
+  // Days left is derived from the end date, which the API withholds when "Show Start/End Dates" is
+  // off — so it hides with THAT switch, never with the progress bar.
+  const daysLeftValue = campaign.endAt
+    ? Math.max(0, Math.ceil((new Date(campaign.endAt) - Date.now()) / 86400000))
+    : null;
 
   const defaultBaseAmount =
     suggestedAmountsData.find((a) => a.isDefault)?.value ??
@@ -195,21 +205,23 @@ const DonationWidget = ({ campaign }) => {
             </>
           )}
 
-          {/* Donors */}
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <div className="bg-[#F6F6F6] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-center">
-              <p className="text-xl sm:text-2xl font-bold text-[#383838]">
-                {donorCount}
-              </p>
-              <p className="text-[12px] sm:text-[14px] font-normal text-[#383838] mt-0.5">Donors</p>
+          {/* Donors / Days Left — each hides on its own condition. */}
+          {!donorCountHidden || daysLeftValue != null ? (
+            <div className={`grid gap-3 mt-4 ${!donorCountHidden && daysLeftValue != null ? "grid-cols-2" : "grid-cols-1"}`}>
+              {!donorCountHidden ? (
+                <div className="bg-[#F6F6F6] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-[#383838]">{donorCount}</p>
+                  <p className="text-[12px] sm:text-[14px] font-normal text-[#383838] mt-0.5">Donors</p>
+                </div>
+              ) : null}
+              {daysLeftValue != null ? (
+                <div className="bg-[#F6F6F6] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-[#383838]">{daysLeftValue}</p>
+                  <p className="text-[12px] sm:text-[14px] font-normal text-[#383838] mt-0.5">Days Left</p>
+                </div>
+              ) : null}
             </div>
-            <div className="bg-[#F6F6F6] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-center">
-              <p className="text-xl sm:text-2xl font-bold text-[#383838]">
-                {campaign.daysLeft ?? 0}
-              </p>
-              <p className="text-[12px] sm:text-[14px] font-normal text-[#383838] mt-0.5">Days Left</p>
-            </div>
-          </div>
+          ) : null}
 
           {/* How Your Donation Helps */}
           {suggestedAmounts.length > 0 && (

@@ -141,8 +141,12 @@ export default async function CampaignPage({ params }) {
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-normal text-[#383838] mt-4">
-                  <Image src="/images/donars.png" alt="donor" width={15} height={15} className="object-contain shrink-0" />
-                  <span className="shrink-0">{campaign.donors != null ? campaign.donors.toLocaleString() : "0"} donors</span>
+                  {campaign.donors != null ? (
+                    <>
+                      <Image src="/images/donars.png" alt="donor" width={15} height={15} className="object-contain shrink-0" />
+                      <span className="shrink-0">{campaign.donors.toLocaleString()} donors</span>
+                    </>
+                  ) : null}
                   {campaign.endAt ? (
                     <>
                       <Image src="/images/calander.png" alt="calander" width={15} height={15} className="object-contain shrink-0" />
