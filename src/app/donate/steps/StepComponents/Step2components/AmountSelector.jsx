@@ -167,7 +167,20 @@ const AmountSelector = ({
     <div className="flex flex-col gap-4">
       <div>
         <div className="flex items-center justify-between mb-3">
-          {recurringLabel ? (
+          {locked ? (
+            // Locked: the chosen amount sits inline here — compact, not a big dead tile.
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
+              {recurringLabel && (
+                <span className="text-[13px] font-medium text-[#383838]">{recurringLabel}:</span>
+              )}
+              <span className="text-[17px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
+                {sym}{formatDisplay(effectiveAmount)}
+              </span>
+              {currentDescription && (
+                <span className="text-[12px] leading-snug text-[#737373]">{currentDescription}</span>
+              )}
+            </div>
+          ) : recurringLabel ? (
             <label className="block text-[13px] font-medium text-[#383838]">{recurringLabel}</label>
           ) : <span />}
           <button
@@ -190,17 +203,7 @@ const AmountSelector = ({
             You can change this amount. Click <strong>Change amount</strong> to adjust it.
           </p>
         )}
-        {locked ? (
-          // Locked: a single read-only tile for the chosen amount, not a wall of dead controls.
-          <div className="rounded-2xl border border-[#EA3335]/50 bg-[#FFF5F5] px-3 py-4 text-center">
-            <span className="text-[19px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
-              {sym}{formatDisplay(effectiveAmount)}
-            </span>
-            {currentDescription && (
-              <p className="mt-2 text-[12px] leading-snug text-[#737373]">{currentDescription}</p>
-            )}
-          </div>
-        ) : (
+        {!locked && (
           <div className="grid grid-cols-2 gap-3">
             {suggestedAmounts.map((base) => {
               const displayAmt = toConverted(base);
