@@ -64,7 +64,7 @@ const AmountSelector = ({
   const [customAmount, setCustomAmount]           = useState(isCustomInit ? String(Math.round(Number(initialAmount) * 100) / 100) : "");
   const [customAmountError, setCustomAmountError] = useState("");
   // Amount starts locked to the pre-selected value; the donor must explicitly
-  // click "Edit change" to modify it, mirroring Step1Info's field lock pattern.
+  // click "Change amount" to modify it, mirroring Step1Info's field lock pattern.
   const [locked, setLocked] = useState(true);
 
   const occ = Math.max(1, Number(occurrences) || 1);
@@ -176,12 +176,12 @@ const AmountSelector = ({
             {locked ? (
               <span className="inline-flex h-4 w-4 items-center justify-center">{EditIcon}</span>
             ) : null}
-            {locked ? "Edit change" : "Save change"}
+            {locked ? "Change amount" : "Save change"}
           </button>
         </div>
         {locked && (
           <p className="mb-3 text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
-            You can change this amount. Click <strong>Edit change</strong> to adjust it.
+            You can change this amount. Click <strong>Change amount</strong> to adjust it.
           </p>
         )}
         <div className="grid grid-cols-2 gap-3">
