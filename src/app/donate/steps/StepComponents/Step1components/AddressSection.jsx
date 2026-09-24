@@ -10,7 +10,7 @@ import GooglePlacesInput from "@/components/common/GooglePlacesInput";
 import { ChevronIcon } from "@/components/common/SvgIcon";
 import { resolveCountryIso, resolveStateIso } from "@/utils/isoHelpers";
 
-const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
+const AddressSection = ({ setError, addressExpanded, setAddressExpanded, addressManual, setAddressManual }) => {
   const { data, update } = useDonation();
   const { user } = useAuth();
 
@@ -153,9 +153,18 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
       {addressExpanded && (
         <div className="flex flex-col gap-4 px-4 py-4">
           <div className="flex flex-col gap-1">
-            <label className="text-[13px] font-medium text-[#111827]">
-              Address Line 1<span className="text-[#EA3335] ml-0.5">*</span>
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-[13px] font-medium text-[#111827]">
+                Address Line 1<span className="text-[#EA3335] ml-0.5">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setAddressManual((v) => !v)}
+                className="shrink-0 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
+              >
+                {addressManual ? "Use address search" : "Enter address manually"}
+              </button>
+            </div>
             <GooglePlacesInput
               value={data.addressLine1 ?? ""}
               onChange={(e) => { update({ addressLine1: e.target.value }); setError(""); }}
@@ -167,98 +176,103 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
             </p>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-[13px] font-medium text-[#111827]">
-              Country<span className="text-[#EA3335] ml-0.5">*</span>
-            </label>
-            <CustomDropdown
-              variant="form"
-              options={countryOptions}
-              value={countryCode}
-              onChange={handleCountryChange}
-              placeholder="Select country"
-              label="Countries"
-              maxHeight="220px"
-            />
-            <p className="text-[11px] text-[#AEAEAE]">
-              Used for payment processing and tax receipt eligibility.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-[13px] font-medium text-[#111827]">
-                Province or State<span className="text-[#EA3335] ml-0.5">*</span>
-              </label>
-              {!stateCode && data.province?.trim() ? (
-                <div className="relative">
-                  <input
-                    readOnly
-                    value={data.province}
-                    className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => { update({ province: "", city: "" }); setStateCode(""); }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
-                  >
-                    Change
-                  </button>
-                </div>
-              ) : (
+          {/* Search mode hides these: picking a suggestion fills them behind the scenes. */}
+          {addressManual && (
+            <>
+              <div className="flex flex-col gap-1">
+                <label className="text-[13px] font-medium text-[#111827]">
+                  Country<span className="text-[#EA3335] ml-0.5">*</span>
+                </label>
                 <CustomDropdown
                   variant="form"
-                  options={stateOptions}
-                  value={stateCode}
-                  onChange={handleStateChange}
-                  placeholder={countryCode ? "Select state" : "Select country first"}
-                  label="States"
+                  options={countryOptions}
+                  value={countryCode}
+                  onChange={handleCountryChange}
+                  placeholder="Select country"
+                  label="Countries"
                   maxHeight="220px"
-                  disabled={!countryCode}
                 />
-              )}
-            </div>
+                <p className="text-[11px] text-[#AEAEAE]">
+                  Used for payment processing and tax receipt eligibility.
+                </p>
+              </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-[13px] font-medium text-[#111827]">
-                City<span className="text-[#EA3335] ml-0.5">*</span>
-              </label>
-              {!stateCode && data.city?.trim() ? (
-                <div className="relative">
-                  <input
-                    readOnly
-                    value={data.city}
-                    className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => { update({ city: "" }); }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
-                  >
-                    Change
-                  </button>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[13px] font-medium text-[#111827]">
+                    Province or State<span className="text-[#EA3335] ml-0.5">*</span>
+                  </label>
+                  {!stateCode && data.province?.trim() ? (
+                    <div className="relative">
+                      <input
+                        readOnly
+                        value={data.province}
+                        className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { update({ province: "", city: "" }); setStateCode(""); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  ) : (
+                    <CustomDropdown
+                      variant="form"
+                      options={stateOptions}
+                      value={stateCode}
+                      onChange={handleStateChange}
+                      placeholder={countryCode ? "Select state" : "Select country first"}
+                      label="States"
+                      maxHeight="220px"
+                      disabled={!countryCode}
+                    />
+                  )}
                 </div>
-              ) : (
-                <CustomDropdown
-                  variant="form"
-                  options={cityOptions}
-                  value={data.city ?? ""}
-                  onChange={handleCityChange}
-                  placeholder={stateCode ? "Select city" : "Select state first"}
-                  label="Cities"
-                  maxHeight="220px"
-                  disabled={!stateCode}
-                />
-              )}
-            </div>
-          </div>
 
-          <Field
-            label="Zip or Postal Code"
-            required
-            placeholder="e.g. 10001"
-            {...addressField("zip")}
-          />
+                <div className="flex flex-col gap-1">
+                  <label className="text-[13px] font-medium text-[#111827]">
+                    City<span className="text-[#EA3335] ml-0.5">*</span>
+                  </label>
+                  {!stateCode && data.city?.trim() ? (
+                    <div className="relative">
+                      <input
+                        readOnly
+                        value={data.city}
+                        className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { update({ city: "" }); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[#EA3335] hover:underline cursor-pointer"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  ) : (
+                    <CustomDropdown
+                      variant="form"
+                      options={cityOptions}
+                      value={data.city ?? ""}
+                      onChange={handleCityChange}
+                      placeholder={stateCode ? "Select city" : "Select state first"}
+                      label="Cities"
+                      maxHeight="220px"
+                      disabled={!stateCode}
+                    />
+                  )}
+                </div>
+              </div>
+
+              <Field
+                label="Zip or Postal Code"
+                required
+                placeholder="e.g. 10001"
+                {...addressField("zip")}
+              />
+            </>
+          )}
         </div>
       )}
     </div>

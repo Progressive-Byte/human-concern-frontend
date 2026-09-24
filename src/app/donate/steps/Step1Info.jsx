@@ -30,6 +30,11 @@ const Step1Info = ({ campaignSlug }) => {
   const [editMode,         setEditMode]         = useState(false);
   const [hasEdited,        setHasEdited]        = useState(false);
   const [addressExpanded,  setAddressExpanded]  = useState(true);
+  // Address has two modes: "search" (just the street box + Places autocomplete, which fills the
+  // rest behind the scenes) and "manual" (every field visible). Lifted here so validation can
+  // reveal the fields when something required is missing — otherwise the donor is told to fix
+  // fields that are hidden.
+  const [addressManual,    setAddressManual]    = useState(false);
   const prevAuthRef = useRef(isAuthenticated);
 
   // Which fields the signed-in donor's PROFILE actually supplied. Only those are read-only until
@@ -236,7 +241,8 @@ const Step1Info = ({ campaignSlug }) => {
       !data.zip?.trim()
     ) {
       setError("Please fill in all required fields.");
-      if (!addressExpanded) setAddressExpanded(true);
+      setAddressExpanded(true);
+      setAddressManual(true);
       return;
     }
     // The country can be pre-filled as a name without its ISO — resolve it so the payment/tax
@@ -244,7 +250,8 @@ const Step1Info = ({ campaignSlug }) => {
     const countryCode = String(data.donorCountryCode || "").trim() || resolveCountryIso(data.country || "") || "";
     if (!countryCode) {
       setError("Please select your country.");
-      if (!addressExpanded) setAddressExpanded(true);
+      setAddressExpanded(true);
+      setAddressManual(true);
       return;
     }
     if (!/\S+@\S+\.\S+/.test(data.email)) {
@@ -302,6 +309,8 @@ const Step1Info = ({ campaignSlug }) => {
           setError={setError}
           addressExpanded={addressExpanded}
           setAddressExpanded={setAddressExpanded}
+          addressManual={addressManual}
+          setAddressManual={setAddressManual}
         />
 
         <CauseSelector
