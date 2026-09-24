@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
-import { getAdminFormGoalsDates, updateAdminFormGoalsDates } from "@/services/admin";
+import { getAdminFormPublicDisplay, updateAdminFormPublicDisplay } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import useStepAutosave from "../hooks/useStepAutosave";
 import WizardFooterNav from "./WizardFooterNav";
+
+const DEFAULT_DONATE_BUTTON_LABEL = "Support";
+const MAX_LABEL_LENGTH = 40;
 
 const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
   const toast = useToast();
@@ -18,13 +21,19 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
   const [showStartEndDates, setShowStartEndDates] = useState(true);
   const [showAmountRaised, setShowAmountRaised] = useState(true);
   const [showTargetAmount, setShowTargetAmount] = useState(true);
+  // Blank means "use the default label" (Support) on the public Donate buttons.
+  const [donateButtonLabel, setDonateButtonLabel] = useState("");
 
-  function applyServerValue(gd) {
+  function applyServerValue(pd) {
     // Same rule as before this step existed: never set means ON.
-    setShowProgressBar(gd?.showProgressBar !== false);
-    setShowStartEndDates(gd?.showStartEndDates !== false);
-    setShowAmountRaised(gd?.showAmountRaised !== false);
-    setShowTargetAmount(gd?.showTargetAmount !== false);
+    setShowProgressBar(pd?.showProgressBar !== false);
+    setShowStartEndDates(pd?.showStartEndDates !== false);
+    setShowAmountRaised(pd?.showAmountRaised !== false);
+    setShowTargetAmount(pd?.showTargetAmount !== false);
+    // The API resolves the label, so strip the default back out to keep the field honest about
+    // what is actually stored (empty = default).
+    const label = String(pd?.donateButtonLabel || "").trim();
+    setDonateButtonLabel(label === DEFAULT_DONATE_BUTTON_LABEL ? "" : label);
   }
 
   useEffect(() => {
@@ -38,9 +47,9 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
 
     (async () => {
       try {
-        const res = await getAdminFormGoalsDates(formId);
+        const res = await getAdminFormPublicDisplay(formId);
         if (!alive) return;
-        applyServerValue(res?.data?.data?.goalsDates);
+        applyServerValue(res?.data?.data?.publicDisplay);
       } catch (e) {
         if (!alive) return;
         toast.error(e?.message || "Failed to load public display settings.");
@@ -59,7 +68,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
   // Same autosave contract as every other step.
   useStepAutosave({
     formId,
-    deps: [showProgressBar, showStartEndDates, showAmountRaised, showTargetAmount],
+    deps: [showProgressBar, showStartEndDates, showAmountRaised, showTargetAmount, donateButtonLabel],
     ready: !loading,
     persist: () => save({ silent: true }),
   });
@@ -76,16 +85,16 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
 
     if (!silent) setSaving(true);
     try {
-      // Only the four display keys: the API merges into goalsDates, so every other field
-      // (goal, currency, dates, payment methods, presets) is left untouched.
-      const res = await updateAdminFormGoalsDates(formId, {
+      // Its own endpoint and its own block, so this can never touch the goals/dates config.
+      const res = await updateAdminFormPublicDisplay(formId, {
         showProgressBar: Boolean(showProgressBar),
         showStartEndDates: Boolean(showStartEndDates),
         showAmountRaised: Boolean(showAmountRaised),
         showTargetAmount: Boolean(showTargetAmount),
+        donateButtonLabel: String(donateButtonLabel || "").trim(),
       });
-      // Reflect exactly what the server stored, so autosave and Save Draft agree.
-      applyServerValue(res?.data?.data?.goalsDates || res?.data?.goalsDates);
+      // Reflect exactly what the server stored, so autosave and Save agree.
+      applyServerValue(res?.data?.data?.publicDisplay);
       if (!silent) toast.success("Public display saved");
       onSaved?.();
       if (goNext) onExit?.({ nextStep: "review" });
@@ -117,6 +126,9 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
       </div>
     );
   }
+
+  const inputClass =
+    "w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60";
 
   return (
     <div className="space-y-6">
@@ -180,6 +192,31 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
           <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] px-4 py-3 text-[12px] text-[#6B7280]">
             Leave the goal empty for an open-ended campaign — then no progress bar, target or remaining amount is
             shown anywhere.
+          </div>
+        </div>
+      </section>
+
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+        <div>
+          <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Donate Button</h2>
+          <p className="mt-1 text-[13px] text-[#6B7280]">
+            The label used on the Donate button, on both the campaign card and the campaign page.
+          </p>
+        </div>
+
+        <div className="mt-5">
+          <div className="mb-2 text-[13px] font-semibold text-[#111827]">Button text</div>
+          <input
+            value={donateButtonLabel}
+            onChange={(e) => setDonateButtonLabel(e.target.value)}
+            placeholder={DEFAULT_DONATE_BUTTON_LABEL}
+            maxLength={MAX_LABEL_LENGTH}
+            disabled={saving}
+            className={inputClass}
+          />
+          <div className="mt-2 text-[12px] text-[#6B7280]">
+            Leave empty to use <span className="font-semibold">{DEFAULT_DONATE_BUTTON_LABEL}</span>. Maximum{" "}
+            {MAX_LABEL_LENGTH} characters.
           </div>
         </div>
       </section>

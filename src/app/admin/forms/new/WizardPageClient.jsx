@@ -198,9 +198,7 @@ const WizardContent = () => {
     if (Boolean(s?.addons)) done.add("addons");
     if (Boolean(s?.media)) done.add("media");
     if (Boolean(s?.unavailablePage)) done.add("unavailable-page");
-    // Public Display has no validatable fields — its toggles live on `goalsDates`, so the step
-    // is complete once that section is. It therefore adds no new requirement to the Review gate.
-    if (Boolean(s?.goalsDates)) done.add("public-display");
+    if (Boolean(s?.publicDisplay)) done.add("public-display");
     if (isRamadanForm !== false && Boolean(s?.objectives)) done.add("objectives");
 
     // "Unavailable page" is optional, so it must never gate the Review step.

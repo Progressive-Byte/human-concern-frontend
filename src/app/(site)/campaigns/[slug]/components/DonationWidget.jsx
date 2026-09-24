@@ -319,7 +319,7 @@ const DonationWidget = ({ campaign }) => {
                 : "cursor-not-allowed bg-[#E5E5E5] text-[#9CA3AF]"
             }`}
           >
-            {donationsOpen ? "Donate Now" : "Donations closed"}
+            {donationsOpen ? (display.donateButtonLabel || "Support") : "Donations closed"}
           </button>
           <button
             onClick={handleShare}

@@ -163,6 +163,15 @@ export function updateAdminFormGoalsDates(formId, payload) {
   return adminApiRequest(`/admin/forms/${formId}/goals-dates`, { method: "PATCH", body: JSON.stringify(payload) });
 }
 
+// Public display settings live in their own block, so saving them never touches goals/dates.
+export function getAdminFormPublicDisplay(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/public-display`, { method: "GET" });
+}
+
+export function updateAdminFormPublicDisplay(formId, payload) {
+  return adminApiRequest(`/admin/forms/${formId}/public-display`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
 export function publishAdminForm(formId) {
   return adminApiRequest(`/admin/forms/${formId}/publish`, { method: "POST" });
 }
