@@ -413,13 +413,6 @@ const RecurringSchedule = ({
               </span>
             )}
           </span>
-          <button
-            type="button"
-            onClick={() => handlePreset("custom")}
-            className="text-[11px] text-[#737373] underline cursor-pointer hover:text-[#383838]"
-          >
-            Clear &amp; customise
-          </button>
         </div>
       )}
 
