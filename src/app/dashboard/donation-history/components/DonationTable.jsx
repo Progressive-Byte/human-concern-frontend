@@ -45,7 +45,10 @@ function StatusBadge({ statusKey, status }) {
   );
 }
 
-/** One-time / Recurring, driven by the API's `type.label`. */
+/**
+ * One-time / Recurring. Renders nothing when the API did not send a label, so we never
+ * show a wrong "One-time".
+ */
 function TypePill({ typeKey, label }) {
   if (!label) return null;
   const recurring = String(typeKey || "").toLowerCase() === "recurring";
@@ -109,24 +112,6 @@ function DonationRow({ r, isLast, onError }) {
     <tr className={`hover:bg-[#F9FAFB] transition-colors ${!isLast ? "border-b border-[#E5E7EB]" : ""}`}>
       <td className="px-4 py-4 whitespace-nowrap align-top">
         <p className="text-[#111827] font-medium text-sm">{r.date}</p>
-        <span className={`sm:hidden mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-medium ${causeBadgeStyles[r.cause] || "bg-[#F3F4F6] text-[#6B7280]"}`}>
-          {r.cause}
-        </span>
-      </td>
-      <td className="px-4 py-4">
-        <div className="flex items-center gap-2">
-          <p className="text-[#111827] text-sm leading-snug">{r.campaign}</p>
-          {r.typeKey ? (
-            <span
-              className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                r.typeKey === "recurring" ? "bg-[#FFF5F5] text-[#EA3335]" : "bg-[#F3F4F6] text-[#6B7280]"
-              }`}
-            >
-              {r.typeLabel}
-            </span>
-          ) : null}
-        </div>
-        <AddOnList addons={r.addons} currency={r.currency} className="mt-1.5" max={2} />
         <span className="md:hidden mt-1 block">
           <StatusBadge statusKey={r.statusKey} status={r.status} />
         </span>
@@ -135,7 +120,7 @@ function DonationRow({ r, isLast, onError }) {
       <td className="px-4 py-4 align-top">
         <div className="flex items-start">
           <p className="text-[#111827] text-sm leading-snug">{r.campaign}</p>
-          <TypePill typeKey={r.typeKey} label={r.type} />
+          <TypePill typeKey={r.typeKey} label={r.typeLabel} />
         </div>
         <AddOnList addons={r.addons} currency={r.currency} className="mt-1.5" max={2} />
         <div className="sm:hidden mt-1.5">

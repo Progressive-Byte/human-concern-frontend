@@ -77,8 +77,9 @@ function DonationHistoryPage() {
       id:        String(it?.donationId || idx),
       date:      formatDate(it?.date) || "—",
       campaign:  String(it?.campaign?.name || "").trim() || "—",
-      type:      String(it?.type?.label || "").trim(),
-      typeKey:   String(it?.type?.key || "").trim(),
+      // Leave blank when the API didn't tell us, so we never show a wrong "One-time".
+      typeKey:   it?.type?.key ? String(it.type.key) : "",
+      typeLabel: it?.type?.label ? String(it.type.label) : "",
       causes:    (Array.isArray(it?.causes) ? it.causes : [])
         .map((c) => ({ id: String(c?.id || ""), name: String(c?.name || "").trim() }))
         .filter((c) => c.name),
@@ -88,9 +89,6 @@ function DonationHistoryPage() {
       currency:  String(it?.currency || "USD"),
       status:    String(it?.status?.label || "").trim() || "—",
       statusKey: String(it?.status?.key || ""),
-      // Leave blank when the API didn't tell us, so we never show a wrong "One-time".
-      typeKey:   it?.type?.key ? String(it.type.key) : "",
-      typeLabel: it?.type?.label ? String(it.type.label) : "",
       addons:    Array.isArray(it?.addons) ? it.addons : [],
     })),
   [items]);
