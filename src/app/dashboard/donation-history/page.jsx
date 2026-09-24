@@ -18,7 +18,7 @@ function formatDate(value) {
   } catch { return ""; }
 }
 
-const DEFAULT_CAUSE_OPTIONS = [{ value: "all", label: "All Causes" }];
+const DEFAULT_CAUSE_OPTIONS = [{ value: "all", label: "All Types" }];
 
 function useDebouncedValue(value, delayMs) {
   const [debounced, setDebounced] = useState(value);
@@ -97,9 +97,14 @@ function DonationHistoryPage() {
       id:        String(it?.donationId || idx),
       date:      formatDate(it?.date) || "—",
       campaign:  String(it?.campaign?.name || "").trim() || "—",
-      cause:     String(it?.causeTag?.label || "").trim() || "—",
-      amount:    Number(it?.amount ?? 0),
+      type:      String(it?.type?.label || "").trim(),
+      typeKey:   String(it?.type?.key || "").trim(),
+      causes:    (Array.isArray(it?.causes) ? it.causes : [])
+        .map((c) => ({ id: String(c?.id || ""), name: String(c?.name || "").trim() }))
+        .filter((c) => c.name),
+      base:      Number(it?.baseAmount ?? it?.amount ?? 0),
       tip:       Number(it?.tipAmount ?? 0),
+      total:     Number(it?.totalAmount ?? it?.amount ?? 0),
       currency:  String(it?.currency || "USD"),
       status:    String(it?.status?.label || "").trim() || "—",
       statusKey: String(it?.status?.key || ""),
