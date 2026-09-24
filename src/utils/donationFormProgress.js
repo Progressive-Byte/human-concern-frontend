@@ -6,9 +6,12 @@
 //   Step 3 → validateOverviewStep + the customNotes `required` flags
 // Keep them in sync if those rules change.
 //
-// Deliberately excluded: the recurring schedule. It is only required once the donor
-// picks "recurring", so counting it would make the total (and the %) jump mid-form.
+// The recurring schedule is included, but as a slot that exists for every campaign which
+// allows recurring and counts as done while "one-time" is picked. So the total never
+// changes mid-form: the only thing that moves when the donor switches to recurring is
+// that one tick, and the % dips until the dates are set. See scheduleItem().
 import { resolveCountryIso } from "@/utils/isoHelpers";
+import { validateSchedule } from "@/utils/donationStepValidation";
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 const text = (v) => String(v ?? "").trim();
@@ -49,12 +52,39 @@ function requiredNoteFields(config) {
   return fields.filter((f) => f.required);
 }
 
+// The schedule is only work for a donor who picked "recurring". Counting the slot for
+// every campaign that allows recurring — rather than adding it when the choice is made —
+// keeps the total (and therefore the %) stable across the switch.
+function scheduleItem(config) {
+  const gd = config?.goalsDates ?? {};
+  // No recurring on this campaign means the slot could never be filled, so leave it out.
+  if ((gd.allowRecurringDonations ?? true) === false) return null;
+
+  // Same end date Step2Payment hands to validateAmountScheduleStep.
+  const campaignEndDate = gd.endAt ?? config?.endAt ?? null;
+
+  return {
+    key: "schedule",
+    isValid: (d) =>
+      d.paymentType !== "recurring" ||
+      validateSchedule({
+        scheduleType:      d.scheduleType,
+        scheduleConfig:    d.scheduleConfig,
+        campaignEndDate,
+        makeUpMissedDates: d.makeUpMissedDates,
+      }) === null,
+  };
+}
+
 export function buildRequiredItems(config) {
   const items = [...CORE_ITEMS];
 
   if ((config?.causes ?? []).length > 0) {
     items.push({ key: "causes", isValid: (d) => (d.causeIds ?? []).length > 0 });
   }
+
+  const schedule = scheduleItem(config);
+  if (schedule) items.push(schedule);
 
   for (const field of requiredNoteFields(config)) {
     items.push({

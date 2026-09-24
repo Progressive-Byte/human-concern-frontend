@@ -41,6 +41,14 @@ export function validateAmountScheduleStep({
     return "Recurring donations are not allowed for this campaign.";
   }
 
+  return validateSchedule({ scheduleType, scheduleConfig, campaignEndDate, makeUpMissedDates });
+}
+
+// The recurring-schedule rules on their own, so the completion bar
+// (donationFormProgress.js) can ask the same question as the Next button instead of
+// keeping a second copy of these rules. Returns the first user-facing failure, or null
+// when the schedule is valid.
+export function validateSchedule({ scheduleType, scheduleConfig, campaignEndDate, makeUpMissedDates }) {
   const cfg  = scheduleConfig ?? {};
   const type = scheduleType ?? "specific_dates";
 
