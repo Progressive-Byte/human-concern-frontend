@@ -8,6 +8,7 @@ import { useBranding } from "@/context/BrandingContext";
 import StripeCheckoutForm from "./StepComponents/Step4components/StripeCheckoutForm";
 import PayPalCheckoutForm from "./StepComponents/Step4components/PayPalCheckoutForm";
 import StepProgress from "./StepComponents/StepProgress";
+import DonateFormHeader from "./StepComponents/DonateFormHeader";
 import DonationPreview from "./StepComponents/DonationPreview";
 import { NoticeIcon } from "@/components/common/SvgIcon";
 import { usePaymentProviderInstance } from "./StepComponents/Step4components/usePaymentProviderInstance";
@@ -343,6 +344,8 @@ const Step4Confirmation = () => {
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-30 lg:pt-40 pb-16 px-4">
+      <DonateFormHeader maxWidth="max-w-5xl" />
+
       <div className="max-w-5xl mx-auto">
         <StepProgress current={4} />
 

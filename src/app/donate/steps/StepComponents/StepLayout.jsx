@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import StepProgress from "./StepProgress";
+import DonateFormHeader from "./DonateFormHeader";
 import DonationPreview from "./DonationPreview";
 import { ArrowNextIcon, ArrowPrevIcon, CircleCheckIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
@@ -38,6 +39,8 @@ const StepLayout = ({
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[100px] sm:pt-[120px] md:pt-[130px] lg:pt-[160px] pb-12 sm:pb-16 px-3 sm:px-4">
+      <DonateFormHeader />
+
       {/* Form column always centered at max-w-[700px] */}
       <div className="mx-auto max-w-[700px]">
         <StepProgress current={step} />

@@ -273,6 +273,13 @@ const Step3Addons = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipPct, customTipAmount, computedBreakdown, grandTotal, firstPaymentAmount, firstPaymentDate]);
 
+  // Mirror the note answers into the shared context so the wizard header's completion
+  // bar can see them — they are otherwise step-local state.
+  useEffect(() => {
+    update({ customNoteValues });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customNoteValues]);
+
   const buildEditPayload = () => {
     const scheduleType   = data.scheduleType   ?? "specific_dates";
     const scheduleConfig = data.scheduleConfig ?? {};

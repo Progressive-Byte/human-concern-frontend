@@ -50,6 +50,7 @@ const initialState = {
   grandTotal: 0,
   unifiedChallenge: null,
   manualCauseIds: [],
+  customNoteValues: {},
   // Attribution captured from the donation form URL (utm_* query params on entry).
   utm_source: "",
   utm_medium: "",
