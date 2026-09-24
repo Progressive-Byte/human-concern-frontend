@@ -289,10 +289,6 @@
     border-color: rgb(var(--brand-primary-rgb) / 0.2) !important;
   }
 
-  .hc-brand-theme .shadow-\[0_16px_34px_rgba\(234\,51\,53\,0\.26\)\] {
-    box-shadow: 0 16px 34px rgb(var(--brand-primary-rgb) / 0.26) !important;
-  }
-
   .hc-brand-theme .hover\:shadow-\[0_16px_34px_rgba\(234\,51\,53\,0\.26\)\]:hover {
     box-shadow: 0 16px 34px rgb(var(--brand-primary-rgb) / 0.26) !important;
   }

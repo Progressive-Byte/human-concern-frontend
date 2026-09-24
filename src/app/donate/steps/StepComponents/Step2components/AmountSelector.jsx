@@ -170,9 +170,6 @@ const AmountSelector = ({
           {locked ? (
             // Locked: the chosen amount sits inline here — compact, not a big dead tile.
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
-              {recurringLabel && (
-                <span className="text-[13px] font-medium text-[#383838]">{recurringLabel}:</span>
-              )}
               <span className="text-[22px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
                 {sym}{formatDisplay(effectiveAmount)}
               </span>
