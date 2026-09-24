@@ -193,8 +193,27 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
         </div>
       </SettingsSectionCard>
 
-      <SettingsSectionCard icon={<TipIcon />} title="Tipping" subtitle="Customize the tip text shown to donors">
+      <SettingsSectionCard icon={<TipIcon />} title="Tipping" subtitle="Customize the tip text and the default percentage shown to donors">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Field label="Default Tip %">
+            <TextInput
+              type="number"
+              min={0}
+              max={15}
+              step={1}
+              value={organization.tipDefaultPercent ?? ""}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const next = raw === "" ? 0 : Math.min(15, Math.max(0, Math.round(Number(raw))));
+                onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), tipDefaultPercent: next } }));
+              }}
+              disabled={loading}
+            />
+            <p className="mt-1.5 text-[12px] text-[#6B7280]">
+              Pre-selected on the donation form. Donors can still slide down to 0%.
+            </p>
+          </Field>
+
           <Field label="Tip Label">
             <TextInput
               value={organization.tipLabel || ""}

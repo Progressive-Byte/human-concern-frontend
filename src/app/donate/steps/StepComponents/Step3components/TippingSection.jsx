@@ -6,6 +6,10 @@ import { useBranding } from "@/context/BrandingContext";
 const TIP_PERCENTAGES = [0, 5, 10, 15];
 const SLIDER_MAX      = 15;
 
+// Fallbacks so a failed settings fetch looks exactly like the admin defaults.
+const DEFAULT_TIP_LABEL       = "Platform Support Fees";
+const DEFAULT_TIP_DESCRIPTION = "Voluntary support for organization fees for platform maintenance and well being";
+
 const TippingSection = ({
   sym,
   baseDonation,
@@ -13,6 +17,8 @@ const TippingSection = ({
   setTipPct,
   customTipAmount,
   setCustomTipAmount,
+  label,
+  description,
 }) => {
   const { update } = useDonation();
   const { primaryColor } = useBranding();
@@ -43,9 +49,9 @@ const TippingSection = ({
 
   return (
     <div className="border border-[#E5E5E5] rounded-xl bg-[#F9F9F9] px-4 py-4">
-      <p className="text-[14px] font-semibold text-[#383838]">Platform Support Fees</p>
+      <p className="text-[14px] font-semibold text-[#383838]">{label || DEFAULT_TIP_LABEL}</p>
       <p className="text-[12px] text-[#737373] mt-0.5 mb-4">
-        Voluntary support for organization fees for platform maintenance and well being
+        {description || DEFAULT_TIP_DESCRIPTION}
       </p>
 
       <div className="inline-flex items-center bg-white border border-[#E5E5E5] rounded-lg px-4 py-2 mb-4">

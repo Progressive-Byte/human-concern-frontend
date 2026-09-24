@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
@@ -138,6 +138,13 @@ const Step3Addons = () => {
 
   const [tipPct,          setTipPct]          = useState(data.tipPct ?? 10);
   const [customTipAmount, setCustomTipAmount] = useState(data.customTipAmount ?? "");
+  // Admin-configured tip texts and the percentage the form opens on, from the public
+  // payment settings payload.
+  const [tipSettings,     setTipSettings]     = useState(null);
+  // A value that was already there (back-navigation, or an existing schedule being edited)
+  // outranks the admin default, so the donor's own choice is never overwritten.
+  const tipWasRestored = useRef(data.tipPct !== undefined && data.tipPct !== null);
+  const tipTouched     = useRef(false);
   const [gatewayState, setGatewayStateInternal] = useState({
     gateway: isPreview ? "stripe" : (["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null),
     configurationId: data.gatewayConfigurationId ?? null,
@@ -174,19 +181,23 @@ const Step3Addons = () => {
   const [submitError,  setSubmitError]  = useState(null);
 
   useEffect(() => {
-    if (!showGlobalNote || isPreview) return;
     let alive = true;
 
     (async () => {
       try {
         const res = await apiRequest("payment/settings", { method: "GET" });
         if (!alive) return;
-        const fetchedFields = normalizeNoteFields(res?.data?.globalNote);
-        if (fetchedFields.length > 0) {
-          setGlobalNoteFields(fetchedFields);
+        // Tip texts and the default percentage ride the same payload. Fetched in preview
+        // too: the default is a platform setting, not part of the form being previewed.
+        setTipSettings(res?.data?.tips ?? null);
+        if (showGlobalNote && !isPreview) {
+          const fetchedFields = normalizeNoteFields(res?.data?.globalNote);
+          if (fetchedFields.length > 0) {
+            setGlobalNoteFields(fetchedFields);
+          }
         }
       } catch (err) {
-        console.error("Failed to fetch global notes", err);
+        console.error("Failed to fetch payment settings", err);
       }
     })();
 
@@ -194,6 +205,21 @@ const Step3Addons = () => {
       alive = false;
     };
   }, [showGlobalNote, isPreview]);
+
+  // Open on the admin's default percentage, but only when the donor has nothing of their
+  // own yet. Clamped to the slider's 0-15 range.
+  useEffect(() => {
+    if (!tipSettings || tipWasRestored.current || tipTouched.current) return;
+    const pct = Number(tipSettings.defaultPercent);
+    if (!Number.isFinite(pct)) return;
+    setTipPct(Math.min(15, Math.max(0, Math.round(pct))));
+  }, [tipSettings]);
+
+  // From here on the donor's own choice wins, so a late settings response cannot move it.
+  const handleTipPctChange = (next) => {
+    tipTouched.current = true;
+    setTipPct(next);
+  };
 
   useEffect(() => {
     setCustomNoteValues((prev) => {
@@ -900,9 +926,11 @@ const Step3Addons = () => {
             sym={sym}
             baseDonation={baseDonation}
             tipPct={tipPct}
-            setTipPct={setTipPct}
+            setTipPct={handleTipPctChange}
             customTipAmount={customTipAmount}
             setCustomTipAmount={setCustomTipAmount}
+            label={tipSettings?.label}
+            description={tipSettings?.description}
           />
         )}
 
