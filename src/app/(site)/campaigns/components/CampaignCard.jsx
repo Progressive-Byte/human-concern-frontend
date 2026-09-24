@@ -47,9 +47,11 @@ async function loadBrandingLogoUrl() {
 }
 
 const CampaignCard = ({ campaign }) => {
+  const display = campaign.display || {};
   const raised = campaign.raised ?? 0;
   const goal = campaign.goal ?? 0;
-  const pct = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+  // Server-computed and switch-aware: null means "the admin hid the progress bar / the figures".
+  const progress = typeof campaign.progress === "number" ? campaign.progress : null;
 
   const category = Array.isArray(campaign.categories)
     ? campaign.categories[0] ?? ""
@@ -151,15 +153,17 @@ const CampaignCard = ({ campaign }) => {
           {campaign.description}
         </p>
 
-        {/* Progress bar */}
-        <div className="mt-3">
-          <div className="h-[13px] bg-[#DDFFB4] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#055A46] rounded-full transition-all duration-300"
-              style={{ width: `${pct}%` }}
-            />
+        {/* Progress bar — hidden by "Show Progress Bar" */}
+        {progress != null ? (
+          <div className="mt-3">
+            <div className="h-[13px] bg-[#DDFFB4] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#055A46] rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {/* Donors & Days */}
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[#383838] mt-2">
@@ -177,24 +181,32 @@ const CampaignCard = ({ campaign }) => {
               </>
             ) : null}
           </div>
-          <div className="text-[#AEAEAE] font-semibold text-[13px] sm:text-[15px] shrink-0">{pct}%</div>
+          {progress != null ? (
+            <div className="text-[#AEAEAE] font-semibold text-[13px] sm:text-[15px] shrink-0">{progress}%</div>
+          ) : null}
         </div>
 
-        {/* Raised & CTA */}
+        {/* Raised & CTA — each figure respects its own switch; the button always stays. */}
         <div className="flex md:flex-row flex-col justify-between items-start md:items-center gap-3 mt-5 sm:mt-7 mb-4 sm:mb-[18px]">
-          <div className="min-w-0">
-            <div className="font-bold text-[#383838] text-2xl md:text-3xl xl:text-4xl whitespace-nowrap">
-              ${goal.toLocaleString()}
+          {campaign.goal != null || campaign.raised != null ? (
+            <div className="min-w-0">
+              {campaign.goal != null ? (
+                <div className="font-bold text-[#383838] text-2xl md:text-3xl xl:text-4xl whitespace-nowrap">
+                  ${goal.toLocaleString()}
+                </div>
+              ) : null}
+              {campaign.raised != null ? (
+                <div className="text-[#383838] pt-1 sm:pt-2 font-normal text-[13px] sm:text-[15px]">
+                  raised of ${raised.toLocaleString()}
+                </div>
+              ) : null}
             </div>
-            <div className="text-[#383838] pt-1 sm:pt-2 font-normal text-[13px] sm:text-[15px]">
-              raised of ${raised.toLocaleString()}
-            </div>
-          </div>
+          ) : null}
           <Link
             href={`/campaigns/${campaign.slug}`}
             className="w-full md:w-auto text-center bg-[#F6F6F6] hover:bg-[#383838] border border-[#00000033] text-[#383838] hover:text-white font-semibold xl:px-6 md:px-3 md:py-3 px-6 py-3 sm:py-4 xl:py-5 rounded-[18px] text-[15px] sm:text-[18px] transition-all duration-300 active:scale-95 whitespace-nowrap"
           >
-            {campaign.display?.donateButtonLabel || "Support"}
+            {display.donateButtonLabel || "Support"}
           </Link>
         </div>
       </div>
