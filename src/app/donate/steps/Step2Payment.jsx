@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import confetti from "canvas-confetti";
 import { usePathname } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { HeartIcon } from "@/components/common/SvgIcon";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import StepLayout        from "./StepComponents/StepLayout";
 import countOccurrences, { generateDatesInRange } from "./StepComponents/countOccurrences";
@@ -17,6 +19,8 @@ const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
   { value: "recurring", label: "Recurring payments", desc: () => "Split your donation into scheduled payments" },
 ];
+
+const CONFETTI_COLORS = ["#EA3335", "#FF6B35", "#FFD700", "#00C853", "#2196F3", "#9C27B0"];
 
 const Step2Payment = () => {
   const pathname = usePathname();
@@ -229,6 +233,16 @@ const Step2Payment = () => {
     setAmountError(hasError);
   };
 
+  // Recurring is the outcome we want, so picking it gets a small celebration —
+  // same two-cannon burst used on the add-ons step.
+  const handlePaymentTypeChange = (value) => {
+    if (value === "recurring") {
+      confetti({ particleCount: 90, angle: 60, spread: 70, startVelocity: 50, origin: { x: 0, y: 0.65 }, colors: CONFETTI_COLORS });
+      confetti({ particleCount: 90, angle: 120, spread: 70, startVelocity: 50, origin: { x: 1, y: 0.65 }, colors: CONFETTI_COLORS });
+    }
+    update({ paymentType: value });
+  };
+
   const handleScheduleChange = ({
     scheduleType,
     scheduleConfig,
@@ -376,15 +390,15 @@ const Step2Payment = () => {
         {/* ── Step 2: Payment mode ── */}
         <div className="flex flex-col gap-3">
           <SectionStep num={2} title="How would you like to pay?" />
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col sm:flex-row gap-2.5">
             {PAYMENT_TYPES.filter((t) => t.value === "one-time" || allowRecurring).map((type) => {
               const active = paymentType === type.value;
               const locked = isEditMode && type.value === "one-time";
               return (
                 <button
                   key={type.value}
-                  onClick={locked ? undefined : () => update({ paymentType: type.value })}
-                  className={`w-full flex items-center gap-3.5 rounded-2xl px-5 py-4 border text-left transition-all duration-200 ${
+                  onClick={locked ? undefined : () => handlePaymentTypeChange(type.value)}
+                  className={`w-full sm:flex-1 flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-4 border text-left transition-all duration-200 ${
                     locked
                       ? "border-[#E5E5E5] bg-white opacity-40 cursor-not-allowed"
                       : active
@@ -397,8 +411,15 @@ const Step2Payment = () => {
                   }`}>
                     {active && <span className="w-2.5 h-2.5 rounded-full bg-[#EA3335]" />}
                   </span>
-                  <div>
-                    <p className="text-[15px] font-semibold text-[#383838] leading-snug">{type.label}</p>
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-1.5 text-[15px] font-semibold text-[#383838] leading-snug">
+                      {type.value === "recurring" && (
+                        <span className={`inline-flex shrink-0 ${active ? "text-[#EA3335]" : "text-[#CCCCCC]"}`}>
+                          {HeartIcon}
+                        </span>
+                      )}
+                      {type.label}
+                    </p>
                     <p className="text-[12px] text-[#737373] mt-0.5">{type.desc(effectiveAmount, sym)}</p>
                   </div>
                 </button>
