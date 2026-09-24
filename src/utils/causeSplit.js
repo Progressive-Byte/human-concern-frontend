@@ -2,96 +2,40 @@
 // stays valid no matter what the donation total ends up being (chosen in a later
 // step, or split across per-installment amounts for a recurring donation).
 //
-// Causes the donor has typed into are "manual" and stay pinned at their ratio;
-// the remaining causes ("auto") share whatever is left, equally. This is what makes
-// a manually entered value stick when another cause is edited.
+// Selecting causes divides the total equally. Once the donor types an amount into a
+// card, ONLY that card moves — nothing rebalances — so the ratios can temporarily sum
+// to more or less than 1. Step 1 refuses to advance until they sum to exactly 1.
 
-function clamp01(value) {
-  if (!Number.isFinite(value)) return 0;
-  return Math.max(0, Math.min(1, value));
-}
-
-// Re-fits the split for the current selection without disturbing manual causes.
-// Used when a cause is ticked/unticked, and as the base for manual edits.
-export function fitSplit({ causeIds = [], causeSplit = {}, manualIds = [] }) {
+// Equal split across the selected causes. Used when a cause is ticked/unticked, and by
+// "Reset to equal".
+export function fitSplit({ causeIds = [] }) {
   const ids = Array.isArray(causeIds) ? causeIds : [];
   if (!ids.length) return {};
-
-  const manual = new Set((Array.isArray(manualIds) ? manualIds : []).filter((id) => ids.includes(id)));
-  const pinned = {};
-  let pinnedTotal = 0;
-  for (const id of ids) {
-    if (!manual.has(id)) continue;
-    const ratio = clamp01(causeSplit[id] ?? 0);
-    pinned[id] = ratio;
-    pinnedTotal += ratio;
-  }
-
-  const autoIds = ids.filter((id) => !manual.has(id));
-  const next = { ...pinned };
-
-  if (autoIds.length) {
-    const share = Math.max(0, 1 - pinnedTotal) / autoIds.length;
-    autoIds.forEach((id) => { next[id] = share; });
-    return next;
-  }
-
-  // Every selected cause is manual: scale them so the map still sums to 1.
-  if (pinnedTotal > 0 && pinnedTotal !== 1) {
-    const scale = 1 / pinnedTotal;
-    ids.forEach((id) => { next[id] = (pinned[id] ?? 0) * scale; });
-  }
-  return next;
+  const share = 1 / ids.length;
+  return Object.fromEntries(ids.map((id) => [id, share]));
 }
 
-// Applies a donor-typed dollar amount for one cause. The edited cause is pinned at
-// that amount (clamped so the whole split can never exceed the total); other manual
-// causes keep their ratios; auto causes share what's left.
-export function applyManualAmount({ causeIds = [], causeSplit = {}, manualIds = [], editedId, amount, total }) {
+// Applies a donor-typed dollar amount to one cause. Deliberately does NOT touch any other
+// cause and does NOT clamp: the donor must be able to overshoot so step 1 can report it.
+export function applyManualAmount({ causeIds = [], causeSplit = {}, editedId, amount, total }) {
   const ids = Array.isArray(causeIds) ? causeIds : [];
-  if (!ids.length || !ids.includes(editedId)) return { causeSplit, manualIds };
+  if (!ids.length || !ids.includes(editedId)) return { causeSplit };
 
   const totalNum = Number(total) || 0;
-  const manual = new Set([...(Array.isArray(manualIds) ? manualIds : []), editedId]);
+  const ratio = totalNum > 0 ? Math.max(0, Number(amount) / totalNum) : 0;
 
-  const others = ids.filter((id) => id !== editedId);
-  const manualOthers = others.filter((id) => manual.has(id));
-  const autoOthers = others.filter((id) => !manual.has(id));
-  const manualOthersTotal = manualOthers.reduce((sum, id) => sum + clamp01(causeSplit[id] ?? 0), 0);
-
-  // Never let this entry push the others negative — cap it at what's still free.
-  const maxRatio = Math.max(0, 1 - manualOthersTotal);
-  const requested = totalNum > 0 ? Number(amount) / totalNum : 0;
-  const ratio = Math.min(clamp01(requested), maxRatio);
-
-  const next = { [editedId]: ratio };
-  manualOthers.forEach((id) => { next[id] = clamp01(causeSplit[id] ?? 0); });
-
-  const remainder = Math.max(0, 1 - ratio - manualOthersTotal);
-  if (autoOthers.length) {
-    const share = remainder / autoOthers.length;
-    autoOthers.forEach((id) => { next[id] = share; });
-  } else if (manualOthers.length) {
-    // No auto cause left to absorb it: the other manual causes fill what's left of the
-    // total (scaled proportionally) so the split still sums to 1.
-    const pool = Math.max(0, 1 - ratio);
-    const scale = manualOthersTotal > 0 ? pool / manualOthersTotal : 0;
-    manualOthers.forEach((id) => { next[id] = clamp01(causeSplit[id] ?? 0) * scale; });
-  }
-
+  const next = { ...causeSplit, [editedId]: ratio };
   ids.forEach((id) => { if (next[id] === undefined) next[id] = 0; });
-  return { causeSplit: next, manualIds: Array.from(manual) };
+  return { causeSplit: next };
 }
 
-// Largest amount this cause can take without starving the manual causes.
-export function maxManualAmount({ causeIds = [], causeSplit = {}, manualIds = [], editedId, total }) {
+// Total dollars the donor has assigned across the selected causes. Step 1 requires this to
+// equal the donation amount before it lets the donor continue.
+export function allocatedAmount({ causeIds = [], causeSplit = {}, total = 0 }) {
   const ids = Array.isArray(causeIds) ? causeIds : [];
-  const manual = new Set(manualIds ?? []);
-  const manualOthersTotal = ids
-    .filter((id) => id !== editedId && manual.has(id))
-    .reduce((sum, id) => sum + clamp01(causeSplit[id] ?? 0), 0);
   const totalNum = Number(total) || 0;
-  return Math.max(0, totalNum * Math.max(0, 1 - manualOthersTotal));
+  const ratioSum = ids.reduce((sum, id) => sum + Math.max(0, Number(causeSplit[id]) || 0), 0);
+  return totalNum * ratioSum;
 }
 
 // Splits `total` across causeSplit's ratios into cents-precise amounts that sum
@@ -106,13 +50,21 @@ export function distributeAmount(total, causeSplit) {
     return { causeId, floorCents: Math.floor(exactCents), remainder: exactCents - Math.floor(exactCents) };
   });
 
-  let allocatedCents = shares.reduce((sum, s) => sum + s.floorCents, 0);
-  let leftoverCents = totalCents - allocatedCents;
+  // A balanced split (ratios summing to 1) has leftover cents that are pure rounding, so they
+  // are handed out largest-remainder first. An unbalanced split is the donor mid-edit — paying
+  // cents out there would make an untouched cause's amount drift, so leave them alone.
+  const ratioSum = entries.reduce((sum, [, ratio]) => sum + (Number(ratio) || 0), 0);
+  const balanced = Math.abs(ratioSum - 1) <= 0.005;
 
-  [...shares]
-    .sort((a, b) => b.remainder - a.remainder)
-    .slice(0, leftoverCents)
-    .forEach((s) => { s.floorCents += 1; });
+  if (balanced) {
+    const allocatedCents = shares.reduce((sum, s) => sum + s.floorCents, 0);
+    const leftoverCents = totalCents - allocatedCents;
+
+    [...shares]
+      .sort((a, b) => b.remainder - a.remainder)
+      .slice(0, leftoverCents)
+      .forEach((s) => { s.floorCents += 1; });
+  }
 
   return shares.map((s) => ({ causeId: s.causeId, amount: s.floorCents / 100 }));
 }

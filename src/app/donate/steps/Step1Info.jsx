@@ -10,7 +10,7 @@ import PersonalInfoSection from "./StepComponents/Step1components/PersonalInfoSe
 import AddressSection      from "./StepComponents/Step1components/AddressSection";
 import CauseSelector       from "./StepComponents/Step1components/CauseSelector";
 import DonorPreferences    from "./StepComponents/Step1components/DonorPreferences";
-import { fitSplit, applyManualAmount } from "@/utils/causeSplit";
+import { fitSplit, applyManualAmount, allocatedAmount } from "@/utils/causeSplit";
 import { getUserProfile } from "@/services/donationService";
 import { resolveCountryIso } from "@/utils/isoHelpers";
 
@@ -60,7 +60,6 @@ const Step1Info = ({ campaignSlug }) => {
 
   const selectedCauseIds = data.causeIds ?? [];
   const causeSplit       = data.causeSplit ?? {};
-  const manualCauseIds   = data.manualCauseIds ?? [];
   const totalAmount      = data.donorAmount || Number(data.amount) || 0;
   const sym              = CURRENCY_SYMBOLS[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
@@ -69,37 +68,35 @@ const Step1Info = ({ campaignSlug }) => {
     const nextIds = isSelected
       ? selectedCauseIds.filter((id) => id !== cause.id)
       : [...selectedCauseIds, cause.id];
-    // Causes the donor has typed into keep their amounts; only the untouched ones re-split.
-    const nextManualIds = manualCauseIds.filter((id) => nextIds.includes(id));
+    // Any change to the selection re-divides the total equally across it.
     update({
       causeIds: nextIds,
       causes: isSelected
         ? (data.causes ?? []).filter((l) => l !== cause.label)
         : [...(data.causes ?? []), cause.label],
-      manualCauseIds: nextManualIds,
-      causeSplit: fitSplit({ causeIds: nextIds, causeSplit, manualIds: nextManualIds }),
+      causeSplit: fitSplit({ causeIds: nextIds }),
     });
     setError("");
   };
 
   const handleSplitChange = (causeId, amount) => {
     if (totalAmount <= 0) return;
-    const { causeSplit: nextSplit, manualIds } = applyManualAmount({
+    // Only the edited cause moves — every other cause is left exactly as it is. Step 1
+    // blocks advancing if the amounts no longer add up to the donation.
+    const { causeSplit: nextSplit } = applyManualAmount({
       causeIds: selectedCauseIds,
       causeSplit,
-      manualIds: manualCauseIds,
       editedId: causeId,
       amount,
       total: totalAmount,
     });
-    update({ causeSplit: nextSplit, manualCauseIds: manualIds });
+    update({ causeSplit: nextSplit });
+    setError("");
   };
 
   const handleResetSplit = () => {
-    update({
-      manualCauseIds: [],
-      causeSplit: fitSplit({ causeIds: selectedCauseIds, causeSplit: {}, manualIds: [] }),
-    });
+    update({ causeSplit: fitSplit({ causeIds: selectedCauseIds }) });
+    setError("");
   };
 
   useEffect(() => {
@@ -206,7 +203,7 @@ const Step1Info = ({ campaignSlug }) => {
       update({
         organization: "", firstName: "", lastName: "", email: "", phone: "",
         addressLine1: "", city: "", province: "", zip: "", country: "", donorCountryCode: "",
-        causeIds: [], causes: [], causeSplit: {}, manualCauseIds: [], objective: null, objectiveLabel: "",
+        causeIds: [], causes: [], causeSplit: {}, objective: null, objectiveLabel: "",
       });
       setEditMode(false);
       setHasEdited(false);
@@ -261,6 +258,20 @@ const Step1Info = ({ campaignSlug }) => {
     if (causes.length > 0 && selectedCauseIds.length === 0) {
       setError("Please select at least one cause.");
       return;
+    }
+    // Every dollar of the donation has to be assigned to a cause, and only the exact total
+    // is accepted — the API rejects a split that does not sum to the payment amount.
+    if (selectedCauseIds.length > 0) {
+      const allocated = allocatedAmount({ causeIds: selectedCauseIds, causeSplit, total: totalAmount });
+      const fmt = (v) => `${sym}${v.toFixed(2)}`;
+      if (allocated - totalAmount > 0.005) {
+        setError(`Your cause amounts add up to ${fmt(allocated)}, which is more than your ${fmt(totalAmount)} donation.`);
+        return;
+      }
+      if (totalAmount - allocated > 0.005) {
+        setError(`Your cause amounts add up to ${fmt(allocated)}, which is less than your ${fmt(totalAmount)} donation.`);
+        return;
+      }
     }
     if (isAuthenticated) {
       updateUser({
@@ -318,7 +329,6 @@ const Step1Info = ({ campaignSlug }) => {
           selectedCauseIds={selectedCauseIds}
           toggleCause={toggleCause}
           causeSplit={causeSplit}
-          manualCauseIds={manualCauseIds}
           totalAmount={totalAmount}
           sym={sym}
           onSplitChange={handleSplitChange}

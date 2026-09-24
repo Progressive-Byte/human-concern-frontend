@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { distributeAmount } from "@/utils/causeSplit";
 
-const CauseAmountInput = ({ amount, maxAmount, sym, onChange }) => {
+const CauseAmountInput = ({ amount, sym, onChange }) => {
   const [text, setText] = useState(() => amount.toFixed(2));
   const lastAmount = useRef(amount);
   const [focused, setFocused] = useState(false);
@@ -43,7 +43,6 @@ const CauseAmountInput = ({ amount, maxAmount, sym, onChange }) => {
       <input
         type="number"
         min={0}
-        max={maxAmount}
         value={text}
         onChange={handleChange}
         onBlur={handleBlur}
@@ -54,21 +53,11 @@ const CauseAmountInput = ({ amount, maxAmount, sym, onChange }) => {
   );
 };
 
-const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, manualCauseIds = [], totalAmount, sym, onSplitChange, onResetSplit }) => {
+const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, totalAmount, sym, onSplitChange, onResetSplit }) => {
   const allocations = useMemo(
     () => Object.fromEntries(distributeAmount(totalAmount, causeSplit).map((a) => [a.causeId, a.amount])),
     [totalAmount, causeSplit]
   );
-
-  const manualSet = useMemo(() => new Set(manualCauseIds), [manualCauseIds]);
-
-  // What this cause can still take without starving the manually entered ones.
-  const maxAmountFor = (causeId) => {
-    const manualOthersTotal = selectedCauseIds
-      .filter((id) => id !== causeId && manualSet.has(id))
-      .reduce((sum, id) => sum + (allocations[id] ?? 0), 0);
-    return Math.max(0, Number(totalAmount) - manualOthersTotal);
-  };
 
   if (!causes.length) return null;
 
@@ -130,7 +119,6 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, manu
               {active && showSplit && (
                 <CauseAmountInput
                   amount={allocations[cause.id] ?? 0}
-                  maxAmount={maxAmountFor(cause.id)}
                   sym={sym}
                   onChange={(amount) => onSplitChange(cause.id, amount)}
                 />
