@@ -167,43 +167,54 @@ const DonationWidget = ({ campaign }) => {
             </div>
           ) : null}
 
-          {/* Raised / Goal — every part respects its own public display switch */}
-          {barVisible ? (
-            <>
-              <p className="text-[28px] sm:text-[32px] md:text-[36px] font-bold text-[#383838] leading-none whitespace-nowrap overflow-hidden text-ellipsis">
-                ${raised.toLocaleString()}
-              </p>
-              <p className="text-sm sm:text-[16px] text-[#383838] mt-3 sm:mt-4">
-                raised of ${goal.toLocaleString()}
-              </p>
-              <div className="flex justify-end mt-1">
-                <span className="text-[12px] font-semibold text-[#AEAEAE]">{pct}%</span>
-              </div>
-              <div className="relative h-[12px] sm:h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#055A46] rounded-full transition-all duration-500"
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              {raisedTextVisible ? (
-                <p className="text-lg sm:text-[22px] font-bold text-[#383838]">
-                  ${raised.toLocaleString()}{" "}
-                  <span className="text-sm sm:text-[16px] font-normal">raised</span>
-                </p>
-              ) : null}
-              {goalTextVisible ? (
+          {/* Raised / Goal — every part respects its own public display switch. The Zakat badge
+              shares this row so it lands top-right, level with the raised total. */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              {barVisible ? (
                 <>
-                  <p className={`text-lg sm:text-[22px] font-bold text-[#383838] ${raisedTextVisible ? "mt-1" : ""}`}>
-                    Goal: ${goal.toLocaleString()}
+                  <p className="text-[28px] sm:text-[32px] md:text-[36px] font-bold text-[#383838] leading-none whitespace-nowrap overflow-hidden text-ellipsis">
+                    ${raised.toLocaleString()}
                   </p>
-                  <p className="text-[13px] text-[#737373] mt-1">Fundraising in progress</p>
+                  <p className="text-sm sm:text-[16px] text-[#383838] mt-3 sm:mt-4">
+                    raised of ${goal.toLocaleString()}
+                  </p>
+                  <div className="flex justify-end mt-1">
+                    <span className="text-[12px] font-semibold text-[#AEAEAE]">{pct}%</span>
+                  </div>
+                  <div className="relative h-[12px] sm:h-[15px] bg-[#DDFFB4] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#055A46] rounded-full transition-all duration-500"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
                 </>
-              ) : null}
-            </>
-          )}
+              ) : (
+                <>
+                  {raisedTextVisible ? (
+                    <p className="text-lg sm:text-[22px] font-bold text-[#383838]">
+                      ${raised.toLocaleString()}{" "}
+                      <span className="text-sm sm:text-[16px] font-normal">raised</span>
+                    </p>
+                  ) : null}
+                  {goalTextVisible ? (
+                    <>
+                      <p className={`text-lg sm:text-[22px] font-bold text-[#383838] ${raisedTextVisible ? "mt-1" : ""}`}>
+                        Goal: ${goal.toLocaleString()}
+                      </p>
+                      <p className="text-[13px] text-[#737373] mt-1">Fundraising in progress</p>
+                    </>
+                  ) : null}
+                </>
+              )}
+            </div>
+            {campaign.zakatEligible && (
+              <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-[#F7FFED] px-2.5 py-1 text-[12px] font-medium text-[#383838]">
+                <span className="shrink-0 [&>svg]:h-4 [&>svg]:w-4">{CircleCheckIcon}</span>
+                Zakat Eligible
+              </span>
+            )}
+          </div>
 
           {/* Donors / Days Left — each hides on its own switch. */}
           {!donorCountHidden || daysLeftValue != null ? (
@@ -352,16 +363,6 @@ const DonationWidget = ({ campaign }) => {
             )}
           </button>
         </div>
-
-        {/* Zakat badge */}
-        {campaign.zakatEligible && (
-          <div className="mx-5 mb-5 flex justify-end">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F7FFED] px-2.5 py-1 text-[12px] font-medium text-[#383838]">
-              <span className="shrink-0 [&>svg]:h-4 [&>svg]:w-4">{CircleCheckIcon}</span>
-              Zakat Eligible
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );
