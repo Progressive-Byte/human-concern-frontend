@@ -121,7 +121,7 @@ const DonationPreview = ({ currentStep }) => {
 
   return (
     <div className="lg:sticky lg:top-[172px] self-start w-full lg:w-[272px] shrink-0">
-      <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-5">
+      <div className="bg-white rounded-2xl p-5">
         <p className="text-[13px] font-semibold text-[#383838] mb-3">Donation Summary</p>
 
         <div className="flex flex-col">

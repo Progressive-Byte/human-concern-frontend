@@ -376,7 +376,7 @@ const Step4Confirmation = () => {
         )}
 
         <div className="flex flex-col lg:flex-row items-start gap-5">
-          <div className="bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-6 sm:p-8 flex-1 min-w-0 w-full">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 flex-1 min-w-0 w-full">
             <h2 className="text-[24px] font-bold text-[#383838] mb-1">{isPreview ? "Preview Confirmation" : "Complete Payment"}</h2>
             <p className="text-sm text-[#8C8C8C] font-normal mb-6">
               {isPreview

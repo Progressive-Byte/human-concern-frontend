@@ -47,7 +47,7 @@ const StepLayout = ({
 
         {/* relative so the absolute preview is anchored here */}
         <div className="relative">
-          <div className="relative bg-white rounded-2xl border border-dashed border-[#EBEBEB] p-5 sm:p-6 md:p-8">
+          <div className="relative bg-white rounded-2xl p-5 sm:p-6 md:p-8">
             {data.zakatEligible && (
               <div className="absolute top-4 right-4 sm:top-5 sm:right-5 md:top-7 md:right-7 flex items-center gap-1 bg-[#F7FFED] border border-[#38383833] rounded-full px-2.5 py-1 whitespace-nowrap">
                 <span className="text-[13px] leading-none shrink-0">{CircleCheckIcon}</span>
