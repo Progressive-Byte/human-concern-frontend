@@ -173,7 +173,7 @@ const AmountSelector = ({
               {recurringLabel && (
                 <span className="text-[13px] font-medium text-[#383838]">{recurringLabel}:</span>
               )}
-              <span className="text-[17px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
+              <span className="text-[22px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
                 {sym}{formatDisplay(effectiveAmount)}
               </span>
               {currentDescription && (
