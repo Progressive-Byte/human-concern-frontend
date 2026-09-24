@@ -20,7 +20,7 @@ export function FilterBar({ search, onSearchChange, cause, onCauseChange, causeO
           value={cause}
           onChange={onCauseChange}
           variant="form"
-          placeholder="All Causes"
+          placeholder="All Types"
           showFilterIcon
           triggerHeight="h-10"
         />
