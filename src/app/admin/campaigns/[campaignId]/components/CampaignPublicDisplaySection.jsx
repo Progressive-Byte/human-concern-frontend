@@ -4,9 +4,10 @@ import Link from "next/link";
 
 const FLAG_LABELS = [
   { key: "showProgressBar", label: "Show progress bar" },
-  { key: "showStartEndDates", label: "Show start/end dates" },
+  { key: "showStartEndDates", label: "Show days left" },
   { key: "showAmountRaised", label: "Show amount raised" },
   { key: "showTargetAmount", label: "Show target amount" },
+  { key: "showDonorCount", label: "Show donor count" },
 ];
 
 function Pill({ on }) {

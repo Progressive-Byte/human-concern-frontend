@@ -169,8 +169,8 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
           <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <div className="text-[13px] font-semibold text-[#111827]">Show Start/End Dates</div>
-                <div className="mt-1 text-[12px] text-[#6B7280]">Display the campaign&apos;s start and end dates</div>
+                <div className="text-[13px] font-semibold text-[#111827]">Show Days Left</div>
+                <div className="mt-1 text-[12px] text-[#6B7280]">Display how many days are left until the campaign ends</div>
               </div>
               <Toggle enabled={showStartEndDates} onChange={loading || saving ? () => {} : setShowStartEndDates} />
             </div>
