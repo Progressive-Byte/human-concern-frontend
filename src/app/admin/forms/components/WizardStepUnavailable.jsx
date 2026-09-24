@@ -140,7 +140,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
       applyServerValue(normalizeUnavailableResponse(res));
       if (!silent) toast.success("Unavailable page saved");
       onSaved?.();
-      if (goNext) onExit?.({ nextStep: "review" });
+      if (goNext) onExit?.({ nextStep: "public-display" });
       return { ok: true };
     } catch (e) {
       const msg = e?.message || "Failed to save the unavailable page.";

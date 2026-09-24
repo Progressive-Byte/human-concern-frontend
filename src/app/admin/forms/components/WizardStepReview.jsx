@@ -368,7 +368,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
           <div className="flex flex-wrap items-center justify-between gap-3">
             <button
               type="button"
-              onClick={() => onExit?.({ nextStep: "unavailable-page" })}
+              onClick={() => onExit?.({ nextStep: "public-display" })}
               disabled={publishing || drafting}
               className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
             >

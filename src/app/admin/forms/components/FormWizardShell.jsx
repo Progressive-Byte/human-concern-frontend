@@ -37,6 +37,7 @@ const FormWizardShell = ({
     { key: "objectives", label: "Objectives" },
     { key: "addons", label: "Add-ons" },
     { key: "media", label: "Media" },
+    { key: "public-display", label: "Public Display" },
     { key: "review", label: "Review" },
   ];
   const done = completedKeys instanceof Set ? completedKeys : new Set(Array.isArray(completedKeys) ? completedKeys : []);

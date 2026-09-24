@@ -295,11 +295,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const [enableTipping, setEnableTipping] = useState(false);
   const [allowAnonymousDonations, setAllowAnonymousDonations] = useState(false);
   const [showGlobalNote, setShowGlobalNote] = useState(false);
-  // Public campaign page display switches — all default ON (admin opts out).
-  const [showProgressBar, setShowProgressBar] = useState(true);
-  const [showStartEndDates, setShowStartEndDates] = useState(true);
-  const [showAmountRaised, setShowAmountRaised] = useState(true);
-  const [showTargetAmount, setShowTargetAmount] = useState(true);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [paymentMethodOptions, setPaymentMethodOptions] = useState([]);
 
@@ -322,10 +317,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       enableTipping,
       allowAnonymousDonations,
       showGlobalNote,
-      showProgressBar,
-      showStartEndDates,
-      showAmountRaised,
-      showTargetAmount,
       paymentMethods,
     ],
     ready: !loading,
@@ -370,11 +361,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         setEnableTipping(Boolean(d?.enableTipping));
         setAllowAnonymousDonations(Boolean(d?.allowAnonymousDonations));
         setShowGlobalNote(Boolean(d?.showGlobalNote));
-        // Display switches default to ON when never set.
-        setShowProgressBar(d?.showProgressBar !== false);
-        setShowStartEndDates(d?.showStartEndDates !== false);
-        setShowAmountRaised(d?.showAmountRaised !== false);
-        setShowTargetAmount(d?.showTargetAmount !== false);
         setPaymentMethodOptions(enabledMethods);
         setPaymentMethods(filterPaymentMethodsToOptions(d?.paymentMethods, enabledMethods));
       } catch (e) {
@@ -737,10 +723,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       enableTipping: Boolean(enableTipping),
       allowAnonymousDonations: Boolean(allowAnonymousDonations),
       showGlobalNote: Boolean(showGlobalNote),
-      showProgressBar: Boolean(showProgressBar),
-      showStartEndDates: Boolean(showStartEndDates),
-      showAmountRaised: Boolean(showAmountRaised),
-      showTargetAmount: Boolean(showTargetAmount),
     };
 
     return { errors, payload, suggErrors, presetsErrors, notesErrors };
@@ -806,10 +788,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         setAllowFlexibleRecurringSchedule(d?.allowFlexibleRecurringSchedule === undefined ? true : Boolean(d?.allowFlexibleRecurringSchedule));
         setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
         setPaymentMethods(filterPaymentMethodsToOptions(d?.paymentMethods, paymentMethodOptions));
-        setShowProgressBar(d?.showProgressBar !== false);
-        setShowStartEndDates(d?.showStartEndDates !== false);
-        setShowAmountRaised(d?.showAmountRaised !== false);
-        setShowTargetAmount(d?.showTargetAmount !== false);
       } catch {}
       if (!silent) toast.success("Goals & dates saved");
       onSaved?.();
@@ -1059,72 +1037,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               </div>
               <Toggle enabled={showGlobalNote} onChange={disabled ? () => {} : setShowGlobalNote} />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Public campaign page display. These only change what the public page shows —
-          reporting always uses the real figures. */}
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
-        <div className="mb-4">
-          <h3 className="text-[14px] font-semibold text-[#111827]">Public display</h3>
-          <p className="mt-1 text-[13px] text-[#6B7280]">
-            Choose what this campaign&apos;s public page shows. These are display settings only — they never
-            change donation data or reporting.
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-[13px] font-semibold text-[#111827]">Show Progress Bar</div>
-                <div className="mt-1 text-[12px] text-[#6B7280]">Render the fundraising progress bar</div>
-              </div>
-              <Toggle enabled={showProgressBar} onChange={disabled ? () => {} : setShowProgressBar} />
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-[13px] font-semibold text-[#111827]">Show Start/End Dates</div>
-                <div className="mt-1 text-[12px] text-[#6B7280]">Display the campaign&apos;s start and end dates</div>
-              </div>
-              <Toggle enabled={showStartEndDates} onChange={disabled ? () => {} : setShowStartEndDates} />
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-[13px] font-semibold text-[#111827]">Show Amount Raised</div>
-                <div className="mt-1 text-[12px] text-[#6B7280]">Display the raised total as a number</div>
-              </div>
-              <Toggle enabled={showAmountRaised} onChange={disabled ? () => {} : setShowAmountRaised} />
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-[13px] font-semibold text-[#111827]">Show Target Amount</div>
-                <div className="mt-1 text-[12px] text-[#6B7280]">Display the fundraising goal as a number</div>
-              </div>
-              <Toggle enabled={showTargetAmount} onChange={disabled ? () => {} : setShowTargetAmount} />
-            </div>
-          </div>
-
-          {!showAmountRaised ? (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-800">
-              The progress bar is hidden on the public page while <strong>Show Amount Raised</strong> is off — a
-              percentage bar would still reveal roughly how much has been raised.
-            </div>
-          ) : null}
-
-          <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] px-4 py-3 text-[12px] text-[#6B7280]">
-            Leave the goal empty for an open-ended campaign — then no progress bar, target or remaining amount is
-            shown anywhere.
           </div>
         </div>
       </section>

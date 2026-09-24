@@ -11,6 +11,7 @@ import WizardStepObjectives from "../components/WizardStepObjectives";
 import WizardStepAddons from "../components/WizardStepAddons";
 import WizardStepMedia from "../components/WizardStepMedia";
 import WizardStepUnavailable from "../components/WizardStepUnavailable";
+import WizardStepPublicDisplay from "../components/WizardStepPublicDisplay";
 import WizardStepReview from "../components/WizardStepReview";
 import WizardStepPlaceholder from "../components/WizardStepPlaceholder";
 import { getAdminCategories, getAdminFormBasics, getAdminFormById } from "@/services/admin";
@@ -180,6 +181,7 @@ const WizardContent = () => {
       { key: "addons", label: "Add-ons" },
       { key: "media", label: "Media" },
       { key: "unavailable-page", label: "Unavailable page" },
+      { key: "public-display", label: "Public Display" },
       { key: "review", label: "Review" },
     ];
     if (isRamadanForm === false) return base.filter((s) => s.key !== "objectives");
@@ -196,6 +198,9 @@ const WizardContent = () => {
     if (Boolean(s?.addons)) done.add("addons");
     if (Boolean(s?.media)) done.add("media");
     if (Boolean(s?.unavailablePage)) done.add("unavailable-page");
+    // Public Display has no validatable fields — its toggles live on `goalsDates`, so the step
+    // is complete once that section is. It therefore adds no new requirement to the Review gate.
+    if (Boolean(s?.goalsDates)) done.add("public-display");
     if (isRamadanForm !== false && Boolean(s?.objectives)) done.add("objectives");
 
     // "Unavailable page" is optional, so it must never gate the Review step.
@@ -329,6 +334,19 @@ const WizardContent = () => {
         />
       ) : step === "unavailable-page" ? (
         <WizardStepUnavailable
+          campaignId={campaignId}
+          formId={initialFormId}
+          onSaved={() => refreshFormMeta(initialFormId)}
+          onExit={({ nextStep } = {}) => {
+            if (nextStep) {
+              navigateToStep(nextStep, initialFormId);
+              return;
+            }
+            exitToForms();
+          }}
+        />
+      ) : step === "public-display" ? (
+        <WizardStepPublicDisplay
           campaignId={campaignId}
           formId={initialFormId}
           onSaved={() => refreshFormMeta(initialFormId)}
