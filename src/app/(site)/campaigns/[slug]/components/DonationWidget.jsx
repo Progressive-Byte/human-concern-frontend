@@ -86,12 +86,9 @@ const DonationWidget = ({ campaign }) => {
     ? Math.max(0, Math.ceil((new Date(campaign.endAt) - Date.now()) / 86400000))
     : null;
 
-  const defaultBaseAmount =
-    suggestedAmountsData.find((a) => a.isDefault)?.value ??
-    suggestedAmounts[0] ??
-    50;
-
-  const [selectedBaseAmount, setSelectedBaseAmount] = useState(defaultBaseAmount);
+  // No amount is pre-selected: the donor must pick one (or type a custom value) before the
+  // donate button appears.
+  const [selectedBaseAmount, setSelectedBaseAmount] = useState(null);
   const [customAmount,       setCustomAmount]       = useState("");
   const [showCustom,         setShowCustom]         = useState(false);
   const [currency,           setCurrency]           = useState(
@@ -112,9 +109,14 @@ const DonationWidget = ({ campaign }) => {
     return Number.isInteger(val) ? val.toLocaleString() : val.toFixed(2);
   }
 
-  const finalAmount = showCustom && customAmount
-    ? Number(customAmount)
-    : toDisplay(selectedBaseAmount);
+  const customAmountValue = Number(customAmount);
+  const hasValidCustom =
+    showCustom && String(customAmount).trim() !== "" && Number.isFinite(customAmountValue) && customAmountValue > 0;
+  const hasAmount = hasValidCustom || (!showCustom && selectedBaseAmount != null);
+
+  const finalAmount = hasValidCustom
+    ? customAmountValue
+    : selectedBaseAmount != null ? toDisplay(selectedBaseAmount) : 0;
 
   const handleDonate = () => {
     if (!donationsOpen) return;
@@ -147,7 +149,7 @@ const DonationWidget = ({ campaign }) => {
 
   return (
     <div className="flex flex-col gap-[25px]">
-      <div className="rounded-2xl border border-dashed border-[#BFBFBF]">
+      <div className="rounded-2xl border border-solid border-[#EDEDED]">
         <div className="px-5 pt-5">
 
           {/* Ended — the page stays live for history; new donations are closed. */}
@@ -311,26 +313,24 @@ const DonationWidget = ({ campaign }) => {
           </div>
         )}
 
-        {limits.allowRecurringDonations && (
-          <p className="text-[12px] text-[#737373] mt-3 text-center">
-            Recurring donations available at checkout
-          </p>
-        )}
-
         {/* Buttons */}
         <div className="px-5 pt-5 pb-5 flex flex-col gap-2.5">
-          <button
-            onClick={handleDonate}
-            disabled={!donationsOpen}
-            aria-disabled={!donationsOpen}
-            className={`w-full font-semibold py-3 rounded-xl text-[15px] transition-colors ${
-              donationsOpen
-                ? "cursor-pointer bg-[#EA3335] hover:bg-red-700 text-white active:scale-95"
-                : "cursor-not-allowed bg-[#E5E5E5] text-[#9CA3AF]"
-            }`}
-          >
-            {donationsOpen ? (display.donateButtonLabel || "Support") : "Donations closed"}
-          </button>
+          {/* The donate button appears only once an amount is chosen (or a custom value typed).
+              A closed campaign keeps its disabled state visible so the reason is clear. */}
+          {hasAmount || !donationsOpen ? (
+            <button
+              onClick={handleDonate}
+              disabled={!donationsOpen}
+              aria-disabled={!donationsOpen}
+              className={`w-full font-semibold py-3 rounded-xl text-[15px] transition-colors ${
+                donationsOpen
+                  ? "cursor-pointer bg-[#EA3335] hover:bg-red-700 text-white active:scale-95"
+                  : "cursor-not-allowed bg-[#E5E5E5] text-[#9CA3AF]"
+              }`}
+            >
+              {donationsOpen ? (display.donateButtonLabel || "Support") : "Donations closed"}
+            </button>
+          ) : null}
           <button
             onClick={handleShare}
             className={`w-full flex items-center justify-center gap-2 border font-medium py-3 rounded-xl text-[14px] transition-all duration-200 cursor-pointer ${
@@ -355,14 +355,11 @@ const DonationWidget = ({ campaign }) => {
 
         {/* Zakat badge */}
         {campaign.zakatEligible && (
-          <div className="mx-5 mb-5 flex items-start gap-2.5 bg-[#F7FFED] border border-[#38383833] rounded-2xl px-4 py-4">
-            {CircleCheckIcon}
-            <div>
-              <p className="text-[14px] font-medium text-[#383838]">Zakat Eligible</p>
-              <p className="text-[12px] text-[#383838] mt-0.5">
-                This campaign is verified for Zakat contributions
-              </p>
-            </div>
+          <div className="mx-5 mb-5 flex justify-end">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F7FFED] px-2.5 py-1 text-[12px] font-medium text-[#383838]">
+              <span className="shrink-0 [&>svg]:h-4 [&>svg]:w-4">{CircleCheckIcon}</span>
+              Zakat Eligible
+            </span>
           </div>
         )}
       </div>
