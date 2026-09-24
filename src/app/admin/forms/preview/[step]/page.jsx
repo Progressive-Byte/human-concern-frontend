@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { normalizeSuggestedData } from "@/utils/campaignData";
 import { getAdminFormGoalsDates, getAdminFormReview, getAdminSettingsGeneral } from "@/services/admin";
 import Step1Info from "@/app/donate/steps/Step1Info";
 import Step2Payment from "@/app/donate/steps/Step2Payment";
@@ -84,6 +85,7 @@ function buildCampaignDataFromAdminReview(review, formId, globalNote = []) {
     description: String(basics?.description || "").trim(),
     zakatEligible,
     suggestedAmounts,
+    suggestedAmountsData: normalizeSuggestedData(suggestedRaw),
     addOns,
     sectionsCompleted,
     globalNote,
@@ -176,6 +178,7 @@ const AdminFormPreviewStepPage = () => {
         const goalsDatesCompleted = Boolean(campaignData?.sectionsCompleted?.goalsDates);
         const overrideSuggested = goalsDatesCompleted ? normalizeSuggestedNumbers(goalsDatesRaw?.suggestedAmounts) : [];
         campaignData.suggestedAmounts = overrideSuggested;
+        campaignData.suggestedAmountsData = goalsDatesCompleted ? normalizeSuggestedData(goalsDatesRaw?.suggestedAmounts) : [];
         campaignData.goalsDates = {
           ...(campaignData.goalsDates || {}),
           ...(goalsDatesCompleted

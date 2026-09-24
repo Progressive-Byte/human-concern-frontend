@@ -26,6 +26,7 @@ const AmountSelector = ({
   splitMode,
   occurrences,
   initialAmount,
+  suggestedAmountsData = [],   // [{ value, description, isDefault }] — the admin's preset list
   onAmountChange,
   overrideTotal,
 }) => {
@@ -91,6 +92,11 @@ const AmountSelector = ({
   const effectiveAmount = customAmount
     ? Number(customAmount)
     : toConverted(selectedBase ?? 0);
+
+  // Admin description for a preset. A typed custom amount has no preset, so it has none.
+  const descriptionFor = (base) =>
+    suggestedAmountsData.find((a) => Number(a?.value) === Number(base))?.description ?? "";
+  const currentDescription = selectedBase !== null && !customAmount ? descriptionFor(selectedBase) : "";
 
   const uniformTotal  = effectiveAmount * occurrences;
   const displayTotal  = (overrideTotal !== null && overrideTotal !== undefined) ? overrideTotal : uniformTotal;
@@ -184,63 +190,71 @@ const AmountSelector = ({
             You can change this amount. Click <strong>Change amount</strong> to adjust it.
           </p>
         )}
-        <div className="grid grid-cols-2 gap-3">
-          {suggestedAmounts.map((base) => {
-            const displayAmt = toConverted(base);
-            const active     = selectedBase === base && !customAmount;
-            return (
-              <button
-                key={base}
-                type="button"
-                onClick={locked ? undefined : () => handleTileClick(base)}
-                disabled={locked}
-                className={`flex flex-col items-center justify-center rounded-2xl px-3 py-4 border transition-all duration-200 ${
-                  locked
-                    ? active
-                      ? "border-[#EA3335]/50 bg-[#FFF5F5] opacity-80 cursor-not-allowed"
-                      : "border-[#E5E5E5] bg-[#F9FAFB] opacity-60 cursor-not-allowed"
-                    : active
-                    ? "border-[#EA3335] bg-[#FFF5F5] cursor-pointer"
-                    : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40 cursor-pointer"
-                }`}
-              >
-                <span className={`text-[19px] font-bold leading-none whitespace-nowrap ${active ? "text-[#EA3335]" : "text-[#383838]"}`}>
-                  {sym}{formatDisplay(displayAmt)}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-[13px] font-medium text-[#383838] mb-2">Custom Amount</label>
-        <div className={`flex items-center rounded-xl border transition-colors ${
-          locked
-            ? "border-dashed border-[#E5E7EB] bg-[#F3F4F6]"
-            : customAmountError
-            ? "border-[#EA3335] bg-[#FFF5F5]"
-            : customAmount
-            ? "border-[#EA3335] bg-[#FFF5F5]"
-            : "border-[#E5E5E5] bg-white focus-within:border-[#EA3335]"
-        }`}>
-          <span className={`pl-4 pr-1 shrink-0 font-medium text-[15px] ${locked ? "text-[#9CA3AF]" : "text-[#737373]"}`}>{sym}</span>
-          <input
-            type="number"
-            value={customAmount}
-            onChange={locked ? undefined : handleCustomChange}
-            onBlur={locked ? undefined : handleCustomBlur}
-            readOnly={locked}
-            placeholder={`Enter amount (min ${formatDisplay(convertedMin)})`}
-            min={convertedMin}
-            max={convertedMax}
-            className={`flex-1 pr-4 py-3 text-[15px] outline-none bg-transparent ${locked ? "text-[#9CA3AF] cursor-default" : "text-[#383838]"}`}
-          />
-        </div>
-        {customAmountError && (
-          <p className="text-[12px] text-red-600 mt-1.5 px-1">{customAmountError}</p>
+        {locked ? (
+          // Locked: a single read-only tile for the chosen amount, not a wall of dead controls.
+          <div className="rounded-2xl border border-[#EA3335]/50 bg-[#FFF5F5] px-3 py-4 text-center">
+            <span className="text-[19px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
+              {sym}{formatDisplay(effectiveAmount)}
+            </span>
+            {currentDescription && (
+              <p className="mt-2 text-[12px] leading-snug text-[#737373]">{currentDescription}</p>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {suggestedAmounts.map((base) => {
+              const displayAmt = toConverted(base);
+              const active     = selectedBase === base && !customAmount;
+              const desc       = descriptionFor(base);
+              return (
+                <button
+                  key={base}
+                  type="button"
+                  onClick={() => handleTileClick(base)}
+                  className={`flex flex-col items-center justify-center rounded-2xl px-3 py-4 border transition-all duration-200 ${
+                    active
+                      ? "border-[#EA3335] bg-[#FFF5F5] cursor-pointer"
+                      : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40 cursor-pointer"
+                  }`}
+                >
+                  <span className={`text-[19px] font-bold leading-none whitespace-nowrap ${active ? "text-[#EA3335]" : "text-[#383838]"}`}>
+                    {sym}{formatDisplay(displayAmt)}
+                  </span>
+                  {desc && (
+                    <span className="mt-2 text-center text-[12px] leading-snug text-[#737373]">{desc}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
+
+      {!locked && (
+        <div>
+          <label className="block text-[13px] font-medium text-[#383838] mb-2">Custom Amount</label>
+          <div className={`flex items-center rounded-xl border transition-colors ${
+            customAmountError || customAmount
+              ? "border-[#EA3335] bg-[#FFF5F5]"
+              : "border-[#E5E5E5] bg-white focus-within:border-[#EA3335]"
+          }`}>
+            <span className="pl-4 pr-1 shrink-0 font-medium text-[15px] text-[#737373]">{sym}</span>
+            <input
+              type="number"
+              value={customAmount}
+              onChange={handleCustomChange}
+              onBlur={handleCustomBlur}
+              placeholder={`Enter amount (min ${formatDisplay(convertedMin)})`}
+              min={convertedMin}
+              max={convertedMax}
+              className="flex-1 pr-4 py-3 text-[15px] outline-none bg-transparent text-[#383838]"
+            />
+          </div>
+          {customAmountError && (
+            <p className="text-[12px] text-red-600 mt-1.5 px-1">{customAmountError}</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

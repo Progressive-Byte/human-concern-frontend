@@ -30,9 +30,9 @@ const Step2Payment = () => {
     } catch { return false; }
   }, []);
 
-  const { suggestedAmounts, allowRecurring, minDonation, maxDonation, recurringPresets, currenciesWithRates, campaignEndDate } = useMemo(() => {
-    const fallbackPreview = { suggestedAmounts: [], allowRecurring: false, minDonation: 0, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
-    const fallbackDefault = { suggestedAmounts: [25, 50, 100], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
+  const { suggestedAmounts, suggestedAmountsData, allowRecurring, minDonation, maxDonation, recurringPresets, currenciesWithRates, campaignEndDate } = useMemo(() => {
+    const fallbackPreview = { suggestedAmounts: [], suggestedAmountsData: [], allowRecurring: false, minDonation: 0, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
+    const fallbackDefault = { suggestedAmounts: [25, 50, 100], suggestedAmountsData: [], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
     try {
       const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
       const goalsDates = meta.goalsDates ?? {};
@@ -48,6 +48,7 @@ const Step2Payment = () => {
 
       return {
         suggestedAmounts:    normalizedSuggested.length ? normalizedSuggested : (isPreview ? [] : [25, 50, 100]),
+        suggestedAmountsData: Array.isArray(meta.suggestedAmountsData) ? meta.suggestedAmountsData : [],
         allowRecurring:      goalsDates.allowRecurringDonations ?? true,
         minDonation:         goalsDates.minimumDonation         ?? (isPreview ? 0 : 1),
         maxDonation:         goalsDates.maximumDonation         ?? undefined,
@@ -358,6 +359,7 @@ const Step2Payment = () => {
           </div>
           <AmountSelector
             suggestedAmounts={suggestedAmounts}
+            suggestedAmountsData={suggestedAmountsData}
             currenciesWithRates={currenciesWithRates}
             minDonation={minDonation}
             maxDonation={maxDonation}
