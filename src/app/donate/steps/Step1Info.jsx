@@ -264,6 +264,29 @@ const Step1Info = ({ campaignSlug }) => {
     if (selectedCauseIds.length > 0) {
       const allocated = allocatedAmount({ causeIds: selectedCauseIds, causeSplit, total: totalAmount });
       const fmt = (v) => `${sym}${v.toFixed(2)}`;
+
+      // A selected cause with nothing in it is a contradiction: the card looks chosen, but none
+      // of the donation reaches it. Checked first because it is the more specific mistake.
+      if (totalAmount > 0) {
+        const emptyIds = selectedCauseIds.filter(
+          (id) => totalAmount * Math.max(0, Number(causeSplit[id]) || 0) < 0.005
+        );
+        if (emptyIds.length) {
+          const names = emptyIds
+            .map((id) => causes.find((c) => c.id === id)?.label)
+            .filter(Boolean)
+            .join(", ");
+          setError(
+            !names
+              ? "Every selected cause needs an amount. Give it one, or untick it."
+              : emptyIds.length > 1
+                ? `${names} have no amount. Give them one, or untick them.`
+                : `${names} has no amount. Give it one, or untick it.`
+          );
+          return;
+        }
+      }
+
       if (allocated - totalAmount > 0.005) {
         setError(`Your cause amounts add up to ${fmt(allocated)}, which is more than your ${fmt(totalAmount)} donation.`);
         return;
