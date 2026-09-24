@@ -19,15 +19,15 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded }) => {
   // payment processing and tax receipts) so the two can never drift apart.
   const [countryCode, setCountryCode] = useState("");
   const [stateCode, setStateCode] = useState("");
-  const didAutoCollapse = useRef(false);
   const prefillAttempted = useRef(false);
 
+  // On mount only: an address that is already filled (draft or profile prefill) starts
+  // collapsed. Deliberately NOT reactive — watching addressLine1/city here collapsed the
+  // section the instant the donor typed the first character into an empty one.
   useEffect(() => {
-    if (!didAutoCollapse.current && (data.addressLine1?.trim() || data.city?.trim())) {
-      setAddressExpanded(false);
-      didAutoCollapse.current = true;
-    }
-  }, [data.addressLine1, data.city, setAddressExpanded]);
+    if (data.addressLine1?.trim() || data.city?.trim()) setAddressExpanded(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const existing = resolveCountryIso(data.donorCountryCode) || resolveCountryIso(data.country);
