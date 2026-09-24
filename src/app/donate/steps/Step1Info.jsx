@@ -326,7 +326,7 @@ const Step1Info = ({ campaignSlug }) => {
       title="Personal Info"
       subtitle="Fill in your details, select your cause, and configure your donation"
       onNext={validateAndNext}
-      nextLabel="Payment"
+      nextLabel="Continue"
     >
       <div className="flex flex-col gap-5">
 

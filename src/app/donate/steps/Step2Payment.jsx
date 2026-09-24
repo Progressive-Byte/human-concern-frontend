@@ -348,7 +348,7 @@ const Step2Payment = () => {
       }}
       onPrev={() => handlePrev(1)}
       prevLabel="Back"
-      nextLabel="Add-ons"
+      nextLabel="Continue"
     >
       <div className="flex flex-col gap-6">
 
