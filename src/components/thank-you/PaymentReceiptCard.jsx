@@ -145,6 +145,10 @@ const PaymentReceiptCard = ({ receipt, error, onRetry, donationId, email }) => {
           <Row label="Date" value={formatDate(receipt.paidAt)} />
           {receipt.scheduledDate ? <Row label="Scheduled date" value={formatDate(receipt.scheduledDate)} /> : null}
           <Row label="Base amount" value={money(receipt.baseAmount)} />
+          {receipt.processingFee ? (
+            <Row label="Processing fee" value={`-${money(receipt.processingFee)}`} />
+          ) : null}
+          {receipt.netAmount ? <Row label="Net amount" value={money(receipt.netAmount)} /> : null}
           {receipt.isRecurring ? <Row label="Recurring payment" value={recurringLabel} /> : null}
           {receipt.isRecurring && recurring.frequency ? <Row label="Frequency" value={recurring.frequency} /> : null}
           {recurring.nextPaymentDate ? (

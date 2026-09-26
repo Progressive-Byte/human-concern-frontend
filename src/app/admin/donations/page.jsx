@@ -159,6 +159,9 @@ function normalizeDonation(raw) {
     causeAllocations,
     amount,
     tipAmount,
+    // Processor fee / net, captured when the payment settles; shown in the breakdown modal.
+    fees: Number(raw?.fees || 0),
+    netAmount: Number(raw?.netAmount || 0),
     platformTipPercent: raw?.platformTipPercent ?? null,
     installmentIndex: raw?.installmentIndex ?? null,
     installmentCount: raw?.installmentCount ?? null,

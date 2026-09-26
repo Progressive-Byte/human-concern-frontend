@@ -76,6 +76,8 @@ const DonationsTable = ({
               <th className="py-3 pr-4">Cause</th>
               <th className="py-3 pr-4 text-right">Amount</th>
               <th className="py-3 pr-4 text-right">Tip</th>
+              <th className="py-3 pr-4 text-right">Fee</th>
+              <th className="py-3 pr-4 text-right">Net</th>
               <th className="py-3 pr-4">Date</th>
               <th className="py-3 pr-4">Status</th>
               <th className="py-3 pr-5 text-right">Actions</th>
@@ -84,7 +86,7 @@ const DonationsTable = ({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-5 py-10 text-center text-sm text-[#6B7280]">
+                <td colSpan={11} className="px-5 py-10 text-center text-sm text-[#6B7280]">
                   No transactions found.
                 </td>
               </tr>
@@ -97,6 +99,9 @@ const DonationsTable = ({
                 const cause = String(d?.causeLabel || "—");
                 const amount = Number(d?.amount || 0);
                 const tip = Number(d?.tipAmount || 0);
+                // Processor fee/net are recorded when the payment settles; "—" until then.
+                const fees = Number(d?.fees || 0);
+                const netAmount = Number(d?.netAmount || 0);
                 const status = String(d?.statusLabel || d?.status || "—");
                 const createdAt = d?.createdAt;
 
@@ -150,6 +155,10 @@ const DonationsTable = ({
                       </button>
                     </td>
                     <td className="py-4 pr-4 text-right text-[#6B7280]">{tip > 0 ? amountFmt(tip, currency) : "—"}</td>
+                    <td className="py-4 pr-4 text-right text-[#6B7280]">{fees > 0 ? `-${amountFmt(fees, currency)}` : "—"}</td>
+                    <td className="py-4 pr-4 text-right text-[#6B7280]">
+                      {fees > 0 ? amountFmt(netAmount > 0 ? netAmount : amount - fees, currency) : "—"}
+                    </td>
                     <td className="py-4 pr-4 text-[#6B7280]">{formatDate(createdAt)}</td>
                     <td className="py-4 pr-4">
                       <DonationStatusPill status={status} />

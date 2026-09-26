@@ -52,6 +52,15 @@ function TipIcon() {
   );
 }
 
+function FeeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+      <path d="M7 3h10v18l-5-3-5 3V3z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M9.5 8h5M9.5 12h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function SkeletonCard() {
   return (
     <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
@@ -70,9 +79,11 @@ const DonationsSummaryCards = ({ summary = {}, loading = false, currency = "USD"
   const s = summary || {};
 
   return (
-    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
       {loading ? (
         <>
+          <SkeletonCard />
+          <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
@@ -84,6 +95,8 @@ const DonationsSummaryCards = ({ summary = {}, loading = false, currency = "USD"
           <KpiCard label="Completed" value={Number(s.completedTransactions || 0)} icon={<CheckIcon />} iconPosition="left" />
           <KpiCard label="Total Amount" value={formatCurrency(Number(s.totalAmount || 0), currency)} icon={<DollarIcon />} iconPosition="left" />
           <KpiCard label="Tips Collected" value={formatCurrency(Number(s.tipsCollected || 0), currency)} icon={<TipIcon />} iconPosition="left" />
+          <KpiCard label="Processing Fees" value={formatCurrency(Number(s.totalFees || 0), currency)} icon={<FeeIcon />} iconPosition="left" />
+          <KpiCard label="Net Received" value={formatCurrency(Number(s.netCollected || 0), currency)} icon={<DollarIcon />} iconPosition="left" />
         </>
       )}
     </section>

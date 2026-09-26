@@ -29,6 +29,9 @@ const DonationBreakdownModal = ({ donation, onClose, formatAmount }) => {
 
   const amount = Number(donation?.amount || 0);
   const tipAmount = Number(donation?.tipAmount || 0);
+  // What the processor kept, recorded when the payment settled (0 while unknown, hidden then).
+  const fees = Number(donation?.fees || 0);
+  const netAmount = Number(donation?.netAmount || 0);
   const tipPercent = donation?.platformTipPercent != null ? Number(donation.platformTipPercent) : null;
   const installmentIndex = donation?.installmentIndex != null ? Number(donation.installmentIndex) : null;
   const installmentCount = donation?.installmentCount != null ? Number(donation.installmentCount) : null;
@@ -181,6 +184,8 @@ const DonationBreakdownModal = ({ donation, onClose, formatAmount }) => {
             {summaryRow("Base amount", baseAmount)}
             {addons.length ? summaryRow("Add-ons", addonsTotal) : null}
             {tipAmount > 0 ? summaryRow("Platform tip", tipAmount) : null}
+            {fees > 0 ? summaryRow("Processing fee", -fees) : null}
+            {fees > 0 ? summaryRow("Net amount", netAmount || (amount - fees)) : null}
             <div className="my-1 border-t border-[#E5E7EB]" />
             {summaryRow("Total charged", amount, { strong: true })}
           </div>
