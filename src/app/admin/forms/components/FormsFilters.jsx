@@ -3,12 +3,14 @@
 const FormsFilters = ({
   q,
   status,
+  formKind,
   campaignId,
   sort,
   order,
   campaigns = [],
   onChangeQ,
   onChangeStatus,
+  onChangeFormKind,
   onChangeCampaignId,
   onChangeSort,
   onChangeOrder,
@@ -47,6 +49,18 @@ const FormsFilters = ({
             <option value="draft">Draft</option>
             <option value="published">Published</option>
             <option value="archived">Archived</option>
+          </select>
+        </div>
+
+        <div className="rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5">
+          <select
+            value={formKind}
+            onChange={(e) => onChangeFormKind(e.target.value)}
+            className="w-full bg-transparent text-[13px] text-[#111827] outline-none"
+          >
+            <option value="">All Types</option>
+            <option value="complex">Complex</option>
+            <option value="simple">Simple</option>
           </select>
         </div>
 

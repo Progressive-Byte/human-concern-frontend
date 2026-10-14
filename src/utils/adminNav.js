@@ -4,8 +4,8 @@ import { adminHasPermission } from "./adminPermissions";
  * One source of truth for the admin menu. `permission` is what the item's API requires, and it
  * drives BOTH the sidebar visibility and the page a user lands on after login.
  *
- * Forms accepts either key (the backend allows both — see `requireAnyPermission`). Reconciliation
- * and Abandonments are placeholders with no page yet.
+ * Forms accepts either key (the backend allows both — see `requireAnyPermission`). Abandonments is
+ * a placeholder with no page yet.
  */
 export const ADMIN_NAV_ITEMS = [
   { href: "/admin", label: "Overview", icon: "overview", permission: "dashboard.read" },
@@ -20,8 +20,6 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin/donations", label: "Transactions", icon: "transactions", permission: "transactions.read" },
   { href: "/admin/schedules", label: "Schedules", icon: "schedules", permission: "schedules.read" },
   { href: "/admin/fund-breakdown", label: "Fund Breakdown", icon: "fund-breakdown", permission: "transactions.read" },
-  { href: "/admin/gateway-health", label: "Gateway Health", icon: "gateway-health", permission: "settings.read" },
-  { href: null, label: "Reconciliation", icon: "reconciliation", disabled: true },
   { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
   { href: "/admin/logs", label: "Logs", icon: "logs", permission: "audit.read" },
   { href: "/admin/translation", label: "Translation", icon: "translation", permission: "settings.read" },

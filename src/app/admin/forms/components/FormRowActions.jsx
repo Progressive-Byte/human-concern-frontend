@@ -8,13 +8,16 @@ import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { archiveAdminForm, publishAdminForm, restoreAdminForm, unpublishAdminForm } from "@/services/admin";
 import { home } from "@/utils/constants";
 
-function buildMenu(status) {
+function buildMenu(status, formKind) {
   const s = String(status || "").toLowerCase();
   const items = [];
 
   items.push({ key: "edit", label: "Edit" });
-  // The public link only resolves once the form is published.
-  items.push({ key: "copyUrl", label: "Copy Form URL", disabled: s !== "published" });
+  // Simple forms are admin-only for now, so they have no working public link yet.
+  if (formKind !== "simple") {
+    // The public link only resolves once the form is published.
+    items.push({ key: "copyUrl", label: "Copy Form URL", disabled: s !== "published" });
+  }
   if (s === "draft") items.push({ key: "publish", label: "Publish" }, { key: "archive", label: "Archive" });
   if (s === "published") items.push({ key: "unpublish", label: "Move to Draft" }, { key: "archive", label: "Archive" });
   if (s === "archived") items.push({ key: "restore", label: "Restore" });
@@ -41,7 +44,9 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
 
   const id = item?.id || item?.formId || item?._id;
   const campaignId = item?.campaignId || item?.campaign?._id || item?.campaign?.id || campaignIdFilter;
-  const menu = useMemo(() => buildMenu(item?.status), [item?.status]);
+  // Rows saved before the field existed have no value and behave as complex.
+  const formKind = item?.formKind === "simple" ? "simple" : "complex";
+  const menu = useMemo(() => buildMenu(item?.status, formKind), [item?.status, formKind]);
 
   /**
    * Public link for this specific donation form: {site}/{formSlug}/1.
@@ -139,6 +144,12 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
                   const cid = String(campaignId || "").trim();
                   if (!cid) {
                     toast.error("Missing campaignId for this form");
+                    return;
+                  }
+                  if (formKind === "simple") {
+                    router.push(
+                      `/admin/forms/simple/new?campaignId=${encodeURIComponent(cid)}&formId=${encodeURIComponent(String(id))}`
+                    );
                     return;
                   }
                   router.push(

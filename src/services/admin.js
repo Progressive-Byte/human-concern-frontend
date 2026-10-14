@@ -74,7 +74,7 @@ export function restoreAdminCampaign(campaignId) {
 // -----------------------------
 // Forms
 // -----------------------------
-export function getAdminForms({ page, limit, sort, order, q, status, campaignId } = {}) {
+export function getAdminForms({ page, limit, sort, order, q, status, campaignId, formKind } = {}) {
   const params = new URLSearchParams();
 
   if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
@@ -84,6 +84,7 @@ export function getAdminForms({ page, limit, sort, order, q, status, campaignId 
   if (typeof q === "string" && q.trim()) params.set("q", q.trim());
   if (typeof status === "string" && status.trim()) params.set("status", status.trim());
   if (typeof campaignId === "string" && campaignId.trim()) params.set("campaignId", campaignId.trim());
+  if (typeof formKind === "string" && formKind.trim()) params.set("formKind", formKind.trim());
 
   const query = params.toString();
   const endpoint = query ? `/admin/forms?${query}` : "/admin/forms";
@@ -186,6 +187,24 @@ export function archiveAdminForm(formId) {
 
 export function restoreAdminForm(formId) {
   return adminApiRequest(`/admin/forms/${formId}/restore`, { method: "POST" });
+}
+
+// Simple forms: amounts and purposes only, so one small sub-resource covers all of it.
+export function createAdminSimpleForm(campaignId, payload) {
+  return adminApiRequest(`/admin/campaigns/${campaignId}/simple-forms`, { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function getAdminFormSimple(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/simple`, { method: "GET" });
+}
+
+// Saves the draft only; the published copy changes on publishAdminForm.
+export function updateAdminFormSimple(formId, payload) {
+  return adminApiRequest(`/admin/forms/${formId}/simple`, { method: "PATCH", body: JSON.stringify(payload) });
+}
+
+export function discardAdminSimpleForm(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/simple/discard`, { method: "POST" });
 }
 
 // -----------------------------

@@ -44,6 +44,7 @@ const FormsPageClient = () => {
     q: "",
     status: "",
     campaignId: initialCampaignId,
+    formKind: "",
   });
 
   const debouncedQ = useDebouncedValue(filters.q, 300);
@@ -96,6 +97,7 @@ const FormsPageClient = () => {
           q: debouncedQ,
           status: filters.status,
           campaignId: filters.campaignId,
+          formKind: filters.formKind,
         });
         if (!alive) return;
         setItems(parseItems(res));
@@ -115,7 +117,7 @@ const FormsPageClient = () => {
     return () => {
       alive = false;
     };
-  }, [filters.page, filters.limit, filters.sort, filters.order, filters.status, filters.campaignId, debouncedQ, refreshKey]);
+  }, [filters.page, filters.limit, filters.sort, filters.order, filters.status, filters.campaignId, filters.formKind, debouncedQ, refreshKey]);
 
 
   const campaignLabel = useMemo(() => {
@@ -158,11 +160,15 @@ const FormsPageClient = () => {
           setPickerPreselectId("");
         }}
         onCreateCampaign={() => setCampaignCreateOpen(true)}
-        onSelect={(id) => {
+        onSelect={(id, kind) => {
           setPickerOpen(false);
           setPickerPreselectId("");
           if (!id) {
             toast.error("Select a campaign");
+            return;
+          }
+          if (kind === "simple") {
+            router.push(`/admin/forms/simple/new?campaignId=${encodeURIComponent(id)}`);
             return;
           }
           router.push(`/admin/forms/new?step=basics&campaignId=${encodeURIComponent(id)}`);
@@ -200,6 +206,7 @@ const FormsPageClient = () => {
         <FormsFilters
           q={filters.q}
           status={filters.status}
+          formKind={filters.formKind}
           campaignId={filters.campaignId}
           sort={filters.sort}
           order={filters.order}
@@ -221,6 +228,7 @@ const FormsPageClient = () => {
               status: String(next || "").trim() ? "" : prev.status,
             }))
           }
+          onChangeFormKind={(next) => setFilters((prev) => ({ ...prev, page: "1", formKind: next }))}
           onChangeSort={(next) => setFilters((prev) => ({ ...prev, page: "1", sort: next }))}
           onChangeOrder={(next) => setFilters((prev) => ({ ...prev, page: "1", order: next }))}
         />

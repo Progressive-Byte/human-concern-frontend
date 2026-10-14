@@ -48,9 +48,18 @@ function labelCampaignType(value) {
   return value ? value.charAt(0).toUpperCase() + value.slice(1) : "—";
 }
 
+function getFormKind(item) {
+  // Rows saved before the field existed have no value and behave as complex.
+  return item?.formKind === "simple" ? "simple" : "complex";
+}
+
 function computeCompletionPercent(item) {
   const sections = item?.sectionsCompleted || {};
-  const keys = ["basics", "goalsDates", "causes", "objectives", "addons", "media"];
+  // A simple form only has three things to fill in: name, amounts and purposes.
+  const keys =
+    getFormKind(item) === "simple"
+      ? ["basics", "goalsDates", "causes"]
+      : ["basics", "goalsDates", "causes", "objectives", "addons", "media"];
 
   const total = keys.length;
   const filled = keys.filter((k) => Boolean(sections?.[k])).length;
@@ -79,6 +88,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                 <th className="px-5 py-3">Form</th>
                 <th className="py-3 pr-4">Status</th>
+                <th className="py-3 pr-4">Type</th>
                 <th className="py-3 pr-4">Complete</th>
                 <th className="py-3 pr-4">Fund Code</th>
                 <th className="py-3 pr-4">Designation</th>
@@ -95,6 +105,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                 const status = item?.status || "draft";
                 const campaignType = getCampaignType(item);
                 const featured = getFeatured(item);
+                const formKind = getFormKind(item);
                 const completion = computeCompletionPercent(item);
                 const publishedAt = item?.publishedAt;
 
@@ -106,11 +117,25 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                     <td className="px-5 py-4 align-top">
                       <div className="font-medium">{safeDisplayName(item)}</div>
                       <div className="mt-1 text-[12px] text-[#6B7280]">
-                        {labelCampaignType(campaignType)} • {featured ? "Featured" : "Not featured"}
+                        {formKind === "simple"
+                          ? "Amounts and purposes"
+                          : `${labelCampaignType(campaignType)} • ${featured ? "Featured" : "Not featured"}`}
                       </div>
                     </td>
                     <td className="py-4 pr-4 align-top">
-                      <StatusPill status={status} />
+                      <div className="flex flex-col items-start gap-2">
+                        <StatusPill status={status} />
+                        {item?.hasSimpleDraft ? (
+                          <span className="rounded-full bg-red-600/10 px-2.5 py-1 text-[11px] font-semibold text-[#111827]">
+                            Draft not published
+                          </span>
+                        ) : null}
+                      </div>
+                    </td>
+                    <td className="py-4 pr-4 align-top">
+                      <span className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-1 text-[11px] font-semibold text-[#111827]">
+                        {formKind === "simple" ? "Simple" : "Complex"}
+                      </span>
                     </td>
                     <td className="py-4 pr-4 align-top">
                       <div className="flex items-center gap-3">
