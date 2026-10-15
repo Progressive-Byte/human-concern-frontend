@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import ScheduleRowActions from "./ScheduleRowActions";
 import ScheduleStatusPill from "./ScheduleStatusPill";
 import SchedulesPagination from "./SchedulesPagination";
+import { SourceBadge } from "@/components/common/SourceBadge";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -53,6 +54,7 @@ const SchedulesTable = ({ items = [], loading = false, pagination = null, curren
             <tr className="text-left text-[12px] font-medium text-[#6B7280]">
               <th className="px-5 py-3">Donor</th>
               <th className="py-3 pr-4">Campaign</th>
+              <th className="py-3 pr-4">Source</th>
               <th className="py-3 pr-4">Cause</th>
               <th className="py-3 pr-4">Frequency</th>
               <th className="py-3 pr-4 text-right">Total Amount</th>
@@ -65,7 +67,7 @@ const SchedulesTable = ({ items = [], loading = false, pagination = null, curren
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-5 py-10 text-center text-sm text-[#6B7280]">
+                <td colSpan={10} className="px-5 py-10 text-center text-sm text-[#6B7280]">
                   No schedules found.
                 </td>
               </tr>
@@ -96,6 +98,9 @@ const SchedulesTable = ({ items = [], loading = false, pagination = null, curren
                     </td>
                     <td className="py-4 pr-4">
                       <div className="truncate text-[#111827]">{formName}</div>
+                    </td>
+                    <td className="py-4 pr-4">
+                      <SourceBadge source={d?.source} />
                     </td>
                     <td className="py-4 pr-4">
                       <span className="inline-flex items-center gap-2 rounded-full bg-[#F3F4F6] px-3 py-1 text-[11px] font-semibold text-[#6B7280]">

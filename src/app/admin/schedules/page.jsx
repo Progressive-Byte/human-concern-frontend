@@ -85,6 +85,7 @@ function normalizeScheduleRow(raw) {
   return {
     donationId,
     formName,
+    source: String(raw?.source || ""),
     donor: { label: donorLabel, email: donorEmail },
     frequencyLabel,
     primaryCauseLabel,
@@ -189,7 +190,7 @@ const AdminSchedulesPage = () => {
         return;
       }
 
-      const header = ["donationId", "donorLabel", "donorEmail", "formName", "primaryCauseLabel", "causeType", "frequencyLabel", "installmentAmount", "currency", "nextDueDate", "scheduleStatus"];
+      const header = ["donationId", "donorLabel", "donorEmail", "formName", "source", "primaryCauseLabel", "causeType", "frequencyLabel", "installmentAmount", "currency", "nextDueDate", "scheduleStatus"];
       const lines = [header.join(",")];
       for (const r of rows) {
         lines.push(
@@ -198,6 +199,7 @@ const AdminSchedulesPage = () => {
             r?.donor?.label,
             r?.donor?.email,
             r.formName,
+            r.source,
             r.primaryCauseLabel,
             r.causeType,
             r.frequencyLabel,

@@ -14,7 +14,7 @@ import FormEditorGuardProvider from "@/app/admin/forms/components/FormEditorGuar
 import StatusPill from "@/app/admin/forms/components/StatusPill";
 import SimpleFormEditor from "../components/SimpleFormEditor";
 
-const EMPTY_CONTENT = { displayName: "", feePercent: null, presets: [], monthlyPresets: [], causeIds: [] };
+const EMPTY_CONTENT = { displayName: "", feePercent: null, presets: [], monthlyPresets: [], causeIds: [], allowRecurringDonations: false };
 
 // The simple endpoints answer with { form, content, hasDraft, publishedAt }, where `content` is
 // already the saved draft when there is one, otherwise the published values.

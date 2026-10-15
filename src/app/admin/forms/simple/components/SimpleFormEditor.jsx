@@ -26,6 +26,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   const [presets, setPresets] = useState(() => toRows([]));
   const [monthlyPresets, setMonthlyPresets] = useState(() => toRows([]));
   const [causeIds, setCauseIds] = useState([]);
+  const [allowRecurring, setAllowRecurring] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,6 +39,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     setPresets(toRows(initial.presets));
     setMonthlyPresets(toRows(initial.monthlyPresets));
     setCauseIds((Array.isArray(initial.causeIds) ? initial.causeIds : []).map((id) => String(id)));
+    setAllowRecurring(initial.allowRecurringDonations === true);
     setIsDirty(false);
   }, [initial]);
 
@@ -66,8 +68,9 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
       presets: toAmounts(presets),
       monthlyPresets: toAmounts(monthlyPresets),
       causeIds,
+      allowRecurringDonations: allowRecurring === true,
     };
-  }, [causeIds, displayName, feePercent, monthlyPresets, presets]);
+  }, [allowRecurring, causeIds, displayName, feePercent, monthlyPresets, presets]);
 
   function touch() {
     setIsDirty(true);
@@ -158,8 +161,8 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
         </div>
 
         <p className="mt-3 text-[12px] text-[#6B7280]">
-          This is the one design the site draws. The monthly amounts and the purposes show when you
-          fill them in, and the fee slider shows unless you leave Default percentage empty.
+          This is the one design the site draws. The purposes show when you fill them in, and the fee
+          slider shows unless you leave Default percentage empty.
         </p>
       </section>
 
@@ -172,6 +175,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
         disabled={busy}
       />
 
+      {/* Off hides the amounts: a form that takes no monthly gifts has nowhere to use them. */}
       <PresetListEditor
         title="Monthly Amounts"
         hint="Optional. These are used when a donor switches the form to monthly."
@@ -180,6 +184,25 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
         onChange={setMonthlyPresets}
         onDirty={touch}
         disabled={busy}
+        collapsed={!allowRecurring}
+        toggle={
+          <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+            <input
+              type="checkbox"
+              checked={allowRecurring}
+              disabled={busy}
+              onChange={(e) => {
+                setAllowRecurring(e.target.checked);
+                touch();
+              }}
+              className="h-4 w-4"
+              style={{ accentColor: "var(--admin-accent-600, #111827)" }}
+            />
+            <span className={allowRecurring ? "font-semibold" : "text-[#6B7280]"}>
+              Allow monthly donations
+            </span>
+          </label>
+        }
       />
 
       <PurposePicker selectedIds={causeIds} onChange={setCauseIds} onDirty={touch} disabled={busy} />

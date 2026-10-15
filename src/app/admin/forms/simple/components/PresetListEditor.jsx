@@ -2,7 +2,13 @@
 
 const MAX_PRESETS = 12;
 
-const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets = [], onChange, onDirty, disabled = false }) => {
+/*
+  One list of amount rows, used for both the one-time amounts and the monthly ones.
+
+  `collapsed` hides the rows and the Add button, so a section that is switched off can still show its
+  title and its switch. `toggle` is a slot for that switch, sitting on the right of the title.
+*/
+const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets = [], onChange, onDirty, disabled = false, toggle = null, collapsed = false }) => {
   const rows = Array.isArray(presets) ? presets : [];
 
   function updateRow(index, patch) {
@@ -29,12 +35,17 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">{title}</h2>
           {hint ? <p className="mt-1 text-[13px] text-[#6B7280]">{hint}</p> : null}
         </div>
-        <div className="text-[13px] text-[#6B7280] sm:text-right">
-          <span className="font-semibold text-[#111827]">{rows.length}</span> of {MAX_PRESETS}
+        <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+          {collapsed ? null : (
+            <div className="text-[13px] text-[#6B7280]">
+              <span className="font-semibold text-[#111827]">{rows.length}</span> of {MAX_PRESETS}
+            </div>
+          )}
+          {toggle}
         </div>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-4 space-y-3" hidden={collapsed}>
         {rows.map((row, index) => (
           <div
             key={index}
@@ -74,7 +85,7 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
         ))}
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4" hidden={collapsed}>
         <button
           type="button"
           onClick={addRow}

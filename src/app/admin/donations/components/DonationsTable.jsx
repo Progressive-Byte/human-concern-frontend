@@ -6,6 +6,7 @@ import DonationStatusPill from "./DonationStatusPill";
 import DonationBreakdownModal from "./DonationBreakdownModal";
 import DonationsPagination from "./DonationsPagination";
 import { AddOnList } from "@/components/common/AddOnList";
+import { SourceBadge } from "@/components/common/SourceBadge";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -73,6 +74,7 @@ const DonationsTable = ({
               <th className="px-5 py-3">Reference</th>
               <th className="py-3 pr-4">Donor</th>
               <th className="py-3 pr-4">Campaign</th>
+              <th className="py-3 pr-4">Source</th>
               <th className="py-3 pr-4">Cause</th>
               <th className="py-3 pr-4 text-right">Amount</th>
               <th className="py-3 pr-4 text-right">Tip</th>
@@ -86,7 +88,7 @@ const DonationsTable = ({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-5 py-10 text-center text-sm text-[#6B7280]">
+                <td colSpan={12} className="px-5 py-10 text-center text-sm text-[#6B7280]">
                   No transactions found.
                 </td>
               </tr>
@@ -138,6 +140,9 @@ const DonationsTable = ({
                     <td className="py-4 pr-4">
                       <div className="truncate text-[#111827]">{campaignName}</div>
                       <AddOnList addons={d?.addons} currency={String(d?.currency || currency)} className="mt-1.5" max={2} />
+                    </td>
+                    <td className="py-4 pr-4">
+                      <SourceBadge source={d?.source} />
                     </td>
                     <td className="py-4 pr-4">
                       <span className="inline-flex rounded-full bg-[#F3F4F6] px-3 py-1 text-[11px] font-semibold text-[#6B7280]">
