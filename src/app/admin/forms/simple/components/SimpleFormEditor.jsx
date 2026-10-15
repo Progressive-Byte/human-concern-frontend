@@ -9,15 +9,6 @@ import SimpleFormControls from "./SimpleFormControls";
 const MAX_LABEL_LENGTH = 80;
 const MAX_FEE_PERCENT = 20;
 
-// The popup layouts the public site can draw. '' is its standard panel.
-const LAYOUTS = [
-  { value: "hero", label: "Layout: Hero (amounts, purposes and the fee slider)" },
-  { value: "", label: "Layout: Standard panel" },
-  { value: "highlight", label: "Layout: Highlight" },
-  { value: "introPacked", label: "Layout: Intro-packed" },
-  { value: "lebanon", label: "Layout: Lebanon" },
-];
-
 function toRows(list) {
   const rows = Array.isArray(list) ? list : [];
   const source = rows.length > 0 ? rows : [{}];
@@ -31,7 +22,6 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   const guard = useFormEditorGuard();
 
   const [displayName, setDisplayName] = useState("");
-  const [layout, setLayout] = useState("hero");
   const [feePercent, setFeePercent] = useState("");
   const [presets, setPresets] = useState(() => toRows([]));
   const [monthlyPresets, setMonthlyPresets] = useState(() => toRows([]));
@@ -44,7 +34,6 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   useEffect(() => {
     if (!initial) return;
     setDisplayName(String(initial.displayName || ""));
-    setLayout(String(initial.layout ?? "hero"));
     setFeePercent(initial.feePercent === null || initial.feePercent === undefined ? "" : String(initial.feePercent));
     setPresets(toRows(initial.presets));
     setMonthlyPresets(toRows(initial.monthlyPresets));
@@ -73,13 +62,12 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
 
     return {
       displayName: name,
-      layout: typeof layout === "string" ? layout : "hero",
       feePercent: parsedFee,
       presets: toAmounts(presets),
       monthlyPresets: toAmounts(monthlyPresets),
       causeIds,
     };
-  }, [causeIds, displayName, feePercent, layout, monthlyPresets, presets]);
+  }, [causeIds, displayName, feePercent, monthlyPresets, presets]);
 
   function touch() {
     setIsDirty(true);
@@ -167,28 +155,11 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
             />
           </div>
 
-          <div className="rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 sm:col-span-2">
-            <select
-              value={layout}
-              disabled={busy}
-              onChange={(e) => {
-                setLayout(e.target.value);
-                touch();
-              }}
-              className="w-full bg-transparent text-[13px] text-[#111827] outline-none"
-            >
-              {LAYOUTS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         <p className="mt-3 text-[12px] text-[#6B7280]">
-          Only the Hero layout shows the monthly amounts, the purposes and the fee slider. The other
-          layouts show the one-time amounts only.
+          This is the one design the site draws. The monthly amounts and the purposes show when you
+          fill them in, and the fee slider shows unless you leave Default percentage empty.
         </p>
       </section>
 
