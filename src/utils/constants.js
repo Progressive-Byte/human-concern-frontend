@@ -4,10 +4,8 @@
 
 export const home = 'https://human-concern-frontend.vercel.app';
 
-// Where the API lives. Locally it runs on this machine. On Vercel, set NEXT_PUBLIC_API_ORIGIN to
-// the deployed address and redeploy. The browser does not use this: it calls this site's own
-// /api/v1 path, which next.config.mjs proxies to the same address.
-export const siteUrl = (process.env.NEXT_PUBLIC_API_ORIGIN || 'http://localhost:3001').replace(/\/+$/, '');
+// export const siteUrl = 'http://localhost:3001';
+export const siteUrl = 'https://donation.api.progressivebyte.com';
 
 export const apiBase = `/api/v1/`;
 
