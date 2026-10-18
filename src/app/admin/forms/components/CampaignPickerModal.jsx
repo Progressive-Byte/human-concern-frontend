@@ -11,7 +11,7 @@ const FORM_KINDS = [
   },
   {
     value: "complex",
-    label: "Complex Form",
+    label: "Advanced Form",
     description: "The full wizard: goals and dates, causes, objectives, add-ons, media and more.",
   },
 ];
