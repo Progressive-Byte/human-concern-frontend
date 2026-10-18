@@ -40,11 +40,18 @@ const nextConfig = (phase) => ({
       {
         protocol: "http",
         hostname: "localhost",
-        port: "3001",
+        // port: "3001",
+        port: "3576",
       },
       {
         protocol: "https",
         hostname: "donation.api.sagsio.com",
+      },
+      // Where the uploads are served from now. Without this entry Next refuses to optimise the
+      // card images, and they come out blank even though the address itself works.
+      {
+        protocol: "https",
+        hostname: "donation.api.progressivebyte.com",
       },
     ],
   },
