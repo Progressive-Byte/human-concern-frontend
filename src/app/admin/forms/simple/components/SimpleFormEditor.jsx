@@ -125,46 +125,54 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
         onDiscard={onDiscard}
       />
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
-        <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Form Name</h2>
-        <p className="mt-1 text-[13px] text-[#6B7280]">This is the heading donors see on the form.</p>
+      {/* Name and fee are short fields, so they share one row instead of two tall cards. */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+          <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Form Name</h2>
+          <p className="mt-1 text-[13px] text-[#6B7280]">
+            This is the heading donors see on the form.
+          </p>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5">
-            <input
-              value={displayName}
-              maxLength={MAX_LABEL_LENGTH}
-              disabled={busy}
-              onChange={(e) => {
-                setDisplayName(e.target.value);
-                touch();
-              }}
-              placeholder="e.g. General Donation"
-              className="w-full bg-transparent text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
-            />
+          <div className="mt-4">
+            <div className="rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5">
+              <input
+                value={displayName}
+                maxLength={MAX_LABEL_LENGTH}
+                disabled={busy}
+                onChange={(e) => {
+                  setDisplayName(e.target.value);
+                  touch();
+                }}
+                placeholder="e.g. General Donation"
+                className="w-full bg-transparent text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+              />
+            </div>
           </div>
+        </section>
 
-          <div className="rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5">
-            <input
-              value={feePercent}
-              inputMode="decimal"
-              disabled={busy}
-              onChange={(e) => {
-                setFeePercent(e.target.value);
-                touch();
-              }}
-              placeholder={`Default percentage (0-${MAX_FEE_PERCENT}, optional)`}
-              className="w-full bg-transparent text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
-            />
+        <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+          <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Platform Fee</h2>
+          <p className="mt-1 text-[13px] text-[#6B7280]">
+            The percentage shown on the form&apos;s fee slider.
+          </p>
+
+          <div className="mt-4">
+            <div className="rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5">
+              <input
+                value={feePercent}
+                inputMode="decimal"
+                disabled={busy}
+                onChange={(e) => {
+                  setFeePercent(e.target.value);
+                  touch();
+                }}
+                placeholder={`Percentage (0-${MAX_FEE_PERCENT}, optional)`}
+                className="w-full bg-transparent text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+              />
+            </div>
           </div>
-
-        </div>
-
-        <p className="mt-3 text-[12px] text-[#6B7280]">
-          This is the one design the site draws. The purposes show when you fill them in, and the fee
-          slider shows unless you leave Default percentage empty.
-        </p>
-      </section>
+        </section>
+      </div>
 
       <PresetListEditor
         title="One-time Amounts"
