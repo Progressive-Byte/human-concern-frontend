@@ -36,11 +36,23 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = ""
     setSelectedId(next);
   }, [open, preselectedId]);
 
+  /*
+    Only a published campaign can carry a live form, so only those are offered here.
+    A campaign made from the Create Campaign button is still a draft; it stays preselected so that
+    flow can continue, and the note under the list says it must be published.
+  */
+  const publishedRows = useMemo(
+    () => rows.filter((c) => String(c?.status || "") === "published"),
+    [rows],
+  );
+
   const filtered = useMemo(() => {
     const needle = String(q || "").trim().toLowerCase();
-    if (!needle) return rows;
-    return rows.filter((c) => String(c?.name || c?.slug || "").toLowerCase().includes(needle));
-  }, [rows, q]);
+    if (!needle) return publishedRows;
+    return publishedRows.filter((c) =>
+      String(c?.name || c?.slug || "").toLowerCase().includes(needle),
+    );
+  }, [publishedRows, q]);
 
   const selectedCampaign = useMemo(() => {
     if (!selectedId) return null;
@@ -133,7 +145,9 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = ""
                   <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
                 </div>
               ) : filtered.length === 0 ? (
-                <div className="p-6 text-center text-sm text-[#6B7280]">No campaigns found</div>
+                <div className="p-6 text-center text-sm text-[#6B7280]">
+                  No published campaigns found
+                </div>
               ) : (
                 <div className="divide-y divide-[#F3F4F6]">
                   {filtered.map((c) => {
@@ -162,6 +176,12 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = ""
                 </div>
               )}
             </div>
+
+            {selectedCampaign && String(selectedCampaign?.status || "") !== "published" ? (
+              <p className="mt-3 rounded-xl border border-[#E5E7EB] bg-[#FFFBEB] px-3 py-2 text-[12px] text-[#7A4D00]">
+                This campaign is a draft. Publish it before this form can go live.
+              </p>
+            ) : null}
 
             <div className="mt-4 flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
               <div className="min-w-0 text-[13px] text-[#6B7280]">
