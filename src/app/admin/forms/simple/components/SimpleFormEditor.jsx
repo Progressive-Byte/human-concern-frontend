@@ -18,7 +18,7 @@ function toRows(list) {
   }));
 }
 
-const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSubmit, onPublish, onDiscard }) => {
+const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSubmit, onPublish, onPreview, onDiscard }) => {
   const guard = useFormEditorGuard();
 
   const [displayName, setDisplayName] = useState("");
@@ -105,6 +105,22 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
 
     setError("");
     const result = await action?.(payload);
+    if (result?.ok) {
+      setIsDirty(false);
+      guard?.markClean?.();
+    }
+  }
+
+  /* The page saves and makes the link; this only hands it the values on screen. */
+  async function preview() {
+    const payload = buildPayload();
+    if (!payload) {
+      setError("Form name needs at least 3 characters.");
+      return;
+    }
+
+    setError("");
+    const result = await onPreview?.(payload);
     if (result?.ok) {
       setIsDirty(false);
       guard?.markClean?.();
@@ -214,6 +230,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
           messageTone={error ? "bad" : message?.tone}
           onSave={() => run(onSubmit)}
           onPublish={() => run(onPublish)}
+          onPreview={() => preview()}
           onDiscard={onDiscard}
         />
       </div>

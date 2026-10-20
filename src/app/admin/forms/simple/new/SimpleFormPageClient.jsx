@@ -4,11 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   createAdminSimpleForm,
+  createAdminSimpleFormPreviewLink,
   discardAdminSimpleForm,
   getAdminFormSimple,
   publishAdminForm,
   updateAdminFormSimple,
 } from "@/services/admin";
+import { hcusaSiteUrl } from "@/utils/constants";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import FormEditorGuardProvider from "@/app/admin/forms/components/FormEditorGuardProvider";
 import StatusPill from "@/app/admin/forms/components/StatusPill";
@@ -145,6 +147,56 @@ function SimpleFormHost() {
     }
   }
 
+  /*
+    Opens the real popup in a new tab. It saves first, so the tab shows exactly what is on screen,
+    even when nothing was saved yet.
+  */
+  async function preview(payload) {
+    /*
+      Opened now, while the click is still the reason for it. A tab opened after the two requests
+      below would be treated as a popup and blocked by the browser.
+    */
+    const tab = window.open("about:blank", "_blank");
+
+    const saved = await saveDraft(payload);
+    if (!saved?.ok) {
+      tab?.close();
+      return saved;
+    }
+
+    if (!saved.formId) {
+      tab?.close();
+      return { ok: false, error: "The draft was saved but the form has no id yet." };
+    }
+
+    setBusy(true);
+    try {
+      const res = await createAdminSimpleFormPreviewLink(saved.formId);
+      const token = String(res?.data?.data?.token || res?.data?.token || "").trim();
+
+      if (!token) {
+        tab?.close();
+        const text = "Could not create the preview link.";
+        setError(text);
+        return { ok: false, error: text };
+      }
+
+      const url = `${hcusaSiteUrl}/donate/preview?token=${encodeURIComponent(token)}`;
+
+      if (tab) tab.location.href = url;
+      else window.open(url, "_blank", "noopener");
+
+      return { ok: true };
+    } catch (e) {
+      tab?.close();
+      const text = e?.message || "Could not create the preview link.";
+      setError(text);
+      return { ok: false, error: text };
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function discardDraft() {
     if (!formId) return;
 
@@ -207,6 +259,7 @@ function SimpleFormHost() {
         message={message}
         onSubmit={saveDraft}
         onPublish={publish}
+        onPreview={preview}
         onDiscard={discardDraft}
       />
     </main>

@@ -207,6 +207,11 @@ export function discardAdminSimpleForm(formId) {
   return adminApiRequest(`/admin/forms/${formId}/simple/discard`, { method: "POST" });
 }
 
+// A short-lived token for the public site's preview tab. It freezes the draft, so nothing changes.
+export function createAdminSimpleFormPreviewLink(formId) {
+  return adminApiRequest(`/admin/forms/${formId}/preview-link`, { method: "POST" });
+}
+
 // -----------------------------
 // Causes
 // -----------------------------
