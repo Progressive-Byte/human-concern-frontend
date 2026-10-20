@@ -3,6 +3,25 @@
 const MAX_PRESETS = 12;
 
 /*
+  Amounts are typed by hand, so anything that is not a number is dropped as it is typed. One decimal
+  point with at most two places is kept, because the value is money. This also covers a pasted value.
+*/
+function toAmountInput(raw) {
+  const cleaned = String(raw ?? "").replace(/[^\d.]/g, "");
+  const dot = cleaned.indexOf(".");
+
+  if (dot === -1) return cleaned;
+
+  const whole = cleaned.slice(0, dot) || "0";
+  const decimals = cleaned
+    .slice(dot + 1)
+    .replace(/\./g, "")
+    .slice(0, 2);
+
+  return `${whole}.${decimals}`;
+}
+
+/*
   One list of amount rows, used for both the one-time amounts and the monthly ones.
 
   `collapsed` hides the rows and the Add button, so a section that is switched off can still show its
@@ -54,9 +73,11 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
             <div className="w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 sm:w-[150px]">
               <input
                 value={row?.amount ?? ""}
+                type="text"
                 inputMode="decimal"
+                autoComplete="off"
                 disabled={disabled}
-                onChange={(e) => updateRow(index, { amount: e.target.value })}
+                onChange={(e) => updateRow(index, { amount: toAmountInput(e.target.value) })}
                 placeholder={amountPlaceholder}
                 className="w-full bg-transparent text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
               />
