@@ -6,18 +6,16 @@ import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { archiveAdminForm, publishAdminForm, restoreAdminForm, unpublishAdminForm } from "@/services/admin";
-import { home } from "@/utils/constants";
+import { hcusaSiteUrl, home } from "@/utils/constants";
 
-function buildMenu(status, formKind) {
+function buildMenu(status) {
   const s = String(status || "").toLowerCase();
   const items = [];
 
   items.push({ key: "edit", label: "Edit" });
-  // Simple forms are admin-only for now, so they have no working public link yet.
-  if (formKind !== "simple") {
-    // The public link only resolves once the form is published.
-    items.push({ key: "copyUrl", label: "Copy Form URL", disabled: s !== "published" });
-  }
+  // The public link only resolves once the form is published. A simple form opens on the HCUSA
+  // site's standalone page; a complex one on this platform's own campaign page.
+  items.push({ key: "copyUrl", label: "Copy Form URL", disabled: s !== "published" });
   if (s === "draft") items.push({ key: "publish", label: "Publish" }, { key: "archive", label: "Archive" });
   if (s === "published") items.push({ key: "unpublish", label: "Move to Draft" }, { key: "archive", label: "Archive" });
   if (s === "archived") items.push({ key: "restore", label: "Restore" });
@@ -46,11 +44,14 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
   const campaignId = item?.campaignId || item?.campaign?._id || item?.campaign?.id || campaignIdFilter;
   // Rows saved before the field existed have no value and behave as complex.
   const formKind = item?.formKind === "simple" ? "simple" : "complex";
-  const menu = useMemo(() => buildMenu(item?.status, formKind), [item?.status, formKind]);
+  const menu = useMemo(() => buildMenu(item?.status), [item?.status]);
 
   /**
-   * Public link for this specific donation form: {site}/{formSlug}/1.
-   * `home` is the public website; `siteUrl` is the API and would be wrong here.
+   * Public link for this specific donation form.
+   *
+   * A complex form lives on this platform's own site: {home}/{slug}/1.
+   * A simple form is drawn by the HCUSA site, on its standalone page: {hcusaSiteUrl}/donate/form.
+   * `siteUrl` is the API and would be wrong for both.
    */
   async function copyFormUrl() {
     const slug = String(item?.slug || "").trim();
@@ -59,7 +60,10 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
       return;
     }
 
-    const url = `${home}/${encodeURIComponent(slug)}/1`;
+    const url =
+      formKind === "simple"
+        ? `${hcusaSiteUrl}/donate/form?slug=${encodeURIComponent(slug)}`
+        : `${home}/${encodeURIComponent(slug)}/1`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success("Form URL copied");
