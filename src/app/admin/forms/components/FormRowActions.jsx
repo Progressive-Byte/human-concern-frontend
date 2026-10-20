@@ -90,7 +90,11 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
 
     const url = `${hcusaSiteUrl}/donate/embed?slug=${encodeURIComponent(slug)}`;
 
-    return `<iframe src="${url}" title="Donation form" loading="lazy" style="width:100%;max-width:480px;height:900px;border:0;display:block;margin:0 auto;"></iframe>`;
+    /*
+      Rounded corners and a shadow on the frame itself, so the form reads as a dialog sitting on the
+      host page, the way the popup does on our own site.
+    */
+    return `<iframe src="${url}" title="Donation form" style="width:100%;max-width:480px;height:900px;border:0;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,0.18);display:block;margin:0 auto;"></iframe>`;
   }
 
   async function copyEmbedCode() {
