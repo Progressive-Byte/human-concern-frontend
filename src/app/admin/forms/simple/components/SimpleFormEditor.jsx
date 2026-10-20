@@ -113,18 +113,6 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
 
   return (
     <div className="space-y-6">
-      <SimpleFormControls
-        isBusy={busy}
-        isDirty={isDirty}
-        hasDraft={hasDraft}
-        publishedAt={publishedAt}
-        message={error || message?.text}
-        messageTone={error ? "bad" : message?.tone}
-        onSave={() => run(onSubmit)}
-        onPublish={() => run(onPublish)}
-        onDiscard={onDiscard}
-      />
-
       {/* Name and fee are short fields, so they share one row instead of two tall cards. */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
@@ -214,6 +202,21 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
       />
 
       <PurposePicker selectedIds={causeIds} onChange={setCauseIds} onDirty={touch} disabled={busy} />
+
+      {/* Bottom of the page, the same place the advanced form puts its actions. */}
+      <div className="sticky bottom-0 z-10">
+        <SimpleFormControls
+          isBusy={busy}
+          isDirty={isDirty}
+          hasDraft={hasDraft}
+          publishedAt={publishedAt}
+          message={error || message?.text}
+          messageTone={error ? "bad" : message?.tone}
+          onSave={() => run(onSubmit)}
+          onPublish={() => run(onPublish)}
+          onDiscard={onDiscard}
+        />
+      </div>
     </div>
   );
 }
