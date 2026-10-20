@@ -8,7 +8,7 @@ import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { archiveAdminForm, publishAdminForm, restoreAdminForm, unpublishAdminForm } from "@/services/admin";
 import { hcusaSiteUrl, home } from "@/utils/constants";
 
-function buildMenu(status) {
+function buildMenu(status, formKind) {
   const s = String(status || "").toLowerCase();
   const items = [];
 
@@ -16,6 +16,10 @@ function buildMenu(status) {
   // The public link only resolves once the form is published. A simple form opens on the HCUSA
   // site's standalone page; a complex one on this platform's own campaign page.
   items.push({ key: "copyUrl", label: "Copy Form URL", disabled: s !== "published" });
+  // Only a simple form has an embed page; the complex wizard is not built to sit in an iframe.
+  if (formKind === "simple") {
+    items.push({ key: "embed", label: "Embed Code", disabled: s !== "published" });
+  }
   if (s === "draft") items.push({ key: "publish", label: "Publish" }, { key: "archive", label: "Archive" });
   if (s === "published") items.push({ key: "unpublish", label: "Move to Draft" }, { key: "archive", label: "Archive" });
   if (s === "archived") items.push({ key: "restore", label: "Restore" });
@@ -38,13 +42,14 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
 
   const [open, setOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState("");
+  const [embedOpen, setEmbedOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const id = item?.id || item?.formId || item?._id;
   const campaignId = item?.campaignId || item?.campaign?._id || item?.campaign?.id || campaignIdFilter;
   // Rows saved before the field existed have no value and behave as complex.
   const formKind = item?.formKind === "simple" ? "simple" : "complex";
-  const menu = useMemo(() => buildMenu(item?.status), [item?.status]);
+  const menu = useMemo(() => buildMenu(item?.status, formKind), [item?.status, formKind]);
 
   /**
    * Public link for this specific donation form.
@@ -69,6 +74,38 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
       toast.success("Form URL copied");
     } catch {
       window.prompt("Copy this form URL", url);
+    }
+  }
+
+  /**
+   * The snippet a site owner pastes into WordPress or any other page.
+   *
+   * It is an iframe of the embed page, so the form keeps running on the HCUSA site: the same
+   * fields, the same card step, and the same payment call to the donation platform. A widget
+   * script would have to ship all of that again.
+   */
+  function buildEmbedCode() {
+    const slug = String(item?.slug || "").trim();
+    if (!slug) return "";
+
+    const url = `${hcusaSiteUrl}/donate/embed?slug=${encodeURIComponent(slug)}`;
+
+    return `<iframe src="${url}" title="Donation form" loading="lazy" style="width:100%;max-width:480px;height:900px;border:0;display:block;margin:0 auto;"></iframe>`;
+  }
+
+  async function copyEmbedCode() {
+    const code = buildEmbedCode();
+
+    if (!code) {
+      toast.error("This form has no public link yet.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(code);
+      toast.success("Embed code copied");
+    } catch {
+      window.prompt("Copy this embed code", code);
     }
   }
 
@@ -165,6 +202,10 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
                   copyFormUrl();
                   return;
                 }
+                if (m.key === "embed") {
+                  setEmbedOpen(true);
+                  return;
+                }
                 setConfirmAction(m.key);
               }}
               className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium transition ${
@@ -187,6 +228,50 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
         onClose={() => setConfirmAction("")}
         onConfirm={() => runAction(confirmAction)}
       />
+
+      {embedOpen ? (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
+          <button
+            type="button"
+            onClick={() => setEmbedOpen(false)}
+            className="absolute inset-0 cursor-pointer bg-black/40"
+            aria-label="Close"
+          />
+
+          <div className="relative w-full max-w-[560px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-lg">
+            <div className="text-[16px] font-semibold text-[#111827]">Embed Code</div>
+            <p className="mt-1 text-[12px] text-[#6B7280]">
+              Paste this into a WordPress page or any other site. Change the height if the form is
+              cut off.
+            </p>
+
+            <textarea
+              readOnly
+              rows={5}
+              value={buildEmbedCode()}
+              onFocus={(e) => e.target.select()}
+              className="mt-3 w-full resize-none rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-3 font-mono text-[12px] leading-relaxed text-[#111827]"
+            />
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setEmbedOpen(false)}
+                className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={copyEmbedCode}
+                className="cursor-pointer rounded-xl bg-red-600 px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-red-700"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
