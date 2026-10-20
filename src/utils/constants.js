@@ -8,8 +8,8 @@ export const home = 'https://human-concern-frontend.vercel.app';
 export const siteUrl = 'https://donation.api.progressivebyte.com';
 
 // The HCUSA public site, where the donation popup is drawn. Local dev runs on port 3011.
-export const hcusaSiteUrl = 'http://localhost:3011';
-// export const hcusaSiteUrl = 'https://humanconcernusa.org';
+// export const hcusaSiteUrl = 'http://localhost:3011';
+export const hcusaSiteUrl = 'https://hcusa.progressivebyte.com';
 
 export const apiBase = `/api/v1/`;
 
