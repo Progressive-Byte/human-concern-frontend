@@ -1,8 +1,10 @@
 const CampaignsPagination = ({ pagination, onPrev, onNext }) => {
   const page = Number(pagination?.page || 1);
-  const pages = Number(pagination?.pages || 1);
-  const hasPrev = Boolean(pagination?.hasPrev);
-  const hasNext = Boolean(pagination?.hasNext);
+  const limit = Number(pagination?.limit || 10);
+  const total = Number(pagination?.total || 0);
+  const pages = Number(pagination?.pages || Math.max(1, Math.ceil(total / limit)));
+  const hasPrev = typeof pagination?.hasPrev === "boolean" ? pagination.hasPrev : page > 1;
+  const hasNext = typeof pagination?.hasNext === "boolean" ? pagination.hasNext : page < pages;
 
   return (
     <div className="flex items-center justify-between gap-3 border-t border-[#F3F4F6] px-5 py-4">
