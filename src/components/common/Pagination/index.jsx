@@ -2,25 +2,29 @@
 "use client";
 
 const Pagination = ({ current = 1, total = 1, onPageChange }) => {
+  const totalPages = Math.max(1, Number(total) || 1);
+  const cur = Math.min(Math.max(1, Number(current) || 1), totalPages);
+
   const go = (page) => {
-    if (page < 1 || page > total || page === current) return;
-    onPageChange?.(page);
+    const n = Number(page);
+    if (!Number.isFinite(n) || n < 1 || n > totalPages || n === cur) return;
+    onPageChange?.(n);
   };
 
   // Build page number array with ellipsis
   const pages = [];
   pages.push(1);
-  if (total <= 5) {
-    for (let i = 2; i <= total; i++) pages.push(i);
+  if (totalPages <= 5) {
+    for (let i = 2; i <= totalPages; i++) pages.push(i);
   } else {
-    if (current <= 3) {
+    if (cur <= 3) {
       pages.push(2, 3, "...");
-    } else if (current >= total - 2) {
-      pages.push("...", total - 2, total - 1);
+    } else if (cur >= totalPages - 2) {
+      pages.push("...", totalPages - 2, totalPages - 1);
     } else {
-      pages.push("...", current, "...");
+      pages.push("...", cur, "...");
     }
-    pages.push(total);
+    pages.push(totalPages);
   }
 
   const btnBase =
@@ -33,8 +37,8 @@ const Pagination = ({ current = 1, total = 1, onPageChange }) => {
     <div className="flex flex-wrap items-center justify-center gap-[6px]">
 
       {/* First + Back */}
-      <button onClick={() => go(1)}           className={`${btnBase} ${current > 1 ? idle : disabled} hidden md:flex`}>First</button>
-      <button onClick={() => go(current - 1)} className={`${btnBase} ${current > 1 ? idle : disabled}`}>← Back</button>
+      <button onClick={() => go(1)}           className={`${btnBase} ${cur > 1 ? idle : disabled} hidden md:flex`}>First</button>
+      <button onClick={() => go(cur - 1)}     className={`${btnBase} ${cur > 1 ? idle : disabled}`}>← Back</button>
 
       {/* Page numbers */}
       {pages.map((p, i) =>
@@ -44,7 +48,7 @@ const Pagination = ({ current = 1, total = 1, onPageChange }) => {
           <button
             key={p}
             onClick={() => go(p)}
-            className={`${btnBase} ${p === current ? active : idle}`}
+            className={`${btnBase} ${p === cur ? active : idle}`}
           >
             {p}
           </button>
@@ -52,8 +56,8 @@ const Pagination = ({ current = 1, total = 1, onPageChange }) => {
       )}
 
       {/* Next + Last */}
-      <button onClick={() => go(current + 1)} className={`${btnBase} ${current < total ? idle : disabled}`}>Next →</button>
-      <button onClick={() => go(total)}        className={`${btnBase} ${current < total ? idle : disabled} hidden md:flex`}>Last</button>
+      <button onClick={() => go(cur + 1)}      className={`${btnBase} ${cur < totalPages ? idle : disabled}`}>Next →</button>
+      <button onClick={() => go(totalPages)}   className={`${btnBase} ${cur < totalPages ? idle : disabled} hidden md:flex`}>Last</button>
     </div>
   );
 };

@@ -38,13 +38,21 @@ function normalizeItemsResponse(res) {
 }
 
 function normalizePagination(res) {
-  const p = res?.pagination || res?.data?.pagination || res?.data?.data?.pagination || null;
+  const p =
+    res?.meta?.pagination ||
+    res?.data?.meta?.pagination ||
+    res?.pagination ||
+    res?.data?.pagination ||
+    res?.data?.data?.pagination ||
+    null;
   if (!p) return null;
 
   const page = Number(p.page || 1);
   const limit = Number(p.limit || 20);
   const total = Number(p.total || 0);
-  const totalPages = Number(p.totalPages || Math.max(1, Math.ceil(total / Math.max(1, limit))));
+  const totalPages = Number(
+    p.pages || p.totalPages || Math.max(1, Math.ceil(total / Math.max(1, limit))),
+  );
 
   return { page, limit, total, totalPages };
 }

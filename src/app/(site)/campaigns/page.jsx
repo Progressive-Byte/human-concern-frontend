@@ -11,7 +11,8 @@ import { apiBase } from "@/utils/constants";
 
 const ALL_OPTION          = { label: "All", value: "" };
 const PAGE_SIZE           = 10;
-const FILTER_FETCH_LIMIT  = 500;
+/* The API caps a campaigns page at 50; the filtered path pages through it. */
+const FILTER_FETCH_LIMIT  = 50;
 
 function buildAPIParams({ q, sort, page, limit }) {
   const p = new URLSearchParams();
@@ -69,7 +70,8 @@ const CampaignsPageInner = () => {
   const urlCategory = searchParams.get("category") ?? "";
   const urlCause    = searchParams.get("cause")    ?? "";
   const urlSort     = searchParams.get("sort")     ?? "new_first";
-  const urlPage     = parseInt(searchParams.get("page") ?? "1", 10);
+  const parsedPage  = parseInt(searchParams.get("page") ?? "1", 10);
+  const urlPage     = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
   const [searchInput,    setSearchInput]    = useState(urlSearch);
   const [activeCategory, setActiveCategory] = useState(urlCategory);
@@ -130,14 +132,34 @@ const CampaignsPageInner = () => {
     setLoading(true);
     try {
       const hasFilter = !!(category || cause);
-      const limit     = hasFilter ? FILTER_FETCH_LIMIT : PAGE_SIZE;
-      const apiPage   = hasFilter ? 1 : page;
-
-      const res  = await fetch(`${apiBase}campaigns?${buildAPIParams({ q, sort, page: apiPage, limit })}`);
-      const json = await res.json();
-      let items  = json?.data?.items ?? [];
 
       if (hasFilter) {
+        /*
+          The API filters by category/cause id, but this screen holds keys and slugs, so fetch the
+          full listing and filter here. Pages are read at the API maximum (50) so nothing is
+          skipped and the filtered page count is real.
+        */
+        const firstRes = await fetch(
+          `${apiBase}campaigns?${buildAPIParams({ q, sort, page: 1, limit: FILTER_FETCH_LIMIT })}`,
+        );
+        const firstJson = await firstRes.json();
+        let items = firstJson?.data?.items ?? [];
+
+        const firstTotal = firstJson?.meta?.pagination?.total ?? items.length;
+        const apiPages = Math.max(
+          1,
+          firstJson?.meta?.pagination?.pages ??
+            Math.ceil(firstTotal / FILTER_FETCH_LIMIT),
+        );
+
+        for (let next = 2; next <= apiPages; next += 1) {
+          const nextRes = await fetch(
+            `${apiBase}campaigns?${buildAPIParams({ q, sort, page: next, limit: FILTER_FETCH_LIMIT })}`,
+          );
+          const nextJson = await nextRes.json();
+          items = items.concat(nextJson?.data?.items ?? []);
+        }
+
         // category key → match against campaign.categories (array of name strings)
         if (category && categoryMap.current[category]) {
           const catName = categoryMap.current[category];
@@ -152,15 +174,40 @@ const CampaignsPageInner = () => {
         }
 
         const total = items.length;
-        const start = (page - 1) * PAGE_SIZE;
+        const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        const safePage = Math.min(Math.max(1, Number(page) || 1), pages);
+        const start = (safePage - 1) * PAGE_SIZE;
+
         setCampaigns(items.slice(start, start + PAGE_SIZE));
         setTotalItems(total);
-        setTotalPages(Math.ceil(total / PAGE_SIZE) || 1);
+        setTotalPages(pages);
+        setCurrentPage(safePage);
       } else {
-        const pagination = json?.meta?.pagination;
-        setCampaigns(items);
+        const requestedPage = Math.max(1, Number(page) || 1);
+
+        let res = await fetch(
+          `${apiBase}campaigns?${buildAPIParams({ q, sort, page: requestedPage, limit: PAGE_SIZE })}`,
+        );
+        let json = await res.json();
+        let pagination = json?.meta?.pagination;
+        let pages = Math.max(1, pagination?.pages ?? Math.ceil((pagination?.total ?? 0) / PAGE_SIZE));
+        let safePage = Math.min(requestedPage, pages);
+
+        /* A stale ?page= past the end would show an empty grid; fetch the last real page instead. */
+        if (safePage !== requestedPage) {
+          res = await fetch(
+            `${apiBase}campaigns?${buildAPIParams({ q, sort, page: safePage, limit: PAGE_SIZE })}`,
+          );
+          json = await res.json();
+          pagination = json?.meta?.pagination;
+          pages = Math.max(1, pagination?.pages ?? Math.ceil((pagination?.total ?? 0) / PAGE_SIZE));
+          safePage = Math.min(safePage, pages);
+        }
+
+        setCampaigns(json?.data?.items ?? []);
         setTotalItems(pagination?.total ?? 0);
-        setTotalPages(pagination?.pages ?? Math.ceil((pagination?.total ?? 0) / PAGE_SIZE));
+        setTotalPages(pages);
+        setCurrentPage(safePage);
       }
     } catch (err) {
       console.error("Failed to fetch campaigns:", err);
@@ -168,7 +215,7 @@ const CampaignsPageInner = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [setCurrentPage]);
 
   // Wait for lookup maps before fetching when a category/cause filter is in the URL
   useEffect(() => {
@@ -360,13 +407,29 @@ const CampaignsPageInner = () => {
               <div key={i} className="bg-white rounded-3xl h-[520px] animate-pulse" />
             ))}
           </div>
-        ) : campaigns.length > 0 ? (
+        ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 my-10 lg:my-[57px] md:my-[30px]">
-              {campaigns.map((campaign) => (
-                <CampaignCard key={campaign.id} campaign={campaign} />
-              ))}
-            </div>
+            {campaigns.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 my-10 lg:my-[57px] md:my-[30px]">
+                {campaigns.map((campaign) => (
+                  <CampaignCard key={campaign.id} campaign={campaign} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <span className="text-5xl mb-4">🔍</span>
+                <h3 className="text-lg font-semibold text-[#383838] mb-2">{t("campaigns.empty", "No campaigns found")}</h3>
+                <p className="text-sm text-[#737373] max-w-xs">
+                  {t("campaigns.emptyHint", "Try adjusting your search or filters to find what you're looking for.")}
+                </p>
+                <button
+                  onClick={handleClearAll}
+                  className="mt-5 px-5 py-2.5 bg-[#EA3335] text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors cursor-pointer"
+                >
+                  {t("campaigns.clearFilters", "Clear All")}
+                </button>
+              </div>
+            )}
 
             {totalPages > 1 && (
               <div className="flex justify-center mt-12">
@@ -378,20 +441,6 @@ const CampaignsPageInner = () => {
               </div>
             )}
           </>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <span className="text-5xl mb-4">🔍</span>
-            <h3 className="text-lg font-semibold text-[#383838] mb-2">{t("campaigns.empty", "No campaigns found")}</h3>
-            <p className="text-sm text-[#737373] max-w-xs">
-              {t("campaigns.emptyHint", "Try adjusting your search or filters to find what you're looking for.")}
-            </p>
-            <button
-              onClick={handleClearAll}
-              className="mt-5 px-5 py-2.5 bg-[#EA3335] text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors cursor-pointer"
-            >
-              {t("campaigns.clearFilters", "Clear All")}
-            </button>
-          </div>
         )}
       </div>
     </main>
