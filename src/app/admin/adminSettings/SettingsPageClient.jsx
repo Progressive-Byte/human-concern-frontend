@@ -532,6 +532,20 @@ const SettingsPageClient = () => {
     }
   }
 
+  /*
+    The payment tab changes some state itself (Make default), so it asks for a fresh read after.
+    A failed re-read stays quiet: the change already succeeded, and showing an error would say the
+    opposite.
+  */
+  async function refreshPayment() {
+    try {
+      const res = await getAdminSettingsPayment();
+      setPayment(normalizeObj(res));
+    } catch {
+      /* Keep the current screen. */
+    }
+  }
+
   async function toggleGateway(provider, configurationId, enabled) {
     setPaymentBusy(true);
     setError("");
@@ -709,6 +723,7 @@ const SettingsPageClient = () => {
           onConfigure={configureGateway}
           onToggleEnabled={toggleGateway}
           onDisconnect={disconnectGateway}
+          refresh={refreshPayment}
         />
       ) : null}
 
