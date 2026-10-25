@@ -254,8 +254,8 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
         </div>
       </SettingsSectionCard>
 
-      <SettingsSectionCard icon={<GlobeIcon />} title="Localization" subtitle="Language and currency preferences">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <SettingsSectionCard icon={<GlobeIcon />} title="Localization" subtitle="Language preference">
+        <div className="grid grid-cols-1 gap-4">
           <Field label="Default Language">
             <SelectInput
               value={localization.defaultLanguage || ""}
@@ -267,20 +267,6 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
               <option value="es">Spanish</option>
               <option value="ar">Arabic</option>
               <option value="fr">French</option>
-            </SelectInput>
-          </Field>
-
-          <Field label="Default Currency">
-            <SelectInput
-              value={localization.defaultCurrency || ""}
-              onChange={(e) => onChange?.((prev) => ({ ...prev, localization: { ...(prev?.localization || {}), defaultCurrency: e.target.value } }))}
-              disabled={loading}
-            >
-              <option value="">Select currency</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
-              <option value="CAD">CAD</option>
             </SelectInput>
           </Field>
         </div>
