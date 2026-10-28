@@ -18,7 +18,7 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin/add-ons", label: "Addons", icon: "addons", permission: "addons.read" },
   { href: "/admin/donors", label: "Donors", icon: "donors", permission: "donors.read" },
   { href: "/admin/donations", label: "Transactions", icon: "transactions", permission: "transactions.read" },
-  { href: "/admin/schedules", label: "Schedules", icon: "schedules", permission: "schedules.read" },
+  { href: "/admin/schedules", label: "Recurring Payments", icon: "schedules", permission: "schedules.read" },
   { href: "/admin/fund-breakdown", label: "Fund Breakdown", icon: "fund-breakdown", permission: "transactions.read" },
   { href: null, label: "Abandonments", icon: "abandonments", disabled: true },
   { href: "/admin/logs", label: "Logs", icon: "logs", permission: "audit.read" },
