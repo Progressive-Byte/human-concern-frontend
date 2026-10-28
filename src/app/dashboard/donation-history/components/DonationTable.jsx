@@ -171,11 +171,11 @@ function DonationRow({ r, isLast, onError }) {
 
 export function DonationTable({ loading, rows, onError }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white overflow-hidden">
+    <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs uppercase tracking-wide text-[#6B7280] border-b border-dashed border-[#E5E7EB]">
+            <tr className="text-left text-xs uppercase tracking-wide text-[#6B7280] border-b border-solid border-[#E5E7EB]">
               {HEADERS.map((h) => (
                 <th key={h.label} className={h.className}>{h.label}</th>
               ))}

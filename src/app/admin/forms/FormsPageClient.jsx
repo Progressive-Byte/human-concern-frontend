@@ -193,7 +193,7 @@ const FormsPageClient = () => {
       />
 
       {filters.campaignId && campaignLabel ? (
-        <div className="hc-animate-fade-up rounded-2xl border border-dashed border-red-600/20 bg-red-600/10 px-4 py-3 text-[13px] text-[#111827]">
+        <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-600/20 bg-red-600/10 px-4 py-3 text-[13px] text-[#111827]">
           Filtering by campaign: <span className="font-semibold">{campaignLabel}</span>
         </div>
       ) : null}
@@ -202,7 +202,7 @@ const FormsPageClient = () => {
         <div className="hc-animate-fade-up rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
       ) : null}
 
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <FormsFilters
           q={filters.q}
           status={filters.status}

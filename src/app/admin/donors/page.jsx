@@ -338,7 +338,7 @@ const AdminDonorsPage = () => {
 
       <DonorsSummaryCards summary={summaryForCards} loading={summaryLoading} />
 
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <DonorsFilters
           q={filters.q}
           status={filters.status}

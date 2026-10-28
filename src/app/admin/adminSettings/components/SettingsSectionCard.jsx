@@ -2,7 +2,7 @@
 
 const SettingsSectionCard = ({ icon, title, subtitle, children }) => {
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-6">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-6">
       <div className="flex items-start gap-3">
         <div className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#111827]/5 text-[#111827]">
           {icon}

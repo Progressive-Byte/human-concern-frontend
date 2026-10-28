@@ -240,7 +240,7 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
         title="Edit"
         onClick={canEdit ? handleEdit : undefined}
         disabled={editLoading}
-        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
+        className={`w-8 h-8 rounded-lg border border-solid flex items-center justify-center transition-colors ${
           canEdit
             ? "border-[#E5E7EB] text-[#6B7280] hover:border-blue-500/40 hover:text-blue-600 hover:bg-blue-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
@@ -254,7 +254,7 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
         title={isActive ? "Pause" : "Resume"}
         disabled={!canPauseResume || modalLoading}
         onClick={handlePauseClick}
-        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
+        className={`w-8 h-8 rounded-lg border border-solid flex items-center justify-center transition-colors ${
           canPauseResume
             ? isActive
               ? "border-[#E5E7EB] text-[#6B7280] hover:border-amber-500/40 hover:text-amber-600 hover:bg-amber-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
@@ -270,7 +270,7 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
         title="Cancel"
         disabled={!canCancel || modalLoading}
         onClick={() => canCancel && !modalLoading && openModal("cancel")}
-        className={`w-8 h-8 rounded-lg border border-dashed flex items-center justify-center transition-colors ${
+        className={`w-8 h-8 rounded-lg border border-solid flex items-center justify-center transition-colors ${
           canCancel
             ? "border-[#E5E7EB] text-[#6B7280] hover:border-red-500/40 hover:text-red-600 hover:bg-red-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             : "border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed opacity-50"
@@ -291,7 +291,7 @@ const ActionButtons = ({ isActive, isPaused, isCancelled, isCompleted, slug, onP
       <Link
         href={`/dashboard/schedules/${slug}`}
         title="View"
-        className="w-8 h-8 rounded-lg border border-dashed border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:border-red-500/40 hover:text-red-600 hover:bg-red-500/10 transition-colors"
+        className="w-8 h-8 rounded-lg border border-solid border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:border-red-500/40 hover:text-red-600 hover:bg-red-500/10 transition-colors"
       >
         {EyeIcon}
       </Link>

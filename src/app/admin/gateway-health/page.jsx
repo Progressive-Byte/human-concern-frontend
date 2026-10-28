@@ -923,7 +923,7 @@ const AdminGatewayHealthPage = () => {
           className={`hc-animate-fade-up w-full rounded-2xl border px-4 py-3 text-left transition-colors ${
             swapMetrics.thresholdExceeded
               ? "border-orange-300 bg-orange-50"
-              : "border-dashed border-[#E5E7EB] bg-white hover:bg-[#FAFAFA]"
+              : "border-solid border-[#E5E7EB] bg-white hover:bg-[#FAFAFA]"
           }`}
         >
           <div className="flex items-center justify-between gap-3">
@@ -952,7 +952,7 @@ const AdminGatewayHealthPage = () => {
 
       <GatewayHealthSummaryCards items={items} loading={loading} meta={responseMeta} windowMinutes={Number(filters.sinceMinutes) || 15} />
 
-      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <GatewayHealthFilters
           provider={filters.provider}
           providers={providerOptions}
@@ -977,14 +977,14 @@ const AdminGatewayHealthPage = () => {
         <LatencyBarChart latencyPoints={latencyPoints} />
       </div>
 
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
         <div className="mb-3 text-[14px] font-semibold text-[#111827]">Provider-level Actions</div>
         <div className="flex flex-wrap gap-2">
           {providerOptions.length === 0 ? (
             <span className="text-[13px] text-[#6B7280]">No providers loaded.</span>
           ) : (
             providerOptions.map((p) => (
-              <div key={p} className="inline-flex items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-2 py-1.5">
+              <div key={p} className="inline-flex items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-2 py-1.5">
                 <span className="text-[12px] font-semibold text-[#111827] px-1.5">{p}</span>
                 <button
                   type="button"

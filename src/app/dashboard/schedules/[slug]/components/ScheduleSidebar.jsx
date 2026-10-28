@@ -235,7 +235,7 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
 
   return (
     <div className="w-full">
-      <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] overflow-hidden">
+      <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] overflow-hidden">
         {loading ? (
           <div className="space-y-3 p-4">
             <SkeletonBlock className="h-24 rounded-2xl" />
@@ -250,10 +250,10 @@ export function ScheduleSidebar({ loading, totalDonated, currency, nextShort, fr
               <p className="mt-1 text-xs text-[#6B7280]">Lifetime for this schedule</p>
             </div>
 
-            <div className="border-b px-5 py-4 border-dashed border-[#E5E7EB]">
+            <div className="border-b px-5 py-4 border-solid border-[#E5E7EB]">
               <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280] mb-1">Next Donation</p>
               <p className="text-sm font-semibold text-[#111827]">{nextShort}</p>
-              <div className="mt-3 pt-3 border-t border-dashed border-[#E5E7EB] flex items-center justify-between text-xs text-[#6B7280]">
+              <div className="mt-3 pt-3 border-t border-solid border-[#E5E7EB] flex items-center justify-between text-xs text-[#6B7280]">
                 <span>{frequency}</span>
                 <span className="font-semibold text-[#EA3335]">{formatCurrency(nextAmount, currency)}</span>
               </div>

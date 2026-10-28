@@ -6,7 +6,7 @@ const StatCard = ({ label, value, hint, icon, accent = "#EA3335", bgColor = "#FF
 
   return (
     <div
-      className="rounded-2xl border border-dashed p-[25px] hover:shadow-sm transition-shadow"
+      className="rounded-2xl border border-solid p-[25px] hover:shadow-sm transition-shadow"
       style={{
         backgroundColor: bgColor,
         borderColor: borderColor ?? "#E5E7EB",

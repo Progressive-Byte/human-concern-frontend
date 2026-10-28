@@ -55,7 +55,7 @@ const DonorPreferences = ({ anonymous, setAnonymous, showMessage, setShowMessage
               placeholder="Enter a name"
               rows={1}
               maxLength={500}
-              className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#EA3335] resize-none transition-colors"
+              className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[14px] text-[#383838] bg-white placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#EA3335] resize-none transition-colors"
             />
             <p className="text-[11px] text-[#AEAEAE] text-right">
               {(data.donorMessage ?? "").length} / 500

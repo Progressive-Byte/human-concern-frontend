@@ -181,7 +181,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     <div className="space-y-6">
       {/* Name and fee are short fields, so they share one row instead of two tall cards. */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+        <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Form Name</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
             This is the heading donors see on the form.
@@ -204,7 +204,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
           </div>
         </section>
 
-        <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+        <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Platform Fee</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
             The percentage shown on the form&apos;s fee slider.
@@ -248,7 +248,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
         disabled={busy}
         collapsed={!allowRecurring}
         toggle={
-          <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+          <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
             <input
               type="checkbox"
               checked={allowRecurring}
@@ -269,7 +269,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
 
       <PurposePicker selectedIds={causeIds} onChange={setCauseIds} onDirty={touch} disabled={busy} />
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Add-ons</h2>
@@ -279,7 +279,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
             </p>
           </div>
 
-          <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+          <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
             <input
               type="checkbox"
               checked={addonsEnabled}

@@ -4,7 +4,7 @@ import OutlineButton from "@/components/ui/OutlineButton";
 
 export function SecurityCard({ onChangePassword }) {
   return (
-    <section className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+    <section className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
       <UserSectionHeader icon={LockIcon} title="Security" variant="lock" />
 
       <div className="mt-4 divide-y divide-[#E5E7EB]">

@@ -101,7 +101,7 @@ const AdminNotificationsPage = () => {
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
         <div className="flex items-center justify-between gap-3 px-5 py-4">
           <div>
             <h2 className="text-[18px] font-semibold text-[#111827]">All notifications</h2>

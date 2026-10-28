@@ -139,7 +139,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
   }, [update, setError]);
 
   return (
-    <div className="border border-dashed border-[#E5E7EB] rounded-2xl">
+    <div className="border border-solid border-[#E5E7EB] rounded-2xl">
       <button
         type="button"
         onClick={() => setAddressExpanded((v) => !v)}
@@ -218,7 +218,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
                       <input
                         readOnly
                         value={data.province}
-                        className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
                       />
                       <button
                         type="button"
@@ -251,7 +251,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
                       <input
                         readOnly
                         value={data.city}
-                        className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
                       />
                       <button
                         type="button"

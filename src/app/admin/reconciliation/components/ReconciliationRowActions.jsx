@@ -75,7 +75,7 @@ const ReconciliationRowActions = ({ reportId, report, onRerun, onDownload }) => 
       <Link
         href={`/admin/reconciliation/${encodeURIComponent(reportId)}`}
         onClick={(e) => e.stopPropagation()}
-        className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-[#E5E7EB] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB]"
+        className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-solid border-[#E5E7EB] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB]"
         title="View detail"
       >
         <EyeIcon />
@@ -86,7 +86,7 @@ const ReconciliationRowActions = ({ reportId, report, onRerun, onDownload }) => 
         type="button"
         onClick={handleDownload}
         disabled={downloading}
-        className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-[#E5E7EB] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-solid border-[#E5E7EB] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
         title="Download CSV"
       >
         <DownloadIcon />
@@ -97,7 +97,7 @@ const ReconciliationRowActions = ({ reportId, report, onRerun, onDownload }) => 
         type="button"
         onClick={handleRerun}
         disabled={rerunning}
-        className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-[#E5E7EB] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-solid border-[#E5E7EB] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
         title="Re-run"
       >
         <PlayIcon />

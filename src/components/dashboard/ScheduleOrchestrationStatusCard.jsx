@@ -138,7 +138,7 @@ export function ScheduleOrchestrationStatusCard({ loading, schedule, scheduleId,
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+      <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
         <SkeletonBlock className="h-6 w-1/2 rounded-lg mb-4" />
         <SkeletonBlock className="h-20 rounded-xl mb-3" />
         <SkeletonBlock className="h-12 rounded-xl" />
@@ -166,7 +166,7 @@ export function ScheduleOrchestrationStatusCard({ loading, schedule, scheduleId,
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <div className="bg-white rounded-xl border border-dashed border-[#FED7AA] p-3.5">
+        <div className="bg-white rounded-xl border border-solid border-[#FED7AA] p-3.5">
           <p className="text-[11px] font-semibold tracking-widest uppercase text-[#B45309] mb-1.5">Next Retry</p>
           {nextRetryAt ? (
             <CountdownTimer expiresAt={nextRetryAt} size="sm" />
@@ -174,21 +174,21 @@ export function ScheduleOrchestrationStatusCard({ loading, schedule, scheduleId,
             <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-600">Not scheduled</span>
           )}
         </div>
-        <div className="bg-white rounded-xl border border-dashed border-[#FED7AA] p-3.5">
+        <div className="bg-white rounded-xl border border-solid border-[#FED7AA] p-3.5">
           <p className="text-[11px] font-semibold tracking-widest uppercase text-[#B45309] mb-1.5">Fail Count</p>
           <p className="text-xl font-bold text-[#B45309]">
             {failCount}
             <span className="text-xs font-semibold text-[#9CA3AF] ml-1">/ 3</span>
           </p>
         </div>
-        <div className="bg-white rounded-xl border border-dashed border-[#FED7AA] p-3.5">
+        <div className="bg-white rounded-xl border border-solid border-[#FED7AA] p-3.5">
           <p className="text-[11px] font-semibold tracking-widest uppercase text-[#B45309] mb-1.5">Circuit Status</p>
           <OrchestrationStatusBadge type="circuit" value={circuitMode} />
         </div>
       </div>
 
       {tripReason ? (
-        <div className="mb-4 border border-dashed border-red-500/20 bg-red-500/5 rounded-xl px-4 py-3">
+        <div className="mb-4 border border-solid border-red-500/20 bg-red-500/5 rounded-xl px-4 py-3">
           <div className="flex items-start gap-2">
             <span className="mt-0.5 shrink-0 text-red-600">
               {AlertIcon && <span><AlertIcon size={14} /></span>}
@@ -216,7 +216,7 @@ export function ScheduleOrchestrationStatusCard({ loading, schedule, scheduleId,
       ) : null}
 
       {localError && (
-        <div className="mb-4 rounded-xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-600">
+        <div className="mb-4 rounded-xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-600">
           {localError}
         </div>
       )}
@@ -260,7 +260,7 @@ export function ScheduleOrchestrationStatusCard({ loading, schedule, scheduleId,
       </div>
 
       {cancelOpen && (
-        <div className="mt-4 border border-dashed border-red-500/30 bg-red-50 rounded-xl p-4">
+        <div className="mt-4 border border-solid border-red-500/30 bg-red-50 rounded-xl p-4">
           <p className="text-sm font-semibold text-red-800 mb-2">Confirm cancel this schedule?</p>
           <textarea
             value={cancelReason}

@@ -130,7 +130,7 @@ function DateField({ label, value, placeholder = "Select date", onClick, disable
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className="flex w-full items-center justify-between rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+        className="flex w-full items-center justify-between rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
       >
         <span className={value ? "text-[#111827]" : "text-[#6B7280]"}>{value || placeholder}</span>
         <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#9CA3AF]" fill="none">
@@ -258,7 +258,7 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
 
       <div className={showInterval ? "" : "md:col-span-2"}>
         <div className="mb-2 text-[13px] font-semibold text-[#111827]">Frequency</div>
-        <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5">
+        <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5">
           <select
             value={frequency}
             onChange={(e) => {
@@ -298,7 +298,7 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
             inputMode="numeric"
             placeholder="5"
             disabled={disabled}
-            className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+            className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
           />
           <FieldError message={errors?.intervalValue} />
         </div>
@@ -439,7 +439,7 @@ function SpecificDatesEditor({ value, onChange, disabled, errors, campaignStartD
           ) : null}
         </div>
       ) : (
-        <div className="mt-3 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
+        <div className="mt-3 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
           No dates selected.
         </div>
       )}
@@ -473,7 +473,7 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
                 onChange={(e) => setField({ name: e.target.value })}
                 placeholder="Every week"
                 disabled={disabled}
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
               />
               <FieldError message={cardErrors.name} />
             </div>
@@ -486,14 +486,14 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
                 inputMode="numeric"
                 placeholder="10"
                 disabled={disabled}
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
               />
               <FieldError message={cardErrors.sortOrder} />
             </div>
           </div>
 
           <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center justify-between gap-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4 md:flex-1">
+            <div className="flex items-center justify-between gap-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:flex-1">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Enabled</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Show this preset to donors</div>
@@ -502,7 +502,7 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
             </div>
             <div className="md:flex-1">
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">Default</div>
-              <label className="flex h-[42px] items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+              <label className="flex h-[42px] items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
                 <input
                   type="radio"
                   name="recurringPresetDefault"
@@ -530,7 +530,7 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+          <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
             <div>
               <div className="text-[13px] font-semibold text-[#111827]">Allow make-up for missed dates</div>
               <div className="mt-1 text-[12px] text-[#6B7280]">
@@ -619,13 +619,13 @@ const RecurringPresetsEditor = ({
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
       <div className="mb-4">
         <h3 className="text-[14px] font-semibold text-[#111827]">Recurring Donations</h3>
         <p className="mt-1 text-[13px] text-[#6B7280]">Configure preset recurring schedules shown to donors</p>
       </div>
 
-      <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="text-[13px] font-semibold text-[#111827]">Allow Recurring Donations</div>
@@ -637,7 +637,7 @@ const RecurringPresetsEditor = ({
       </div>
 
       {allowRecurringDonations ? (
-        <div className="mt-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+        <div className="mt-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
               <div className="text-[13px] font-semibold text-[#111827]">Enable Flexible Recurring Schedule</div>
@@ -670,7 +670,7 @@ const RecurringPresetsEditor = ({
               />
             ))
           ) : (
-            <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
+            <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
               No recurring presets added.
             </div>
           )}
@@ -680,7 +680,7 @@ const RecurringPresetsEditor = ({
               type="button"
               onClick={addPreset}
               disabled={disabled}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
             >
               Add Preset
             </button>

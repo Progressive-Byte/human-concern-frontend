@@ -107,7 +107,7 @@ const NotificationsTab = ({ value, onChange, loading, saving, onSave }) => {
               onChange?.((prev) => ({ ...(prev || {}), highValueDonationAmount: next }));
             }}
             disabled={loading}
-            className="w-32 shrink-0 rounded-xl border border-dashed border-[#E5E7EB] px-3 py-2 text-right text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+            className="w-32 shrink-0 rounded-xl border border-solid border-[#E5E7EB] px-3 py-2 text-right text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
           />
         </div>
       </div>

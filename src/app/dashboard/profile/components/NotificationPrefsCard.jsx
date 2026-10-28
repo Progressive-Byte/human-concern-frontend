@@ -5,7 +5,7 @@ import { SkeletonStack } from "@/components/ui/Skeleton";
 
 export function NotificationPrefsCard({ loading, savingPrefs, prefs, setPref, onSave }) {
   return (
-    <section className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+    <section className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
       <UserSectionHeader icon={BellIcon} title="Notification Preferences" variant="bell" />
 
       <div className="mt-4 space-y-2">

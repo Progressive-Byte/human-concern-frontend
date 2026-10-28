@@ -111,7 +111,7 @@ export function ForceCloseDialog({ open, row = null, onClose, onConfirm, loading
         />
       }
     >
-      <div className="rounded-xl border border-dashed border-red-200 bg-red-50 p-3 text-[13px] text-red-700">
+      <div className="rounded-xl border border-solid border-red-200 bg-red-50 p-3 text-[13px] text-red-700">
         All transactions routed to this configuration will fail with a circuit-blocked error until manually re-opened or auto-expired.
       </div>
       <AdminNotesTextarea value={notes} onChange={setNotes} disabled={loading} />
@@ -207,7 +207,7 @@ export function CanaryDialog({ open, row = null, onClose, onConfirm, loading = f
       }
     >
       {hasResult ? (
-        <div className={`rounded-2xl border-2 border-dashed p-5 ${resultSuccess ? "border-emerald-300 bg-emerald-50" : "border-red-300 bg-red-50"}`}>
+        <div className={`rounded-2xl border-2 border-solid p-5 ${resultSuccess ? "border-emerald-300 bg-emerald-50" : "border-red-300 bg-red-50"}`}>
           <div className="flex items-center gap-3">
             <div className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${resultSuccess ? "bg-emerald-500/20 text-emerald-700" : "bg-red-500/20 text-red-700"}`}>
               {resultSuccess ? (
@@ -233,13 +233,13 @@ export function CanaryDialog({ open, row = null, onClose, onConfirm, loading = f
           {typeof result.durationMs !== "undefined" || typeof result.provider !== "undefined" ? (
             <dl className="mt-4 grid grid-cols-2 gap-3">
               {typeof result.durationMs !== "undefined" ? (
-                <div className="rounded-xl bg-white p-3 border border-dashed border-[#E5E7EB]">
+                <div className="rounded-xl bg-white p-3 border border-solid border-[#E5E7EB]">
                   <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">Duration</dt>
                   <dd className="mt-0.5 text-[14px] font-semibold tabular-nums text-[#111827]">{Number(result.durationMs || 0).toFixed(0)} ms</dd>
                 </div>
               ) : null}
               {typeof result.provider !== "undefined" && result.provider ? (
-                <div className="rounded-xl bg-white p-3 border border-dashed border-[#E5E7EB]">
+                <div className="rounded-xl bg-white p-3 border border-solid border-[#E5E7EB]">
                   <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">Provider Reference</dt>
                   <dd className="mt-0.5 text-[12px] font-mono text-[#111827] truncate" title={String(result.provider)}>{String(result.provider)}</dd>
                 </div>
@@ -282,7 +282,7 @@ export function CanaryDialog({ open, row = null, onClose, onConfirm, loading = f
               />
             </div>
           </div>
-          <div className="flex items-center justify-between rounded-xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] px-3 py-2.5">
+          <div className="flex items-center justify-between rounded-xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] px-3 py-2.5">
             <div>
               <div className="text-[13px] font-medium text-[#374151]">Test Mode</div>
               <div className="text-[11px] text-[#6B7280]">Use provider sandbox / auth-only when possible.</div>
@@ -328,7 +328,7 @@ export function ResetCountersDialog({ open, row = null, onClose, onConfirm, load
         />
       }
     >
-      <div className="rounded-xl border border-dashed border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-800">
+      <div className="rounded-xl border border-solid border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-800">
         Rolling windows and SLO calculations will start fresh after this operation.
       </div>
       <AdminNotesTextarea value={notes} onChange={setNotes} disabled={loading} />
@@ -358,7 +358,7 @@ export function BulkPauseDialog({ open, provider = "", onClose, onConfirm, loadi
         />
       }
     >
-      <div className="rounded-xl border border-dashed border-red-200 bg-red-50 p-3 text-[13px] text-red-700">
+      <div className="rounded-xl border border-solid border-red-200 bg-red-50 p-3 text-[13px] text-red-700">
         This will force-close every active circuit for the provider. Use for incidents, migrations, or scheduled maintenance.
       </div>
       <AdminNotesTextarea value={notes} onChange={setNotes} disabled={loading} />
@@ -387,7 +387,7 @@ export function BulkResumeDialog({ open, provider = "", onClose, onConfirm, load
         />
       }
     >
-      <div className="rounded-xl border border-dashed border-sky-200 bg-sky-50 p-3 text-[13px] text-sky-800">
+      <div className="rounded-xl border border-solid border-sky-200 bg-sky-50 p-3 text-[13px] text-sky-800">
         Force-open overrides will be lifted. Circuits will resume to TRACKING and re-arm breakers naturally.
       </div>
       <AdminNotesTextarea value={notes} onChange={setNotes} disabled={loading} />
@@ -414,7 +414,7 @@ export function SweepConfirmDialog({ open, onClose, onConfirm, loading = false, 
         />
       }
     >
-      <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-3 text-[13px] text-[#6B7280]">
+      <div className="rounded-xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-3 text-[13px] text-[#6B7280]">
         This is a maintenance housekeeping action and should not affect currently-healthy circuits.
       </div>
     </ModalShell>

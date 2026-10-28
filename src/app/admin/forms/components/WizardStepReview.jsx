@@ -195,13 +195,13 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
 
   if (!formId) {
     return (
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
         Missing formId. Please complete Basics first to create the draft form.
         <div className="mt-4">
           <button
             type="button"
             onClick={() => onExit?.({ nextStep: "basics" })}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             Back to Basics
           </button>
@@ -218,7 +218,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Review Campaign</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">Review all details before publishing your form</p>
@@ -235,7 +235,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
             ))}
           </div>
         ) : !data ? (
-          <div className="mt-5 rounded-xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+          <div className="mt-5 rounded-xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
             Unable to load review. Please try again.
           </div>
         ) : (
@@ -358,19 +358,19 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
       </section>
 
       {data && !canPublish ? (
-        <div className="rounded-xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
           Complete required sections to publish.
         </div>
       ) : null}
 
       <div className="sticky bottom-0">
-        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-4 py-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <button
               type="button"
               onClick={() => onExit?.({ nextStep: "public-display" })}
               disabled={publishing || drafting}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Back
             </button>
@@ -380,7 +380,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
                 type="button"
                 onClick={createOrMoveToDraft}
                 disabled={publishing || drafting}
-                className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {drafting
                   ? "Saving..."
@@ -397,7 +397,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
                 onClick={(e) => {
                   if (publishing || drafting || loading) e.preventDefault();
                 }}
-                className={`cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] ${
+                className={`cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] ${
                   publishing || drafting || loading ? "pointer-events-none cursor-not-allowed opacity-50" : ""
                 }`}
               >

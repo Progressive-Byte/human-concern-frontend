@@ -3,7 +3,7 @@ import { SkeletonStack } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/helpers";
 
 const FundBreakdownCard = ({ loading, items, currency }) => (
-  <div className="lg:col-span-5 bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+  <div className="lg:col-span-5 bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
     <div className="flex items-center justify-between mb-5">
       <h2 className="text-lg md:text-xl font-semibold text-[#111827]">Fund Breakdown</h2>
       <Link href="/dashboard/fund-breakdown" className="text-sm text-[#EA3335] hover:underline font-medium">

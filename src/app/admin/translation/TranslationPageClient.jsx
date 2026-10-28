@@ -241,14 +241,14 @@ const TranslationPageClient = () => {
       ) : null}
 
       {loading ? (
-        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-10 text-center text-sm text-[#6B7280]">
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-10 text-center text-sm text-[#6B7280]">
           Loading…
         </div>
       ) : null}
 
       {/* ── Languages ── */}
       {!loading && tab === "languages" ? (
-        <section className="hc-animate-fade-up space-y-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-6">
+        <section className="hc-animate-fade-up space-y-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-6">
           <div className="text-[16px] font-semibold text-[#111827]">Languages</div>
           <div className="space-y-2">
             {languages.map((l, i) => (
@@ -331,7 +331,7 @@ const TranslationPageClient = () => {
 
       {/* ── Content ── */}
       {!loading && tab === "content" ? (
-        <section className="hc-animate-fade-up space-y-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-6">
+        <section className="hc-animate-fade-up space-y-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="text-[16px] font-semibold text-[#111827]">Website content</div>
@@ -409,7 +409,7 @@ const TranslationPageClient = () => {
 
       {/* ── Geo detection ── */}
       {!loading && tab === "geo" ? (
-        <section className="hc-animate-fade-up space-y-5 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-6">
+        <section className="hc-animate-fade-up space-y-5 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-6">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">Geo Detection</div>
             <div className="mt-1 text-[12px] text-[#6B7280]">

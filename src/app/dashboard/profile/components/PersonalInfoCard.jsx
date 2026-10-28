@@ -54,7 +54,7 @@ export function PersonalInfoCard({ loading, savingProfile, form, setField, setAd
   const cityIsPicklist  = Boolean(stateCode) && cityOptions.length > 0;
 
   return (
-    <section className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+    <section className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
       <UserSectionHeader icon={UserIcon} title="Personal Information" variant="user" />
 
       <div className="mt-5 space-y-4">

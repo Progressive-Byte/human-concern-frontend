@@ -156,13 +156,13 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
 
   if (!formId) {
     return (
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
         Missing formId. Please complete Basics first to create the draft form.
         <div className="mt-4">
           <button
             type="button"
             onClick={() => onExit?.({ nextStep: "basics" })}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             Back to Basics
           </button>
@@ -172,7 +172,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
   }
 
   const inputClass =
-    "w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60";
+    "w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60";
 
   return (
     <div className="space-y-6">
@@ -182,7 +182,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Unavailable Page</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
@@ -213,7 +213,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
               placeholder="This campaign is not currently accepting donations."
               maxLength={500}
               disabled={saving}
-              className="min-h-30 w-full resize-none rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+              className="min-h-30 w-full resize-none rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
             />
             <FieldError message={fieldErrors.description} />
           </div>

@@ -33,7 +33,7 @@ function ChevronIcon({ open }) {
 
 function CheckField({ label, checked, onChange, disabled }) {
   return (
-    <label className="flex h-[42px] items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+    <label className="flex h-[42px] items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
       <input
         type="checkbox"
         checked={Boolean(checked)}
@@ -48,7 +48,7 @@ function CheckField({ label, checked, onChange, disabled }) {
 }
 
 const INPUT_CLASS =
-  "w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60";
+  "w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60";
 
 const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonClassName = "" }) => {
   const notes = Array.isArray(value) ? value : [];
@@ -98,7 +98,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
       <div className="mb-4">
         <h3 className="text-[14px] font-semibold text-[#111827]">Custom Notes</h3>
         <p className="mt-1 text-[13px] text-[#6B7280]">
@@ -146,7 +146,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
 
                       <div className="md:col-span-1">
                         <div className="mb-2 text-[13px] font-semibold text-[#111827]">Answer type</div>
-                        <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5">
+                        <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5">
                           <select
                             value={type}
                             onChange={(e) => setNote(idx, { type: e.target.value })}
@@ -199,7 +199,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                   </div>
 
                   {showOptions ? (
-                    <div className="mt-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+                    <div className="mt-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <div className="text-[13px] font-semibold text-[#111827]">Choices</div>
@@ -209,7 +209,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                           type="button"
                           onClick={() => addOption(idx)}
                           disabled={disabled}
-                          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                          className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
                         >
                           Add choice
                         </button>
@@ -295,7 +295,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                           <div className={showPlaceholder ? "md:col-span-1" : "md:col-span-3"}>
                             <div className="mb-2 text-[13px] font-semibold text-[#111827]">Pre-filled answer (optional)</div>
                             {type === "select" || type === "radio" ? (
-                              <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5">
+                              <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5">
                                 <select
                                   value={String(n.defaultValue ?? "")}
                                   onChange={(e) => setNote(idx, { defaultValue: e.target.value })}
@@ -347,7 +347,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
             })}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
             No custom notes added.
           </div>
         )}
@@ -357,7 +357,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
             type="button"
             onClick={addNote}
             disabled={disabled}
-            className={`cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60 ${addButtonClassName}`.trim()}
+            className={`cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60 ${addButtonClassName}`.trim()}
           >
             Add Note
           </button>

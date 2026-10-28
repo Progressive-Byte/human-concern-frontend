@@ -96,7 +96,7 @@ const ResolveDiscrepancyDialog = ({
     <div className="fixed inset-0 z-[90] flex items-center justify-center px-4">
       <button type="button" aria-label="Close dialog overlay" className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      <div className="hc-animate-dropdown relative w-full max-w-[620px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
+      <div className="hc-animate-dropdown relative w-full max-w-[620px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">Resolve Discrepancy</div>
@@ -112,7 +112,7 @@ const ResolveDiscrepancyDialog = ({
             type="button"
             aria-label="Close dialog"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-solid border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -134,7 +134,7 @@ const ResolveDiscrepancyDialog = ({
                   <label
                     key={opt.value}
                     className={`cursor-pointer rounded-xl border p-3 transition ${
-                      active ? opt.tone : "border-dashed border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
+                      active ? opt.tone : "border-solid border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
                     }`}
                   >
                     <div className="flex items-start gap-2">
@@ -168,7 +168,7 @@ const ResolveDiscrepancyDialog = ({
               onChange={(e) => setReason(e.target.value)}
               rows={4}
               placeholder="Provide at least 5 characters explaining why this resolution is correct."
-              className="mt-1.5 w-full resize-none rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="mt-1.5 w-full resize-none rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
             />
             {!reasonValid ? (
               <div className="mt-1 text-[12px] text-amber-700">Notes are required (minimum 5 characters).</div>
@@ -180,7 +180,7 @@ const ResolveDiscrepancyDialog = ({
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancel
             </button>

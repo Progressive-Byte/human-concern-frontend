@@ -32,7 +32,7 @@ const DiscrepancyRowActions = ({ reportId, discrepancyId, discrepancy, disabled 
         className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold transition-colors duration-200 ${
           disabled
             ? "border-[#E5E7EB] bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed"
-            : "border-dashed border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
+            : "border-solid border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
         }`}
         title={disabled ? "Already resolved" : "Resolve discrepancy"}
       >

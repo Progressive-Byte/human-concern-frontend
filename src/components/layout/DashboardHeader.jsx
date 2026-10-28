@@ -37,7 +37,7 @@ const DashboardHeader = ({ title, subtitle, actions }) => {
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            className="lg:hidden flex flex-col justify-center items-center w-9 h-9 rounded-xl border border-dashed border-[#E5E7EB] bg-white gap-1.25 cursor-pointer"
+            className="lg:hidden flex flex-col justify-center items-center w-9 h-9 rounded-xl border border-solid border-[#E5E7EB] bg-white gap-1.25 cursor-pointer"
             aria-label="Toggle menu"
           >
             <span className={`block w-5 h-0.5 bg-[#111827] transition-all ${menuOpen ? "rotate-45 translate-y-1.75" : ""}`} />
@@ -49,7 +49,7 @@ const DashboardHeader = ({ title, subtitle, actions }) => {
 
       {/* Mobile slide-down nav */}
       {menuOpen && (
-        <nav className="lg:hidden bg-white border-b border-dashed border-[#E5E7EB] px-4 py-3 space-y-1">
+        <nav className="lg:hidden bg-white border-b border-solid border-[#E5E7EB] px-4 py-3 space-y-1">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
@@ -69,7 +69,7 @@ const DashboardHeader = ({ title, subtitle, actions }) => {
             );
           })}
 
-          <div className="pt-2 border-t border-dashed border-[#E5E7EB] space-y-1 mt-1">
+          <div className="pt-2 border-t border-solid border-[#E5E7EB] space-y-1 mt-1">
             <Link
               href="/donate"
               onClick={() => setMenuOpen(false)}

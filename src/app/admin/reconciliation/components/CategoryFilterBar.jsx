@@ -44,7 +44,7 @@ const CategoryFilterBar = ({ selected = "ALL", onChange, counts = null }) => {
             className={`group inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[12px] font-semibold transition ${
               active
                 ? "border-[#111827] bg-[#111827] text-white"
-                : "border-dashed border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#111827]"
+                : "border-solid border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#111827]"
             }`}
           >
             <span className={active ? "opacity-90" : ""}>

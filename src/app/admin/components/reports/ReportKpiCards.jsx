@@ -4,7 +4,7 @@ import { formatCurrency } from "@/utils/helpers";
 
 function StatCard({ label, value, sub, accent = false }) {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
       <div className="text-[12px] font-semibold uppercase tracking-wide text-[#6B7280]">{label}</div>
       <div className={`hc-kpi-value mt-2 font-semibold ${accent ? "text-[#EA3335]" : "text-[#111827]"}`} title={String(value)}>
         {value}
@@ -15,7 +15,7 @@ function StatCard({ label, value, sub, accent = false }) {
 }
 
 function Skeleton() {
-  return <div className="h-[104px] animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA]" />;
+  return <div className="h-[104px] animate-pulse rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA]" />;
 }
 
 const ReportKpiCards = ({ data, loading }) => {
@@ -47,7 +47,7 @@ const ReportKpiCards = ({ data, loading }) => {
         {["today", "mtd", "ytd"].map((key) => {
           const w = windows[key] || {};
           return (
-            <div key={key} className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+            <div key={key} className="rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
               <div className="text-[12px] font-semibold uppercase tracking-wide text-[#6B7280]">{key}</div>
               <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
                 <span className="text-[18px] font-semibold text-[#111827]">{money(w.committed)}</span>

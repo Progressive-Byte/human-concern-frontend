@@ -238,7 +238,7 @@ function SimpleFormHost() {
           <button
             type="button"
             onClick={() => router.push("/admin/forms")}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             Back to forms
           </button>

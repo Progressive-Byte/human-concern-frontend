@@ -87,13 +87,13 @@ const SchedulesPage = () => {
 
       <div className="flex-1 p-4 md:p-6 space-y-4">
         {error ? (
-          <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
+          <div className="rounded-2xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
         ) : null}
 
         {loading ? (
           <SkeletonStack count={3} blockClass="h-24 rounded-2xl" />
         ) : schedules.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-5 py-12 text-center text-sm text-[#6B7280]">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-5 py-12 text-center text-sm text-[#6B7280]">
             No schedules found.
           </div>
         ) : (

@@ -69,7 +69,7 @@ const ExpireStaleChallengesModal = ({ open, onClose, onSuccess }) => {
     <div className="fixed inset-0 z-[80] flex items-center justify-center px-4">
       <button type="button" aria-label="Close modal overlay" className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      <div className="hc-animate-dropdown relative w-full max-w-[560px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
+      <div className="hc-animate-dropdown relative w-full max-w-[560px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">Expire Stale Auth Challenges</div>
@@ -81,7 +81,7 @@ const ExpireStaleChallengesModal = ({ open, onClose, onSuccess }) => {
             type="button"
             aria-label="Close modal"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-solid border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -94,13 +94,13 @@ const ExpireStaleChallengesModal = ({ open, onClose, onSuccess }) => {
             <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
           ) : null}
 
-          <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+          <div className="rounded-xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={force}
                 onChange={(e) => setForce(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-dashed border-[#E5E7EB]"
+                className="mt-0.5 h-4 w-4 rounded border-solid border-[#E5E7EB]"
               />
               <div className="min-w-0">
                 <div className="text-[13px] font-semibold text-[#111827]">Force expire</div>
@@ -116,7 +116,7 @@ const ExpireStaleChallengesModal = ({ open, onClose, onSuccess }) => {
               type="checkbox"
               checked={confirmed}
               onChange={(e) => setConfirmed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-dashed border-[#E5E7EB]"
+              className="mt-0.5 h-4 w-4 rounded border-solid border-[#E5E7EB]"
             />
             <div className="text-[13px] text-[#111827]">
               I understand this action closes pending auth challenges and may interrupt in-progress donor flows.
@@ -128,7 +128,7 @@ const ExpireStaleChallengesModal = ({ open, onClose, onSuccess }) => {
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancel
             </button>

@@ -201,7 +201,7 @@ const AdminAddOnsPage = () => {
 
       <AddOnsSummaryCards summary={summary} loading={loading} />
 
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <AddOnsFilters
           q={filters.q}
           status={filters.status}

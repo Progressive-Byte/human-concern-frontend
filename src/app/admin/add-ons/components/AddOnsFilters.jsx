@@ -17,7 +17,7 @@ const AddOnsFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
           value={q}
           onChange={(e) => onChangeQ?.(e.target.value)}
           placeholder="Search add-ons..."
-          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white py-3 pl-10 pr-4 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pl-10 pr-4 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
         />
       </div>
 
@@ -25,7 +25,7 @@ const AddOnsFilters = ({ q, status, onChangeQ, onChangeStatus }) => {
         <select
           value={status}
           onChange={(e) => onChangeStatus?.(e.target.value)}
-          className="w-full md:w-[160px] rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+          className="w-full md:w-[160px] rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
         >
           <option value="">All Status</option>
           <option value="active">Active</option>

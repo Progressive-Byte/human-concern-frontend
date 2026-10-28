@@ -145,7 +145,7 @@ const InstallmentActionsListPage = () => {
         </Link>
 
         {error ? (
-          <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
+          <div className="rounded-2xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
         ) : null}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -156,7 +156,7 @@ const InstallmentActionsListPage = () => {
             { key: "permanently_failed_max_retries", label: "Max Retries" },
             { key: "pending_bank_transfer_manual_match", label: "Bank Transfer" },
           ].map((c) => (
-            <div key={c.key} className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-4">
+            <div key={c.key} className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-4">
               <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280]">{c.label}</p>
               <p className="mt-1.5 text-2xl font-bold text-[#111827]">{counts[c.key] || 0}</p>
             </div>
@@ -166,7 +166,7 @@ const InstallmentActionsListPage = () => {
         {loading ? (
           <SkeletonStack count={3} blockClass="h-28 rounded-2xl" />
         ) : installments.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-5 py-16 text-center">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-5 py-16 text-center">
             <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#ECFDF5] text-[#047857] mb-4">
               <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
                 <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -186,7 +186,7 @@ const InstallmentActionsListPage = () => {
             {installments.map((it) => (
               <div
                 key={it.scheduleId}
-                className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-4 md:p-5 hover:border-red-500/30 hover:shadow-sm transition-all"
+                className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-4 md:p-5 hover:border-red-500/30 hover:shadow-sm transition-all"
               >
                 <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-5">
                   <div className="flex-1 min-w-0">
@@ -213,7 +213,7 @@ const InstallmentActionsListPage = () => {
                       )}
                     </div>
                     {it.tripReason && (
-                      <p className="mt-2 text-xs text-[#6B7280] bg-[#F9FAFB] border border-dashed border-[#E5E7EB] rounded-xl px-3 py-2">
+                      <p className="mt-2 text-xs text-[#6B7280] bg-[#F9FAFB] border border-solid border-[#E5E7EB] rounded-xl px-3 py-2">
                         <span className="font-semibold text-[#111827]">Last failure:</span> {it.tripReason}
                         {it.failureClass === "non_retriable" && (
                           <span className="ml-2 inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-700">

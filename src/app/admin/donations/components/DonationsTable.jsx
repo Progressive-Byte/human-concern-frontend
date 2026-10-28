@@ -26,7 +26,7 @@ function shortTransactionId(id) {
 
 function Skeleton() {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="h-6 w-56 animate-pulse rounded bg-[#F3F4F6]" />
         <div className="h-9 w-24 animate-pulse rounded bg-[#F3F4F6]" />
@@ -60,7 +60,7 @@ const DonationsTable = ({
   const amountFmt = typeof formatAmount === "function" ? formatAmount : (v) => String(v ?? "");
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="text-[18px] font-semibold text-[#111827]">All Transactions ({total})</div>
       </div>

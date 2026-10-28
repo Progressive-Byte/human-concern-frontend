@@ -40,7 +40,7 @@ function countryFlag(code) {
 
 function SkeletonKpi() {
   return (
-    <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+    <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
       <div className="h-3 w-20 animate-pulse rounded bg-[#F3F4F6]" />
       <div className="mt-2 h-7 w-10 animate-pulse rounded bg-[#F3F4F6]" />
     </div>
@@ -195,7 +195,7 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
             )}
           </section>
 
-          <section className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+          <section className="rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
             <h3 className="mb-3 text-[14px] font-semibold text-[#111827]">Overview</h3>
             <dl className="grid grid-cols-2 gap-y-2 gap-x-4 text-[13px]">
               <div>
@@ -237,7 +237,7 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
                       <summary className="text-[10px] uppercase tracking-wide text-[#6B7280] cursor-pointer select-none">Raw ({Object.keys(scaRaw).length})</summary>
                       <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] tabular-nums text-[#4B5563]">
                         {Object.entries(scaRaw).slice(0, 20).map(([k, v]) => (
-                          <div key={k} className="flex justify-between border-b border-dashed border-[#E5E7EB] py-0.5">
+                          <div key={k} className="flex justify-between border-b border-solid border-[#E5E7EB] py-0.5">
                             <span>{k}</span>
                             <span className="font-mono">{v != null ? Number(v).toLocaleString() : "—"}</span>
                           </div>
@@ -320,7 +320,7 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
           </section>
 
           {overrideMeta ? (
-            <section className={`rounded-2xl border border-dashed p-4 ${circuitStatus === "FORCE_CLOSED" ? "border-red-200 bg-red-50" : "border-sky-200 bg-sky-50"}`}>
+            <section className={`rounded-2xl border border-solid p-4 ${circuitStatus === "FORCE_CLOSED" ? "border-red-200 bg-red-50" : "border-sky-200 bg-sky-50"}`}>
               <h3 className={`mb-3 text-[14px] font-semibold ${circuitStatus === "FORCE_CLOSED" ? "text-red-900" : "text-sky-900"}`}>Manual Override</h3>
               <dl className="grid grid-cols-1 gap-y-2 gap-x-4 text-[13px]">
                 {overrideMeta.source ? (
@@ -344,7 +344,7 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
                 {overrideMeta.adminNotes ? (
                   <div className="col-span-2">
                     <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Admin Notes</dt>
-                    <dd className={`mt-1 rounded-xl border border-dashed p-2.5 text-[12px] leading-relaxed whitespace-pre-wrap ${circuitStatus === "FORCE_CLOSED" ? "border-red-200 bg-white text-red-900" : "border-sky-200 bg-white text-sky-900"}`}>
+                    <dd className={`mt-1 rounded-xl border border-solid p-2.5 text-[12px] leading-relaxed whitespace-pre-wrap ${circuitStatus === "FORCE_CLOSED" ? "border-red-200 bg-white text-red-900" : "border-sky-200 bg-white text-sky-900"}`}>
                       {String(overrideMeta.adminNotes)}
                     </dd>
                   </div>
@@ -353,7 +353,7 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
             </section>
           ) : null}
 
-          <section className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+          <section className="rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
             <h3 className="mb-3 text-[14px] font-semibold text-[#111827]">Rolling Metrics</h3>
             <div className="space-y-3">
               <div>
@@ -364,19 +364,19 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
                 <HealthScoreGauge value={healthScore} />
               </div>
               <div className="grid grid-cols-3 gap-3 pt-2">
-                <div className="rounded-xl bg-white p-3 text-center border border-dashed border-[#E5E7EB]">
+                <div className="rounded-xl bg-white p-3 text-center border border-solid border-[#E5E7EB]">
                   <div className="text-[10px] uppercase tracking-wide text-[#6B7280]">p50</div>
                   <div className="mt-1 text-[15px] font-semibold tabular-nums text-[#111827]">
                     {p50 ? `${p50.toFixed(0)} ms` : "—"}
                   </div>
                 </div>
-                <div className="rounded-xl bg-white p-3 text-center border border-dashed border-[#E5E7EB]">
+                <div className="rounded-xl bg-white p-3 text-center border border-solid border-[#E5E7EB]">
                   <div className="text-[10px] uppercase tracking-wide text-[#6B7280]">p95</div>
                   <div className="mt-1 text-[15px] font-semibold tabular-nums text-[#111827]">
                     {p95 ? `${p95.toFixed(0)} ms` : "—"}
                   </div>
                 </div>
-                <div className="rounded-xl bg-white p-3 text-center border border-dashed border-[#E5E7EB]">
+                <div className="rounded-xl bg-white p-3 text-center border border-solid border-[#E5E7EB]">
                   <div className="text-[10px] uppercase tracking-wide text-[#6B7280]">p99</div>
                   <div className="mt-1 text-[15px] font-semibold tabular-nums text-[#111827]">
                     {p99 ? `${p99.toFixed(0)} ms` : "—"}
@@ -384,11 +384,11 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-white p-3 border border-dashed border-[#E5E7EB]">
+                <div className="rounded-xl bg-white p-3 border border-solid border-[#E5E7EB]">
                   <div className="text-[10px] uppercase tracking-wide text-emerald-700">Successes</div>
                   <div className="mt-1 text-[15px] font-semibold tabular-nums text-[#111827]">{successCount.toLocaleString()}</div>
                 </div>
-                <div className="rounded-xl bg-white p-3 border border-dashed border-[#E5E7EB]">
+                <div className="rounded-xl bg-white p-3 border border-solid border-[#E5E7EB]">
                   <div className="text-[10px] uppercase tracking-wide text-red-700">Failures</div>
                   <div className="mt-1 text-[15px] font-semibold tabular-nums text-[#111827]">{failureCount.toLocaleString()}</div>
                 </div>
@@ -396,7 +396,7 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
             </div>
           </section>
 
-          <section className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+          <section className="rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
             <h3 className="mb-3 text-[14px] font-semibold text-[#111827]">Recent Errors</h3>
             {recentErrors.length === 0 ? (
               <div className="text-[13px] text-[#6B7280] py-6 text-center">No recent errors.</div>
@@ -407,7 +407,7 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
                   const message = String(err?.message || err?.msg || err?.body || "No message");
                   const at = err?.timestamp || err?.at || err?.createdAt;
                   return (
-                    <li key={i} className="rounded-xl bg-white border border-dashed border-red-100 p-3">
+                    <li key={i} className="rounded-xl bg-white border border-solid border-red-100 p-3">
                       <div className="flex items-start justify-between gap-2">
                         <span className="inline-flex rounded-md bg-red-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700">
                           {code}
@@ -423,7 +423,7 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
           </section>
 
           {diagnostics ? (
-            <section className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+            <section className="rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
               <h3 className="mb-3 text-[14px] font-semibold text-[#111827]">Diagnostics</h3>
               <pre className="rounded-xl bg-[#111827] p-3 text-[11px] text-[#E5E7EB] overflow-x-auto max-h-[300px] overflow-y-auto">
                 {JSON.stringify(diagnostics, null, 2)}

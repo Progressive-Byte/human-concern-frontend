@@ -546,7 +546,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
           <div className="h-6 w-1/3 animate-pulse rounded-lg bg-[#F3F4F6]" />
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
@@ -555,7 +555,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
             <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
           </div>
         </div>
-        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
           <div className="h-6 w-1/3 animate-pulse rounded-lg bg-[#F3F4F6]" />
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
@@ -576,7 +576,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>
             <h2 className="text-[16px] font-semibold text-[#111827]">Internal Basics</h2>
@@ -591,7 +591,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
             <input
               value={internalCampaignId}
               placeholder="Generating..."
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2.5 text-[13px] text-[#6B7280] outline-none"
+              className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2.5 text-[13px] text-[#6B7280] outline-none"
               readOnly
               disabled={saving}
             />
@@ -607,7 +607,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 value={fundCause}
                 onChange={(e) => setFundCause(e.target.value)}
                 placeholder="e.g. Child Sponsorship Program"
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
               <FieldError message={fieldErrors["internal.fundCause"]} />
@@ -623,7 +623,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 value={fundCode}
                 onChange={(e) => setFundCode(e.target.value)}
                 placeholder="digits only"
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
               <FieldError message={fieldErrors["internal.fundCode"]} />
@@ -639,7 +639,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 value={beneficiaryId}
                 onChange={(e) => setBeneficiaryId(e.target.value)}
                 placeholder="digits only"
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
               <FieldError message={fieldErrors["internal.beneficiaryId"]} />
@@ -655,7 +655,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 value={locationId}
                 onChange={(e) => setLocationId(e.target.value)}
                 placeholder="Location ID"
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
               <FieldError message={fieldErrors["internal.locationId"]} />
@@ -670,7 +670,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
               placeholder="Short description"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={saving}
             />
             <div className="mt-1 text-[12px] text-[#6B7280]">{Math.min(200, String(shortDescription || "").length)}/200 characters</div>
@@ -679,7 +679,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         </div>
       </section>
 
-      <section className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="mb-4">
           <h2 className="text-[16px] font-semibold text-[#111827]">Public Basics</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">Public facing information for this form.</p>
@@ -694,13 +694,13 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Form display name"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={saving}
             />
             <FieldError message={fieldErrors["public.displayName"]} />
 
             {similarForms.length > 0 ? (
-              <div className="mt-3 rounded-xl border border-dashed border-[#FDE68A] bg-[#FFFBEB] px-4 py-3">
+              <div className="mt-3 rounded-xl border border-solid border-[#FDE68A] bg-[#FFFBEB] px-4 py-3">
                 <div className="text-[13px] font-semibold text-[#92400E]">
                   A similar form already exists: {similarForms[0].name}
                 </div>
@@ -735,14 +735,14 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Optional description (max 500)"
-                className="min-h-30 w-full resize-none rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="min-h-30 w-full resize-none rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
               <div className="mt-1 text-[12px] text-[#6B7280]">{Math.min(500, description.length)}/500 characters</div>
               <FieldError message={fieldErrors["public.description"]} />
             </div>
 
-            <div className="mt-4 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <div className="text-[13px] font-semibold text-[#111827]">Collaborating with</div>
@@ -771,7 +771,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                       value={collaborationOrganizationName}
                       onChange={(e) => setCollaborationOrganizationName(e.target.value)}
                       placeholder="e.g. Human Concern International"
-                      className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                      className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                       disabled={saving}
                     />
                     <FieldError message={fieldErrors["public.collaborationOrganizationName"]} />
@@ -793,7 +793,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                       />
 
                       {collaborationImagePreview || collaborationOrganizationImage ? (
-                        <div className="overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-2">
+                        <div className="overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white p-2">
                           <img
                             src={collaborationImagePreview || resolveAssetUrl(collaborationOrganizationImage)}
                             alt=""
@@ -813,7 +813,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                             setCollaborationImageRemoved(true);
                           }}
                           disabled={saving || (!collaborationImagePreview && !collaborationOrganizationImage)}
-                          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3.5 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+                          className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3.5 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           Remove
                         </button>
@@ -826,7 +826,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+            <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
               <div className="mb-3 text-[13px] font-semibold text-[#111827]">
                 Campaign Type <span className="text-red-600">*</span>
               </div>
@@ -862,7 +862,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               </div>
 
               {specialOpen ? (
-                <div className="mt-3 rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FCFCFC] p-3">
+                <div className="mt-3 rounded-2xl border border-solid border-[#E5E7EB] bg-[#FCFCFC] p-3">
                   <div className="mb-2 text-[12px] font-semibold text-[#6B7280]">Choose a special campaign type</div>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                     {SPECIAL_TYPES.map((type) => (
@@ -897,7 +897,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">
                 Categories <span className="text-red-600">*</span>
               </div>
-              <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white p-3">
+              <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white p-3">
                 <div className="flex items-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 focus-within:border-red-500/40">
                   <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#9CA3AF]" fill="none">
                     <path
@@ -978,7 +978,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               <FieldError message={fieldErrors["public.categoryIds"]} />
             </div>
 
-            <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+            <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <div className="text-[13px] font-semibold text-[#111827]">Featured</div>
@@ -988,7 +988,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               </div>
             </div>
 
-            <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+            <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <div className="text-[13px] font-semibold text-[#111827]">Listed</div>

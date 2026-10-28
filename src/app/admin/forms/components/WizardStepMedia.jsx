@@ -394,13 +394,13 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
 
   if (!formId) {
     return (
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
         Missing formId. Please complete Basics first to create the draft form.
         <div className="mt-4">
           <button
             type="button"
             onClick={() => onExit?.({ nextStep: "basics" })}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             Back to Basics
           </button>
@@ -417,7 +417,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Campaign Media</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">Add images and media to make your campaign stand out</p>
@@ -439,7 +439,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
                 type="button"
                 onClick={chooseThumbnail}
                 disabled={saving}
-                className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Choose Image
               </button>
@@ -449,14 +449,14 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
                   type="button"
                   onClick={removeThumbnail}
                   disabled={saving}
-                  className="hc-admin-brand-soft hc-admin-brand-soft-hover hc-admin-brand-text cursor-pointer rounded-xl border border-dashed border-red-500/20 px-3 py-2 text-[12px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
+                  className="hc-admin-brand-soft hc-admin-brand-soft-hover hc-admin-brand-text cursor-pointer rounded-xl border border-solid border-red-500/20 px-3 py-2 text-[12px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Remove
                 </button>
               ) : null}
             </div>
 
-            <div className="mt-3 rounded-2xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] p-4">
+            <div className="mt-3 rounded-2xl border border-solid border-[#E5E7EB] bg-[#F9FAFB] p-4">
               {loading ? (
                 <div className="h-56 w-full animate-pulse rounded-2xl bg-white" />
               ) : activeThumbnailPreview ? (
@@ -487,7 +487,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
                 type="button"
                 onClick={chooseSliders}
                 disabled={saving}
-                className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Choose Images
               </button>
@@ -503,7 +503,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
                 ))}
               </div>
             ) : activeSliderPreviews.length === 0 ? (
-              <div className="mt-3 rounded-2xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] p-4">
+              <div className="mt-3 rounded-2xl border border-solid border-[#E5E7EB] bg-[#F9FAFB] p-4">
                 <PreviewEmpty label="Select images to preview" />
               </div>
             ) : (
@@ -549,7 +549,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
                 placeholder="https://youtube.com/watch?v=..."
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
               <div className="mt-1 text-[12px] text-[#6B7280]">Must be a valid URL</div>

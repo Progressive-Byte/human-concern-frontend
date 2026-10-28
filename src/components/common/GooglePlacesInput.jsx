@@ -98,7 +98,7 @@ const GooglePlacesInput = ({ value, onChange, onPlaceSelect, placeholder, apiKey
       onChange={handleChange}
       placeholder={placeholder}
       autoComplete="off"
-      className="w-full border border-dashed border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#EA3335]/60 transition-colors"
+      className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] placeholder:text-[#AEAEAE] focus:outline-none focus:border-[#EA3335]/60 transition-colors"
     />
   );
 };

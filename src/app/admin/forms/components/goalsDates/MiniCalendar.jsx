@@ -39,7 +39,7 @@ const MiniCalendar = ({ selectedDates, onToggleDate, disablePast = false, minDat
   const selected = Array.isArray(selectedDates) ? selectedDates : [];
 
   return (
-    <div className="select-none rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3">
+    <div className="select-none rounded-2xl border border-solid border-[#E5E7EB] bg-white px-3 py-3">
       <div className="mb-2 flex items-center justify-between px-1">
         <button
           type="button"

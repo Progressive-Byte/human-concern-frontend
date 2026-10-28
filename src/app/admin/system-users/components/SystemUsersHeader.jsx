@@ -27,7 +27,7 @@ const SystemUsersHeader = ({ tab, onTabChange, showRolesTab = true }) => {
         </div>
       </div>
 
-      <div className="inline-flex w-full max-w-full overflow-x-auto rounded-xl border border-dashed border-[#E5E7EB] bg-white p-1 sm:w-auto">
+      <div className="inline-flex w-full max-w-full overflow-x-auto rounded-xl border border-solid border-[#E5E7EB] bg-white p-1 sm:w-auto">
         {tabs.map((t) => (
           <button
             key={t.key}

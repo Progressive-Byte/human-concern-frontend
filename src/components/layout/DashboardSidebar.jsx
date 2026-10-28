@@ -30,9 +30,9 @@ const DashboardSidebar = () => {
     href === "/dashboard" ? pathname === href : pathname?.startsWith(href);
 
   return (
-    <aside className="hidden lg:flex h-screen w-[260px] shrink-0 flex-col border-r border-dashed border-[#E5E7EB] ml-2 bg-white sticky top-0">
+    <aside className="hidden lg:flex h-screen w-[260px] shrink-0 flex-col border-r border-solid border-[#E5E7EB] ml-2 bg-white sticky top-0">
       {/* Header */}
-      <div className="flex items-center gap-2 px-1 py-[20px] border-b border-dashed border-[#E5E7EB]">
+      <div className="flex items-center gap-2 px-1 py-[20px] border-b border-solid border-[#E5E7EB]">
         <div>{DashboardIcon}</div>
         <span className="font-bold text-[18px] text-[#111827]">Human Concern USA</span>
       </div>
@@ -59,7 +59,7 @@ const DashboardSidebar = () => {
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-dashed border-[#E5E7EB] space-y-2">
+      <div className="px-4 py-3 border-t border-solid border-[#E5E7EB] space-y-2">
         <Link
           href="/donate"
           className="flex items-center justify-start gap-2 w-full rounded-2xl bg-[#1A1A1A] px-3 py-4 text-[16px] font-medium text-white hover:bg-[#333333] transition-colors"

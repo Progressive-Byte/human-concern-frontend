@@ -170,7 +170,7 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
       <RowActionsPanel
         open={open}
         anchorRef={wrapRef}
-        className="w-[200px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-2 shadow-lg"
+        className="w-[200px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-2 shadow-lg"
       >
           {menu.map((m) => (
             <button
@@ -238,7 +238,7 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
             aria-label="Close"
           />
 
-          <div className="relative w-full max-w-[560px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-lg">
+          <div className="relative w-full max-w-[560px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-lg">
             <div className="text-[16px] font-semibold text-[#111827]">Embed Code</div>
             <p className="mt-1 text-[12px] text-[#6B7280]">
               Paste this into a WordPress page or any other site. Change the height if the form is
@@ -257,7 +257,7 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
               <button
                 type="button"
                 onClick={() => setEmbedOpen(false)}
-                className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
               >
                 Close
               </button>

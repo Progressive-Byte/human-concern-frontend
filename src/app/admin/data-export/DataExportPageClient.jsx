@@ -268,7 +268,7 @@ const DataExportPageClient = () => {
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         {/* Tables + columns */}
-        <section className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+        <section className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
           <div className="text-[16px] font-semibold text-[#111827]">1. Tables &amp; columns</div>
           <div className="mt-1 text-[12px] text-[#6B7280]">
             Only business data is available. Sensitive fields are never listed.
@@ -380,7 +380,7 @@ const DataExportPageClient = () => {
         </section>
 
         {/* Format + export */}
-        <section className="h-max rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+        <section className="h-max rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
           <div className="text-[16px] font-semibold text-[#111827]">2. Format</div>
           <div className="mt-3 space-y-2">
             {FORMATS.map((f) => (
@@ -419,7 +419,7 @@ const DataExportPageClient = () => {
       </div>
 
       {/* Jobs */}
-      <section className="overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+      <section className="overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white">
         <div className="flex items-center justify-between px-5 py-4">
           <div className="text-[16px] font-semibold text-[#111827]">Exports</div>
           {hasPending ? <span className="text-[12px] text-[#6B7280]">Waiting for the export worker…</span> : null}
@@ -472,7 +472,7 @@ const DataExportPageClient = () => {
                             type="button"
                             onClick={() => handleDownload(job)}
                             disabled={downloadingId === job.id}
-                            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
                           >
                             {downloadingId === job.id ? "Downloading…" : "Download"}
                           </button>
@@ -493,7 +493,7 @@ const DataExportPageClient = () => {
                               ? "This export is still running — you can delete it once it finishes"
                               : "Delete this export"
                           }
-                          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-red-600 transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                          className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-red-600 transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           {deletingId === job.id ? "Deleting…" : "Delete"}
                         </button>

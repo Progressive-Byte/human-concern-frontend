@@ -291,7 +291,7 @@ const AdminFundBreakdownPage = () => {
       {/* z-20: hc-hover-lift sets will-change:transform, which makes both this card and the
           table card stacking contexts. Without a z-index here the later (table) card paints over
           this one and traps the multi-select panels underneath it. */}
-      <div className="relative z-20 hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="relative z-20 hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <FundBreakdownFilters
           q={filters.q}
           onChangeQ={(next) => setFilters((prev) => ({ ...prev, page: "1", q: next }))}

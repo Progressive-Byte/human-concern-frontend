@@ -10,7 +10,7 @@ function donationCountLabel(value) {
 
 function MiniList({ title, items, currency, valueKey }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+    <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
       <div className="mb-3 text-[13px] font-semibold text-[#111827]">{title}</div>
       {items.length === 0 ? (
         <div className="text-[13px] text-[#6B7280]">No campaigns in this period.</div>
@@ -54,7 +54,7 @@ const CampaignPerformanceSection = ({ data, loading }) => {
 
       <TrendChart series={data?.trend || []} bucket={data?.range?.bucket || "day"} />
 
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white">
         <div className="border-b border-[#F3F4F6] px-5 py-4">
           <h3 className="text-[15px] font-semibold text-[#111827]">Goal vs raised</h3>
         </div>

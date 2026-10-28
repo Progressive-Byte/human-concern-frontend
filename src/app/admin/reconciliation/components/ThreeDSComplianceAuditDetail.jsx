@@ -123,7 +123,7 @@ const ThreeDSComplianceAuditDetail = ({ discrepancy, rawProviderSnapshot = null,
   if (!passes && remediation.length === 0) remediation.push("Review discrepancy source and mark verified if out-of-band evidence confirms legitimacy.");
 
   return (
-    <div className="mt-3 rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4 space-y-4">
+    <div className="mt-3 rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4 space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 text-[14px] font-semibold text-[#111827]">
@@ -140,7 +140,7 @@ const ThreeDSComplianceAuditDetail = ({ discrepancy, rawProviderSnapshot = null,
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white p-3">
+        <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white p-3">
           <div className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">Merchant Country</div>
           <div className="mt-2 flex items-center gap-2">
             <FlagIcon code={merchantCountry} />
@@ -150,7 +150,7 @@ const ThreeDSComplianceAuditDetail = ({ discrepancy, rawProviderSnapshot = null,
           </div>
         </div>
 
-        <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white p-3">
+        <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white p-3">
           <div className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">Donor / Card Country</div>
           <div className="mt-2 flex items-center gap-2">
             <FlagIcon code={donorCountry} />
@@ -160,7 +160,7 @@ const ThreeDSComplianceAuditDetail = ({ discrepancy, rawProviderSnapshot = null,
           </div>
         </div>
 
-        <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white p-3">
+        <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white p-3">
           <div className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">Amount vs SCA Threshold</div>
           <div className="mt-2">
             <div className="text-[13px] font-semibold text-[#111827]">
@@ -176,7 +176,7 @@ const ThreeDSComplianceAuditDetail = ({ discrepancy, rawProviderSnapshot = null,
           </div>
         </div>
 
-        <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white p-3">
+        <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white p-3">
           <div className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">3DS Result</div>
           <div className="mt-2 space-y-1 text-[12px]">
             <div className="flex items-center justify-between">
@@ -209,7 +209,7 @@ const ThreeDSComplianceAuditDetail = ({ discrepancy, rawProviderSnapshot = null,
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white p-4">
         <div className="text-[12px] font-semibold text-[#111827]">Suggested remediation</div>
         <ul className="mt-2 space-y-1.5">
           {remediation.map((item, i) => (

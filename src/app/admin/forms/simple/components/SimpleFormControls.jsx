@@ -18,7 +18,7 @@ const SimpleFormControls = ({
   onDiscard,
 }) => {
   return (
-    <div className="hc-animate-fade-up space-y-3 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="hc-animate-fade-up space-y-3 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Status on the left, actions on the right, the same way the advanced form lays its bar out. */}
         <div className="flex flex-wrap items-center gap-3 text-[12px]">
@@ -41,7 +41,7 @@ const SimpleFormControls = ({
             type="button"
             onClick={onSave}
             disabled={isBusy || !isDirty}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
           >
             Save draft
           </button>
@@ -50,7 +50,7 @@ const SimpleFormControls = ({
             type="button"
             onClick={onPreview}
             disabled={isBusy}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
           >
             Preview
           </button>

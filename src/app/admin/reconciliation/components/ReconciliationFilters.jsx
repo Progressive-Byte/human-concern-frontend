@@ -64,7 +64,7 @@ const ReconciliationFilters = ({
         <select
           value={provider || ""}
           onChange={(e) => onChangeProvider?.(e.target.value)}
-          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
         >
           {PROVIDER_OPTIONS.map((o) => (
             <option key={o.value || "all"} value={o.value}>{o.label}</option>
@@ -86,7 +86,7 @@ const ReconciliationFilters = ({
                   className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold transition ${
                     active
                       ? `border-transparent ${entry.className}`
-                      : "border-dashed border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F9FAFB]"
+                      : "border-solid border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F9FAFB]"
                   }`}
                 >
                   {entry.label}
@@ -100,7 +100,7 @@ const ReconciliationFilters = ({
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]">
             <CalendarIcon />
           </span>
-          <div className="flex items-center gap-1.5 rounded-xl border border-dashed border-[#E5E7EB] bg-white pl-9 pr-1.5 py-1">
+          <div className="flex items-center gap-1.5 rounded-xl border border-solid border-[#E5E7EB] bg-white pl-9 pr-1.5 py-1">
             <input
               type="date"
               value={dateFrom || ""}
@@ -122,7 +122,7 @@ const ReconciliationFilters = ({
         <select
           value={String(limit || "20")}
           onChange={(e) => onChangeLimit?.(e.target.value)}
-          className="w-full md:w-[130px] rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+          className="w-full md:w-[130px] rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
         >
           <option value="10">10 / page</option>
           <option value="20">20 / page</option>

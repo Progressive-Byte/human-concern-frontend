@@ -23,12 +23,12 @@ export function ChangePasswordModal({ saving, error, success, form, onFormChange
         <p className="mt-1 text-[13px] text-[#6B7280]">Use a strong password you don't use elsewhere.</p>
 
         {error ? (
-          <div className="mt-4 rounded-xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+          <div className="mt-4 rounded-xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         ) : null}
         {success ? (
-          <div className="mt-4 rounded-xl border border-dashed border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">
+          <div className="mt-4 rounded-xl border border-solid border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">
             {success}
           </div>
         ) : null}
@@ -61,7 +61,7 @@ export function ChangePasswordModal({ saving, error, success, form, onFormChange
               type="button"
               disabled={saving}
               onClick={onClose}
-              className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#111827] hover:bg-[#F9FAFB] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#111827] hover:bg-[#F9FAFB] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

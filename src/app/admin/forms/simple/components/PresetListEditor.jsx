@@ -48,7 +48,7 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">{title}</h2>
@@ -102,7 +102,7 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
               type="button"
               onClick={() => removeRow(index)}
               disabled={disabled || rows.length <= 1}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
             >
               Remove
             </button>
@@ -115,7 +115,7 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
           type="button"
           onClick={addRow}
           disabled={disabled || rows.length >= MAX_PRESETS}
-          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
+          className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
         >
           Add amount
         </button>

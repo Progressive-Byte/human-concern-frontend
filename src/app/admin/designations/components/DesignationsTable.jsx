@@ -16,7 +16,7 @@ const DesignationsTable = ({ items, loading, onEdit, onArchive, onRestore }) => 
   const rows = Array.isArray(items) ? items : [];
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="px-5 py-4">
         <h2 className="text-[18px] font-semibold text-[#111827]">All Designations ({rows.length})</h2>
       </div>

@@ -78,12 +78,12 @@ const NotificationsPage = () => {
 
       <div className="flex-1 p-4 md:p-6 space-y-5">
         {error ? (
-          <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+          <div className="rounded-2xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         ) : null}
 
-        <section className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+        <section className="rounded-2xl border border-solid border-[#E5E7EB] bg-white">
           <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
             <div>
               <h2 className="text-[16px] font-bold text-[#111827]">All notifications</h2>
@@ -95,7 +95,7 @@ const NotificationsPage = () => {
               type="button"
               onClick={onMarkAllRead}
               disabled={unread === 0}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition-colors hover:border-red-500/40 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition-colors hover:border-red-500/40 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Mark all as read
             </button>
@@ -141,14 +141,14 @@ const NotificationsPage = () => {
           )}
 
           {totalPages > 1 ? (
-            <div className="flex items-center justify-between gap-3 border-t border-dashed border-[#E5E7EB] px-5 py-4">
+            <div className="flex items-center justify-between gap-3 border-t border-solid border-[#E5E7EB] px-5 py-4">
               <div className="text-[13px] text-[#6B7280]">{`Showing page ${page} of ${totalPages}`}</div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => load(page - 1)}
                   disabled={page <= 1}
-                  className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Previous
                 </button>
@@ -156,7 +156,7 @@ const NotificationsPage = () => {
                   type="button"
                   onClick={() => load(page + 1)}
                   disabled={page >= totalPages}
-                  className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Next
                 </button>

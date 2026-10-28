@@ -134,7 +134,7 @@ const ManualRunModal = ({ open, onClose, onQueued }) => {
     <div className="fixed inset-0 z-[80] flex items-center justify-center px-4">
       <button type="button" aria-label="Close modal overlay" className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      <div className="hc-animate-dropdown relative w-full max-w-[620px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
+      <div className="hc-animate-dropdown relative w-full max-w-[620px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">Manual Reconciliation Run</div>
@@ -146,7 +146,7 @@ const ManualRunModal = ({ open, onClose, onQueued }) => {
             type="button"
             aria-label="Close modal"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-solid border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -172,7 +172,7 @@ const ManualRunModal = ({ open, onClose, onQueued }) => {
                     className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${
                       active
                         ? "border-[#111827] bg-[#111827] text-white"
-                        : "border-dashed border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
+                        : "border-solid border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
                     }`}
                   >
                     {opt.label}
@@ -191,7 +191,7 @@ const ManualRunModal = ({ open, onClose, onQueued }) => {
               value={gatewayConfigurationId}
               onChange={(e) => setGatewayConfigurationId(e.target.value)}
               placeholder="default"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 font-mono text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 font-mono text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
             />
           </div>
 
@@ -203,7 +203,7 @@ const ManualRunModal = ({ open, onClose, onQueued }) => {
                   type="checkbox"
                   checked={useManualDateStr}
                   onChange={(e) => setUseManualDateStr(e.target.checked)}
-                  className="h-4 w-4 rounded border-dashed border-[#E5E7EB]"
+                  className="h-4 w-4 rounded border-solid border-[#E5E7EB]"
                 />
                 Edit YYYYMMDD directly
               </label>
@@ -217,7 +217,7 @@ const ManualRunModal = ({ open, onClose, onQueued }) => {
                   onChange={(e) => setDateStrManual(e.target.value)}
                   placeholder="20260101"
                   maxLength={8}
-                  className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 font-mono text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 font-mono text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 />
                 {dateStrYYYYMMDD ? (
                   <div className="text-[12px] font-mono text-[#6B7280]">Effective: {dateStrYYYYMMDD}</div>
@@ -229,7 +229,7 @@ const ManualRunModal = ({ open, onClose, onQueued }) => {
                   type="date"
                   value={dateInput || ""}
                   onChange={(e) => setDateInput(e.target.value)}
-                  className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 />
                 {dateStrYYYYMMDD ? (
                   <div className="text-[12px] font-mono text-[#6B7280]">Effective: {dateStrYYYYMMDD}</div>
@@ -253,7 +253,7 @@ const ManualRunModal = ({ open, onClose, onQueued }) => {
                 step={1}
                 value={upToHoursOverride}
                 onChange={(e) => setUpToHoursOverride(e.target.value)}
-                className="w-[140px] rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="w-[140px] rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               />
               <div className="text-[12px] text-[#6B7280]">
                 {hoursValid ? (
@@ -270,7 +270,7 @@ const ManualRunModal = ({ open, onClose, onQueued }) => {
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancel
             </button>

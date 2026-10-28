@@ -172,7 +172,7 @@ function ExpandableJsonPanels({ rawProviderSnapshot, rawLocalSnapshot }) {
             Provider raw snapshot
           </div>
         </div>
-        <pre className="max-h-[360px] overflow-auto rounded-xl border border-dashed border-[#E5E7EB] bg-[#0B1020] px-3 py-2 text-[11px] leading-relaxed font-mono text-[#D1D5DB]">
+        <pre className="max-h-[360px] overflow-auto rounded-xl border border-solid border-[#E5E7EB] bg-[#0B1020] px-3 py-2 text-[11px] leading-relaxed font-mono text-[#D1D5DB]">
           {formatJson(rawProviderSnapshot)}
         </pre>
       </div>
@@ -182,7 +182,7 @@ function ExpandableJsonPanels({ rawProviderSnapshot, rawLocalSnapshot }) {
             Local raw snapshot
           </div>
         </div>
-        <pre className="max-h-[360px] overflow-auto rounded-xl border border-dashed border-[#E5E7EB] bg-[#0B1020] px-3 py-2 text-[11px] leading-relaxed font-mono text-[#D1D5DB]">
+        <pre className="max-h-[360px] overflow-auto rounded-xl border border-solid border-[#E5E7EB] bg-[#0B1020] px-3 py-2 text-[11px] leading-relaxed font-mono text-[#D1D5DB]">
           {formatJson(rawLocalSnapshot)}
         </pre>
       </div>
@@ -192,7 +192,7 @@ function ExpandableJsonPanels({ rawProviderSnapshot, rawLocalSnapshot }) {
 
 function Skeleton() {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="h-6 w-56 animate-pulse rounded bg-[#F3F4F6]" />
         <div className="h-9 w-24 animate-pulse rounded bg-[#F3F4F6]" />
@@ -237,7 +237,7 @@ const DiscrepanciesTable = ({
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="text-[18px] font-semibold text-[#111827]">Discrepancies ({total})</div>
       </div>
@@ -299,7 +299,7 @@ const DiscrepanciesTable = ({
                       <button
                         type="button"
                         onClick={() => toggle(id)}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-dashed border-[#E5E7EB] text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827]"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-solid border-[#E5E7EB] text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827]"
                         aria-label={expandedNow ? "Collapse snapshots" : "Expand snapshots"}
                       >
                         <CaretIcon expanded={expandedNow} />
@@ -326,7 +326,7 @@ const DiscrepanciesTable = ({
                             href={providerUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-dashed border-[#E5E7EB] text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827]"
+                            className="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-solid border-[#E5E7EB] text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827]"
                             title="Open in provider dashboard"
                           >
                             <ExternalIcon />

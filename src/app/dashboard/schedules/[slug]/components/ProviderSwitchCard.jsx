@@ -62,7 +62,7 @@ function StripeVaultForm({ clientSecret, authChallengeId, frontendReturnPayloadI
 
   return (
     <div className="mt-4 space-y-3">
-      <div className="rounded-xl border border-dashed border-[#E5E7EB] px-3.5 py-3">
+      <div className="rounded-xl border border-solid border-[#E5E7EB] px-3.5 py-3">
         <CardElement options={{ hidePostalCode: true }} />
       </div>
       <button
@@ -129,7 +129,7 @@ export function ProviderSwitchCard({ scheduleId, currentProvider, alternateProvi
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-[#EA3335]/40 p-5 md:p-6">
+    <div className="bg-white rounded-2xl border border-solid border-[#EA3335]/40 p-5 md:p-6">
       <h2 className="text-base font-semibold text-[#111827]">Action needed: payment provider unavailable</h2>
       <p className="mt-1 text-sm text-[#6B7280]">
         {currentProvider
@@ -138,7 +138,7 @@ export function ProviderSwitchCard({ scheduleId, currentProvider, alternateProvi
       </p>
 
       {error ? (
-        <div className="mt-3 rounded-xl border border-dashed border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-600">
+        <div className="mt-3 rounded-xl border border-solid border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-600">
           {error}
         </div>
       ) : null}

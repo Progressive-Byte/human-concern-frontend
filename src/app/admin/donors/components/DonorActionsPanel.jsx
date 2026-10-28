@@ -72,7 +72,7 @@ function DownloadIcon() {
 
 function Skeleton() {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
       <div className="h-5 w-40 animate-pulse rounded bg-[#F3F4F6]" />
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="h-14 animate-pulse rounded-xl bg-[#F3F4F6]" />
@@ -92,7 +92,7 @@ const DonorActionsPanel = ({ donor, loading, onSendEmail, onToggleStatus, onEdit
   const active = String(donor?.status || "").toLowerCase() === "active";
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
       <div className="text-[16px] font-semibold text-[#111827]">Admin Actions</div>
       <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
         <ActionButton label="Send Email" icon={<MailIcon />} onClick={onSendEmail} />

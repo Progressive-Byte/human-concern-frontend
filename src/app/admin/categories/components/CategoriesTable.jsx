@@ -29,7 +29,7 @@ function PaginationBar({ pagination, onPrev, onNext }) {
           type="button"
           onClick={onPrev}
           disabled={page <= 1}
-          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+          className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
         >
           Previous
         </button>
@@ -37,7 +37,7 @@ function PaginationBar({ pagination, onPrev, onNext }) {
           type="button"
           onClick={onNext}
           disabled={page >= totalPages}
-          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+          className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
         >
           Next
         </button>
@@ -50,7 +50,7 @@ const CategoriesTable = ({ items, loading, pagination, onPrevPage, onNextPage, o
   const rows = Array.isArray(items) ? items : [];
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="px-5 py-4">
         <h2 className="text-[18px] font-semibold text-[#111827]">All Categories</h2>
       </div>

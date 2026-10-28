@@ -214,13 +214,13 @@ const WizardContent = () => {
   if (!campaignId) {
     return (
       <div className="min-w-0 p-4 md:p-6">
-        <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
+        <div className="rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
           Missing campaignId. Go back and select a campaign first.
           <div className="mt-4">
             <button
               type="button"
               onClick={() => router.push("/admin/forms")}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
             >
               Back to Forms
             </button>

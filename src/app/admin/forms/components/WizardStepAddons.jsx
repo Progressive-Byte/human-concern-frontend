@@ -214,13 +214,13 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
 
   if (!formId) {
     return (
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
         Missing formId. Please complete Basics first to create the draft form.
         <div className="mt-4">
           <button
             type="button"
             onClick={() => onExit?.({ nextStep: "basics" })}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             Back to Basics
           </button>
@@ -237,7 +237,7 @@ const WizardStepAddons = ({ campaignId, formId, onExit, onSaved, backStep }) => 
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Optional Add-ons</h2>

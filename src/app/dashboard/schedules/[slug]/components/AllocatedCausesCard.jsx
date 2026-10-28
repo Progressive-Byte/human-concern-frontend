@@ -9,7 +9,7 @@ const causeBadgeStyles = {
 
 export function AllocatedCausesCard({ loading, allocated, currency, perLabel }) {
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+    <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
       <h2 className="text-base font-semibold text-[#111827] mb-4">Allocated Causes</h2>
       {loading ? (
         <SkeletonBlock className="h-12 rounded-xl" />
@@ -22,7 +22,7 @@ export function AllocatedCausesCard({ loading, allocated, currency, perLabel }) 
             return (
               <div
                 key={String(c?.causeId || idx)}
-                className="flex items-center justify-between rounded-xl bg-[#F9FAFB] border border-dashed border-[#E5E7EB] px-4 py-3"
+                className="flex items-center justify-between rounded-xl bg-[#F9FAFB] border border-solid border-[#E5E7EB] px-4 py-3"
               >
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full ${causeBadgeStyles[label] ?? "bg-[#F3F4F6] text-[#6B7280]"}`}>
                   {label}

@@ -32,13 +32,13 @@ const PromisedVsCollectedChart = ({ items = [] }) => {
   }));
 
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
       <div className="mb-4">
         <h2 className="text-[16px] font-semibold text-[#111827]">Goal vs Collected</h2>
       </div>
 
       {data.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#E5E7EB] p-8 text-center text-sm text-[#6B7280]">
+        <div className="rounded-xl border border-solid border-[#E5E7EB] p-8 text-center text-sm text-[#6B7280]">
           No chart data available
         </div>
       ) : (

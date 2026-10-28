@@ -58,7 +58,7 @@ function ConfirmDialog({ open, title, description, confirmText, cancelText, onCo
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
       <button type="button" className="fixed inset-0 bg-black/50" onClick={onCancel} aria-label="Close" />
-      <div className="hc-animate-dropdown relative w-full max-w-md rounded-2xl border border-dashed border-[#E5E7EB] bg-white shadow-xl">
+      <div className="hc-animate-dropdown relative w-full max-w-md rounded-2xl border border-solid border-[#E5E7EB] bg-white shadow-xl">
         <div className="px-5 pt-5">
           <div className={`mb-2 text-[15px] font-semibold ${danger ? "text-red-800" : "text-[#111827]"}`}>
             {title}

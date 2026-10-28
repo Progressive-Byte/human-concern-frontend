@@ -96,7 +96,7 @@ const CategoryUpsertModal = ({ open, mode, category, onClose, onSuccess }) => {
     <div className="fixed inset-0 z-[80] flex items-center justify-center px-4">
       <button type="button" aria-label="Close modal overlay" className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      <div className="hc-animate-dropdown relative w-full max-w-[560px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
+      <div className="hc-animate-dropdown relative w-full max-w-[560px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">{title}</div>
@@ -106,7 +106,7 @@ const CategoryUpsertModal = ({ open, mode, category, onClose, onSuccess }) => {
             type="button"
             aria-label="Close modal"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-solid border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -125,7 +125,7 @@ const CategoryUpsertModal = ({ open, mode, category, onClose, onSuccess }) => {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 placeholder="e.g. Ramadan"
               />
             </div>
@@ -149,7 +149,7 @@ const CategoryUpsertModal = ({ open, mode, category, onClose, onSuccess }) => {
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
               >
                 Cancel
               </button>

@@ -274,7 +274,7 @@ function ReportsPageClient() {
 
       <ReconciliationSummaryCards summary={summary} loading={summaryLoading} />
 
-      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <ReconciliationFilters
           provider={filters.provider}
           statuses={filters.statuses}

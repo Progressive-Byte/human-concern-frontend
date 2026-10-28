@@ -4,7 +4,7 @@ const KpiCard = ({ label, value, icon, iconPosition = "right" }) => {
 
   if (iconPosition === "left") {
     return (
-      <div className="group hc-admin-brand-border-hover hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white">
+      <div className="group hc-admin-brand-border-hover hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white">
         <div className="flex items-center gap-3">
           <div className={iconWrapClass}>{icon}</div>
           <div className="min-w-0">
@@ -19,7 +19,7 @@ const KpiCard = ({ label, value, icon, iconPosition = "right" }) => {
   }
 
   return (
-    <div className="group hc-admin-brand-border-hover hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white">
+    <div className="group hc-admin-brand-border-hover hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4 hover:bg-white">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[12px] text-[#6B7280]">{label}</p>

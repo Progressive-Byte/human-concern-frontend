@@ -23,7 +23,7 @@ function ScheduleStatusPill({ status }) {
 
 function Skeleton() {
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="px-5 py-4">
         <div className="h-5 w-52 animate-pulse rounded bg-[#F3F4F6]" />
       </div>
@@ -52,7 +52,7 @@ const DonorSchedulesCard = ({ schedules, loading, status = "active", onStatusCha
   const summary = schedules?.summary || null;
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div className="text-[18px] font-semibold text-[#111827]">Recurring Schedules</div>
         <div className="flex items-center gap-2">

@@ -97,8 +97,8 @@ const PermissionMatrix = ({ groups, value, onChange, disabled = false }) => {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-dashed border-[#E5E7EB]">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-dashed border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2.5">
+    <div className="overflow-hidden rounded-xl border border-solid border-[#E5E7EB]">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-solid border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2.5">
         <input
           value={query}
           disabled={disabled}
@@ -124,7 +124,7 @@ const PermissionMatrix = ({ groups, value, onChange, disabled = false }) => {
       </div>
 
       {selected.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-1.5 border-b border-dashed border-[#E5E7EB] px-3 py-2">
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-solid border-[#E5E7EB] px-3 py-2">
           {selected.slice(0, VISIBLE_CHIPS).map((key) => (
             <span
               key={key}

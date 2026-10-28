@@ -176,7 +176,7 @@ const AdminLogsPage = () => {
         </div>
       ) : null}
 
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="md:col-span-2">
             <div className="mb-2 text-[13px] font-semibold text-[#111827]">Search</div>
@@ -268,7 +268,7 @@ const AdminLogsPage = () => {
         </div>
       </div>
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
         <div className="px-5 py-4">
           <h2 className="text-[18px] font-semibold text-[#111827]">Audit Logs</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">Track admin actions, targets, and request metadata.</p>

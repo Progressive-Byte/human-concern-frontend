@@ -26,7 +26,7 @@ const TX_STATUSES = [
 ];
 
 const inputClass =
-  "w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30";
+  "w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30";
 const labelClass = "mb-1 block text-[12px] font-semibold text-[#6B7280]";
 
 function Select({ label, value, onChange, options }) {
@@ -74,7 +74,7 @@ const ReportFilterBar = ({ filters, options, onChange, onReset }) => {
   ).length;
 
   return (
-    <section className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <section className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
       <div className="flex flex-wrap gap-2">
         {RANGE_PRESETS.map((r) => (
           <button
@@ -117,7 +117,7 @@ const ReportFilterBar = ({ filters, options, onChange, onReset }) => {
         <button
           type="button"
           onClick={onReset}
-          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#6B7280] transition hover:bg-[#F9FAFB]"
+          className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#6B7280] transition hover:bg-[#F9FAFB]"
         >
           Reset
         </button>

@@ -78,7 +78,7 @@ const DonorCausesModal = ({ open, donorKey, onClose }) => {
     <div className="fixed inset-0 z-[90] flex items-center justify-center px-4">
       <button type="button" aria-label="Close modal overlay" className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      <div className="hc-animate-dropdown relative w-full max-w-[920px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
+      <div className="hc-animate-dropdown relative w-full max-w-[920px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">Donation by Cause</div>
@@ -88,7 +88,7 @@ const DonorCausesModal = ({ open, donorKey, onClose }) => {
             type="button"
             aria-label="Close modal"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-solid border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -103,22 +103,22 @@ const DonorCausesModal = ({ open, donorKey, onClose }) => {
 
           {summary ? (
             <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-              <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
+              <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-4 py-3">
                 <div className="text-[12px] text-[#6B7280]">Total Causes</div>
                 <div className="mt-1 text-[18px] font-semibold text-[#111827]">{Number(summary?.totalCauses || 0)}</div>
               </div>
-              <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
+              <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-4 py-3">
                 <div className="text-[12px] text-[#6B7280]">Total Donated</div>
                 <div className="mt-1 text-[18px] font-semibold text-[#111827]">{formatCurrency(Number(summary?.totalDonated || 0))}</div>
               </div>
-              <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
+              <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-4 py-3">
                 <div className="text-[12px] text-[#6B7280]">Total Donations</div>
                 <div className="mt-1 text-[18px] font-semibold text-[#111827]">{Number(summary?.totalDonations || 0)}</div>
               </div>
             </div>
           ) : null}
 
-          <div className="hc-table-scroll rounded-2xl border border-dashed border-[#E5E7EB]">
+          <div className="hc-table-scroll rounded-2xl border border-solid border-[#E5E7EB]">
             <table className="w-full min-w-[860px] border-collapse text-[13px] text-[#111827]">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">

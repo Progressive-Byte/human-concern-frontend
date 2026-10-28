@@ -39,7 +39,7 @@ const AttributionSection = ({ data, loading }) => {
           </p>
         </div>
 
-        <div className="inline-flex rounded-xl border border-dashed border-[#E5E7EB] bg-white p-1">
+        <div className="inline-flex rounded-xl border border-solid border-[#E5E7EB] bg-white p-1">
           {TABS.map((t) => (
             <button
               key={t.key}
@@ -55,7 +55,7 @@ const AttributionSection = ({ data, loading }) => {
         </div>
       </div>
 
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white">
         {loading ? (
           <div className="space-y-3 px-5 py-4">
             <div className="h-10 animate-pulse rounded-lg bg-[#F3F4F6]" />

@@ -16,7 +16,7 @@ function formatLocation(address) {
 
 function Skeleton() {
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="px-5 py-4">
         <div className="h-5 w-44 animate-pulse rounded bg-[#F3F4F6]" />
       </div>
@@ -50,7 +50,7 @@ const DonorProfileCard = ({ donor, stats, loading, onEdit }) => {
   const lastDonationAt = stats?.lastDonationAt ? formatDate(stats.lastDonationAt) : "—";
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="text-[18px] font-semibold text-[#111827]">Personal Information</div>
         <button

@@ -2,7 +2,7 @@ import { formatCurrency } from "@/utils/helpers";
 
 function SummaryCard({ label, value, icon }) {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
       <div className="flex items-center gap-4">
         <div className="hc-admin-brand-soft hc-admin-brand-text flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
           {icon}
@@ -19,7 +19,7 @@ function SummaryCard({ label, value, icon }) {
 }
 
 function Skeleton() {
-  return <div className="h-[82px] animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-white" />;
+  return <div className="h-[82px] animate-pulse rounded-2xl border border-solid border-[#E5E7EB] bg-white" />;
 }
 
 const CampaignsSummaryCards = ({ summary, currency = "USD", loading }) => {

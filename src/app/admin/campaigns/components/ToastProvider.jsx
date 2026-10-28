@@ -14,7 +14,7 @@ function ToastItem({ toast, onClose }) {
 
   return (
     <div
-      className={`hc-animate-fade-up pointer-events-auto w-[320px] max-w-[calc(100vw-32px)] rounded-2xl border border-dashed px-4 py-3 shadow-md ${base}`}
+      className={`hc-animate-fade-up pointer-events-auto w-[320px] max-w-[calc(100vw-32px)] rounded-2xl border border-solid px-4 py-3 shadow-md ${base}`}
       role="status"
       aria-live="polite"
     >

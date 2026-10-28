@@ -187,7 +187,7 @@ const ExchangeRatesTab = ({ value, onChange, loading, saving, syncing, onSave, o
             );
           })
         ) : (
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">No exchange rates added.</div>
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">No exchange rates added.</div>
         )}
 
         <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -195,7 +195,7 @@ const ExchangeRatesTab = ({ value, onChange, loading, saving, syncing, onSave, o
             type="button"
             onClick={addRate}
             disabled={loading || syncing}
-            className="inline-flex items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
           >
             <PlusIcon />
             Add Rate

@@ -240,7 +240,7 @@ function toIsoDateString(value) {
 function Skeleton() {
   return (
     <div className="space-y-6">
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="h-6 w-1/3 animate-pulse rounded-lg bg-[#F3F4F6]" />
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
@@ -250,7 +250,7 @@ function Skeleton() {
         </div>
       </div>
 
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="h-5 w-1/4 animate-pulse rounded-lg bg-[#F3F4F6]" />
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
@@ -812,13 +812,13 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
   if (!formId) {
     return (
-      <div className="hc-animate-fade-up rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
         Missing formId. Please complete Basics first to create the draft form.
         <div className="mt-4">
           <button
             type="button"
             onClick={() => onExit?.({ nextStep: "basics" })}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             Back to Basics
           </button>
@@ -840,7 +840,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="mb-4">
           <h2 className="text-[16px] font-semibold text-[#111827]">Fundraising Goals & Timeline</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">Set the target amount and campaign duration</p>
@@ -851,7 +851,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             <div className="mb-2 text-[13px] font-semibold text-[#111827]">
               Currencies <span className="text-red-600">*</span>
             </div>
-            <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-3">
+            <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-3">
               {currencyOptions.length ? (
                 <div className="flex flex-wrap gap-2">
                   {currencyOptions.map((c) => {
@@ -890,7 +890,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               onChange={(e) => setGoalAmount(e.target.value)}
               placeholder="5000"
               inputMode="decimal"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
             <FieldError message={fieldErrors.goalAmount} />
@@ -904,7 +904,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               type="date"
               value={startAt}
               onChange={(e) => setStartAt(e.target.value)}
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
             <FieldError message={fieldErrors.startAt} />
@@ -916,7 +916,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               type="date"
               value={endAt}
               onChange={(e) => setEndAt(e.target.value)}
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
             <FieldError message={fieldErrors.endAt} />
@@ -924,7 +924,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       </section>
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="text-[14px] font-semibold text-[#111827]">Donation Settings</div>
 
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -937,7 +937,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               onChange={(e) => setMinimumDonation(e.target.value)}
               placeholder="5"
               inputMode="decimal"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
             <FieldError message={fieldErrors.minimumDonation} />
@@ -950,7 +950,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               onChange={(e) => setMaximumDonation(e.target.value)}
               placeholder="100"
               inputMode="decimal"
-              className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
             <FieldError message={fieldErrors.maximumDonation} />
@@ -959,7 +959,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
         <div className="mt-4">
           <div className="mb-2 text-[13px] font-semibold text-[#111827]">Payment Methods</div>
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-3">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-3">
             {paymentMethodOptions.length ? (
               <div className="flex flex-wrap gap-2">
                 {paymentMethodOptions.map((method) => {
@@ -998,7 +998,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
 
         <div className="mt-4 space-y-3">
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Allow One-Time Donations</div>
@@ -1009,7 +1009,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             <FieldError message={fieldErrors.allowOneTimeDonations} />
           </div>
 
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Enable Tipping</div>
@@ -1019,7 +1019,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Allow Anonymous Donations</div>
@@ -1029,7 +1029,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Show Global Notes</div>

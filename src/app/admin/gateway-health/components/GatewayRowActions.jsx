@@ -127,7 +127,7 @@ const GatewayRowActions = ({ row, onViewDetail, onForceClose, onForceOpen, onCan
       <RowActionsPanel
         open={open}
         anchorRef={rootRef}
-        className="w-56 overflow-hidden rounded-xl border border-dashed border-[#E5E7EB] bg-white shadow-lg"
+        className="w-56 overflow-hidden rounded-xl border border-solid border-[#E5E7EB] bg-white shadow-lg"
       >
           <button
             type="button"

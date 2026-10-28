@@ -148,7 +148,7 @@ const AdminCampaignDetailsPage = ({ params }) => {
           <button
             type="button"
             onClick={() => router.push("/admin/campaigns")}
-            className="mb-3 inline-flex items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="mb-3 inline-flex items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
               <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -167,7 +167,7 @@ const AdminCampaignDetailsPage = ({ params }) => {
           <button
             type="button"
             onClick={() => setEditOpen(true)}
-            className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             Edit
           </button>
@@ -186,7 +186,7 @@ const AdminCampaignDetailsPage = ({ params }) => {
             <button
               type="button"
               onClick={() => setConfirmAction("archive")}
-              className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+              className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
             >
               Archive
             </button>
@@ -198,7 +198,7 @@ const AdminCampaignDetailsPage = ({ params }) => {
         <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         {loading ? (
           <div className="space-y-3">
             <div className="h-6 w-1/3 animate-pulse rounded-lg bg-[#F3F4F6]" />
@@ -238,7 +238,7 @@ const AdminCampaignDetailsPage = ({ params }) => {
                     return (
                       <span
                         key={key}
-                        className="inline-flex items-center rounded-full border border-dashed border-[#E5E7EB] bg-[#F3F4F6] px-3 py-1 text-[11px] font-medium text-[#111827]"
+                        className="inline-flex items-center rounded-full border border-solid border-[#E5E7EB] bg-[#F3F4F6] px-3 py-1 text-[11px] font-medium text-[#111827]"
                       >
                         {label}
                       </span>
@@ -261,7 +261,7 @@ const AdminCampaignDetailsPage = ({ params }) => {
           <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <TrendChart series={report.trend || []} bucket="month" />
 
-            <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+            <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
               <h2 className="mb-4 text-[16px] font-semibold text-[#111827]">Campaign overview</h2>
               <dl className="grid grid-cols-1 gap-4 text-[13px] sm:grid-cols-2">
                 <div>

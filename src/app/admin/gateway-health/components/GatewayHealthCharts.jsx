@@ -73,14 +73,14 @@ const SuccessRateChart = ({ series = [] }) => {
 
   if (seriesArr.length === 0) {
     return (
-      <div className="flex h-[260px] items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] text-[13px] text-[#6B7280]">
+      <div className="flex h-[260px] items-center justify-center rounded-xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] text-[13px] text-[#6B7280]">
         No success rate data available for the selected window.
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <div className="text-[15px] font-semibold text-[#111827]">Success Rate Over Time</div>
@@ -108,7 +108,7 @@ const SuccessRateChart = ({ series = [] }) => {
             <Tooltip
               labelFormatter={normalizeTimeLabel}
               formatter={(value) => [`${Number(value || 0).toFixed(1)}%`, "Success rate"]}
-              contentStyle={{ borderRadius: 12, border: "1px dashed #E5E7EB", fontSize: 12 }}
+              contentStyle={{ borderRadius: 12, border: "1px solid #E5E7EB", fontSize: 12 }}
             />
             <Legend wrapperStyle={{ fontSize: 12 }} />
             <ReferenceLine y={95} stroke="#F59E0B" strokeDasharray="4 4" strokeWidth={1.2} label={{ value: "95% SLO", fontSize: 10, fill: "#F59E0B", position: "right" }} />
@@ -157,14 +157,14 @@ const LatencyBarChart = ({ latencyPoints = [] }) => {
 
   if (data.length === 0) {
     return (
-      <div className="flex h-[260px] items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] text-[13px] text-[#6B7280]">
+      <div className="flex h-[260px] items-center justify-center rounded-xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] text-[13px] text-[#6B7280]">
         No latency data available.
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <div className="text-[15px] font-semibold text-[#111827]">p95 Latency</div>
@@ -192,7 +192,7 @@ const LatencyBarChart = ({ latencyPoints = [] }) => {
             <Tooltip
               labelFormatter={normalizeTimeLabel}
               formatter={(v) => [`${Number(v || 0).toFixed(0)} ms`, "p95 latency"]}
-              contentStyle={{ borderRadius: 12, border: "1px dashed #E5E7EB", fontSize: 12 }}
+              contentStyle={{ borderRadius: 12, border: "1px solid #E5E7EB", fontSize: 12 }}
             />
             <ReferenceLine
               y={thresholdMs}

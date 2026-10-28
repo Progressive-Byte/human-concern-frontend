@@ -17,7 +17,7 @@ function formatDate(value) {
 
 function Skeleton() {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="h-6 w-52 animate-pulse rounded bg-[#F3F4F6]" />
         <div className="h-9 w-24 animate-pulse rounded bg-[#F3F4F6]" />
@@ -41,7 +41,7 @@ const SchedulesTable = ({ items = [], loading = false, pagination = null, curren
   const amt = typeof formatAmount === "function" ? formatAmount : (v) => String(v ?? "");
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="text-[18px] font-semibold text-[#111827]">All Schedules ({total})</div>
       </div>

@@ -32,7 +32,7 @@ function MoonIcon() {
 
 function SkeletonCard() {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="h-4 w-28 animate-pulse rounded bg-[#F3F4F6]" />

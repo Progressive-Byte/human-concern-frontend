@@ -15,7 +15,7 @@ function HealthTile({ label, value, tone = "default" }) {
     bad: "text-[#B91C1C]",
   };
   return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="min-w-0 overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
       <div className="text-[12px] font-semibold uppercase tracking-wide text-[#6B7280]">{label}</div>
       <div className={`hc-kpi-value mt-2 font-semibold ${tones[tone]}`} title={String(value)}>{value}</div>
     </div>
@@ -41,7 +41,7 @@ const TransactionHealthSection = ({ data, loading }) => {
       {loading ? (
         <div className="hc-kpi-grid">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-[104px] animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA]" />
+            <div key={i} className="h-[104px] animate-pulse rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA]" />
           ))}
         </div>
       ) : (
@@ -63,7 +63,7 @@ const TransactionHealthSection = ({ data, loading }) => {
             <HealthTile label="Chargebacks" value="Not tracked" />
           </div>
 
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white">
             <div className="border-b border-[#F3F4F6] px-5 py-3 text-[13px] font-semibold text-[#111827]">
               Invoices (donations) by status
             </div>

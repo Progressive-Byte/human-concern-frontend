@@ -243,7 +243,7 @@ const AdminSchedulesPage = () => {
 
       <SchedulesSummaryCards summary={summary} loading={loading} currency={currency} formatAmount={(v) => formatCurrency(Number(v || 0), currency)} />
 
-      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <SchedulesFilters
           q={filters.q}
           status={filters.status}

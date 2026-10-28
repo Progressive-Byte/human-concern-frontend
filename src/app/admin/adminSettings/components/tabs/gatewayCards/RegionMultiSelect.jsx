@@ -120,7 +120,7 @@ const RegionMultiSelect = ({
               {unknownSelected.map((code, i) => (
                 <span
                   key={`unknown-${code}-${i}`}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-full border border-dashed border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11.5px] font-semibold text-amber-800"
+                  className="inline-flex shrink-0 items-center gap-1 rounded-full border border-solid border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11.5px] font-semibold text-amber-800"
                   title="Custom tag (not in standard region list)"
                 >
                   <span>🏷️</span>

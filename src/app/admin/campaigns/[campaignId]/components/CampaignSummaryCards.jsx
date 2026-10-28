@@ -4,7 +4,7 @@ import { formatCurrency } from "@/utils/helpers";
 
 function Stat({ label, value, sub }) {
   return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="min-w-0 overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
       <div className="text-[12px] font-semibold uppercase tracking-wide text-[#6B7280]">{label}</div>
       <div className="hc-kpi-value mt-2 font-semibold text-[#111827]" title={String(value)}>{value}</div>
       {sub ? <div className="mt-1 text-[12px] text-[#6B7280]">{sub}</div> : null}
@@ -17,7 +17,7 @@ const CampaignSummaryCards = ({ data, loading }) => {
     return (
       <section className="hc-kpi-grid">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-[100px] animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA]" />
+          <div key={i} className="h-[100px] animate-pulse rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA]" />
         ))}
       </section>
     );

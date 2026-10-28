@@ -77,7 +77,7 @@ export function ActionBanner({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+    <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 className="text-base font-semibold text-[#111827]">Action required to complete your payment</h2>
@@ -95,7 +95,7 @@ export function ActionBanner({
       </div>
 
       {actionError ? (
-        <div className="mt-4 flex items-start gap-2 rounded-xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+        <div className="mt-4 flex items-start gap-2 rounded-xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
           <span className="mt-0.5 shrink-0"><AlertIcon size={14} /></span>
           <span className="min-w-0">{actionError}</span>
         </div>

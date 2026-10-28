@@ -301,12 +301,12 @@ const SingleInstallmentActionPage = () => {
           </Link>
 
         {loadError ? (
-          <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{loadError}</div>
+          <div className="rounded-2xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{loadError}</div>
         ) : null}
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-4 md:gap-5 items-start">
           <div className="min-w-0 space-y-4 md:space-y-5">
-            <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+            <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
@@ -333,7 +333,7 @@ const SingleInstallmentActionPage = () => {
               )}
 
               {tripReason ? (
-                <div className="mt-4 border border-dashed border-red-500/20 bg-red-500/5 rounded-xl px-4 py-3">
+                <div className="mt-4 border border-solid border-red-500/20 bg-red-500/5 rounded-xl px-4 py-3">
                   <div className="flex items-start gap-2">
                     <span className="mt-0.5 shrink-0 text-red-600">{AlertIcon && <span><AlertIcon size={14} /></span>}</span>
                     <div className="min-w-0">
@@ -357,19 +357,19 @@ const SingleInstallmentActionPage = () => {
               ) : null}
 
               {actionError && (
-                <div className="mt-4 border border-dashed border-red-500/30 bg-red-500/10 rounded-xl px-4 py-3 text-sm text-red-600">
+                <div className="mt-4 border border-solid border-red-500/30 bg-red-500/10 rounded-xl px-4 py-3 text-sm text-red-600">
                   {actionError}
                 </div>
               )}
 
               {stripeError && (
-                <div className="mt-4 border border-dashed border-red-500/30 bg-red-500/10 rounded-xl px-4 py-3 text-sm text-red-600">
+                <div className="mt-4 border border-solid border-red-500/30 bg-red-500/10 rounded-xl px-4 py-3 text-sm text-red-600">
                   {stripeError}
                 </div>
               )}
 
               {completed ? (
-                <div className="mt-5 border border-dashed border-emerald-500/30 bg-emerald-50 rounded-xl px-5 py-6 text-center">
+                <div className="mt-5 border border-solid border-emerald-500/30 bg-emerald-50 rounded-xl px-5 py-6 text-center">
                   <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 mb-3">
                     <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
                       <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -421,7 +421,7 @@ const SingleInstallmentActionPage = () => {
             </div>
 
             {syncStatus && (
-              <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] px-4 py-3 flex items-center justify-between gap-3">
+              <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] px-4 py-3 flex items-center justify-between gap-3">
                 <p className="text-xs text-[#6B7280]">
                   Installment status:&nbsp;
                   <span className="font-semibold text-[#111827]">{syncStatus}</span>
@@ -437,7 +437,7 @@ const SingleInstallmentActionPage = () => {
           </div>
 
           <div className="w-full space-y-3">
-            <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] overflow-hidden">
+            <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] overflow-hidden">
               <div className="bg-[#1A1A1A] px-5 py-4">
                 <p className="text-[11px] font-semibold tracking-widest uppercase text-[#9CA3AF] mb-1">Installment Amount</p>
                 <p className="text-3xl font-bold text-white">{formatCurrency(amount, currency)}</p>
@@ -457,12 +457,12 @@ const SingleInstallmentActionPage = () => {
                   </div>
                 )}
                 {schedule?.totalDonated != null && (
-                  <div className="flex items-center justify-between border-t border-dashed border-[#E5E7EB] pt-3">
+                  <div className="flex items-center justify-between border-t border-solid border-[#E5E7EB] pt-3">
                     <span className="text-[#6B7280]">Total donated so far</span>
                     <span className="font-semibold text-[#EA3335]">{formatCurrency(Number(schedule.totalDonated || 0), currency)}</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between border-t border-dashed border-[#E5E7EB] pt-3">
+                <div className="flex items-center justify-between border-t border-solid border-[#E5E7EB] pt-3">
                   <span className="text-[#6B7280]">Payment mode</span>
                   <span className="inline-flex items-center rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-semibold text-[#111827]">
                     {paymentMode}

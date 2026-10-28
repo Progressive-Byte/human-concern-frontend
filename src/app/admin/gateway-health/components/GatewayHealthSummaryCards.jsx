@@ -50,7 +50,7 @@ function ZapIcon() {
 
 function SkeletonCard() {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="h-4 w-28 animate-pulse rounded bg-[#F3F4F6]" />
@@ -89,13 +89,13 @@ const GatewayHealthSummaryCards = ({ items = [], loading = false, meta = null, w
       <div className="flex flex-wrap items-center justify-between gap-2 px-1">
         <div className="flex flex-wrap items-center gap-2">
           {reportedProviders && reportedProviders.length > 0 ? (
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[#E5E7EB] bg-[#FAFAFA] px-3 py-1 text-[11px] text-[#6B7280]">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-solid border-[#E5E7EB] bg-[#FAFAFA] px-3 py-1 text-[11px] text-[#6B7280]">
               <span className="font-semibold text-[#111827]">{reportedProviders.length}</span> provider{reportedProviders.length === 1 ? "" : "s"}:
               <span className="font-medium text-[#111827]">{reportedProviders.join(", ")}</span>
             </div>
           ) : null}
         </div>
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[#E5E7EB] bg-[#FAFAFA] px-3 py-1 text-[11px] text-[#6B7280]">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-solid border-[#E5E7EB] bg-[#FAFAFA] px-3 py-1 text-[11px] text-[#6B7280]">
           <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none">
             <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
             <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

@@ -440,7 +440,7 @@ function ScaThresholdsMapEditor({ value, onChange, supportedCurrencies = [], err
   return (
     <div className="space-y-2">
       {rows.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[#D1D5DB] bg-[#FAFAFA] px-4 py-5 text-center">
+        <div className="rounded-lg border border-solid border-[#D1D5DB] bg-[#FAFAFA] px-4 py-5 text-center">
           <div className="text-[13px] font-semibold text-[#111827]">No SCA thresholds set</div>
           <div className="mt-1 text-[12px] text-[#6B7280]">
             All currencies fall back to LENIENT mode — no 3DS forced, issuer-bank decides.
@@ -485,7 +485,7 @@ function ScaThresholdsMapEditor({ value, onChange, supportedCurrencies = [], err
                       }`}
                     />
                   </div>
-                  <div className="w-24 shrink-0 rounded-md border border-dashed border-[#D1D5DB] bg-gradient-to-b from-[#F9FAFB] to-[#F3F4F6] px-2.5 py-1.5 text-right text-[11.5px] font-semibold tabular-nums text-[#111827] shadow-inner">
+                  <div className="w-24 shrink-0 rounded-md border border-solid border-[#D1D5DB] bg-gradient-to-b from-[#F9FAFB] to-[#F3F4F6] px-2.5 py-1.5 text-right text-[11.5px] font-semibold tabular-nums text-[#111827] shadow-inner">
                     <span className="mr-0.5 text-[#9CA3AF]">{info.symbol || ""}</span>
                     {decimalized}
                   </div>
@@ -574,7 +574,7 @@ function AddScaThresholdDropdown({ addable, alreadyInMapCount, onPick }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="group inline-flex w-full items-center justify-between gap-2 rounded-lg border-dashed border border-[#D1D5DB] bg-white px-3.5 py-2.5 text-left text-[12.5px] font-bold text-[#111827] transition hover:border-[#111827] focus:border-[#111827] focus:ring-4 focus:ring-[#111827]/8"
+        className="group inline-flex w-full items-center justify-between gap-2 rounded-lg border-solid border border-[#D1D5DB] bg-white px-3.5 py-2.5 text-left text-[12.5px] font-bold text-[#111827] transition hover:border-[#111827] focus:border-[#111827] focus:ring-4 focus:ring-[#111827]/8"
       >
         <span className="inline-flex items-center gap-1.5">
           <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 text-[#111827] group-hover:scale-110 transition" fill="none">

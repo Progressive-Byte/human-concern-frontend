@@ -445,7 +445,7 @@ const AdminDonationsPage = () => {
 
       <DonationsSummaryCards summary={summary} loading={summaryLoading} currency={currency} />
 
-      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <DonationsFilters
           q={filters.q}
           status={filters.status}

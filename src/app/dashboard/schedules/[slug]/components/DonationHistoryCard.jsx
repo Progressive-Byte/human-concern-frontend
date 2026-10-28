@@ -354,7 +354,7 @@ export function DonationHistoryCard({
   const isRetryAction = pendingAction?.type === "retry";
 
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+    <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
         <h2 className="text-base font-semibold text-[#111827]">Donation History</h2>
       </div>

@@ -567,11 +567,11 @@ const PaymentTab = ({ value, loading, busy, onConfigure, onToggleEnabled, onDisc
           })}
         </div>
       ) : loading ? (
-        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FCFCFD] px-4 py-10 text-center">
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-[#FCFCFD] px-4 py-10 text-center">
           <div className="text-[13px] text-[#6B7280]">Loading gateway configurations...</div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FCFCFD] px-4 py-10 text-center">
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-[#FCFCFD] px-4 py-10 text-center">
           <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#111827]/5 text-2xl">
             💳
           </div>

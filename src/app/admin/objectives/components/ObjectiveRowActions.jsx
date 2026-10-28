@@ -69,7 +69,7 @@ const ObjectiveRowActions = ({ item, onEdit, onArchive, onRestore }) => {
       <RowActionsPanel
         open={open}
         anchorRef={wrapRef}
-        className="w-[200px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-2 shadow-lg"
+        className="w-[200px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-2 shadow-lg"
       >
           {menu.map((m) => (
             <button

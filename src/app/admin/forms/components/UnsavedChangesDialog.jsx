@@ -11,7 +11,7 @@ const UnsavedChangesDialog = ({ open, saving, error, onSave, onDiscard, onCancel
         className="absolute inset-0 cursor-pointer bg-black/40"
         onClick={onCancel}
       />
-      <div className="hc-animate-dropdown relative w-full max-w-[520px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
+      <div className="hc-animate-dropdown relative w-full max-w-[520px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-xl">
         <div className="text-center text-[16px] font-semibold text-[#111827]">You have unsaved changes</div>
         <div className="mt-2 text-center text-sm text-[#6B7280]">
           Save your changes before leaving, or discard them. Discarded changes cannot be recovered.
@@ -28,7 +28,7 @@ const UnsavedChangesDialog = ({ open, saving, error, onSave, onDiscard, onCancel
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancel / Stay
           </button>
@@ -36,7 +36,7 @@ const UnsavedChangesDialog = ({ open, saving, error, onSave, onDiscard, onCancel
             type="button"
             onClick={onDiscard}
             disabled={saving}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Discard Changes
           </button>

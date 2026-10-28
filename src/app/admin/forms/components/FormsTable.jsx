@@ -70,7 +70,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
   const rows = Array.isArray(items) ? items : [];
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="px-5 py-4">
         <h2 className="text-[18px] font-semibold text-[#111827]">All Forms</h2>
       </div>
@@ -133,7 +133,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                       </div>
                     </td>
                     <td className="py-4 pr-4 align-top">
-                      <span className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-1 text-[11px] font-semibold text-[#111827]">
+                      <span className="rounded-xl border border-solid border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-1 text-[11px] font-semibold text-[#111827]">
                         {formKind === "simple" ? "Simple" : "Complex"}
                       </span>
                     </td>

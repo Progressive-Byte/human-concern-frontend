@@ -64,7 +64,7 @@ const DonationsFilters = ({
           value={q}
           onChange={(e) => onChangeQ?.(e.target.value)}
           placeholder="Search by donor, email, campaign, or payment reference..."
-          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white py-3 pl-10 pr-4 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pl-10 pr-4 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
         />
       </div>
 
@@ -76,7 +76,7 @@ const DonationsFilters = ({
           <select
             value={status}
             onChange={(e) => onChangeStatus?.(e.target.value)}
-            className="w-full md:w-[160px] rounded-xl border border-dashed border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+            className="w-full md:w-[160px] rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
@@ -94,7 +94,7 @@ const DonationsFilters = ({
           <select
             value={preset}
             onChange={(e) => onChangeDatePreset?.(e.target.value)}
-            className="w-full md:w-[160px] rounded-xl border border-dashed border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+            className="w-full md:w-[160px] rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
           >
             <option value="all">All Time</option>
             <option value="today">Today</option>
@@ -110,7 +110,7 @@ const DonationsFilters = ({
           onChange={(e) => onChangeCampaign?.(e.target.value)}
           disabled={campaignsLoading}
           aria-label="Filter by campaign"
-          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:cursor-not-allowed disabled:opacity-60 md:w-[180px]"
+          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:cursor-not-allowed disabled:opacity-60 md:w-[180px]"
         >
           <option value="">All Campaigns</option>
           {campaigns.map((c) => (
@@ -125,7 +125,7 @@ const DonationsFilters = ({
           onChange={(e) => onChangeForm?.(e.target.value)}
           disabled={campaignsLoading}
           aria-label="Filter by form"
-          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:cursor-not-allowed disabled:opacity-60 md:w-[180px]"
+          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:cursor-not-allowed disabled:opacity-60 md:w-[180px]"
         >
           <option value="">All Forms</option>
           {forms.map((f) => (
@@ -138,7 +138,7 @@ const DonationsFilters = ({
         <select
           value={String(limit || "20")}
           onChange={(e) => onChangeLimit?.(e.target.value)}
-          className="w-full md:w-[130px] rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+          className="w-full md:w-[130px] rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
         >
           <option value="10">10 / page</option>
           <option value="20">20 / page</option>
@@ -152,13 +152,13 @@ const DonationsFilters = ({
             type="date"
             value={from || ""}
             onChange={(e) => onChangeFrom?.(e.target.value)}
-            className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+            className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
           />
           <input
             type="date"
             value={to || ""}
             onChange={(e) => onChangeTo?.(e.target.value)}
-            className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+            className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
           />
         </div>
       ) : null}

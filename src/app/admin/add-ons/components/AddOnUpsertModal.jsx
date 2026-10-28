@@ -70,7 +70,7 @@ function EmojiPickerField({ value, onChange }) {
   return (
     <div ref={wrapRef} className="relative">
       <div className="flex items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] bg-white text-[18px] text-[#111827]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-solid border-[#E5E7EB] bg-white text-[18px] text-[#111827]">
           {value || "🎁"}
         </div>
         <button
@@ -96,7 +96,7 @@ function EmojiPickerField({ value, onChange }) {
             }
             setOpen(nextOpen);
           }}
-          className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+          className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
           aria-label="Pick emoji"
         >
           Choose
@@ -105,7 +105,7 @@ function EmojiPickerField({ value, onChange }) {
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
           placeholder="e.g. 🎁"
-          className="min-w-0 flex-1 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+          className="min-w-0 flex-1 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
         />
       </div>
 
@@ -113,7 +113,7 @@ function EmojiPickerField({ value, onChange }) {
         ? createPortal(
             <div
               ref={popoverRef}
-              className="hc-animate-dropdown fixed z-[95] w-[360px] max-w-[calc(100vw-32px)] rounded-2xl border border-dashed border-[#E5E7EB] bg-white shadow-lg"
+              className="hc-animate-dropdown fixed z-[95] w-[360px] max-w-[calc(100vw-32px)] rounded-2xl border border-solid border-[#E5E7EB] bg-white shadow-lg"
               style={{ left: pickerPos.left, top: pickerPos.top }}
             >
               <EmojiPicker
@@ -380,7 +380,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
     <div className="fixed inset-0 z-[80] flex items-center justify-center px-4">
       <button type="button" aria-label="Close modal overlay" className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      <div className="hc-animate-dropdown relative w-full max-w-[680px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-xl">
+      <div className="hc-animate-dropdown relative w-full max-w-[680px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">{title}</div>
@@ -390,7 +390,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
             type="button"
             aria-label="Close modal"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-solid border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -414,7 +414,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
               <input
                 value={addonName}
                 onChange={(e) => setAddonName(e.target.value)}
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 placeholder='e.g. "Fitrana (Zakat al-Fitr)"'
               />
             </div>
@@ -424,7 +424,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
               <input
                 value={shortDescription}
                 onChange={(e) => setShortDescription(e.target.value)}
-                className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 placeholder="Optional"
               />
             </div>
@@ -435,7 +435,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
                 <input
                   value={amountFieldLabel}
                   onChange={(e) => setAmountFieldLabel(e.target.value)}
-                  className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                   placeholder="e.g. Amount per Person"
                 />
               </div>
@@ -444,7 +444,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
                 <input
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                   placeholder="e.g. 12"
                 />
               </div>
@@ -455,7 +455,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
               <textarea
                 value={labelUnderAmount}
                 onChange={(e) => setLabelUnderAmount(e.target.value)}
-                className="min-h-[88px] w-full resize-none rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                className="min-h-[88px] w-full resize-none rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 placeholder="Optional"
               />
             </div>
@@ -468,7 +468,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
                 <select
                   value={fundCode}
                   onChange={(e) => setFundCode(e.target.value)}
-                  className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 >
                   <option value="">Select a fund code…</option>
                   {fundOptions.map((code) => (
@@ -490,7 +490,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
                 <select
                   value={designationCode}
                   onChange={(e) => setDesignationCode(e.target.value)}
-                  className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 >
                   <option value="">General</option>
                   {designationOptions.map((d) => (
@@ -547,7 +547,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
               >
                 Cancel
               </button>

@@ -97,7 +97,7 @@ const PaymentReceiptCard = ({ receipt, error, onRetry, donationId, email }) => {
 
   if (error) {
     return (
-      <div className="w-full bg-white rounded-2xl border border-dashed border-[#E5E5E5] p-5 sm:p-6 text-left">
+      <div className="w-full bg-white rounded-2xl border border-solid border-[#E5E5E5] p-5 sm:p-6 text-left">
         <h3 className="text-[13px] font-semibold uppercase tracking-widest text-gray-500">Donation Receipt</h3>
         <p className="text-[13px] text-[#737373] mt-3">{error}</p>
         {onRetry ? (

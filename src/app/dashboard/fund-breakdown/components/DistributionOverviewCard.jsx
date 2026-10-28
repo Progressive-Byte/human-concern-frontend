@@ -9,7 +9,7 @@ export function DistributionOverviewCard({ loading, segments, hovered, onHover, 
   const active = hovered ? segments.find((s) => s.label === hovered) : null;
 
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+    <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
       <h2 className="text-lg font-semibold text-[#111827] mb-6">Distribution Overview</h2>
 
       <div className="flex flex-col items-center">

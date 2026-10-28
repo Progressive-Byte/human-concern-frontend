@@ -8,7 +8,7 @@ const frequencyLabel = { Weekly: "per week", Monthly: "per month", Daily: "per d
 
 const ScheduleCard = ({ s, isActive, isPaused, isCancelled, isCompleted, onPauseResume, onCancel, canModifySchedule = true }) => {
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-4 md:p-5 hover:border-red-500/30 hover:shadow-sm transition-all">
+    <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-4 md:p-5 hover:border-red-500/30 hover:shadow-sm transition-all">
       <div className="flex items-start gap-3 md:gap-4">
         <div className="shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-xl bg-red-500/10 flex items-center justify-center text-red-600">
           {CalendarIcon}

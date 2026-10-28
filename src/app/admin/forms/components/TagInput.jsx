@@ -41,12 +41,12 @@ const TagInput = ({
     <div>
       {label ? <div className="mb-2 text-[13px] font-semibold text-[#111827]">{label}</div> : null}
 
-      <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5">
+      <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5">
         <div className="flex flex-wrap gap-2">
           {rows.map((t) => (
             <span
               key={t}
-              className="inline-flex items-center gap-2 rounded-full border border-dashed border-[#E5E7EB] bg-[#F3F4F6] px-3 py-1 text-[11px] font-medium text-[#111827]"
+              className="inline-flex items-center gap-2 rounded-full border border-solid border-[#E5E7EB] bg-[#F3F4F6] px-3 py-1 text-[11px] font-medium text-[#111827]"
             >
               <span className="max-w-[220px] truncate">{t}</span>
               <button

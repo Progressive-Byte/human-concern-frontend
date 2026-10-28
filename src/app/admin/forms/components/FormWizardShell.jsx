@@ -56,7 +56,7 @@ const FormWizardShell = ({
           <SaveStatusChip state={guard?.saveState} />
         </div>
 
-        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-4 py-3">
           <div className="flex flex-wrap items-center gap-2">
             {list.map((s, idx) => {
               const active = s.key === step;
@@ -101,7 +101,7 @@ const FormWizardShell = ({
       </div>
 
       {saveError ? (
-        <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-600">
+        <div className="rounded-2xl border border-solid border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-600">
           <span className="font-semibold">Save failed:</span> {saveError}
         </div>
       ) : null}

@@ -29,7 +29,7 @@ function FundDetailItem({ it, idx, hovered, onHover, currency }) {
 
   return (
     <div
-      className={`flex items-center justify-between px-4 py-3.5 rounded-xl border border-dashed transition-all cursor-pointer ${
+      className={`flex items-center justify-between px-4 py-3.5 rounded-xl border border-solid transition-all cursor-pointer ${
         isDimmed ? "opacity-[0.45]" : "opacity-100"
       }`}
       style={{
@@ -58,7 +58,7 @@ function FundDetailItem({ it, idx, hovered, onHover, currency }) {
 
 export function FundDetailsCard({ loading, items, hovered, onHover, totalDonated, currency }) {
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+    <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
       <h2 className="text-lg font-semibold text-[#111827] mb-5">Fund Details</h2>
 
       <div className="space-y-2">
@@ -80,7 +80,7 @@ export function FundDetailsCard({ loading, items, hovered, onHover, totalDonated
         )}
       </div>
 
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-dashed border-[#E5E7EB]">
+      <div className="flex items-center justify-between mt-4 pt-4 border-t border-solid border-[#E5E7EB]">
         <p className="font-semibold text-[#111827]">Total Donated</p>
         <p className="text-lg font-bold text-[#EA3335]">
           {loading ? "—" : formatCurrency(totalDonated, currency)}

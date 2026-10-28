@@ -75,7 +75,7 @@ const GatewayHealthFilters = ({ provider, providers = [], sinceMinutes, onChange
         <select
           value={provider}
           onChange={(e) => onChangeProvider?.(e.target.value)}
-          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
         >
           {uniqueProviders.map((p) => (
             <option key={p} value={p === "all" ? "" : p}>
@@ -93,7 +93,7 @@ const GatewayHealthFilters = ({ provider, providers = [], sinceMinutes, onChange
           <select
             value={String(sinceMinutes || "15")}
             onChange={(e) => onChangeSinceMinutes?.(e.target.value)}
-            className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+            className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
           >
             <option value="15">Last 15 minutes</option>
             <option value="60">Last 60 minutes</option>

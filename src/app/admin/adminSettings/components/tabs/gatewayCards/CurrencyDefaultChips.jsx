@@ -181,7 +181,7 @@ const CurrencyMultiSelect = ({
                           ? "bg-[#111827] text-white"
                           : checked && !disabled
                             ? "border border-[#D1D5DB] bg-white text-[#6B7280] hover:border-[#111827] hover:text-[#111827]"
-                            : "border border-dashed border-[#E5E7EB] bg-[#FAFAFA] text-[#9CA3AF]"
+                            : "border border-solid border-[#E5E7EB] bg-[#FAFAFA] text-[#9CA3AF]"
                       }`}
                     >
                       {isDef ? "★ DEFAULT" : "Make default"}

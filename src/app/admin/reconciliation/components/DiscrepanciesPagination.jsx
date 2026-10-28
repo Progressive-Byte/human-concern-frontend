@@ -23,7 +23,7 @@ const DiscrepanciesPagination = ({ pagination, onPrev, onNext, showingLabel }) =
           type="button"
           onClick={onPrev}
           disabled={!hasPrev}
-          className="cursor-pointer rounded-lg border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+          className="cursor-pointer rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Previous
         </button>
@@ -31,7 +31,7 @@ const DiscrepanciesPagination = ({ pagination, onPrev, onNext, showingLabel }) =
           type="button"
           onClick={onNext}
           disabled={!hasNext}
-          className="cursor-pointer rounded-lg border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+          className="cursor-pointer rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Next
         </button>

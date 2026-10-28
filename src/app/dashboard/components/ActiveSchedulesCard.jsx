@@ -3,7 +3,7 @@ import { SkeletonStack } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/helpers";
 
 const ActiveSchedulesCard = ({ loading, schedules }) => (
-  <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-5 md:p-6">
+  <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
     <div className="flex items-center justify-between mb-5 md:mb-6">
       <h2 className="text-lg md:text-xl font-semibold text-[#111827]">Active Schedules</h2>
       <Link href="/dashboard/schedules" className="text-sm text-[#EA3335] hover:underline font-medium">
@@ -18,7 +18,7 @@ const ActiveSchedulesCard = ({ loading, schedules }) => (
         schedules.map((s) => (
           <div
             key={s.id}
-            className="border border-dashed border-[#E5E7EB] rounded-2xl p-4 md:p-5 hover:border-red-500/30 hover:shadow-sm transition-all"
+            className="border border-solid border-[#E5E7EB] rounded-2xl p-4 md:p-5 hover:border-red-500/30 hover:shadow-sm transition-all"
           >
             <div className="flex justify-between items-start gap-3">
               <div className="min-w-0">

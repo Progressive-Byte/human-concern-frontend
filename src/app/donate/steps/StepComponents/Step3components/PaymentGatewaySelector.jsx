@@ -280,7 +280,7 @@ const PaymentGatewaySelector = ({
       <p className="text-[14px] font-semibold text-[#383838] mb-3">Payment Method</p>
 
       {!hasAny ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#E5E5E5] bg-[#FAFAFA] px-5 py-8 text-center">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-solid border-[#E5E5E5] bg-[#FAFAFA] px-5 py-8 text-center">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F3F4F6] text-[#6B7280]">
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
               <path d="M12 6v6l4 2M22 12a10 10 0 11-20 0 10 10 0 0120 0z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />

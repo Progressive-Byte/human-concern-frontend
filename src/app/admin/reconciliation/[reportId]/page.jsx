@@ -176,7 +176,7 @@ function DetailPageClient({ paramsFromServer }) {
 
       <ReconciliationDetailKpis report={report} loading={loading} />
 
-      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+      <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <div className="flex items-start justify-between gap-4 flex-col md:flex-row md:items-center">
           <div>
             <div className="text-[12px] font-semibold uppercase tracking-wider text-[#6B7280]">Filter by category</div>
@@ -193,7 +193,7 @@ function DetailPageClient({ paramsFromServer }) {
             <select
               value={String(filters.limit || "20")}
               onChange={(e) => setFilters((prev) => ({ ...prev, page: "1", limit: e.target.value }))}
-              className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+              className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
             >
               <option value="10">10 / page</option>
               <option value="20">20 / page</option>

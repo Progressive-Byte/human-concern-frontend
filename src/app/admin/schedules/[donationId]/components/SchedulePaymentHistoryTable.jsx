@@ -91,7 +91,7 @@ const SchedulePaymentHistoryTable = ({
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift overflow-hidden rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="px-5 py-4">
         <div className="text-[18px] font-semibold text-[#111827]">Payment History</div>
       </div>
@@ -155,7 +155,7 @@ const SchedulePaymentHistoryTable = ({
                           type="button"
                           disabled={busy}
                           onClick={() => setConfirmRow(t)}
-                          className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+                          className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {busy ? "Queuing..." : "Retry"}
                         </button>

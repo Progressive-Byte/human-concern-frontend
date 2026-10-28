@@ -18,13 +18,13 @@ const WizardFooterNav = ({
 
   return (
     <div className="sticky bottom-0">
-      <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-3">
+      <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <button
             type="button"
             onClick={onBack}
             disabled={backDisabled || saving}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Back
           </button>
@@ -34,7 +34,7 @@ const WizardFooterNav = ({
               type="button"
               onClick={onSave}
               disabled={saveDisabled || saving}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save Draft"}
             </button>
@@ -48,7 +48,7 @@ const WizardFooterNav = ({
                 onClick={(e) => {
                   if (previewIsDisabled) e.preventDefault();
                 }}
-                className={`cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] ${
+                className={`cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] ${
                   previewIsDisabled ? "pointer-events-none cursor-not-allowed opacity-50" : ""
                 }`}
               >

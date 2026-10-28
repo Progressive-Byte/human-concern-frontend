@@ -40,7 +40,7 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
       <div className="mb-4">
         <h3 className="text-[14px] font-semibold text-[#111827]">Suggested Amounts</h3>
         <p className="mt-1 text-[13px] text-[#6B7280]">Preset donation amounts shown to donors</p>
@@ -66,7 +66,7 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
                           inputMode="decimal"
                           placeholder="25"
                           disabled={disabled}
-                          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+                          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                         />
                         <FieldError message={rowErrors.value} />
                       </div>
@@ -78,14 +78,14 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
                           onChange={(e) => setItem(idx, { description: e.target.value })}
                           placeholder="Small"
                           disabled={disabled}
-                          className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+                          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                         />
                         <FieldError message={rowErrors.description} />
                       </div>
 
                       <div className="md:col-span-1">
                         <div className="mb-2 text-[13px] font-semibold text-[#111827]">Default</div>
-                        <label className="flex h-[42px] items-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+                        <label className="flex h-[42px] items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
                           <input
                             type="radio"
                             name="suggestedAmountDefault"
@@ -115,7 +115,7 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
             })}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
+          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
             No suggested amounts added.
           </div>
         )}
@@ -125,7 +125,7 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
             type="button"
             onClick={addRow}
             disabled={disabled}
-            className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
           >
             Add Amount
           </button>

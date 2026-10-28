@@ -142,7 +142,7 @@ const DashboardClient = () => {
     const next = firstAllowedAdminHref(admin);
     return (
       <main className="min-w-0 space-y-6 p-4 md:p-6">
-        <div className="hc-animate-fade-up rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-6">
+        <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-6">
           <div className="text-[18px] font-semibold text-[#111827]">No access to the dashboard</div>
           <p className="mt-1 text-[13px] text-[#6B7280]">
             Your role doesn&apos;t include the <span className="font-mono">dashboard.read</span> permission.
@@ -150,7 +150,7 @@ const DashboardClient = () => {
           {next && next !== "/admin" ? (
             <Link
               href={next}
-              className="mt-4 inline-flex rounded-xl border border-dashed border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] no-underline transition hover:bg-[#F9FAFB]"
+              className="mt-4 inline-flex rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] no-underline transition hover:bg-[#F9FAFB]"
             >
               Go to {next}
             </Link>

@@ -67,7 +67,7 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = ""
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <button type="button" onClick={onClose} className="absolute inset-0 cursor-pointer bg-black/40" aria-label="Close" />
 
-      <div className="hc-animate-dropdown relative w-full max-w-[560px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-5 shadow-lg">
+      <div className="hc-animate-dropdown relative w-full max-w-[560px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-lg">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[16px] font-semibold text-[#111827]">
@@ -84,7 +84,7 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = ""
               <button
                 type="button"
                 onClick={() => setStep("campaign")}
-                className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
               >
                 Back
               </button>
@@ -92,7 +92,7 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = ""
               <button
                 type="button"
                 onClick={onCreateCampaign}
-                className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
               >
                 Create Campaign
               </button>
@@ -100,7 +100,7 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = ""
             <button
               type="button"
               onClick={onClose}
-              className="cursor-pointer rounded-xl border border-dashed border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
             >
               Cancel
             </button>
@@ -114,7 +114,7 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = ""
                 key={kind.value}
                 type="button"
                 onClick={() => onSelect?.(String(selectedId), kind.value)}
-                className="flex w-full cursor-pointer items-start justify-between gap-4 rounded-2xl border border-dashed border-[#E5E7EB] px-4 py-4 text-left transition hover:border-red-600/30 hover:bg-red-600/5"
+                className="flex w-full cursor-pointer items-start justify-between gap-4 rounded-2xl border border-solid border-[#E5E7EB] px-4 py-4 text-left transition hover:border-red-600/30 hover:bg-red-600/5"
               >
                 <div className="min-w-0">
                   <div className="text-[14px] font-semibold text-[#111827]">{kind.label}</div>
@@ -137,7 +137,7 @@ const CampaignPickerModal = ({ open, campaigns = [], loading, preselectedId = ""
               />
             </div>
 
-            <div className="mt-4 max-h-[360px] overflow-y-auto rounded-2xl border border-dashed border-[#E5E7EB]">
+            <div className="mt-4 max-h-[360px] overflow-y-auto rounded-2xl border border-solid border-[#E5E7EB]">
               {loading ? (
                 <div className="space-y-2 p-4">
                   <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />

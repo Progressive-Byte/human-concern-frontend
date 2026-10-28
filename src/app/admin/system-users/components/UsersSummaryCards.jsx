@@ -28,7 +28,7 @@ function BlockIcon() {
 
 function SkeletonCard() {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA] p-4">
+    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] p-4">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 animate-pulse rounded-full bg-[#F3F4F6]" />
         <div className="min-w-0 flex-1">

@@ -105,7 +105,7 @@ const FundBreakdownPage = () => {
 
       <div className="flex-1 p-4 md:p-6 space-y-5">
         {error ? (
-          <div className="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+          <div className="rounded-2xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         ) : null}

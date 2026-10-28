@@ -388,7 +388,7 @@ const Step4Confirmation = () => {
 
             {isPreview ? (
               <div className="flex flex-col gap-4">
-                <div className="rounded-xl border border-dashed border-[#EBEBEB] bg-[#F9F9F9] px-4 py-4">
+                <div className="rounded-xl border border-solid border-[#EBEBEB] bg-[#F9F9F9] px-4 py-4">
                   <div className="text-[14px] font-semibold text-[#383838]">Payment disabled</div>
                   <div className="mt-1 text-[13px] text-[#737373]">
                     This page shows the end-to-end donation flow UI without creating a real donation or requiring Stripe configuration.

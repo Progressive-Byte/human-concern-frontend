@@ -35,7 +35,7 @@ const RolesTable = ({ items, loading, onEdit, onDelete }) => {
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="px-5 py-4">
         <h2 className="text-[18px] font-semibold text-[#111827]">All Roles</h2>
         <p className="mt-1 text-[13px] text-[#6B7280]">
@@ -104,7 +104,7 @@ const RolesTable = ({ items, loading, onEdit, onDelete }) => {
                       <RowActionsPanel
                         open={openId === role.id}
                         anchorRef={wrapRef}
-                        className="w-[190px] rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-2 shadow-lg"
+                        className="w-[190px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-2 shadow-lg"
                       >
                         <button
                           type="button"

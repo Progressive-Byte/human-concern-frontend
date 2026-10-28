@@ -26,7 +26,7 @@ const CampaignDonorsSection = ({ data, loading }) => {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white">
+      <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white">
         {loading ? (
           <div className="space-y-3 px-5 py-4">
             <div className="h-10 animate-pulse rounded-lg bg-[#F3F4F6]" />

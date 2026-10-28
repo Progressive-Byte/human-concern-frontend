@@ -3,7 +3,7 @@
 import MultiSelectFilter from "./MultiSelectFilter";
 
 const FIELD =
-  "w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white py-3 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30";
+  "w-full rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30";
 
 const ICON_WRAP = "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]";
 
@@ -61,7 +61,7 @@ const FundBreakdownFilters = ({
             value={q}
             onChange={(e) => onChangeQ?.(e.target.value)}
             placeholder="Search by fund code or cause..."
-            className="w-full rounded-xl border border-dashed border-[#E5E7EB] bg-white py-3 pl-10 pr-4 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+            className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pl-10 pr-4 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
           />
         </div>
 
