@@ -129,6 +129,33 @@ const DataExportPageClient = () => {
     [selection],
   );
 
+  /* Every table is picked, so the one switch above the list can show its state. */
+  const allTablesSelected = useMemo(
+    () =>
+      entities.length > 0 &&
+      entities.every((entity) => Array.isArray(selection[entity.key]) && selection[entity.key].length > 0),
+    [entities, selection],
+  );
+
+  /* The same columns a single click would pick, applied to every table. */
+  function toggleAllTables() {
+    setSelection((prev) => {
+      const everySelected =
+        entities.length > 0 &&
+        entities.every((entity) => Array.isArray(prev[entity.key]) && prev[entity.key].length > 0);
+
+      if (everySelected) return {};
+
+      const next = {};
+      for (const entity of entities) {
+        next[entity.key] = entity.defaultColumns && entity.defaultColumns.length
+          ? [...entity.defaultColumns]
+          : entity.columns.slice(0, 5).map((c) => c.key);
+      }
+      return next;
+    });
+  }
+
   function toggleTable(entity) {
     setSelection((prev) => {
       const next = { ...prev };
@@ -252,7 +279,31 @@ const DataExportPageClient = () => {
           {loading ? (
             <div className="mt-6 text-sm text-[#6B7280]">Loading…</div>
           ) : (
-            <div className="mt-4 space-y-2">
+            <>
+              {entities.length > 0 ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl bg-[#F9FAFB] px-3 py-2.5">
+                <label className="flex cursor-pointer items-center gap-2 text-[13px] font-semibold text-[#111827]">
+                  <input
+                    type="checkbox"
+                    checked={allTablesSelected}
+                    ref={(el) => {
+                      /* Half picked reads as "some", not "none". */
+                      if (el) el.indeterminate = !allTablesSelected && selectedTables.length > 0;
+                    }}
+                    onChange={toggleAllTables}
+                    className="h-4 w-4 cursor-pointer"
+                    style={{ accentColor: "#EA3335" }}
+                  />
+                  Select all tables
+                </label>
+
+                <span className="ml-auto text-[12px] text-[#6B7280]">
+                  {selectedTables.length} of {entities.length} selected
+                </span>
+              </div>
+              ) : null}
+
+              <div className="mt-3 space-y-2">
               {entities.map((entity) => {
                 const cols = selection[entity.key];
                 const isSelected = Array.isArray(cols) && cols.length > 0;
@@ -314,7 +365,8 @@ const DataExportPageClient = () => {
                   </div>
                 );
               })}
-            </div>
+              </div>
+            </>
           )}
         </section>
 
