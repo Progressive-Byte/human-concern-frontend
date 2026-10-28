@@ -137,7 +137,7 @@ const DataExportPageClient = () => {
     [entities, selection],
   );
 
-  /* The same columns a single click would pick, applied to every table. */
+  /* Every column of every table, which is what the one overall switch means. */
   function toggleAllTables() {
     setSelection((prev) => {
       const everySelected =
@@ -148,9 +148,7 @@ const DataExportPageClient = () => {
 
       const next = {};
       for (const entity of entities) {
-        next[entity.key] = entity.defaultColumns && entity.defaultColumns.length
-          ? [...entity.defaultColumns]
-          : entity.columns.slice(0, 5).map((c) => c.key);
+        next[entity.key] = entity.columns.map((c) => c.key);
       }
       return next;
     });
@@ -294,7 +292,7 @@ const DataExportPageClient = () => {
                     className="h-4 w-4 cursor-pointer"
                     style={{ accentColor: "#EA3335" }}
                   />
-                  Select all tables
+                  Select all tables and columns
                 </label>
 
                 <span className="ml-auto text-[12px] text-[#6B7280]">
@@ -310,10 +308,25 @@ const DataExportPageClient = () => {
                 const open = expanded[entity.key];
                 return (
                   <div key={entity.key} className="rounded-xl border border-[#F3F4F6]">
-                    <div className="flex flex-wrap items-center gap-3 p-3">
+                    {/* The whole row opens and closes the columns, not just the small label. */}
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={Boolean(open)}
+                      onClick={() => setExpanded((e) => ({ ...e, [entity.key]: !e[entity.key] }))}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setExpanded((e) => ({ ...e, [entity.key]: !e[entity.key] }));
+                        }
+                      }}
+                      className="flex cursor-pointer flex-wrap items-center gap-3 p-3 hover:bg-[#FAFAFA]"
+                    >
                       <input
                         type="checkbox"
                         checked={isSelected}
+                        /* Ticking the box must not also open the row. */
+                        onClick={(event) => event.stopPropagation()}
                         onChange={() => toggleTable(entity)}
                         className="h-4 w-4 cursor-pointer"
                         style={{ accentColor: "#EA3335" }}
@@ -324,13 +337,9 @@ const DataExportPageClient = () => {
                           {cols.length} column{cols.length !== 1 ? "s" : ""}
                         </span>
                       ) : null}
-                      <button
-                        type="button"
-                        onClick={() => setExpanded((e) => ({ ...e, [entity.key]: !e[entity.key] }))}
-                        className="ml-auto cursor-pointer text-[12px] font-semibold text-[#6B7280] hover:text-[#111827]"
-                      >
+                      <span className="ml-auto text-[12px] font-semibold text-[#6B7280]">
                         {open ? "Hide columns" : "Columns"}
-                      </button>
+                      </span>
                     </div>
 
                     {open ? (
