@@ -1,9 +1,11 @@
 import { apiRequest } from "./api";
 
-export function requestDonationTrackLink({ email } = {}) {
+export function requestDonationTrackLink({ email, turnstileToken } = {}) {
   return apiRequest("/track-donation/request", {
     method: "POST",
     body: JSON.stringify({ email: String(email || "").trim().toLowerCase() }),
+    /* Cloudflare's bot check token; the API checks it before sending any email. */
+    ...(turnstileToken ? { headers: { "cf-turnstile-response": turnstileToken } } : {}),
   });
 }
 

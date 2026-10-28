@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { requestDonationTrackLink } from "@/services/trackDonationService";
+import TurnstileBox from "@/components/common/TurnstileBox";
+import { TURNSTILE_ENABLED } from "@/utils/turnstile";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -15,6 +17,9 @@ const TrackEmailForm = () => {
   const [sentTo, setSentTo] = useState("");
   const [registeredMessage, setRegisteredMessage] = useState("");
   const [cooldown, setCooldown] = useState(0);
+  // Cloudflare's token. The API checks it before it sends the link.
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReset, setTurnstileReset] = useState(0);
 
   useEffect(() => {
     if (cooldown <= 0) return undefined;
@@ -23,10 +28,15 @@ const TrackEmailForm = () => {
   }, [cooldown]);
 
   async function send(value) {
+    if (TURNSTILE_ENABLED && turnstileToken.length === 0) {
+      setError("Please finish the security check first.");
+      return;
+    }
+
     setError("");
     setSubmitting(true);
     try {
-      const res = await requestDonationTrackLink({ email: value });
+      const res = await requestDonationTrackLink({ email: value, turnstileToken });
       if (res?.data?.registered) {
         setRegisteredMessage(res.data.message || "This email address is already registered. Log in to see your donations.");
         setSentTo("");
@@ -38,6 +48,9 @@ const TrackEmailForm = () => {
     } catch (e) {
       setError(e?.message || "We couldn't send the link. Please try again.");
     } finally {
+      // A token works once, so every attempt starts a fresh check.
+      setTurnstileToken("");
+      setTurnstileReset((count) => count + 1);
       setSubmitting(false);
     }
   }
@@ -103,9 +116,11 @@ const TrackEmailForm = () => {
       />
       {error ? <p className="mt-2 text-[13px] text-[#CC1F1F]">{error}</p> : null}
 
+      <TurnstileBox onToken={setTurnstileToken} resetKey={turnstileReset} size="normal" className="mt-4" />
+
       <button
         type="submit"
-        disabled={submitting}
+        disabled={submitting || (TURNSTILE_ENABLED && turnstileToken.length === 0)}
         className="mt-5 w-full cursor-pointer rounded-full bg-[#CC1F1F] px-6 py-3.5 text-[16px] font-semibold text-white transition-colors duration-200 hover:bg-[#A81A1A] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting ? "Sending link…" : "Email me an access link"}

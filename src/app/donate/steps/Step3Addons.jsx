@@ -17,6 +17,8 @@ import { buildDonorReturnParams, saveDonorReturnParams } from "@/components/paym
 import { resetIdempotencyKeyForChangedIntent } from "@/utils/idempotency";
 import { validateOverviewStep } from "@/utils/donationStepValidation";
 import { buildUtmPayload, readFirstTouch } from "@/utils/utm";
+import TurnstileBox from "@/components/common/TurnstileBox";
+import { TURNSTILE_ENABLED } from "@/utils/turnstile";
 
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
@@ -179,6 +181,9 @@ const Step3Addons = () => {
   const [noteErrors,   setNoteErrors]   = useState({});
   const [submitting,   setSubmitting]   = useState(false);
   const [submitError,  setSubmitError]  = useState(null);
+  // Cloudflare's token. The API checks it before it starts the donation.
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReset, setTurnstileReset] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -571,6 +576,13 @@ const Step3Addons = () => {
       return;
     }
     setNoteErrors({});
+
+    // No payment is started without Cloudflare's token. Preview and edit never call the API.
+    if (!isPreview && !isEditMode && TURNSTILE_ENABLED && turnstileToken.length === 0) {
+      setSubmitError("Please wait for the security check to finish.");
+      return;
+    }
+
     const paymentMethod = isPreview ? "stripe" : gatewayState.gateway;
     update({ tipPct, grandTotal, addOnsTotal, addOnBreakdown: computedBreakdown, paymentMethod, firstPaymentAmount, firstPaymentDate });
     setSubmitting(true);
@@ -603,6 +615,7 @@ const Step3Addons = () => {
 
       const submitOpts = { method: "POST", body: JSON.stringify(buildSubmitBody()) };
       if (data.idempotencyKey) submitOpts.idempotencyKey = data.idempotencyKey;
+      if (turnstileToken) submitOpts.headers = { "cf-turnstile-response": turnstileToken };
       const res     = await apiRequest("donations/submit", submitOpts);
 
       // Cross-provider fallback markers (backend composeResponseStep root fields).
@@ -886,6 +899,11 @@ const Step3Addons = () => {
         update({ idempotencyKey: "" });
       }
     } finally {
+      // A token works once, so the next press starts a fresh check.
+      if (!isPreview && !isEditMode) {
+        setTurnstileToken("");
+        setTurnstileReset((value) => value + 1);
+      }
       setSubmitting((prev) => (prev ? false : prev));
     }
   };
@@ -1084,6 +1102,10 @@ const Step3Addons = () => {
             {submitError}
           </p>
         )}
+
+        {!isPreview && !isEditMode ? (
+          <TurnstileBox onToken={setTurnstileToken} resetKey={turnstileReset} />
+        ) : null}
 
       </div>
     </StepLayout>
