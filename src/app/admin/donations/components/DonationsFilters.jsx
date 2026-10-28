@@ -79,7 +79,6 @@ const DonationsFilters = ({
             className="w-full md:w-[160px] rounded-xl border border-solid border-[#E5E7EB] bg-white py-3 pl-9 pr-3 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
           >
             <option value="">All Status</option>
-            <option value="pending">Pending</option>
             <option value="succeeded">Succeeded</option>
             <option value="failed">Failed</option>
             <option value="refunded">Refunded</option>

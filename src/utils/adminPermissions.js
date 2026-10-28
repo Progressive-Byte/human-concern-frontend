@@ -12,7 +12,7 @@
  */
 export function adminHasPermission(admin, required) {
   // `required` may be one key or a list — a list passes when ANY key is held, mirroring the
-  // backend's `requireAnyPermission` (e.g. Forms via `forms.read` or the older `campaigns.read`).
+  // backend's `requireAnyPermission`.
   const requiredKeys = (Array.isArray(required) ? required : [required]).filter(Boolean);
   if (requiredKeys.length === 0) return true;
   if (!admin) return true;

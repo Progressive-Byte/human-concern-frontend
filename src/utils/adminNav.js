@@ -10,7 +10,7 @@ import { adminHasPermission } from "./adminPermissions";
 export const ADMIN_NAV_ITEMS = [
   { href: "/admin", label: "Overview", icon: "overview", permission: "dashboard.read" },
   { href: "/admin/campaigns", label: "Campaigns", icon: "campaigns", permission: "campaigns.read" },
-  { href: "/admin/forms", label: "Forms", icon: "forms", permission: ["forms.read", "campaigns.read"] },
+  { href: "/admin/forms", label: "Forms", icon: "forms", permission: "forms.read" },
   { href: "/admin/categories", label: "FC Categories", icon: "categories", permission: "categories.read" },
   { href: "/admin/causes", label: "Causes", icon: "causes", permission: "causes.read" },
   { href: "/admin/designations", label: "Designations", icon: "designations", permission: "designations.read" },
