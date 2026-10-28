@@ -62,7 +62,7 @@ const CategoriesTable = ({ items, loading, pagination, onPrevPage, onNextPage, o
       ) : rows.length === 0 ? (
         <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No categories found</div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="hc-table-scroll">
           <table className="w-full min-w-[980px] border-collapse">
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">

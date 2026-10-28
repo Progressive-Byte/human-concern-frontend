@@ -4,9 +4,9 @@ import { formatCurrency } from "@/utils/helpers";
 
 function Stat({ label, value, sub }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
       <div className="text-[12px] font-semibold uppercase tracking-wide text-[#6B7280]">{label}</div>
-      <div className="mt-2 text-[22px] font-semibold leading-none text-[#111827]">{value}</div>
+      <div className="hc-kpi-value mt-2 font-semibold text-[#111827]" title={String(value)}>{value}</div>
       {sub ? <div className="mt-1 text-[12px] text-[#6B7280]">{sub}</div> : null}
     </div>
   );
@@ -15,7 +15,7 @@ function Stat({ label, value, sub }) {
 const CampaignSummaryCards = ({ data, loading }) => {
   if (loading || !data) {
     return (
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="hc-kpi-grid">
         {[0, 1, 2, 3].map((i) => (
           <div key={i} className="h-[100px] animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA]" />
         ))}
@@ -28,7 +28,7 @@ const CampaignSummaryCards = ({ data, loading }) => {
   const money = (v) => formatCurrency(Number(v || 0), currency);
 
   return (
-    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="hc-kpi-grid">
       <Stat
         label="Goal"
         value={s.goal === null || s.goal === undefined ? "Open-ended" : money(s.goal)}

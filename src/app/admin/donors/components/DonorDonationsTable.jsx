@@ -77,7 +77,7 @@ const DonorReceiptsTable = ({ donations, loading, onViewAll }) => {
       {rows.length === 0 ? (
         <div className="px-5 py-8 text-center text-sm text-[#6B7280]">No receipts found.</div>
       ) : (
-        <div className="overflow-x-auto px-5 py-4">
+        <div className="hc-table-scroll px-5 py-4">
           <table className="min-w-full text-left">
             <thead>
               <tr className="text-[11px] uppercase tracking-wide text-[#9CA3AF]">

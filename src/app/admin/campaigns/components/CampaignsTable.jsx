@@ -56,7 +56,7 @@ const CampaignsTable = ({
       ) : rows.length === 0 ? (
         <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No campaigns found</div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="hc-table-scroll">
           <table className="min-w-[1150px] w-full border-collapse">
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">

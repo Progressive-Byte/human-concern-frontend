@@ -106,7 +106,7 @@ const DonorsTable = ({
       ) : rows.length === 0 ? (
         <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No donors found. Try a different search or filter.</div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="hc-table-scroll">
           <table className="w-full min-w-[1120px] border-collapse text-[13px] text-[#111827]">
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">

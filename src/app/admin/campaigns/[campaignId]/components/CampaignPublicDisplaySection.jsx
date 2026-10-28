@@ -44,7 +44,7 @@ const CampaignPublicDisplaySection = ({ data, loading }) => {
         ) : rows.length === 0 ? (
           <div className="px-5 py-8 text-center text-sm text-[#6B7280]">This campaign has no forms yet.</div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hc-table-scroll">
             <table className="w-full min-w-[720px] border-collapse">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">

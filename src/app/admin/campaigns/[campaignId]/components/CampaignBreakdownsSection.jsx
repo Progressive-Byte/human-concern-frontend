@@ -43,7 +43,7 @@ const CampaignBreakdownsSection = ({ data, loading }) => {
         {addons.length === 0 ? (
           <Empty>No add-ons were selected.</Empty>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hc-table-scroll">
             <table className="w-full min-w-[640px] border-collapse">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">
@@ -72,7 +72,7 @@ const CampaignBreakdownsSection = ({ data, loading }) => {
         {forms.length === 0 ? (
           <Empty>No donations through this campaign yet.</Empty>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hc-table-scroll">
             <table className="w-full min-w-[720px] border-collapse">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">

@@ -111,7 +111,7 @@ const SchedulesSummaryCards = ({ summary = {}, loading = false, currency = "USD"
   const fmt = typeof formatAmount === "function" ? formatAmount : (v) => String(v ?? "");
 
   return (
-    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="hc-kpi-grid">
       {loading ? (
         <>
           <SkeletonCard />

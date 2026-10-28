@@ -15,9 +15,9 @@ function HealthTile({ label, value, tone = "default" }) {
     bad: "text-[#B91C1C]",
   };
   return (
-    <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
       <div className="text-[12px] font-semibold uppercase tracking-wide text-[#6B7280]">{label}</div>
-      <div className={`mt-2 text-[24px] font-semibold leading-none ${tones[tone]}`}>{value}</div>
+      <div className={`hc-kpi-value mt-2 font-semibold ${tones[tone]}`} title={String(value)}>{value}</div>
     </div>
   );
 }
@@ -39,21 +39,21 @@ const TransactionHealthSection = ({ data, loading }) => {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="hc-kpi-grid">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-[104px] animate-pulse rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAFA]" />
           ))}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="hc-kpi-grid">
             <HealthTile label="Successful" value={Number(tx.succeeded || 0).toLocaleString()} tone="good" />
             <HealthTile label="Pending" value={Number(tx.pending || 0).toLocaleString()} tone="warn" />
             <HealthTile label="Failed" value={Number(tx.failed || 0).toLocaleString()} tone="bad" />
             <HealthTile label="Refunded" value={Number(tx.refunded || 0).toLocaleString()} tone="warn" />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="hc-kpi-grid">
             <HealthTile label="Failed-payment rate" value={percent(tx.failedRate)} />
             <HealthTile label="Refund rate" value={percent(tx.refundRate)} />
             <HealthTile
@@ -67,11 +67,11 @@ const TransactionHealthSection = ({ data, loading }) => {
             <div className="border-b border-[#F3F4F6] px-5 py-3 text-[13px] font-semibold text-[#111827]">
               Invoices (donations) by status
             </div>
-            <div className="grid grid-cols-2 gap-4 px-5 py-4 sm:grid-cols-5">
+            <div className="hc-kpi-grid px-5 py-4">
               {["succeeded", "pending", "failed", "refunded", "total"].map((key) => (
-                <div key={key}>
+                <div key={key} className="min-w-0">
                   <div className="text-[11px] uppercase tracking-wide text-[#6B7280]">{key}</div>
-                  <div className="mt-1 text-[18px] font-semibold text-[#111827]">
+                  <div className="hc-kpi-value mt-1 font-semibold text-[#111827]">
                     {Number(invoices[key] || 0).toLocaleString()}
                   </div>
                 </div>

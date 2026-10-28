@@ -48,7 +48,7 @@ const SchedulesTable = ({ items = [], loading = false, pagination = null, curren
 
       <div className="border-t border-[#F3F4F6]" />
 
-      <div className="overflow-x-auto">
+      <div className="hc-table-scroll">
         <table className="w-full min-w-275 border-collapse text-[13px] text-[#111827]">
           <thead>
             <tr className="text-left text-[12px] font-medium text-[#6B7280]">

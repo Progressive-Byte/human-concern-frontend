@@ -148,7 +148,7 @@ const DonorSchedulesModal = ({ open, donorKey, onClose }) => {
             })}
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-dashed border-[#E5E7EB]">
+          <div className="hc-table-scroll rounded-2xl border border-dashed border-[#E5E7EB]">
             <table className="w-full min-w-[960px] border-collapse text-[13px] text-[#111827]">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">

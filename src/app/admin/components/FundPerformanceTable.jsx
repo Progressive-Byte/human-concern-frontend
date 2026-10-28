@@ -15,7 +15,7 @@ const FundPerformanceTable = ({ items = [], currency = "USD" }) => {
           No fund performance data available
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="hc-table-scroll">
           <table className="min-w-190 w-full border-collapse">
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">

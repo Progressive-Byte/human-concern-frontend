@@ -285,7 +285,7 @@ const AdminLogsPage = () => {
         ) : rows.length === 0 ? (
           <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No logs found</div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hc-table-scroll">
             <table className="w-full min-w-245 border-collapse">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">

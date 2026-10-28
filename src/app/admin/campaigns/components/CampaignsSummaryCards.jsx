@@ -2,14 +2,16 @@ import { formatCurrency } from "@/utils/helpers";
 
 function SummaryCard({ label, value, icon }) {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
       <div className="flex items-center gap-4">
         <div className="hc-admin-brand-soft hc-admin-brand-text flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
           {icon}
         </div>
         <div className="min-w-0">
           <p className="text-[12px] text-[#6B7280]">{label}</p>
-          <p className="mt-2 text-[22px] font-semibold leading-none text-[#111827]">{value}</p>
+          <p className="hc-kpi-value mt-2 font-semibold text-[#111827]" title={String(value)}>
+            {value}
+          </p>
         </div>
       </div>
     </div>
@@ -23,7 +25,7 @@ function Skeleton() {
 const CampaignsSummaryCards = ({ summary, currency = "USD", loading }) => {
   if (loading) {
     return (
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <section className="hc-kpi-grid">
         <Skeleton />
         <Skeleton />
         <Skeleton />
@@ -38,7 +40,7 @@ const CampaignsSummaryCards = ({ summary, currency = "USD", loading }) => {
   const activeNow = Number(summary?.activeNow || 0).toLocaleString();
 
   return (
-    <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <section className="hc-kpi-grid">
       <SummaryCard
         label="Total Campaigns"
         value={totalCampaigns}

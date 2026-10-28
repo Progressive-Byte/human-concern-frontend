@@ -81,7 +81,7 @@ const ReconciliationDetailKpis = ({ report = {}, loading = false }) => {
   const deltaPct = providerTotal > 0 ? (deltaAbs / providerTotal) * 100 : 0;
 
   return (
-    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="hc-kpi-grid">
       {loading ? (
         <>
           <SkeletonCard />

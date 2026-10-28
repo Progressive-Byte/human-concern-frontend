@@ -79,7 +79,7 @@ const DonationsSummaryCards = ({ summary = {}, loading = false, currency = "USD"
   const s = summary || {};
 
   return (
-    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
+    <section className="hc-kpi-grid">
       {loading ? (
         <>
           <SkeletonCard />

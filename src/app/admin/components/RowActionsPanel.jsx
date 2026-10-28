@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
  * Renders a row-action menu into a portal on `document.body`, anchored to its trigger.
  *
  * Why a higher z-index is not enough: every admin table wraps its rows in
- * `<div className="overflow-x-auto">`, and `overflow` clipping ignores z-index. Switching the
+ * `<div className="hc-table-scroll">`, and `overflow` clipping ignores z-index. Switching the
  * panel to `position: fixed` does not help either — each table card carries `hc-hover-lift`
  * (`will-change: transform`, see globals.css), which makes the card the containing block for
  * `fixed` descendants, so the panel is still trapped inside the card. The panel therefore has

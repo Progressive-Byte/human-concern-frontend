@@ -14,9 +14,9 @@ function pick(...values) {
 
 function StatTile({ label, value, hint }) {
   return (
-    <div className="rounded-xl border border-[#F3F4F6] bg-[#F9FAFB] px-4 py-3">
+    <div className="min-w-0 overflow-hidden rounded-xl border border-[#F3F4F6] bg-[#F9FAFB] px-4 py-3">
       <div className="text-[12px] text-[#6B7280]">{label}</div>
-      <div className="mt-1.5 text-[20px] font-semibold leading-none text-[#111827]">{value}</div>
+      <div className="hc-kpi-value mt-1.5 font-semibold text-[#111827]" title={String(value)}>{value}</div>
       {hint ? <div className="mt-1.5 text-[11px] text-[#9CA3AF]">{hint}</div> : null}
     </div>
   );
@@ -29,7 +29,7 @@ function Skeleton() {
         <div className="h-5 w-40 animate-pulse rounded bg-[#F3F4F6]" />
       </div>
       <div className="border-t border-[#F3F4F6]" />
-      <div className="grid grid-cols-1 gap-3 px-5 py-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="hc-kpi-grid px-5 py-4">
         {Array.from({ length: 8 }, (_, i) => (
           <div key={i} className="h-[74px] animate-pulse rounded-xl bg-[#F3F4F6]" />
         ))}
@@ -66,7 +66,7 @@ const DonorGivingSummaryCard = ({ donor, stats, schedulesSummary, loading }) => 
       </div>
       <div className="border-t border-[#F3F4F6]" />
 
-      <div className="grid grid-cols-1 gap-3 px-5 py-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="hc-kpi-grid px-5 py-4">
         <StatTile label="Lifetime Donated" value={formatCurrency(lifetime)} hint={`${paidReceipts} paid receipts`} />
         <StatTile label="One-time Total" value={formatCurrency(oneTimeTotal)} hint={`${oneTimeCount} receipts`} />
         <StatTile label="Recurring Collected" value={formatCurrency(recurringCollected)} hint="Charged so far" />

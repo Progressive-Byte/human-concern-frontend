@@ -4,9 +4,9 @@ import { formatCurrency } from "@/utils/helpers";
 
 function StatCard({ label, value, sub, accent = false }) {
   return (
-    <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
+    <div className="hc-animate-fade-up hc-hover-lift min-w-0 overflow-hidden rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-4">
       <div className="text-[12px] font-semibold uppercase tracking-wide text-[#6B7280]">{label}</div>
-      <div className={`mt-2 text-[24px] font-semibold leading-none ${accent ? "text-[#EA3335]" : "text-[#111827]"}`}>
+      <div className={`hc-kpi-value mt-2 font-semibold ${accent ? "text-[#EA3335]" : "text-[#111827]"}`} title={String(value)}>
         {value}
       </div>
       {sub ? <div className="mt-1 text-[12px] text-[#6B7280]">{sub}</div> : null}
@@ -21,7 +21,7 @@ function Skeleton() {
 const ReportKpiCards = ({ data, loading }) => {
   if (loading) {
     return (
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="hc-kpi-grid">
         <Skeleton /><Skeleton /><Skeleton /><Skeleton />
       </section>
     );
@@ -36,14 +36,14 @@ const ReportKpiCards = ({ data, loading }) => {
 
   return (
     <div className="space-y-4">
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="hc-kpi-grid">
         <StatCard label="Committed" value={money(kpis.committed)} sub="Full value of paid donations" />
         <StatCard label="Collected" value={money(kpis.collected)} sub="Payments actually received" />
         <StatCard label="Donations" value={Number(kpis.donationCount || 0).toLocaleString()} sub="Paid invoices" />
         <StatCard label="Average donation" value={money(kpis.averageGift)} sub="Committed ÷ donations" />
       </section>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <section className="hc-kpi-grid">
         {["today", "mtd", "ytd"].map((key) => {
           const w = windows[key] || {};
           return (
@@ -59,7 +59,7 @@ const ReportKpiCards = ({ data, loading }) => {
         })}
       </section>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="hc-kpi-grid">
         <StatCard
           label="One-time"
           value={money(kpis.oneTime?.amount)}
@@ -78,7 +78,7 @@ const ReportKpiCards = ({ data, loading }) => {
         <StatCard label="MRR" value={money(kpis.mrr)} sub="Due this month" accent />
       </section>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <section className="hc-kpi-grid">
         <StatCard label="Total donors" value={Number(donors.total || 0).toLocaleString()} sub="In the selected period" />
         <StatCard label="New donors" value={Number(donors.new || 0).toLocaleString()} sub="First donation in period" />
         <StatCard label="Returning donors" value={Number(donors.returning || 0).toLocaleString()} sub="Donated before too" />

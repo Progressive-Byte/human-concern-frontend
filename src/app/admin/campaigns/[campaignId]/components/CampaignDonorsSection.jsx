@@ -37,7 +37,7 @@ const CampaignDonorsSection = ({ data, loading }) => {
             No donor list available (no donations yet, or you lack the donors permission).
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hc-table-scroll">
             <table className="w-full min-w-[680px] border-collapse">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">

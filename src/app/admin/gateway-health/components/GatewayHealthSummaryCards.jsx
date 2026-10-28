@@ -103,7 +103,7 @@ const GatewayHealthSummaryCards = ({ items = [], loading = false, meta = null, w
           Rolling window: <span className="font-semibold text-[#111827]">{windowMinutes}m</span>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="hc-kpi-grid">
         {loading ? (
           <>
             <SkeletonCard />

@@ -5,6 +5,7 @@ import AdminSidebar from "@/components/layout/AdminSidebar";
 import { AdminBrandingProvider } from "@/app/admin/components/AdminBrandingProvider";
 import { ToastProvider } from "@/app/admin/campaigns/components/ToastProvider";
 import NotificationBell from "@/components/common/NotificationBell";
+import TableOverflowWatcher from "@/app/admin/components/TableOverflowWatcher";
 import { useState } from "react";
 
 const AdminLayout = ({ children }) => {
@@ -15,6 +16,7 @@ const AdminLayout = ({ children }) => {
       <AdminBrandingProvider>
         <ToastProvider>
           <div className="h-screen overflow-hidden bg-white [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed">
+            <TableOverflowWatcher />
             <div className="flex h-screen">
               <div className="hidden lg:block">
                 <AdminSidebar />

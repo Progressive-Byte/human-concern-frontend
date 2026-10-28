@@ -66,6 +66,74 @@
 }
 
 @layer utilities {
+  /* Wide admin tables scroll sideways. A thin scrollbar is always drawn, so it is clear that more
+     columns exist. The browser paints it above the rows, so a hovered row cannot cover it. */
+  .hc-table-scroll {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #c7cad1 #f3f4f6;
+  }
+
+  .hc-table-scroll::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .hc-table-scroll::-webkit-scrollbar-track {
+    background-color: #f3f4f6;
+    border-radius: 999px;
+  }
+
+  .hc-table-scroll::-webkit-scrollbar-thumb {
+    background-color: #c7cad1;
+    border-radius: 999px;
+  }
+
+  .hc-table-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
+  }
+
+  /* The scrollbar sits under the last row, so a long table hides the hint until the bottom.
+     This line stays at the top of the scroll area and only shows when the table is wider than
+     its box (`hc-overflow` is set by TableOverflowWatcher). */
+  .hc-table-scroll.hc-overflow::before {
+    content: "Scroll sideways to see more columns →";
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    display: block;
+    width: 100%;
+    padding: 8px 14px 6px;
+    background-color: #ffffff;
+    color: #9ca3af;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: right;
+    pointer-events: none;
+  }
+
+  /* Stat cards sit in one row on wide screens. Wrapping them by a minimum width keeps long money
+     values inside the card instead of squeezing the card until the value spills over the next. */
+  .hc-kpi-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .hc-kpi-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+  }
+
+  /* The number grows and shrinks with the card, so it never runs past the card edge. */
+  .hc-kpi-value {
+    font-size: clamp(1.0625rem, 0.95rem + 0.55vw, 1.75rem);
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .hc-admin-brand-soft {
     background-color: rgb(var(--admin-primary-rgb) / 0.10) !important;
   }
