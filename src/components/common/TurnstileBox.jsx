@@ -22,7 +22,10 @@ const TurnstileBox = ({ onToken, resetKey = 0, size, className = "" }) => {
   // The script can be blocked by an ad blocker. Say so, rather than leaving a dead button.
   const [failed, setFailed] = useState(false);
 
-  tokenHandler.current = onToken;
+  // Kept in a ref so a new callback does not tear down and redraw the widget.
+  useEffect(() => {
+    tokenHandler.current = onToken;
+  }, [onToken]);
 
   useEffect(() => {
     if (!TURNSTILE_ENABLED) return undefined;
