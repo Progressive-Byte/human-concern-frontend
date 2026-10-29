@@ -6,6 +6,7 @@ import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import { validateDetailsStep } from "@/utils/donationStepValidation";
+import { computeDonationProgressFromStorage } from "@/utils/donationFormProgress";
 import { getUserProfile } from "@/services/donationService";
 import { resolveCountryIso } from "@/utils/isoHelpers";
 import StepLayout from "./StepComponents/StepLayout";
@@ -258,6 +259,8 @@ const Step2Details = () => {
       if (editMode) setEditMode(false);
     }
 
+    const progress = computeDonationProgressFromStorage(data);
+    update({ progressPercent: progress.percent });
     handleNext(3);
   };
 

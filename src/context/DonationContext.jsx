@@ -20,6 +20,7 @@ const initialState = {
   isRamadan: false,
   zakatEligible: false,
   submitted: false,
+  progressPercent: 0,
   marketingConsent: false,
   dedicationType: null,
   dedicationName: "",

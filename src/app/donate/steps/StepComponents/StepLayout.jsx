@@ -32,7 +32,7 @@ const StepLayout = ({
   const resolvedNextLabel = nextLabel ?? STEP_LABELS[step] ?? "Continue";
   const resolvedPrevLabel = prevLabel ?? STEP_LABELS[step - 2] ?? "Back";
 
-  const showPreview = step >= 1 && step !== 3;
+  const showPreview = step >= 1;
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[88px] pb-12 sm:pb-16 px-3 sm:px-4">

@@ -7,6 +7,7 @@ import { useStepNavigation } from "@/hooks/useStepNavigation";
 import { apiRequest } from "@/services/api";
 import { submitScheduleEditForm } from "@/services/donationService";
 import { validateOverviewStep } from "@/utils/donationStepValidation";
+import { computeDonationProgressFromStorage } from "@/utils/donationFormProgress";
 import { resetIdempotencyKeyForChangedIntent } from "@/utils/idempotency";
 import { getCurrencySymbol } from "@/utils/money";
 import TurnstileBox from "@/components/common/TurnstileBox";
@@ -16,7 +17,7 @@ import StepProgress from "./StepComponents/StepProgress";
 import DonateFormHeader from "./StepComponents/DonateFormHeader";
 import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
-import DonationSummary from "./StepComponents/Step3components/DonationSummary";
+import DonationPreview from "./StepComponents/DonationPreview";
 import OneTimeUpsell from "./StepComponents/Step3components/OneTimeUpsell";
 import PaymentPanel from "./StepComponents/Step3components/PaymentPanel";
 import { buildSubmitBody, buildEditPayload, normalizeNoteFields } from "./StepComponents/Step3components/buildSubmitBody";
@@ -209,6 +210,16 @@ const Step3Payment = () => {
       return;
     }
 
+    if (isPreview || isEditMode) {
+      update({ progressPercent: 100 });
+    } else {
+      const progress = computeDonationProgressFromStorage({
+        ...data,
+        paymentMethod: gatewayState.gateway ?? data.paymentMethod,
+      });
+      update({ progressPercent: progress.percent });
+    }
+
     if (isPreview) {
       update({
         donationId: "preview",
@@ -339,9 +350,7 @@ const Step3Payment = () => {
             <div className="flex-1 min-w-0 w-full">
               <PaymentPanel />
             </div>
-            <div className="w-full lg:w-[272px] shrink-0">
-              <DonationSummary tipAmount={tipAmount} />
-            </div>
+            <DonationPreview currentStep={3} />
           </div>
         </div>
       </main>
@@ -382,12 +391,6 @@ const Step3Payment = () => {
             description={tipSettings?.description}
           />
         )}
-
-        <DonationSummary
-          tipAmount={tipAmount}
-          onEditGift={() => router.push(`${base}/1`)}
-          onEditDetails={() => router.push(`${base}/2`)}
-        />
 
         {!isPreview && !isEditMode ? (
           <PaymentGatewaySelector

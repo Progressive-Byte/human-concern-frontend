@@ -8,6 +8,7 @@ import { HeartIcon } from "@/components/common/SvgIcon";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import { fitSplit, applyManualAmount } from "@/utils/causeSplit";
 import { validateGiftStep } from "@/utils/donationStepValidation";
+import { computeDonationProgressFromStorage } from "@/utils/donationFormProgress";
 import StepLayout from "./StepComponents/StepLayout";
 import CauseSelector from "./StepComponents/Step1components/CauseSelector";
 import AmountSelector from "./StepComponents/Step2components/AmountSelector";
@@ -192,6 +193,13 @@ const Step1Gift = ({ campaignSlug }) => {
     }
 
     setError("");
+    const progress = computeDonationProgressFromStorage({
+      ...data,
+      donorAmount: effectiveAmount,
+      amountTier: defaultPerDate,
+      paymentType,
+    });
+    update({ progressPercent: progress.percent });
     handleNext(2);
   };
 

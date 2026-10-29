@@ -106,3 +106,14 @@ export function computeDonationProgress(data, config) {
   const total = items.length || 1;
   return { completed, total, percent: Math.round((completed / total) * 100) };
 }
+
+// Same calculation, with the campaign config read from sessionStorage. Called only when
+// the donor clicks Continue, so the header bar does not move on every keystroke.
+export function computeDonationProgressFromStorage(data) {
+  let config = {};
+  if (typeof window !== "undefined") {
+    try { config = JSON.parse(sessionStorage.getItem("campaignData") || "{}"); }
+    catch { config = {}; }
+  }
+  return computeDonationProgress(data, config);
+}
