@@ -6,9 +6,9 @@ import { Elements } from "@stripe/react-stripe-js";
 import { useDonation } from "@/context/DonationContext";
 import { useBranding } from "@/context/BrandingContext";
 import { NoticeIcon } from "@/components/common/SvgIcon";
-import StripeCheckoutForm from "./StripeCheckoutForm";
-import PayPalCheckoutForm from "./PayPalCheckoutForm";
-import { usePaymentProviderInstance } from "./usePaymentProviderInstance";
+import StripeCheckoutForm from "../Step4components/StripeCheckoutForm";
+import PayPalCheckoutForm from "../Step4components/PayPalCheckoutForm";
+import { usePaymentProviderInstance } from "../Step4components/usePaymentProviderInstance";
 
 const PROVIDER_LABELS = { stripe: "card", paypal: "PayPal", bank_transfer: "bank transfer" };
 const SWAP_BANNER_COPY = {
