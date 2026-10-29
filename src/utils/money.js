@@ -5,6 +5,18 @@
  * (e.g. `100 / 3 * 3` producing 99.99999999999999).
  */
 
+// One place for the sign shown in front of an amount. Unknown codes fall back to the
+// code itself, so a donor never sees a wrong sign (for example "$" for AUD).
+const CURRENCY_SYMBOLS = {
+  USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$", NZD: "NZ$",
+  SGD: "S$", HKD: "HK$", CHF: "CHF", JPY: "¥", NOK: "kr", SEK: "kr", DKK: "kr",
+};
+
+export function getCurrencySymbol(code) {
+  const key = String(code ?? "").trim().toUpperCase();
+  return CURRENCY_SYMBOLS[key] ?? (key || "$");
+}
+
 export function toCents(value) {
   const n = Number(value);
   return Number.isFinite(n) ? Math.round(n * 100) : 0;

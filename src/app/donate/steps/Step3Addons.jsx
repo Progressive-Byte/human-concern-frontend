@@ -431,7 +431,7 @@ const Step3Addons = () => {
     const firstTouch     = readFirstTouch();
 
     const body = {
-      ...(data.campaignId ? { formId: data.campaignId } : { formSlug: data.campaign }),
+      formId: data.campaignId,
       ...(utm && { utm }),
       ...(firstTouch && { firstTouch }),
       info: {
@@ -551,6 +551,10 @@ const Step3Addons = () => {
   const handleSubmit = async () => {
     if (submitting) return;
     if (!isPreview && !isEditMode) {
+      if (!data.campaignId) {
+        setSubmitError("We could not load this form. Please refresh the page and try again.");
+        return;
+      }
       const overviewError = validateOverviewStep({ paymentMethod: gatewayState.gateway });
       if (overviewError) {
         setSubmitError(overviewError);
