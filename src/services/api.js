@@ -66,7 +66,8 @@ async function makeRequest(endpoint, options = {}, cookieName = "token", attempt
     headers["Content-Type"] = "application/json";
   }
 
-  const response = await fetch(`${apiBase}${endpoint}`, {
+  const path = String(endpoint || "").replace(/^\/+/, "");
+  const response = await fetch(`${apiBase}${path}`, {
     method,
     credentials: "omit",
     headers,
