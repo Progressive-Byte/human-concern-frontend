@@ -11,7 +11,7 @@ export const siteUrl = 'https://donation.api.progressivebyte.com';
 // export const hcusaSiteUrl = 'http://localhost:3011';
 export const hcusaSiteUrl = 'https://hcusa.progressivebyte.com';
 
-export const apiBase = `/api/v1/`;
+export const apiBase = `https://donation.api.progressivebyte.com/api/v1/`;
 
 // Public-website language: remembered in a cookie (no locale-prefixed URLs).
 export const LOCALE_COOKIE = "NEXT_LOCALE";

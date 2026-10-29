@@ -68,7 +68,7 @@ async function makeRequest(endpoint, options = {}, cookieName = "token", attempt
 
   const response = await fetch(`${apiBase}${endpoint}`, {
     method,
-    credentials: "include",
+    credentials: "omit",
     headers,
     body: options.body,
     ...(options.cache ? { cache: options.cache } : {}),

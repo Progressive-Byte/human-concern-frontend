@@ -27,7 +27,7 @@ export function getAdminDashboardOverview({ currency, activeLimit } = {}) {
 // -----------------------------
 // Campaigns
 // -----------------------------
-export function getAdminCampaigns({ page, limit, sort, order, q, status } = {}) {
+export function getAdminCampaigns({ page, limit, sort, order, q, status, options } = {}) {
   const params = new URLSearchParams();
 
   if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
@@ -36,6 +36,7 @@ export function getAdminCampaigns({ page, limit, sort, order, q, status } = {}) 
   if (typeof order === "string" && order.trim()) params.set("order", order.trim());
   if (typeof q === "string" && q.trim()) params.set("q", q.trim());
   if (typeof status === "string" && status.trim()) params.set("status", status.trim());
+  if (options === true || options === "true") params.set("options", "true");
 
   const query = params.toString();
   const endpoint = query ? `/admin/campaigns?${query}` : "/admin/campaigns";
@@ -74,7 +75,7 @@ export function restoreAdminCampaign(campaignId) {
 // -----------------------------
 // Forms
 // -----------------------------
-export function getAdminForms({ page, limit, sort, order, q, status, campaignId, formKind } = {}) {
+export function getAdminForms({ page, limit, sort, order, q, status, campaignId, formKind, options } = {}) {
   const params = new URLSearchParams();
 
   if (page !== undefined && page !== null && String(page).trim()) params.set("page", String(page).trim());
@@ -85,6 +86,7 @@ export function getAdminForms({ page, limit, sort, order, q, status, campaignId,
   if (typeof status === "string" && status.trim()) params.set("status", status.trim());
   if (typeof campaignId === "string" && campaignId.trim()) params.set("campaignId", campaignId.trim());
   if (typeof formKind === "string" && formKind.trim()) params.set("formKind", formKind.trim());
+  if (options === true || options === "true") params.set("options", "true");
 
   const query = params.toString();
   const endpoint = query ? `/admin/forms?${query}` : "/admin/forms";
@@ -721,7 +723,7 @@ export async function downloadAdminExport(jobId) {
   const token = getAdminCookie("adminToken");
   const res = await fetch(`${apiBase}/admin/data-export/jobs/${jobId}/download`, {
     method: "GET",
-    credentials: "include",
+    credentials: "omit",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
   if (!res.ok) throw new Error(`Download failed with status ${res.status}`);

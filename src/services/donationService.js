@@ -29,7 +29,7 @@ export function downloadReceipt({ donationId, transactionId, email } = {}) {
 
   return fetch(url, {
     method: "POST",
-    credentials: "include",
+    credentials: "omit",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

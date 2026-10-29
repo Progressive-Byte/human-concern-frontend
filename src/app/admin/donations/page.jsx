@@ -232,8 +232,8 @@ const AdminDonationsPage = () => {
     setOptionsLoading(true);
 
     Promise.all([
-      getAdminCampaigns({ page: "1", limit: "200", order: "desc" }),
-      getAdminForms({ page: "1", limit: "500", order: "desc" }),
+      getAdminCampaigns({ page: "1", limit: "200", order: "desc", options: true }),
+      getAdminForms({ page: "1", limit: "500", order: "desc", options: true }),
     ])
       .then(([campaignsRes, formsRes]) => {
         if (!alive) return;

@@ -96,7 +96,7 @@ export function downloadReconciliationReportCsv(reportId) {
   if (token) {
     return fetch(url, {
       method: "GET",
-      credentials: "include",
+      credentials: "omit",
       headers: {
         Authorization: `Bearer ${token}`,
       },
