@@ -142,9 +142,11 @@ const DonationPreview = ({ currentStep }) => {
             </Section>
           )}
 
-          {data.donorMessage && (
-            <Section label="On Behalf Of">
-              <p className="text-[13px] text-[#383838] leading-snug break-words">{data.donorMessage}</p>
+          {(data.dedicationName || data.donorMessage) && (
+            <Section label={data.dedicationType === "memory" ? "In Memory Of" : data.dedicationType === "honor" ? "In Honor Of" : "On Behalf Of"}>
+              <p className="text-[13px] text-[#383838] leading-snug break-words">
+                {data.dedicationName || data.donorMessage}
+              </p>
             </Section>
           )}
 
