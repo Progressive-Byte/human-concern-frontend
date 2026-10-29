@@ -43,7 +43,7 @@ function StatusDisplay({ statusLabel, statusKey }) {
   return <span>{statusLabel || "—"}</span>;
 }
 
-export function ScheduleDetailsCard({ loading, statusLabel, statusKey, frequency, nextDonationAmount, nextDate, totalDonated, startedAt, currency }) {
+export function ScheduleDetailsCard({ loading, statusLabel, statusKey, frequency, nextDonationAmount, nextDate, totalDonated, startedAt, currency, dedication }) {
   return (
     <div className="bg-white rounded-2xl border border-solid border-[#E5E7EB] p-5 md:p-6">
       <h2 className="text-base font-semibold text-[#111827] mb-5">Schedule Details</h2>
@@ -61,6 +61,7 @@ export function ScheduleDetailsCard({ loading, statusLabel, statusKey, frequency
           <DetailRow label="Next Donation" value={nextDate} />
           <DetailRow label="Total Donated" value={formatCurrency(totalDonated, currency)} />
           <DetailRow label="Created On" value={startedAt} />
+          {dedication ? <DetailRow label="Dedication" value={dedication} /> : null}
         </div>
       )}
     </div>

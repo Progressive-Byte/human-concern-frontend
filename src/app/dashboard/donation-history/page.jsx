@@ -77,6 +77,7 @@ function DonationHistoryPage() {
       id:        String(it?.donationId || idx),
       date:      formatDate(it?.date) || "—",
       campaign:  String(it?.campaign?.name || "").trim() || "—",
+      dedication: String(it?.dedication || "").trim(),
       // Leave blank when the API didn't tell us, so we never show a wrong "One-time".
       typeKey:   it?.type?.key ? String(it.type.key) : "",
       typeLabel: it?.type?.label ? String(it.type.label) : "",

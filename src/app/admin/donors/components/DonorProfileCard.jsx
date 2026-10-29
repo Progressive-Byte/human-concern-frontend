@@ -68,6 +68,7 @@ const DonorProfileCard = ({ donor, stats, loading, onEdit }) => {
         <Row label="Email Address" value={email} />
         <Row label="Phone Number" value={phone} />
         <Row label="Organization" value={org} />
+        <Row label="Marketing Consent" value={donor?.marketingConsent ? "Yes" : "No"} />
         <Row label="Country" value={country} />
         <Row label="Address" value={location} />
         <Row label="Donor Type" value={typeLabel} />

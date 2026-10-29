@@ -120,6 +120,9 @@ function normalizeDonation(raw) {
   const donorDisplay = raw?.donorDisplay && typeof raw.donorDisplay === "object" ? raw.donorDisplay : null;
   const donorLabel = String(donorDisplay?.label || "—");
   const donorEmail = String(donorDisplay?.email || "");
+  const donorOrganization = String(donorDisplay?.organization || "");
+  const donorDedication = String(donorDisplay?.dedication || "");
+  const marketingConsent = donorDisplay?.marketingConsent === true;
 
   const campaignName = String(raw?.campaignName || raw?.formName || "—");
   const causeLabel = String(raw?.causeLabel || "—");
@@ -152,7 +155,8 @@ function normalizeDonation(raw) {
     donationId,
     provider,
     providerTransactionId,
-    donor: { name: donorLabel, email: donorEmail },
+    donor: { name: donorLabel, email: donorEmail, organization: donorOrganization, dedication: donorDedication },
+    marketingConsent,
     campaignName,
     source: String(raw?.source || ""),
     causeLabel,

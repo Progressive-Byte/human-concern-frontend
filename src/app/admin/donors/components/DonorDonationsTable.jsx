@@ -97,6 +97,7 @@ const DonorReceiptsTable = ({ donations, loading, onViewAll }) => {
                 const isOpen = expanded.has(id);
                 const lines = Array.isArray(r?.lineItems) ? r.lineItems : [];
                 const campaignForm = [r?.campaignName, r?.formName].filter(Boolean).join(" · ");
+                const dedication = String(r?.dedication || "").trim();
                 const payment = [r?.paymentMethod, r?.paymentMask].filter(Boolean).join(" ").trim();
 
                 return (
@@ -109,7 +110,10 @@ const DonorReceiptsTable = ({ donations, loading, onViewAll }) => {
                       <td className="whitespace-nowrap px-3 py-3">
                         {r?.donationType === "recurring" ? "Recurring" : "One-time"}
                       </td>
-                      <td className="px-3 py-3">{campaignForm || "—"}</td>
+                      <td className="px-3 py-3">
+                        <div>{campaignForm || "—"}</div>
+                        {dedication ? <div className="mt-0.5 text-[11px] text-[#6B7280]">{dedication}</div> : null}
+                      </td>
                       <td className="whitespace-nowrap px-3 py-3">{payment || "Card on file"}</td>
                       <td className="whitespace-nowrap px-3 py-3">
                         <ReceiptStatusPill status={r?.transactionStatus || r?.status} />

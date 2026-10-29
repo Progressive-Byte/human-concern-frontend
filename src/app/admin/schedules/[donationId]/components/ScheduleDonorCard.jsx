@@ -4,6 +4,9 @@ const ScheduleDonorCard = ({ schedule, loading = false }) => {
   const donorDisplay = schedule?.donorDisplay && typeof schedule.donorDisplay === "object" ? schedule.donorDisplay : null;
   const label = String(donorDisplay?.label || "—");
   const email = donorDisplay?.email ? String(donorDisplay.email) : "";
+  const organization = String(donorDisplay?.organization || "").trim();
+  const dedication = String(donorDisplay?.dedication || "").trim();
+  const marketingConsent = donorDisplay?.marketingConsent === true;
   const initials = label
     .split(" ")
     .filter(Boolean)
@@ -22,10 +25,24 @@ const ScheduleDonorCard = ({ schedule, loading = false }) => {
           <div className="min-w-0">
             <div className="truncate text-[13px] font-semibold text-[#111827]">{loading ? "Loading..." : label}</div>
             <div className="mt-1 truncate text-[12px] text-[#6B7280]">{loading ? "—" : email || "—"}</div>
+            {!loading && organization ? (
+              <div className="mt-1 truncate text-[12px] text-[#6B7280]">{organization}</div>
+            ) : null}
+            {!loading && dedication ? (
+              <div className="mt-1 truncate text-[12px] text-[#6B7280]">{dedication}</div>
+            ) : null}
           </div>
         </div>
 
-        <div className="text-[12px] text-[#6B7280]">View Full Profile</div>
+        <div className="text-right text-[12px] text-[#6B7280]">
+          {!loading && donorDisplay ? (
+            <div>
+              Marketing consent:{" "}
+              <span className="font-semibold text-[#111827]">{marketingConsent ? "Yes" : "No"}</span>
+            </div>
+          ) : null}
+          <div className="mt-1">View Full Profile</div>
+        </div>
       </div>
     </section>
   );
