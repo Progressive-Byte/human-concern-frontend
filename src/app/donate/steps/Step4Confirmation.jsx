@@ -383,7 +383,7 @@ const Step4Confirmation = () => {
                 ? "Preview mode: no payment will be processed."
                 : isStripe
                   ? "Enter your card details to finalise your donation"
-                  : `Complete your payment using ${data.paymentMethod}`}
+                  : `Complete your payment using ${PROVIDER_LABELS[data.paymentMethod] ?? data.paymentMethod}`}
             </p>
 
             {isPreview ? (

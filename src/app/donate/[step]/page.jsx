@@ -4,6 +4,7 @@ import Step1Info from "../steps/Step1Info";
 import Step2Payment from "../steps/Step2Payment";
 import Step3Addons from "../steps/Step3Addons";
 import Step4Confirmation from "../steps/Step4Confirmation";
+import StepGuard from "../steps/StepComponents/StepGuard";
 
 const STEPS = [
   Step1Info,
@@ -21,7 +22,9 @@ export default async function DonateStepPage({ params }) {
   const StepComponent = STEPS[index];
   return (
     <Suspense fallback={null}>
-      <StepComponent />
+      <StepGuard step={index + 1}>
+        <StepComponent />
+      </StepGuard>
     </Suspense>
   );
 }

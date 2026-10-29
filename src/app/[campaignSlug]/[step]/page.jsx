@@ -4,6 +4,7 @@ import Step1Info from "@/app/donate/steps/Step1Info";
 import Step2Payment from "@/app/donate/steps/Step2Payment";
 import Step3Addons from "@/app/donate/steps/Step3Addons";
 import Step4Confirmation from "@/app/donate/steps/Step4Confirmation";
+import StepGuard from "@/app/donate/steps/StepComponents/StepGuard";
 
 const STEPS = [
   Step1Info,
@@ -21,7 +22,9 @@ export default async function CampaignStepPage({ params }) {
   const StepComponent = STEPS[index];
   return (
     <Suspense fallback={null}>
-      <StepComponent campaignSlug={campaignSlug} />
+      <StepGuard step={index + 1} campaignSlug={campaignSlug}>
+        <StepComponent campaignSlug={campaignSlug} />
+      </StepGuard>
     </Suspense>
   );
 }
