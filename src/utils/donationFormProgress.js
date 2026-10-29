@@ -1,8 +1,8 @@
 // Required-field registry behind the donate wizard's completion bar.
 //
 // The predicates mirror the rules each step enforces before it advances:
-//   Step 1 → Step1Info.validateAndNext
-//   Step 2 → validateAmountScheduleStep (donationStepValidation.js)
+//   Step 1 → Step1Gift.validateAndNext
+//   Step 2 → Step2Details.validateAndNext
 //   Step 3 → validateOverviewStep + the customNotes `required` flags
 // Keep them in sync if those rules change.
 //
@@ -17,10 +17,9 @@ const EMAIL_RE = /^\S+@\S+\.\S+$/;
 const text = (v) => String(v ?? "").trim();
 
 const CORE_ITEMS = [
-  { key: "organization", isValid: (d) => Boolean(text(d.organization)) },
+  { key: "email",        isValid: (d) => EMAIL_RE.test(text(d.email)) },
   { key: "firstName",    isValid: (d) => Boolean(text(d.firstName)) },
   { key: "lastName",     isValid: (d) => Boolean(text(d.lastName)) },
-  { key: "email",        isValid: (d) => EMAIL_RE.test(text(d.email)) },
   { key: "addressLine1", isValid: (d) => Boolean(text(d.addressLine1)) },
   { key: "city",         isValid: (d) => Boolean(text(d.city)) },
   { key: "province",     isValid: (d) => Boolean(text(d.province)) },
@@ -30,7 +29,7 @@ const CORE_ITEMS = [
   { key: "paymentMethod", isValid: (d) => ["stripe", "paypal"].includes(d.paymentMethod) },
 ];
 
-// Mirrors the customNoteFields combination in Step3Addons.jsx: customNotes, plus
+// Mirrors the customNoteFields combination in Step2Details.jsx: customNotes, plus
 // globalNote (de-duplicated by key) only when goalsDates.showGlobalNote is on.
 function requiredNoteFields(config) {
   const gd = config?.goalsDates ?? {};
@@ -60,7 +59,7 @@ function scheduleItem(config) {
   // No recurring on this campaign means the slot could never be filled, so leave it out.
   if ((gd.allowRecurringDonations ?? true) === false) return null;
 
-  // Same end date Step2Payment hands to validateAmountScheduleStep.
+  // Same end date useGiftAmountSchedule hands to validateAmountScheduleStep.
   const campaignEndDate = gd.endAt ?? config?.endAt ?? null;
 
   return {

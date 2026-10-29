@@ -63,7 +63,7 @@ const DonationPreview = ({ currentStep }) => {
           : 0)
     : 0;
   const hasTip     = tipAmount > 0;
-  const showAddons = currentStep >= 3 && (data.addOnBreakdown?.length > 0 || hasTip);
+  const showAddons = currentStep >= 1 && (data.addOnBreakdown?.length > 0 || hasTip);
   const isSpecificDates  = isRecurring && data.scheduleType === "specific_dates";
   const isDateRange      = isRecurring && data.scheduleType === "date_range";
 

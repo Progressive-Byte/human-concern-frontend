@@ -6,10 +6,9 @@ import { ProgressCheckIcon } from "@/components/common/SvgIcon";
 
 
 const STEPS = [
-  "Info",
+  "Your gift",
+  "Your details",
   "Payment",
-  "Overview",
-  "Confirmation",
 ];
 
 const StepProgress = ({ current }) => {

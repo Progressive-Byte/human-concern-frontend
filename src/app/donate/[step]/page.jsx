@@ -1,16 +1,14 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import Step1Info from "../steps/Step1Info";
-import Step2Payment from "../steps/Step2Payment";
-import Step3Addons from "../steps/Step3Addons";
-import Step4Confirmation from "../steps/Step4Confirmation";
+import Step1Gift from "../steps/Step1Gift";
+import Step2Details from "../steps/Step2Details";
+import Step3Payment from "../steps/Step3Payment";
 import StepGuard from "../steps/StepComponents/StepGuard";
 
 const STEPS = [
-  Step1Info,
-  Step2Payment,
-  Step3Addons,
-  Step4Confirmation,
+  Step1Gift,
+  Step2Details,
+  Step3Payment,
 ];
 
 export default async function DonateStepPage({ params }) {

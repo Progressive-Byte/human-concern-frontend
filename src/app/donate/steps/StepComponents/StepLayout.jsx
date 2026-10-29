@@ -8,12 +8,9 @@ import DonationPreview from "./DonationPreview";
 import { ArrowNextIcon, ArrowPrevIcon, CircleCheckIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
 const STEP_LABELS = [
-  "Info",
-  "Cause",
-  "Objectives",
+  "Your gift",
+  "Your details",
   "Payment",
-  "Overview",
-  "Confirmation",
 ];
 
 const StepLayout = ({
@@ -29,13 +26,13 @@ const StepLayout = ({
   const router = useRouter();
   const { data } = useDonation();
   const base = data.campaign ? `/${data.campaign}` : "/donate";
-  const totalSteps = 4;
+  const totalSteps = 3;
   const displayStep = step;
 
   const resolvedNextLabel = nextLabel ?? STEP_LABELS[step] ?? "Continue";
   const resolvedPrevLabel = prevLabel ?? STEP_LABELS[step - 2] ?? "Back";
 
-  const showPreview = step >= 1;
+  const showPreview = step >= 1 && step !== 3;
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pt-[88px] pb-12 sm:pb-16 px-3 sm:px-4">

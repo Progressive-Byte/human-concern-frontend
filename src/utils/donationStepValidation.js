@@ -4,13 +4,14 @@
 // user-facing failure for its step, or null when the step is valid.
 import { earliestAllowedDateStr, isDueDateAllowed } from "./scheduleDateLimits";
 import { generateDatesInRange } from "@/app/donate/steps/StepComponents/countOccurrences";
+import { resolveCountryIso } from "./isoHelpers";
 
 // publicDonationValidators.js: MAX_INSTALLMENTS
 export const MAX_INSTALLMENTS = 365;
 
 const toDayKey = (v) => String(v ?? "").slice(0, 10);
 
-// Step 2 — amount, currency and the recurring schedule.
+// Step 1 — amount, currency and the recurring schedule.
 // Min/max donation is enforced by AmountSelector, which already applies the backend's
 // total-based semantics with currency conversion.
 export function validateAmountScheduleStep({
@@ -86,6 +87,92 @@ export function validateSchedule({ scheduleType, scheduleConfig, campaignEndDate
       return `All payments must be scheduled on or before the campaign end date (${endKey}).`;
     }
   }
+
+  return null;
+}
+
+// Step 1 — gift amount plus the cause split.
+export function validateGiftStep({
+  amount,
+  isRecurring,
+  allowRecurring,
+  currency,
+  allowedCurrencies,
+  scheduleType,
+  scheduleConfig,
+  campaignEndDate,
+  makeUpMissedDates,
+  causeIds = [],
+  causesCount = 0,
+  causeSplit = {},
+  totalAmount = 0,
+  sym = "$",
+}) {
+  const base = validateAmountScheduleStep({
+    amount,
+    isRecurring,
+    allowRecurring,
+    currency,
+    allowedCurrencies,
+    scheduleType,
+    scheduleConfig,
+    campaignEndDate,
+    makeUpMissedDates,
+  });
+  if (base) return base;
+
+  if (causesCount > 0 && causeIds.length === 0) {
+    return "Please select at least one cause.";
+  }
+
+  if (causeIds.length > 0 && totalAmount > 0) {
+    const amountFor = (id) => totalAmount * Math.max(0, Number(causeSplit[id]) || 0);
+    const allocated = causeIds.reduce((sum, id) => sum + amountFor(id), 0);
+    const fmt = (v) => `${sym}${v.toFixed(2)}`;
+
+    const empty = causeIds.filter((id) => amountFor(id) < 0.005);
+    if (empty.length) {
+      return "Every selected cause needs an amount. Give it one, or untick it.";
+    }
+    if (allocated - totalAmount > 0.005) {
+      return `Your cause amounts add up to ${fmt(allocated)}, which is more than your ${fmt(totalAmount)} donation.`;
+    }
+    if (totalAmount - allocated > 0.005) {
+      return `Your cause amounts add up to ${fmt(allocated)}, which is less than your ${fmt(totalAmount)} donation.`;
+    }
+  }
+
+  return null;
+}
+
+// Step 2 — donor details.
+export function validateDetailsStep({
+  email,
+  firstName,
+  lastName,
+  addressLine1,
+  city,
+  province,
+  zip,
+  donorCountryCode,
+  country,
+}) {
+  if (
+    !String(firstName ?? "").trim() ||
+    !String(lastName ?? "").trim() ||
+    !String(email ?? "").trim() ||
+    !String(addressLine1 ?? "").trim() ||
+    !String(city ?? "").trim() ||
+    !String(province ?? "").trim() ||
+    !String(zip ?? "").trim()
+  ) {
+    return "Please fill in all required fields.";
+  }
+
+  const code = String(donorCountryCode ?? "").trim() || resolveCountryIso(String(country ?? ""));
+  if (!code) return "Please select your country.";
+
+  if (!/^\S+@\S+\.\S+$/.test(String(email))) return "Enter a valid email address.";
 
   return null;
 }

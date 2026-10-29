@@ -5,10 +5,9 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { normalizeSuggestedData } from "@/utils/campaignData";
 import { getAdminFormGoalsDates, getAdminFormReview, getAdminSettingsGeneral } from "@/services/admin";
-import Step1Info from "@/app/donate/steps/Step1Info";
-import Step2Payment from "@/app/donate/steps/Step2Payment";
-import Step3Addons from "@/app/donate/steps/Step3Addons";
-import Step4Confirmation from "@/app/donate/steps/Step4Confirmation";
+import Step1Gift from "@/app/donate/steps/Step1Gift";
+import Step2Details from "@/app/donate/steps/Step2Details";
+import Step3Payment from "@/app/donate/steps/Step3Payment";
 
 function normalizeReviewResponse(res) {
   return res?.data?.data || res?.data || {};
@@ -105,7 +104,7 @@ function buildCampaignDataFromAdminReview(review, formId, globalNote = []) {
   };
 }
 
-const STEPS = [Step1Info, Step2Payment, Step3Addons, Step4Confirmation];
+const STEPS = [Step1Gift, Step2Details, Step3Payment];
 const CAMPAIGN_BASE = "admin/forms/preview";
 const STORAGE_FORM_KEY = "hc_admin_preview_form_id";
 
@@ -162,7 +161,7 @@ const AdminFormPreviewStepPage = () => {
           sessionStorage.setItem(STORAGE_FORM_KEY, resolvedFormId);
         } catch {}
 
-        updateRef.current({ campaign: CAMPAIGN_BASE, maxStep: 4 });
+        updateRef.current({ campaign: CAMPAIGN_BASE, maxStep: 3 });
         const [reviewRes, goalsRes, generalSettingsRes] = await Promise.all([
           getAdminFormReview(resolvedFormId, { cache: "no-store" }),
           getAdminFormGoalsDates(resolvedFormId, { cache: "no-store" }),
