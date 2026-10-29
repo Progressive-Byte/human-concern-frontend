@@ -22,8 +22,6 @@ const initialState = {
   submitted: false,
   progressPercent: 0,
   marketingConsent: false,
-  dedicationType: null,
-  dedicationName: "",
   pendingSessionId: null,
   setupIntentId: null,
   finalizedDonationId: null,

@@ -206,7 +206,6 @@ const ScheduleDetailPage = () => {
               nextDate={formatDate(schedule?.nextDonation?.date) || "—"}
               totalDonated={totalDonated}
               startedAt={formatDate(schedule?.startedAt) || "—"}
-              dedication={String(schedule?.dedication || "")}
               currency={currency}
             />
             <AllocatedCausesCard

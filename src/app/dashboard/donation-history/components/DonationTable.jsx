@@ -123,9 +123,6 @@ function DonationRow({ r, isLast, onError }) {
           <TypePill typeKey={r.typeKey} label={r.typeLabel} />
         </div>
         <AddOnList addons={r.addons} currency={r.currency} className="mt-1.5" max={2} />
-        {r.dedication ? (
-          <p className="mt-1 text-[11px] text-[#6B7280]">{r.dedication}</p>
-        ) : null}
         <div className="sm:hidden mt-1.5">
           <CauseList causes={r.causes} />
         </div>

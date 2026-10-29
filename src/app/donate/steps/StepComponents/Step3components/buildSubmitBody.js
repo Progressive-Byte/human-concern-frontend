@@ -119,16 +119,6 @@ function buildNoteAnswers({ data, campaignMeta }) {
   };
 }
 
-function dedicationText(data) {
-  const name = String(data.dedicationName ?? "").trim();
-  if (data.dedicationType && name) {
-    const prefix = data.dedicationType === "memory" ? "In memory of" : "In honor of";
-    return `${prefix}: ${name}`.slice(0, 120);
-  }
-  const legacy = String(data.donorMessage ?? "").trim();
-  return legacy ? legacy.slice(0, 120) : "";
-}
-
 export function buildSubmitBody({
   data,
   gateway,
@@ -145,7 +135,6 @@ export function buildSubmitBody({
   const scheduleConfig = data.scheduleConfig ?? {};
   const utm            = buildUtmPayload(data);
   const firstTouch     = readFirstTouch();
-  const onBehalfOf     = dedicationText(data);
 
   const body = {
     formId: data.campaignId,
@@ -169,7 +158,6 @@ export function buildSubmitBody({
     paymentMethod: gateway,
     ...(data.anonymous && { isAnonymous: true }),
     marketingConsent: Boolean(data.marketingConsent),
-    ...(onBehalfOf && { onBehalfOf }),
     ...buildNoteAnswers({ data, campaignMeta }),
     addons: {
       items: (data.addOnBreakdown ?? []).map((addon) => ({
