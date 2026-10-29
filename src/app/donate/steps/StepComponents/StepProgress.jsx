@@ -48,7 +48,7 @@ const StepProgress = ({ current }) => {
                 <Link href={`${base}/${step}`} className="flex flex-col items-center gap-1">
                   {dot}
                   <span
-                    className={`text-[10px] font-medium hidden sm:block transition-colors whitespace-nowrap
+                    className={`text-[10px] font-medium ${active ? "visible" : "invisible"} sm:visible transition-colors whitespace-nowrap
                       ${active ? "text-[#EA3335]" : done ? "text-[#1A1A1A]" : "text-[#AEAEAE]"}`}
                   >
                     {label}
@@ -57,7 +57,9 @@ const StepProgress = ({ current }) => {
               ) : (
                 <>
                   {dot}
-                  <span className="text-[10px] font-medium hidden sm:block text-[#CCCCCC] whitespace-nowrap">
+                  <span
+                    className={`text-[10px] font-medium ${active ? "visible" : "invisible"} sm:visible text-[#CCCCCC] whitespace-nowrap`}
+                  >
                     {label}
                   </span>
                 </>
