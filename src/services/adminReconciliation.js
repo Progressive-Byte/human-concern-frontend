@@ -91,7 +91,7 @@ export function getReconciliationReportDetail(reportId, {
 export function downloadReconciliationReportCsv(reportId) {
   const token = typeof getCookieValue === "function" ? getCookieValue("token") : null;
   const base = typeof apiBase === "string" ? apiBase : "";
-  const url = `${base}/admin/reconciliation/${reportId}/csv`;
+  const url = `${base.replace(/\/+$/, "")}/admin/reconciliation/${reportId}/csv`;
 
   if (token) {
     return fetch(url, {

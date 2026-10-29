@@ -721,7 +721,7 @@ function getAdminCookie(name) {
 /** Downloads a completed export via blob (the file is binary for xlsx/pdf). */
 export async function downloadAdminExport(jobId) {
   const token = getAdminCookie("adminToken");
-  const res = await fetch(`${apiBase}/admin/data-export/jobs/${jobId}/download`, {
+  const res = await fetch(`${apiBase}admin/data-export/jobs/${jobId}/download`, {
     method: "GET",
     credentials: "omit",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
