@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
@@ -36,6 +36,9 @@ const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
   const [challengeExpired, setChallengeExpired] = useState(false);
+  /* The card is saved once. A failed first payment must not repeat the SetupIntent. */
+  const setupSavedRef = useRef(false);
+  const setupIntentIdRef = useRef("");
 
   const sym = CURRENCY_SYMBOLS[currency] ?? "$";
 
@@ -116,6 +119,28 @@ const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
     }
   }, [data.donationId, data.pendingSessionId, data.payment, data.paymentMethod, update]);
 
+  const createFirstPayment = useCallback(async ({ setupIntentId }) => {
+    const body = {
+      setupIntentId,
+      ...(data.pendingSessionId && { pendingSessionId: data.pendingSessionId }),
+    };
+
+    const res = await apiRequest("donations/first-payment", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+
+    const payload = res?.data ?? res ?? {};
+    const clientSecret = String(payload.clientSecret || payload?.data?.clientSecret || "");
+    const donationId = String(payload.donationId || payload?.data?.donationId || "");
+
+    if (!clientSecret) {
+      throw new Error(payload.message || "The first payment could not be started.");
+    }
+
+    return { clientSecret, donationId };
+  }, [data.pendingSessionId]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!stripe || !elements) return;
@@ -134,25 +159,71 @@ const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
     const idempotencyKey = data.idempotencyKey ?? "";
 
     if (isRecurring) {
-      const { error: setupError, setupIntent } = await stripe.confirmSetup({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/donate/thank-you`,
-        },
-        redirect: "if_required",
-      });
+      let setupIntentId = setupIntentIdRef.current || String(data.setupIntentId || "");
 
-      if (setupError) {
-        setError(setupError.message);
+      if (!setupSavedRef.current) {
+        const { error: setupError, setupIntent } = await stripe.confirmSetup({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/donate/thank-you`,
+          },
+          redirect: "if_required",
+        });
+
+        if (setupError) {
+          setError(setupError.message);
+          setLoading(false);
+          return;
+        }
+
+        if (setupIntent?.status !== "succeeded") {
+          setError("The card could not be saved. Please check your card and try again.");
+          setLoading(false);
+          return;
+        }
+
+        setupIntentId = setupIntent.id ?? "";
+        setupSavedRef.current = true;
+        setupIntentIdRef.current = setupIntentId;
+        update({ setupIntentId: setupIntentId || null });
+      }
+
+      if (!setupIntentId) {
+        setError("The monthly donation could not be set up. Please try again.");
         setLoading(false);
         return;
       }
 
-      if (setupIntent?.status === "succeeded") {
-        update({ setupIntentId: setupIntent.id ?? null });
+      try {
+        /*
+          The first payment is taken now, on this step, so the bank can show 3DS.
+          It is not an off-session charge from the webhook.
+        */
+        const first = await createFirstPayment({ setupIntentId });
+
+        const firstResult = await stripe.confirmCardPayment(first.clientSecret);
+
+        if (firstResult.error) {
+          setError(firstResult.error.message || "The first payment could not be completed.");
+          setLoading(false);
+          return;
+        }
+
+        const firstStatus = firstResult.paymentIntent?.status;
+
+        if (firstStatus !== "succeeded" && firstStatus !== "processing") {
+          setError("The first payment was not completed. Please check your card and try again.");
+          setLoading(false);
+          return;
+        }
+
+        if (first.donationId) {
+          update({ finalizedDonationId: first.donationId, donationId: first.donationId });
+        }
+
         try {
           await finalizeSplitDonation({
-            setupIntentId: setupIntent.id,
+            setupIntentId,
             authChallengeId: challengeIds.authChallengeId,
             frontendReturnPayloadId: challengeIds.frontendReturnPayloadId,
             idempotencyKey,
@@ -162,8 +233,12 @@ const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
         } finally {
           clearUnifiedChallengeSession();
         }
+
         sessionStorage.setItem("hc_donation_done", "1");
         router.push("/donate/thank-you");
+      } catch (firstErr) {
+        setError(firstErr?.message || "The first payment could not be completed.");
+        setLoading(false);
       }
     } else {
       const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
