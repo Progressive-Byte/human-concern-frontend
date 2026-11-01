@@ -12,7 +12,6 @@ import { resolveCountryIso } from "@/utils/isoHelpers";
 import StepLayout from "./StepComponents/StepLayout";
 import PersonalInfoSection from "./StepComponents/Step1components/PersonalInfoSection";
 import AddressSection from "./StepComponents/Step1components/AddressSection";
-import DonorIntentions from "./StepComponents/Step1components/DonorIntentions";
 
 function normalizeNoteFields(value) {
   return Array.isArray(value) ? value.filter((field) => field && typeof field === "object") : [];
@@ -292,8 +291,6 @@ const Step2Details = () => {
           addressManual={addressManual}
           setAddressManual={setAddressManual}
         />
-
-        <DonorIntentions />
 
         {customNoteFields.length > 0 && (
           <div className="bg-white border border-[#E5E5E5] rounded-xl px-4 py-4 flex flex-col gap-4">

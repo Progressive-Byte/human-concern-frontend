@@ -26,6 +26,9 @@ const PAYMENT_TYPES = [
 
 const CONFETTI_COLORS = ["#EA3335", "#FF6B35", "#FFD700", "#00C853", "#2196F3", "#9C27B0"];
 
+/* The floating heart is h-8 w-8. Its centre must match the small heart's centre. */
+const RISING_HEART_SIZE = 32;
+
 const Step1Gift = ({ campaignSlug }) => {
   const searchParams = useSearchParams();
   const { data, update } = useDonation();
@@ -231,7 +234,7 @@ const Step1Gift = ({ campaignSlug }) => {
     risingHeartCount.current += 1;
     setRisingHeart({
       left: rect.left + rect.width / 2,
-      top: rect.top,
+      top: rect.top + rect.height / 2 - RISING_HEART_SIZE / 2,
       key: risingHeartCount.current,
     });
 
