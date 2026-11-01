@@ -252,7 +252,7 @@ const Step1Gift = ({ campaignSlug }) => {
                     <p className="flex flex-wrap items-center gap-1.5 text-[15px] font-semibold text-[#383838] leading-snug">
                       {type.label}
                       {type.value === "recurring" && (
-                        <span className={`inline-flex shrink-0 ${active ? "text-[#EB3336]" : "text-[#CCCCCC]"}`}>
+                        <span className={`hc-heartbeat inline-flex shrink-0 origin-center ${active ? "text-[#EB3336]" : "text-[#CCCCCC]"}`}>
                           {HeartIcon}
                         </span>
                       )}
