@@ -461,6 +461,22 @@
     will-change: transform;
   }
 
+  /* Same soft double beat as the hcusa Quick Donate heart. */
+  @keyframes hc-heartbeat {
+    0%,
+    60%,
+    100% { transform: scale(1); }
+    15% { transform: scale(1.18); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+  }
+
+  .hc-heartbeat {
+    animation: hc-heartbeat 2.4s ease-in-out infinite;
+    transform-origin: center;
+    will-change: transform;
+  }
+
   .hc-reveal {
     opacity: 0;
     transform: translate3d(0, 14px, 0);
@@ -572,6 +588,10 @@
     .hc-float-soft,
     .hc-float-soft-2,
     .hc-float-soft-3 {
+      animation: none;
+    }
+
+    .hc-heartbeat {
       animation: none;
     }
 
