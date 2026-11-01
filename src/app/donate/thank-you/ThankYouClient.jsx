@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useDonation } from "@/context/DonationContext";
 import { useAuth } from "@/context/AuthContext";
 import { apiRequest } from "@/services/api";
-import { getReceiptDetail } from "@/services/donationService";
+import { getReceiptDetail, getDonationStatus } from "@/services/donationService";
 import { apiBase } from "@/utils/constants";
 import { CircleCheckIcon, ShareCampaignIcon, DashboardTabIcon, BrowserIcon } from "@/components/common/SvgIcon";
 import PaymentReceiptCard from "@/components/thank-you/PaymentReceiptCard";
@@ -188,9 +188,42 @@ const ThankYouClient = () => {
       setFinalizeLoading(true);
       setFinalizeError("");
       try {
+        /* Stripe is recorded by the webhook. PayPal still needs the browser finalize. */
+        let provider = "";
+        try {
+          const initialStatus = await getDonationStatus(pendingSessionId);
+          const initialInfo = initialStatus?.data ?? initialStatus ?? {};
+          provider = String(initialInfo.provider || "").toLowerCase();
+        } catch {}
+
+        if (provider === "stripe") {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          const statusRes = await getDonationStatus(pendingSessionId);
+          const info = statusRes?.data ?? statusRes ?? {};
+
+          if (info.recorded === true) {
+            const resolvedDonationId = info.donationId ?? data.donationId ?? null;
+            setFinalizeResult({ ...info, status: "succeeded", donationId: resolvedDonationId });
+            update({
+              finalizedDonationId: resolvedDonationId ?? "1",
+              donationId: resolvedDonationId ?? data.donationId ?? null,
+              setupIntentId: resolvedSetupIntentId,
+            });
+            setFinalizeError("");
+            setFinalizeLoading(false);
+            return;
+          }
+
+          setFinalizeLoading(false);
+          setFinalizeError("Your monthly donation is being set up. We will email you.");
+          finalizeRef.current = false;
+          return;
+        }
+
         const res = await apiRequest("donations/finalize", {
           method: "POST",
           body: JSON.stringify({ pendingSessionId, setupIntentId: resolvedSetupIntentId }),
+          maxIdempotencyRetries: 0,
         });
         const result = res?.data ?? res ?? {};
         const resolvedDonationId =
@@ -213,6 +246,35 @@ const ThankYouClient = () => {
         });
         setFinalizeLoading(false);
       } catch (e) {
+        const code = String(e?.code || "");
+        const statusCode = Number(e?.statusCode || 0);
+        const waiting =
+          code === "PENDING_SESSION_LOCKED" ||
+          code === "IDEMPOTENCY_LOCK_CONFLICT" ||
+          code === "SETUP_INTENT_NOT_SUCCEEDED" ||
+          statusCode >= 500;
+
+        /* The reply may be a lock, but the record may already be written. Check the record. */
+        if (waiting && pendingSessionId) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          try {
+            const statusRes = await getDonationStatus(pendingSessionId);
+            const info = statusRes?.data ?? statusRes ?? {};
+            if (info.recorded === true) {
+              const resolvedDonationId = info.donationId ?? data.donationId ?? null;
+              setFinalizeResult({ ...info, donationId: resolvedDonationId });
+              update({
+                finalizedDonationId: resolvedDonationId ?? "1",
+                donationId: resolvedDonationId ?? data.donationId ?? null,
+                setupIntentId: resolvedSetupIntentId,
+              });
+              setFinalizeError("");
+              setFinalizeLoading(false);
+              return;
+            }
+          } catch {}
+        }
+
         setFinalizeLoading(false);
         setFinalizeError(e?.message || "Unable to finalize your donation. Please try again.");
         finalizeRef.current = false;

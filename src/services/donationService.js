@@ -249,6 +249,12 @@ export function startSchedulePaymentMethodSwitch(scheduleId, provider) {
   });
 }
 
+export function getDonationStatus(pendingSessionId) {
+  const id = String(pendingSessionId || "").trim();
+  if (!id) return Promise.resolve({ data: { recorded: false } });
+  return apiRequest(`donations/status?pendingSessionId=${encodeURIComponent(id)}`, { method: "GET" });
+}
+
 export function postFinalizeSplit(body, idemKey) {
   const options = {
     method: "POST",
