@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import confetti from "canvas-confetti";
 import { useDonation } from "@/context/DonationContext";
 import { HeartIcon } from "@/components/common/SvgIcon";
+import RisingHeart from "@/components/common/RisingHeart";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import { fitSplit, applyManualAmount } from "@/utils/causeSplit";
 import { validateGiftStep } from "@/utils/donationStepValidation";
@@ -30,6 +31,19 @@ const Step1Gift = ({ campaignSlug }) => {
   const { data, update } = useDonation();
   const { handleNext } = useStepNavigation();
   const [error, setError] = useState("");
+
+  /* The heart floats from the Recurring option when that option is picked. */
+  const recurringHeartRef = useRef(null);
+  const risingHeartTimer = useRef(null);
+  const risingHeartCount = useRef(0);
+  const [risingHeart, setRisingHeart] = useState(null);
+
+  useEffect(
+    () => () => {
+      if (risingHeartTimer.current) window.clearTimeout(risingHeartTimer.current);
+    },
+    [],
+  );
 
   const {
     isPreview,
@@ -203,6 +217,28 @@ const Step1Gift = ({ campaignSlug }) => {
     handleNext(2);
   };
 
+  function handlePaymentType(type) {
+    const startingRecurring = type.value === "recurring" && paymentType !== "recurring";
+
+    onPaymentTypeChange(type.value);
+
+    if (!startingRecurring) return;
+
+    const rect = recurringHeartRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    /* A new key each time, so picking Recurring again starts the float again. */
+    risingHeartCount.current += 1;
+    setRisingHeart({
+      left: rect.left + rect.width / 2,
+      top: rect.top,
+      key: risingHeartCount.current,
+    });
+
+    if (risingHeartTimer.current) window.clearTimeout(risingHeartTimer.current);
+    risingHeartTimer.current = window.setTimeout(() => setRisingHeart(null), 3900);
+  }
+
   return (
     <StepLayout
       step={1}
@@ -234,7 +270,7 @@ const Step1Gift = ({ campaignSlug }) => {
                 <button
                   key={type.value}
                   type="button"
-                  onClick={locked ? undefined : () => onPaymentTypeChange(type.value)}
+                  onClick={locked ? undefined : () => handlePaymentType(type)}
                   className={`w-full sm:flex-1 flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-4 border text-left transition-all duration-200 ${
                     locked
                       ? "border-[#E5E5E5] bg-white opacity-40 cursor-not-allowed"
@@ -252,7 +288,10 @@ const Step1Gift = ({ campaignSlug }) => {
                     <p className="flex flex-wrap items-center gap-1.5 text-[15px] font-semibold text-[#383838] leading-snug">
                       {type.label}
                       {type.value === "recurring" && (
-                        <span className={`hc-heartbeat inline-flex shrink-0 origin-center ${active ? "text-[#EB3336]" : "text-[#CCCCCC]"}`}>
+                        <span
+                          ref={recurringHeartRef}
+                          className={`inline-flex shrink-0 origin-center ${active ? "hc-heartbeat text-[#EB3336]" : "text-[#CCCCCC]"}`}
+                        >
                           {HeartIcon}
                         </span>
                       )}
@@ -367,6 +406,14 @@ const Step1Gift = ({ campaignSlug }) => {
         {error && <p className="text-red-600 text-[13px]">{error}</p>}
 
       </div>
+
+      {risingHeart ? (
+        <RisingHeart
+          trigger={risingHeart.key}
+          left={risingHeart.left}
+          top={risingHeart.top}
+        />
+      ) : null}
     </StepLayout>
   );
 };
