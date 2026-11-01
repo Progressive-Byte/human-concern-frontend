@@ -75,7 +75,7 @@ async function makeRequest(endpoint, options = {}, cookieName = "token", attempt
     ...(options.cache ? { cache: options.cache } : {}),
   });
 
-  if (response.status === 409 && mutating && attempt <= (options?.maxIdempotencyRetries || 5)) {
+  if (response.status === 409 && mutating && attempt <= (options?.maxIdempotencyRetries ?? 5)) {
     let body = null;
     try {
       const ct = response.headers.get("content-type") || "";

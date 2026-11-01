@@ -328,7 +328,7 @@ const ReturnChallengeClient = () => {
       try {
         const endpoint =
           body.paymentMode === "split" ? "donations/finalize" : "donations/finalize-onetime";
-        const opts = { method: "POST", body: JSON.stringify(body) };
+        const opts = { method: "POST", body: JSON.stringify(body), maxIdempotencyRetries: 0 };
         if (data.idempotencyKey) opts.idempotencyKey = data.idempotencyKey;
 
         let res;
