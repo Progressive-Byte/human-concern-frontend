@@ -81,6 +81,16 @@ const PersonalInfoSection = ({
         <Field label="Organization" placeholder="xyz ltd" {...personalField("organization")} />
       )}
 
+      <label className="flex items-center gap-2.5 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={Boolean(data.anonymous)}
+          onChange={(e) => update({ anonymous: e.target.checked })}
+          className="h-4 w-4 shrink-0 rounded border-[#CCCCCC] accent-[#EA3335] focus:ring-[#EA3335]"
+        />
+        <span className="text-[13px] text-[#383838]">Give anonymously</span>
+      </label>
+
       <PhoneField {...personalField("phone")} />
     </div>
   );

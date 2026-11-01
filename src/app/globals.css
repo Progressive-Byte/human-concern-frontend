@@ -485,20 +485,23 @@
   }
 
   @keyframes hc-heart-rise-up {
-    from { translate: 0 4px; }
+    from { translate: 0 0; }
     to { translate: 0 -240px; }
   }
 
+  /*
+    Starts at 14px, the same size as the small heart, so it looks like it
+    leaves the heart itself. Then it grows as it drifts up.
+  */
   @keyframes hc-heart-rise-drift {
-    0% { transform: translateX(0) rotate(-6deg) scale(0.72); }
+    0% { transform: translateX(0) rotate(-6deg) scale(0.44); }
     30% { transform: translateX(-16px) rotate(5deg) scale(0.88); }
     60% { transform: translateX(-38px) rotate(-4deg) scale(1); }
     100% { transform: translateX(-64px) rotate(6deg) scale(1.08); }
   }
 
   @keyframes hc-heart-rise-fade {
-    0% { opacity: 0; }
-    12% { opacity: 1; }
+    0% { opacity: 1; }
     78% { opacity: 0.9; }
     100% { opacity: 0; }
   }
