@@ -197,9 +197,14 @@ const ThankYouClient = () => {
         } catch {}
 
         if (provider === "stripe") {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          const statusRes = await getDonationStatus(pendingSessionId);
-          const info = statusRes?.data ?? statusRes ?? {};
+          let info = {};
+
+          for (let attempt = 1; attempt <= 6; attempt += 1) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const statusRes = await getDonationStatus(pendingSessionId);
+            info = statusRes?.data ?? statusRes ?? {};
+            if (info.recorded === true) break;
+          }
 
           if (info.recorded === true) {
             const resolvedDonationId = info.donationId ?? data.donationId ?? null;
