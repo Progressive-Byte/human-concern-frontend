@@ -111,8 +111,8 @@ const AdminSchedulesPage = () => {
   const [filters, setFilters] = useState({
     page: "1",
     limit: "20",
-    sort: "nextDueDate",
-    order: "asc",
+    sort: "createdAt",
+    order: "desc",
     q: "",
     status: "",
   });
