@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getAdminDonorSchedules } from "@/services/admin";
 import { formatCurrency, formatDate } from "@/utils/helpers";
 
@@ -34,6 +35,7 @@ function SummaryTile({ label, value }) {
 }
 
 const DonorSchedulesModal = ({ open, donorKey, onClose }) => {
+  const router = useRouter();
   const key = useMemo(() => String(donorKey || "").trim(), [donorKey]);
 
   const [loading, setLoading] = useState(false);
@@ -176,14 +178,22 @@ const DonorSchedulesModal = ({ open, donorKey, onClose }) => {
                   </tr>
                 ) : (
                   rows.map((s, idx) => {
-                    const id = String(s?.scheduleId || s?.donationId || idx);
+                    const id = String(s?.scheduleId || s?.donationId || "");
+                    const openDetails = () => {
+                      if (!id) return;
+                      router.push(`/admin/schedules/${encodeURIComponent(id)}`);
+                    };
                     const fund = [s?.fundLabel, s?.fundCode ? `Fund ${s.fundCode}` : "", s?.designationCode ? `Designation ${s.designationCode}` : ""]
                       .filter(Boolean)
                       .join(" · ") || "—";
                     const campaignForm = [s?.campaignName, s?.formName].filter(Boolean).join(" · ") || "—";
                     const payment = [s?.paymentMethod, s?.paymentMask].filter(Boolean).join(" ").trim() || "Card on file";
                     return (
-                      <tr key={id} className="border-t border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors duration-200">
+                      <tr
+                        key={id || idx}
+                        onClick={openDetails}
+                        className={`border-t border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors duration-200 ${id ? "cursor-pointer" : ""}`}
+                      >
                         <td className="px-5 py-4">{fund}</td>
                         <td className="py-4 pr-4 text-[#6B7280]">{campaignForm}</td>
                         <td className="py-4 pr-4 font-semibold">{formatCurrency(Number(s?.baseAmount || 0), String(s?.currency || "USD"))}</td>
@@ -191,7 +201,8 @@ const DonorSchedulesModal = ({ open, donorKey, onClose }) => {
                         <td className="py-4 pr-4">{s?.scheduleStatus || s?.status || "—"}</td>
                         <td className="py-4 pr-4 text-[#6B7280]">{payment}</td>
                         <td className="py-4 pr-5 text-right text-[#6B7280]">
-                          {s?.nextDueDate ? formatDate(s.nextDueDate) : "—"}
+                          <div>{s?.nextDueDate ? formatDate(s.nextDueDate) : "—"}</div>
+                          {id ? <div className="mt-1 text-[12px] font-semibold text-[#111827]">View details →</div> : null}
                         </td>
                       </tr>
                     );

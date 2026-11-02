@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatCurrency, formatDate } from "@/utils/helpers";
 
 const STATUS_FILTERS = [
@@ -111,8 +112,17 @@ const DonorSchedulesCard = ({ schedules, loading, status = "active", onStatusCha
               .filter(Boolean)
               .join(" → ");
 
+            const detailId = String(sch?.scheduleId || sch?.donationId || "");
+            const href = detailId ? `/admin/schedules/${encodeURIComponent(detailId)}` : null;
+            const Wrapper = href ? Link : "div";
+            const wrapperProps = href ? { href } : {};
+
             return (
-              <div key={sch?.scheduleId || `${title}-${idx}`} className="rounded-xl bg-[#F9FAFB] px-4 py-3">
+              <Wrapper
+                key={detailId || `${title}-${idx}`}
+                {...wrapperProps}
+                className="block rounded-xl bg-[#F9FAFB] px-4 py-3 transition-colors duration-200 hover:bg-[#F3F4F6]"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="truncate text-[13px] font-semibold text-[#111827]">{title}</div>
@@ -148,7 +158,11 @@ const DonorSchedulesCard = ({ schedules, loading, status = "active", onStatusCha
                     }
                   />
                 </div>
-              </div>
+
+                {href ? (
+                  <div className="mt-2 text-right text-[12px] font-semibold text-[#111827]">View details →</div>
+                ) : null}
+              </Wrapper>
             );
           })}
         </div>
