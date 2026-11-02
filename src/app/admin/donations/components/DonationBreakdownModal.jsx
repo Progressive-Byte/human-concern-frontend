@@ -102,6 +102,7 @@ const DonationBreakdownModal = ({ donation, onClose, formatAmount }) => {
         <div className="overflow-y-auto px-6 py-5">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-[12px] text-[#6B7280]">
             <span>Campaign: <span className="text-[#111827]">{String(donation?.campaignName || "—")}</span></span>
+            <span>Form: <span className="text-[#111827]">{String(donation?.formName || "—")}</span></span>
             {installmentIndex ? (
               <span>
                 Payment:{" "}

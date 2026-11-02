@@ -123,7 +123,8 @@ function normalizeDonation(raw) {
   const donorOrganization = String(donorDisplay?.organization || "");
   const marketingConsent = donorDisplay?.marketingConsent === true;
 
-  const campaignName = String(raw?.campaignName || raw?.formName || "—");
+  const campaignName = String(raw?.campaignName || "").trim();
+  const formName = String(raw?.formName || "").trim();
   const causeLabel = String(raw?.causeLabel || "—");
   const causeType = String(raw?.causeType || "");
 
@@ -157,6 +158,7 @@ function normalizeDonation(raw) {
     donor: { name: donorLabel, email: donorEmail, organization: donorOrganization },
     marketingConsent,
     campaignName,
+    formName,
     source: String(raw?.source || ""),
     causeLabel,
     causeType,
@@ -360,7 +362,7 @@ const AdminDonationsPage = () => {
         "donorLabel",
         "donorEmail",
         "campaignName",
-        "formOrCampaign",
+        "formName",
         "source",
         "causeLabel",
         "causeType",
@@ -386,7 +388,7 @@ const AdminDonationsPage = () => {
             d?.donor?.name,
             d?.donor?.email,
             d.campaignName,
-            d.campaignName,
+            d.formName,
             d.source,
             d.causeLabel,
             d.causeType,

@@ -53,7 +53,7 @@ const SchedulesTable = ({ items = [], loading = false, pagination = null, curren
           <thead>
             <tr className="text-left text-[12px] font-medium text-[#6B7280]">
               <th className="px-5 py-3">Donor</th>
-              <th className="py-3 pr-4">Campaign</th>
+              <th className="py-3 pr-4">Form</th>
               <th className="py-3 pr-4">Source</th>
               <th className="py-3 pr-4">Cause</th>
               <th className="py-3 pr-4">Frequency</th>
