@@ -74,7 +74,10 @@ function DonationHistoryPage() {
 
   const rows = useMemo(() =>
     (Array.isArray(items) ? items : []).map((it, idx) => ({
-      id:        String(it?.donationId || idx),
+      // One row per payment now, so the payment id keeps the list keys unique.
+      id:        String(it?.transactionId || it?.id || it?.donationId || idx),
+      donationId: String(it?.donationId || ""),
+      transactionId: String(it?.transactionId || ""),
       date:      formatDate(it?.date) || "—",
       campaign:  String(it?.campaign?.name || "").trim() || "—",
       // Leave blank when the API didn't tell us, so we never show a wrong "One-time".

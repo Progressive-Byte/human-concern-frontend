@@ -100,7 +100,7 @@ function DonationRow({ r, isLast, onError }) {
     if (busy) return;
     setBusy(true);
     try {
-      await downloadReceipt({ donationId: r.id });
+      await downloadReceipt({ donationId: r.donationId || r.id, transactionId: r.transactionId });
     } catch (e) {
       onError?.(e?.message || "Could not download receipt.");
     } finally {
