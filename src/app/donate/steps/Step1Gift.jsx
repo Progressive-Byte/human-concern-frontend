@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import confetti from "canvas-confetti";
 import { useDonation } from "@/context/DonationContext";
 import { HeartIcon } from "@/components/common/SvgIcon";
 import RisingHeart from "@/components/common/RisingHeart";
@@ -23,8 +22,6 @@ const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
   { value: "recurring", label: "Recurring payments", desc: () => "Split your donation into scheduled payments" },
 ];
-
-const CONFETTI_COLORS = ["#EA3335", "#FF6B35", "#FFD700", "#00C853", "#2196F3", "#9C27B0"];
 
 /* The floating heart is h-8 w-8. Its centre must match the small heart's centre. */
 const RISING_HEART_SIZE = 32;
@@ -171,14 +168,6 @@ const Step1Gift = ({ campaignSlug }) => {
     setError("");
   };
 
-  const onPaymentTypeChange = (value) => {
-    if (value === "recurring") {
-      confetti({ particleCount: 90, angle: 60, spread: 70, startVelocity: 50, origin: { x: 0, y: 0.65 }, colors: CONFETTI_COLORS });
-      confetti({ particleCount: 90, angle: 120, spread: 70, startVelocity: 50, origin: { x: 1, y: 0.65 }, colors: CONFETTI_COLORS });
-    }
-    handlePaymentTypeChange(value);
-  };
-
   const validateAndNext = () => {
     if (amountError) return;
 
@@ -223,7 +212,7 @@ const Step1Gift = ({ campaignSlug }) => {
   function handlePaymentType(type) {
     const startingRecurring = type.value === "recurring" && paymentType !== "recurring";
 
-    onPaymentTypeChange(type.value);
+    handlePaymentTypeChange(type.value);
 
     if (!startingRecurring) return;
 
