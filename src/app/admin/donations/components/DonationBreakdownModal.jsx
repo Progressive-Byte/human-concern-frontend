@@ -35,6 +35,7 @@ const DonationBreakdownModal = ({ donation, onClose, formatAmount }) => {
   const tipPercent = donation?.platformTipPercent != null ? Number(donation.platformTipPercent) : null;
   const installmentIndex = donation?.installmentIndex != null ? Number(donation.installmentIndex) : null;
   const installmentCount = donation?.installmentCount != null ? Number(donation.installmentCount) : null;
+  const openEnded = donation?.openEnded === true;
 
   // Add-ons are charged with the first payment only, but the API attaches the donation's
   // add-ons to every installment row (same rule the receipt applies).
@@ -107,7 +108,8 @@ const DonationBreakdownModal = ({ donation, onClose, formatAmount }) => {
               <span>
                 Payment:{" "}
                 <span className="text-[#111827]">
-                  {installmentIndex}{installmentCount ? ` of ${installmentCount}` : ""}
+                  {installmentIndex}
+                  {openEnded ? " · Ongoing monthly" : installmentCount ? ` of ${installmentCount}` : ""}
                 </span>
               </span>
             ) : null}

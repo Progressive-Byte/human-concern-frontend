@@ -171,6 +171,7 @@ function normalizeDonation(raw) {
     platformTipPercent: raw?.platformTipPercent ?? null,
     installmentIndex: raw?.installmentIndex ?? null,
     installmentCount: raw?.installmentCount ?? null,
+    openEnded: raw?.openEnded === true || raw?.donation?.openEnded === true,
     addons,
     currency,
     status,
