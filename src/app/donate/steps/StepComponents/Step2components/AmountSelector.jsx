@@ -195,11 +195,6 @@ const AmountSelector = ({
             {locked ? "Change amount" : "Save change"}
           </button>
         </div>
-        {locked && (
-          <p className="mb-3 text-[13px] text-[#055A46] bg-[#F0FAF7] border border-[#C3E8DC] rounded-xl px-4 py-2.5">
-            You can change this amount. Click <strong>Change amount</strong> to adjust it.
-          </p>
-        )}
         {!locked && (
           <div className="grid grid-cols-2 gap-3">
             {suggestedAmounts.map((base) => {

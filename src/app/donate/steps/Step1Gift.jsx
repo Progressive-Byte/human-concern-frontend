@@ -252,17 +252,6 @@ const Step1Gift = ({ campaignSlug }) => {
     >
       <div className="flex flex-col gap-6">
 
-        <CauseSelector
-          causes={causes}
-          selectedCauseIds={selectedCauseIds}
-          toggleCause={toggleCause}
-          causeSplit={causeSplit}
-          totalAmount={effectiveAmount}
-          sym={sym}
-          onSplitChange={handleSplitChange}
-          onResetSplit={handleResetSplit}
-        />
-
         <div className="flex flex-col gap-3">
           <SectionStep num={2} title="How would you like to give?" />
           <div className="flex flex-col sm:flex-row gap-2.5">
@@ -340,6 +329,17 @@ const Step1Gift = ({ campaignSlug }) => {
             overrideTotal={perDateTotal}
           />
         </div>
+
+        <CauseSelector
+          causes={causes}
+          selectedCauseIds={selectedCauseIds}
+          toggleCause={toggleCause}
+          causeSplit={causeSplit}
+          totalAmount={effectiveAmount}
+          sym={sym}
+          onSplitChange={handleSplitChange}
+          onResetSplit={handleResetSplit}
+        />
 
         {isRecurring && (
           <>
