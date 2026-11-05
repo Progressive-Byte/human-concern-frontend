@@ -162,12 +162,11 @@ const PaymentReceiptCard = ({ receipt, error, onRetry, donationId, email }) => {
           <Row label="Currency" value={String(currency).toUpperCase()} />
         </Section>
 
-        {(receipt.donor?.name || receipt.donor?.email || receipt.donor?.dedication || receipt.donor?.organization || receipt.campaignName) && (
+        {(receipt.donor?.name || receipt.donor?.email || receipt.donor?.organization || receipt.campaignName) && (
           <Section title="Donor">
             <Row label="Name" value={receipt.donor?.name} />
             <Row label="Email" value={receipt.donor?.email} />
             <Row label="Organization" value={receipt.donor?.organization} />
-            <Row label="Dedication" value={receipt.donor?.dedication} />
             <Row label="Campaign" value={receipt.campaignName} />
           </Section>
         )}

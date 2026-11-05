@@ -5,7 +5,6 @@ const ScheduleDonorCard = ({ schedule, loading = false }) => {
   const label = String(donorDisplay?.label || "—");
   const email = donorDisplay?.email ? String(donorDisplay.email) : "";
   const organization = String(donorDisplay?.organization || "").trim();
-  const dedication = String(donorDisplay?.dedication || "").trim();
   const marketingConsent = donorDisplay?.marketingConsent === true;
   const initials = label
     .split(" ")
@@ -27,9 +26,6 @@ const ScheduleDonorCard = ({ schedule, loading = false }) => {
             <div className="mt-1 truncate text-[12px] text-[#6B7280]">{loading ? "—" : email || "—"}</div>
             {!loading && organization ? (
               <div className="mt-1 truncate text-[12px] text-[#6B7280]">{organization}</div>
-            ) : null}
-            {!loading && dedication ? (
-              <div className="mt-1 truncate text-[12px] text-[#6B7280]">{dedication}</div>
             ) : null}
           </div>
         </div>

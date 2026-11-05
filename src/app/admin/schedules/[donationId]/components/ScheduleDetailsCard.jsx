@@ -55,7 +55,7 @@ const ScheduleDetailsCard = ({ schedule, stats, loading = false }) => {
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-5">
-        <Row label="Campaign" value={loading ? "—" : formName} />
+        <Row label="Form" value={loading ? "—" : formName} />
         <Row label="Frequency" value={loading ? "—" : frequency} />
         <Row label="Next Donation Amount" value={loading ? "—" : amount} />
         <Row label="Next Donation" value={loading ? "—" : nextDue} />

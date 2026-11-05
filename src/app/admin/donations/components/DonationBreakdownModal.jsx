@@ -102,6 +102,7 @@ const DonationBreakdownModal = ({ donation, onClose, formatAmount }) => {
         <div className="overflow-y-auto px-6 py-5">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-[12px] text-[#6B7280]">
             <span>Campaign: <span className="text-[#111827]">{String(donation?.campaignName || "—")}</span></span>
+            <span>Form: <span className="text-[#111827]">{String(donation?.formName || "—")}</span></span>
             {installmentIndex ? (
               <span>
                 Payment:{" "}
@@ -112,13 +113,10 @@ const DonationBreakdownModal = ({ donation, onClose, formatAmount }) => {
             ) : null}
           </div>
 
-          {(donation?.donor?.organization || donation?.donor?.dedication || donation?.marketingConsent != null) && (
+          {(donation?.donor?.organization || donation?.marketingConsent != null) && (
             <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-1 text-[12px] text-[#6B7280]">
               {donation?.donor?.organization ? (
                 <span>Organization: <span className="text-[#111827]">{donation.donor.organization}</span></span>
-              ) : null}
-              {donation?.donor?.dedication ? (
-                <span>Dedication: <span className="text-[#111827]">{donation.donor.dedication}</span></span>
               ) : null}
               {donation?.marketingConsent != null ? (
                 <span>Marketing consent: <span className="text-[#111827]">{donation.marketingConsent ? "Yes" : "No"}</span></span>

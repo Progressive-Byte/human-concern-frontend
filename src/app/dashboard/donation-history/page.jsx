@@ -17,6 +17,7 @@ function formatDate(value) {
 }
 
 const DEFAULT_CAUSE_OPTIONS = [{ value: "all", label: "All Types" }];
+const PAGE_SIZE = 20;
 
 function useDebouncedValue(value, delayMs) {
   const [debounced, setDebounced] = useState(value);
@@ -30,12 +31,25 @@ function useDebouncedValue(value, delayMs) {
 function DonationHistoryPage() {
   const [search, setSearch] = useState("");
   const [cause, setCause] = useState("all");
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [items, setItems] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: PAGE_SIZE, total: 0, pages: 1 });
   const [causeOptions, setCauseOptions] = useState(DEFAULT_CAUSE_OPTIONS);
 
   const debouncedSearch = useDebouncedValue(search, 300);
+
+  // A new search or type filter always starts from the first page.
+  const handleSearchChange = (next) => {
+    setSearch(next);
+    setPage(1);
+  };
+
+  const handleCauseChange = (next) => {
+    setCause(next);
+    setPage(1);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -44,14 +58,27 @@ function DonationHistoryPage() {
       setError("");
       try {
         const res = await getUserDonationsList({
-          page: "1", limit: "50", q: debouncedSearch,
+          page: String(page), limit: String(PAGE_SIZE), q: debouncedSearch,
           filter: cause, sort: "date", order: "desc",
         });
         if (!alive) return;
         const data = res?.data?.data || res?.data || {};
         const nextItems = Array.isArray(data?.items) ? data.items : [];
         const rawCauses = res?.meta?.filters?.causes || res?.data?.meta?.filters?.causes || [];
+        const rawPagination = res?.meta?.pagination || res?.data?.meta?.pagination || null;
+        const pages = Math.max(1, Number(rawPagination?.pages) || 1);
+        // Data can shrink (e.g. status change); keep the page inside range.
+        if (page > pages) {
+          setPage(pages);
+          return;
+        }
         setItems(nextItems);
+        setPagination({
+          page: Number(rawPagination?.page) || page,
+          limit: Number(rawPagination?.limit) || PAGE_SIZE,
+          total: Number(rawPagination?.total) || 0,
+          pages,
+        });
         const opts = (Array.isArray(rawCauses) ? rawCauses : [])
           .map((c) => ({
             value: String(c?.key || "").trim(),
@@ -62,6 +89,7 @@ function DonationHistoryPage() {
       } catch (e) {
         if (!alive) return;
         setItems([]);
+        setPagination({ page: 1, limit: PAGE_SIZE, total: 0, pages: 1 });
         setCauseOptions(DEFAULT_CAUSE_OPTIONS);
         setError(e?.message || "Failed to load donations.");
       } finally {
@@ -70,14 +98,16 @@ function DonationHistoryPage() {
       }
     })();
     return () => { alive = false; };
-  }, [debouncedSearch, cause]);
+  }, [debouncedSearch, cause, page]);
 
   const rows = useMemo(() =>
     (Array.isArray(items) ? items : []).map((it, idx) => ({
-      id:        String(it?.donationId || idx),
+      // One row per payment now, so the payment id keeps the list keys unique.
+      id:        String(it?.transactionId || it?.id || it?.donationId || idx),
+      donationId: String(it?.donationId || ""),
+      transactionId: String(it?.transactionId || ""),
       date:      formatDate(it?.date) || "—",
       campaign:  String(it?.campaign?.name || "").trim() || "—",
-      dedication: String(it?.dedication || "").trim(),
       // Leave blank when the API didn't tell us, so we never show a wrong "One-time".
       typeKey:   it?.type?.key ? String(it.type.key) : "",
       typeLabel: it?.type?.label ? String(it.type.label) : "",
@@ -137,13 +167,40 @@ function DonationHistoryPage() {
 
         <FilterBar
           search={search}
-          onSearchChange={setSearch}
+          onSearchChange={handleSearchChange}
           cause={cause}
-          onCauseChange={setCause}
+          onCauseChange={handleCauseChange}
           causeOptions={causeOptions}
         />
 
         <DonationTable loading={loading} rows={rows} onError={setError} />
+
+        {pagination.pages > 1 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-solid border-[#E5E7EB] bg-white px-5 py-4">
+            <div className="text-[13px] text-[#6B7280]">
+              {`Showing ${(pagination.page - 1) * pagination.limit + 1}–${Math.min(pagination.page * pagination.limit, pagination.total)} of ${pagination.total} payments`}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={pagination.page <= 1 || loading}
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="text-[13px] text-[#6B7280]">{`Page ${pagination.page} of ${pagination.pages}`}</span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+                disabled={pagination.page >= pagination.pages || loading}
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] transition-colors hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
     </>
   );
