@@ -204,6 +204,7 @@ const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo,
 
   const primaryColor = String(branding?.primaryColor || "");
   const accentColor = String(branding?.accentColor || "");
+  const donationPrimaryColor = String(branding?.donationPrimaryColor || "");
   const customCss = String(branding?.customCss || "");
 
   return (
@@ -267,6 +268,29 @@ const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo,
               })
             }
           />
+        </div>
+
+        <div className="rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-4">
+          <div className="text-[13px] font-semibold text-[#111827]">Donation Form</div>
+          <p className="mt-1 text-[12px] text-[#6B7280]">
+            Used only on the donation steps. Leave empty to use the Primary Color.
+          </p>
+          <div className="mt-3">
+            <ColorPickerField
+              label="Donation form primary color"
+              value={donationPrimaryColor}
+              disabled={loading}
+              onChange={(next) =>
+                onChange?.((prev) => {
+                  const p = prev || {};
+                  if (p?.branding && typeof p.branding === "object") {
+                    return { ...p, branding: { ...p.branding, donationPrimaryColor: next } };
+                  }
+                  return { ...p, donationPrimaryColor: next };
+                })
+              }
+            />
+          </div>
         </div>
 
         <Field label="Custom CSS">

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { useBranding } from "@/context/BrandingContext";
 import { HeartIcon } from "@/components/common/SvgIcon";
 import RisingHeart from "@/components/common/RisingHeart";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
@@ -29,6 +30,7 @@ const RISING_HEART_SIZE = 32;
 const Step1Gift = ({ campaignSlug }) => {
   const searchParams = useSearchParams();
   const { data, update } = useDonation();
+  const { primaryColor, donationPrimaryColor } = useBranding();
   const { handleNext } = useStepNavigation();
   const [error, setError] = useState("");
 
@@ -271,7 +273,7 @@ const Step1Gift = ({ campaignSlug }) => {
                       {type.value === "recurring" && (
                         <span
                           ref={recurringHeartRef}
-                          className={`inline-flex shrink-0 origin-center ${active ? "hc-heartbeat text-[#EB3336]" : "text-[#CCCCCC]"}`}
+                          className={`inline-flex shrink-0 origin-center ${active ? "hc-heartbeat text-[#EA3335]" : "text-[#CCCCCC]"}`}
                         >
                           {HeartIcon}
                         </span>
@@ -404,6 +406,7 @@ const Step1Gift = ({ campaignSlug }) => {
           trigger={risingHeart.key}
           left={risingHeart.left}
           top={risingHeart.top}
+          color={donationPrimaryColor || primaryColor}
         />
       ) : null}
     </StepLayout>

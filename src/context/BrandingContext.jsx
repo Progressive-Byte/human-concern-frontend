@@ -9,6 +9,8 @@ const DEFAULT_ACCENT = "#055A46";
 const BrandingContext = createContext({
   primaryColor: DEFAULT_PRIMARY,
   accentColor: DEFAULT_ACCENT,
+  donationPrimaryColor: "",
+  donationThemeStyle: {},
   googleMapsApiKey: null,
 });
 
@@ -51,11 +53,9 @@ function mixColors(baseHex, mixHex, weight) {
   });
 }
 
-function buildThemeStyle(primaryColor, accentColor) {
-  const primary = normalizeHex(primaryColor, DEFAULT_PRIMARY);
-  const accent = normalizeHex(accentColor, DEFAULT_ACCENT);
+function buildPrimaryStyle(color) {
+  const primary = normalizeHex(color, DEFAULT_PRIMARY);
   const primaryRgb = hexToRgb(primary);
-  const accentRgb = hexToRgb(accent);
 
   return {
     "--brand-primary": primary,
@@ -63,6 +63,15 @@ function buildThemeStyle(primaryColor, accentColor) {
     "--brand-primary-50": mixColors(primary, "#FFFFFF", 0.94),
     "--brand-primary-100": mixColors(primary, "#FFFFFF", 0.88),
     "--brand-primary-700": mixColors(primary, "#000000", 0.16),
+  };
+}
+
+function buildThemeStyle(primaryColor, accentColor) {
+  const accent = normalizeHex(accentColor, DEFAULT_ACCENT);
+  const accentRgb = hexToRgb(accent);
+
+  return {
+    ...buildPrimaryStyle(primaryColor),
     "--brand-accent": accent,
     "--brand-accent-rgb": `${accentRgb.r} ${accentRgb.g} ${accentRgb.b}`,
     "--brand-accent-50": mixColors(accent, "#FFFFFF", 0.94),
@@ -75,6 +84,7 @@ export function BrandingProvider({ children }) {
   const [brandingState, setBrandingState] = useState({
     primaryColor: DEFAULT_PRIMARY,
     accentColor: DEFAULT_ACCENT,
+    donationPrimaryColor: "",
     logoPath: "",
     // null = still loading, '' = loaded but not configured, string = the key.
     googleMapsApiKey: null,
@@ -101,6 +111,7 @@ export function BrandingProvider({ children }) {
       setBrandingState({
         primaryColor: normalizeHex(branding?.primaryColor, DEFAULT_PRIMARY),
         accentColor: normalizeHex(branding?.accentColor, DEFAULT_ACCENT),
+        donationPrimaryColor: normalizeHex(branding?.donationPrimaryColor, ""),
         logoPath: branding?.logo?.path ? String(branding.logo.path) : "",
         googleMapsApiKey: String(integrations?.googleMapsApiKey || ""),
       });
@@ -115,7 +126,14 @@ export function BrandingProvider({ children }) {
     () => buildThemeStyle(brandingState.primaryColor, brandingState.accentColor),
     [brandingState.primaryColor, brandingState.accentColor]
   );
-  const value = useMemo(() => brandingState, [brandingState]);
+  const donationThemeStyle = useMemo(
+    () => buildPrimaryStyle(brandingState.donationPrimaryColor || brandingState.primaryColor),
+    [brandingState.donationPrimaryColor, brandingState.primaryColor]
+  );
+  const value = useMemo(
+    () => ({ ...brandingState, donationThemeStyle }),
+    [brandingState, donationThemeStyle]
+  );
 
   return (
     <BrandingContext.Provider value={value}>
