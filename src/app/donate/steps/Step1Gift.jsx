@@ -244,6 +244,51 @@ const Step1Gift = ({ campaignSlug }) => {
       <div className="flex flex-col gap-6">
 
         <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <SectionStep num={1} title="Donation Amount & Cause" />
+            <select
+              value={data.currency ?? "USD"}
+              onChange={(e) => update({ currency: e.target.value })}
+              disabled={isEditMode}
+              className={`rounded-lg border px-2.5 py-1.5 text-[12px] font-medium outline-none transition-colors ${
+                isEditMode
+                  ? "border-[#E5E5E5] bg-[#F9FAFB] text-[#9CA3AF] cursor-not-allowed"
+                  : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335] cursor-pointer"
+              }`}
+            >
+              {currencyOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <AmountSelector
+            suggestedAmounts={suggestedAmounts}
+            suggestedAmountsData={suggestedAmountsData}
+            currenciesWithRates={currenciesWithRates}
+            minDonation={minDonation}
+            maxDonation={maxDonation}
+            currency={data.currency ?? "USD"}
+            isRecurring={isRecurring}
+            splitMode={splitMode}
+            occurrences={occurrences}
+            initialAmount={initAmount}
+            onAmountChange={handleAmountChange}
+            overrideTotal={perDateTotal}
+          />
+        </div>
+
+        <CauseSelector
+          causes={causes}
+          selectedCauseIds={selectedCauseIds}
+          toggleCause={toggleCause}
+          causeSplit={causeSplit}
+          totalAmount={effectiveAmount}
+          sym={sym}
+          onSplitChange={handleSplitChange}
+          onResetSplit={handleResetSplit}
+        />
+
+        <div className="flex flex-col gap-3">
           <SectionStep num={2} title="How would you like to give?" />
           <div className="flex flex-col sm:flex-row gap-2.5">
             {PAYMENT_TYPES.filter((t) => t.value === "one-time" || allowRecurring).map((type) => {
@@ -287,55 +332,10 @@ const Step1Gift = ({ campaignSlug }) => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
-            <SectionStep num={3} title="Donation Amount" />
-            <select
-              value={data.currency ?? "USD"}
-              onChange={(e) => update({ currency: e.target.value })}
-              disabled={isEditMode}
-              className={`rounded-lg border px-2.5 py-1.5 text-[12px] font-medium outline-none transition-colors ${
-                isEditMode
-                  ? "border-[#E5E5E5] bg-[#F9FAFB] text-[#9CA3AF] cursor-not-allowed"
-                  : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335] cursor-pointer"
-              }`}
-            >
-              {currencyOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-          <AmountSelector
-            suggestedAmounts={suggestedAmounts}
-            suggestedAmountsData={suggestedAmountsData}
-            currenciesWithRates={currenciesWithRates}
-            minDonation={minDonation}
-            maxDonation={maxDonation}
-            currency={data.currency ?? "USD"}
-            isRecurring={isRecurring}
-            splitMode={splitMode}
-            occurrences={occurrences}
-            initialAmount={initAmount}
-            onAmountChange={handleAmountChange}
-            overrideTotal={perDateTotal}
-          />
-        </div>
-
-        <CauseSelector
-          causes={causes}
-          selectedCauseIds={selectedCauseIds}
-          toggleCause={toggleCause}
-          causeSplit={causeSplit}
-          totalAmount={effectiveAmount}
-          sym={sym}
-          onSplitChange={handleSplitChange}
-          onResetSplit={handleResetSplit}
-        />
-
         {isRecurring && (
           <>
             <div className="flex flex-col gap-3">
-              <SectionStep num={4} title="How to split?" />
+              <SectionStep num={3} title="How to split?" />
               <div className="flex flex-col sm:flex-row gap-2.5">
                 {splitModes.map((mode) => {
                   const active = splitMode === mode.value;
@@ -359,7 +359,7 @@ const Step1Gift = ({ campaignSlug }) => {
             </div>
 
             <div className="flex flex-col gap-3">
-              <SectionStep num={5} title="Choose a schedule" />
+              <SectionStep num={4} title="Choose a schedule" />
               <RecurringSchedule
                 sym={sym}
                 effectiveAmount={defaultPerDate}
@@ -382,7 +382,7 @@ const Step1Gift = ({ campaignSlug }) => {
 
         {campaignAddOns.length > 0 && (
           <div className="flex flex-col gap-3">
-            <SectionStep num={6} title="Add-ons / special giving" />
+            <SectionStep num={5} title="Add-ons / special giving" />
             <p className="text-[12px] text-[#737373] -mt-1">
               These are additional gifts. Each one is added on top of your donation and sent to its own fund.
             </p>
