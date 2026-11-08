@@ -4,8 +4,8 @@
 @layer base {
   :root {
     --font-sans: "Inter", system-ui, sans-serif;
-    /* One site-wide scale for the human-concern frontend. 1.2 means 20% bigger. */
-    --hc-site-zoom: 1.2;
+    /* One site-wide scale for the human-concern frontend. 1.15 means 15% bigger. */
+    --hc-site-zoom: 1.15;
   }
 
   .hc-admin-theme {
