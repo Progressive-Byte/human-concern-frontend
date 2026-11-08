@@ -322,7 +322,7 @@ const AdminSidebar = ({ onNavigate }) => {
   return (
     // Static, non-branded chrome: the sidebar deliberately uses fixed colors rather
     // than the Settings > Branding primary, so changing the brand never recolors it.
-    <aside className="flex h-screen w-65 shrink-0 flex-col bg-[#171717] text-white">
+    <aside className="flex h-full w-65 shrink-0 flex-col bg-[#171717] text-white">
       <div className="flex items-center gap-3 border-b border-white/10 px-4 py-5">
         <div className="flex items-center justify-center rounded-full bg-white/10">
           <Image src={brandLogoUrl || "/icons/hcu-icon-light.png"} alt="Human Concern USA" width={30} height={30} />

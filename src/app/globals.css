@@ -4,8 +4,8 @@
 @layer base {
   :root {
     --font-sans: "Inter", system-ui, sans-serif;
-    /* One site-wide scale for the human-concern frontend. 1.15 means 15% bigger. */
-    --hc-site-zoom: 1.15;
+    /* One site-wide scale for the human-concern frontend. 1.10 means 10% bigger. */
+    --hc-site-zoom: 1.10;
   }
 
   .hc-admin-theme {
@@ -69,6 +69,15 @@
 }
 
 @layer utilities {
+  /*
+    The root zoom makes a normal h-screen taller than the real screen.
+    Divide by the zoom so the admin shell fills exactly one screen and only
+    the content panel scrolls.
+  */
+  .hc-admin-shell {
+    height: calc(100vh / var(--hc-site-zoom));
+  }
+
   /* Wide admin tables scroll sideways. A thin scrollbar is always drawn, so it is clear that more
      columns exist. The browser paints it above the rows, so a hovered row cannot cover it. */
   .hc-table-scroll {

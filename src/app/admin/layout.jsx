@@ -15,10 +15,10 @@ const AdminLayout = ({ children }) => {
     <AdminAuthProvider>
       <AdminBrandingProvider>
         <ToastProvider>
-          <div className="h-screen overflow-hidden bg-white [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed">
+          <div className="hc-admin-shell overflow-hidden bg-white [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed">
             <TableOverflowWatcher />
-            <div className="flex h-screen">
-              <div className="hidden lg:block">
+            <div className="flex h-full">
+              <div className="hidden h-full lg:block">
                 <AdminSidebar />
               </div>
 
