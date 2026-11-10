@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getAdminAuditLogs } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import AdminHeaderActions from "@/app/admin/components/AdminHeaderActions";
+import DataExportLink from "@/app/admin/components/DataExportLink";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { AlertIcon } from "@/components/common/SvgIcon";
 
@@ -65,7 +66,8 @@ function LogsHeader() {
         <p className="mt-1 text-[14px] text-[#6B7280]">Audit log entries for admin actions and requests</p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <DataExportLink tables="audit_logs" />
         <AdminHeaderActions admin={admin} />
       </div>
     </div>

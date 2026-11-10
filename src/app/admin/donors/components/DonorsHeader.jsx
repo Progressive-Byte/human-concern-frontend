@@ -1,6 +1,7 @@
 "use client";
 
 import AdminHeaderActions from "@/app/admin/components/AdminHeaderActions";
+import DataExportLink from "@/app/admin/components/DataExportLink";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 const DonorsHeader = ({ onCreate }) => {
@@ -14,6 +15,8 @@ const DonorsHeader = ({ onCreate }) => {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        <DataExportLink tables="donors,guest_donors" />
+
         <button
           type="button"
           onClick={onCreate}

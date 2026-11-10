@@ -1,6 +1,7 @@
 "use client";
 
 import AdminHeaderActions from "@/app/admin/components/AdminHeaderActions";
+import DataExportLink from "@/app/admin/components/DataExportLink";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 const DesignationsHeader = ({ onCreate }) => {
@@ -13,7 +14,9 @@ const DesignationsHeader = ({ onCreate }) => {
         <p className="mt-1 text-[14px] text-[#6B7280]">Create and manage designation codes and names</p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <DataExportLink tables="designations" />
+
         <button
           type="button"
           onClick={onCreate}

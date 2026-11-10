@@ -127,6 +127,9 @@ const DataExportPageClient = () => {
             if (columns.length > 0) next[entity.key] = columns;
           }
           setSelection(next);
+        } else {
+          /* Opened from the sidebar with no page link: start with nothing selected. */
+          setSelection({});
         }
       } catch (e) {
         if (alive) setError(e?.message || "Failed to load export tables.");

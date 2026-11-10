@@ -1,6 +1,7 @@
 "use client";
 
 import AdminHeaderActions from "@/app/admin/components/AdminHeaderActions";
+import DataExportLink from "@/app/admin/components/DataExportLink";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 function RefreshIcon() {
@@ -25,6 +26,8 @@ const SchedulesHeader = ({ onRefresh, refreshing = false }) => {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        <DataExportLink tables="schedule_revisions,transactions" />
+
         <button
           type="button"
           onClick={onRefresh}
