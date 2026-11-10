@@ -6,10 +6,16 @@ const styles = {
   archived: "bg-[#FEF3C7] text-[#92400E]",
 };
 
+const labels = {
+  draft: "Draft",
+  published: "Published",
+  archived: "Archived",
+};
+
 const StatusPill = ({ status }) => {
   const key = String(status || "draft").toLowerCase();
   const cls = styles[key] || styles.draft;
-  const label = key ? key : "draft";
+  const label = labels[key] || key.charAt(0).toUpperCase() + key.slice(1);
 
   return (
     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${cls}`}>

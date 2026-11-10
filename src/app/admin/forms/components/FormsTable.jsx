@@ -128,9 +128,13 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                     <td className="py-4 pr-4 align-top">
                       <div className="flex flex-col items-start gap-2">
                         <StatusPill status={status} />
-                        {item?.hasSimpleDraft ? (
-                          <span className="rounded-full bg-red-600/10 px-2.5 py-1 text-[11px] font-semibold text-[#111827]">
-                            Draft not published
+                        {status === "published" && item?.hasSimpleDraft ? (
+                          <span
+                            title="The published version is live. A newer draft is saved but not published."
+                            className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700"
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                            Unpublished changes
                           </span>
                         ) : null}
                       </div>
