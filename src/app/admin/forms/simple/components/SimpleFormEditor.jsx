@@ -42,6 +42,8 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   const [feePercent, setFeePercent] = useState("");
   const [presets, setPresets] = useState(() => toRows([]));
   const [monthlyPresets, setMonthlyPresets] = useState(() => toRows([]));
+  const [defaultPresetAmount, setDefaultPresetAmount] = useState("");
+  const [defaultMonthlyAmount, setDefaultMonthlyAmount] = useState("");
   const [causeIds, setCauseIds] = useState([]);
   const [allowRecurring, setAllowRecurring] = useState(false);
   const [addonsEnabled, setAddonsEnabled] = useState(false);
@@ -58,8 +60,24 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     if (!initial) return;
     setDisplayName(String(initial.displayName || ""));
     setFeePercent(initial.feePercent === null || initial.feePercent === undefined ? "" : String(initial.feePercent));
-    setPresets(toRows(initial.presets));
-    setMonthlyPresets(toRows(initial.monthlyPresets));
+
+    const presetRows = toRows(initial.presets);
+    const monthlyRows = toRows(initial.monthlyPresets);
+    setPresets(presetRows);
+    setMonthlyPresets(monthlyRows);
+
+    const monthlyChoices = monthlyRows.filter((row) => Number(row.amount) > 0);
+
+    setDefaultPresetAmount(
+      initial.defaultAmount === null || initial.defaultAmount === undefined
+        ? presetRows[0]?.amount ?? ""
+        : String(initial.defaultAmount)
+    );
+    setDefaultMonthlyAmount(
+      initial.defaultMonthlyAmount === null || initial.defaultMonthlyAmount === undefined
+        ? (monthlyChoices.length > 0 ? monthlyChoices : presetRows)[0]?.amount ?? ""
+        : String(initial.defaultMonthlyAmount)
+    );
     setCauseIds((Array.isArray(initial.causeIds) ? initial.causeIds : []).map((id) => String(id)));
     setAllowRecurring(initial.allowRecurringDonations === true);
     setAddonsEnabled(initial.addonsEnabled === true);
@@ -110,17 +128,43 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
       parsedFee = Number.isFinite(value) ? value : null;
     }
 
+    const presetAmounts = toAmounts(presets);
+    const monthlyAmounts = toAmounts(monthlyPresets);
+
+    const pickDefault = (raw, rows) => {
+      const amount = Number(String(raw ?? "").replace(/,/g, "").trim());
+      if (!Number.isFinite(amount) || amount <= 0) return null;
+      if (rows.some((row) => row.amount === amount)) return amount;
+      return rows.length > 0 ? rows[0].amount : null;
+    };
+
     return {
       displayName: name,
       feePercent: parsedFee,
-      presets: toAmounts(presets),
-      monthlyPresets: toAmounts(monthlyPresets),
+      presets: presetAmounts,
+      monthlyPresets: monthlyAmounts,
+      defaultAmount: pickDefault(defaultPresetAmount, presetAmounts),
+      defaultMonthlyAmount: pickDefault(
+        defaultMonthlyAmount,
+        monthlyAmounts.length > 0 ? monthlyAmounts : presetAmounts
+      ),
       causeIds,
       allowRecurringDonations: allowRecurring === true,
       addonsEnabled,
       addOnIds: addonsEnabled ? addOnIds : [],
     };
-  }, [addOnIds, addonsEnabled, allowRecurring, causeIds, displayName, feePercent, monthlyPresets, presets]);
+  }, [
+    addOnIds,
+    addonsEnabled,
+    allowRecurring,
+    causeIds,
+    defaultMonthlyAmount,
+    defaultPresetAmount,
+    displayName,
+    feePercent,
+    monthlyPresets,
+    presets,
+  ]);
 
   function touch() {
     setIsDirty(true);
@@ -230,9 +274,11 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
 
       <PresetListEditor
         title="One-time Amounts"
-        hint="The first amount is where the form starts. Add a short description to each one."
+        hint="Choose the amount the form starts on. Add a short description to each one."
         presets={presets}
+        defaultAmount={defaultPresetAmount}
         onChange={setPresets}
+        onDefaultChange={setDefaultPresetAmount}
         onDirty={touch}
         disabled={busy}
       />
@@ -240,10 +286,12 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
       {/* Off hides the amounts: a form that takes no monthly gifts has nowhere to use them. */}
       <PresetListEditor
         title="Monthly Amounts"
-        hint="Optional. These are used when a donor switches the form to monthly."
+        hint="Optional. These are used when a donor switches the form to monthly. Choose the amount monthly starts on."
         amountPlaceholder="Amount / month"
         presets={monthlyPresets}
+        defaultAmount={defaultMonthlyAmount}
         onChange={setMonthlyPresets}
+        onDefaultChange={setDefaultMonthlyAmount}
         onDirty={touch}
         disabled={busy}
         collapsed={!allowRecurring}

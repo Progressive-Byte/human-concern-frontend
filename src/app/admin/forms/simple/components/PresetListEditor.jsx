@@ -27,11 +27,35 @@ function toAmountInput(raw) {
   `collapsed` hides the rows and the Add button, so a section that is switched off can still show its
   title and its switch. `toggle` is a slot for that switch, sitting on the right of the title.
 */
-const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets = [], onChange, onDirty, disabled = false, toggle = null, collapsed = false }) => {
+const PresetListEditor = ({
+  title,
+  hint,
+  amountPlaceholder = "Amount",
+  presets = [],
+  defaultAmount = "",
+  onChange,
+  onDefaultChange,
+  onDirty,
+  disabled = false,
+  toggle = null,
+  collapsed = false,
+}) => {
   const rows = Array.isArray(presets) ? presets : [];
 
   function updateRow(index, patch) {
-    onChange(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+    const next = rows.map((row, i) => (i === index ? { ...row, ...patch } : row));
+    const oldAmount = String(rows[index]?.amount ?? "");
+    const nextAmount = String(next[index]?.amount ?? "");
+
+    /* The default follows its own row when that row's amount is edited. */
+    if (String(defaultAmount) === oldAmount && nextAmount !== oldAmount) {
+      onDefaultChange?.(nextAmount);
+    } else if (!String(defaultAmount).trim() && Number(nextAmount) > 0) {
+      /* A brand-new list takes the first amount typed as its default. */
+      onDefaultChange?.(nextAmount);
+    }
+
+    onChange(next);
     onDirty?.();
   }
 
@@ -43,7 +67,16 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
 
   function removeRow(index) {
     if (rows.length <= 1) return;
-    onChange(rows.filter((_, i) => i !== index));
+
+    const removed = rows[index];
+    const next = rows.filter((_, i) => i !== index);
+
+    /* Removing the default row moves the choice to the new first row. */
+    if (String(defaultAmount) === String(removed?.amount ?? "")) {
+      onDefaultChange?.(next[0]?.amount ?? "");
+    }
+
+    onChange(next);
     onDirty?.();
   }
 
@@ -65,10 +98,16 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
       </div>
 
       <div className="mt-4 space-y-3" hidden={collapsed}>
-        {rows.map((row, index) => (
+        {rows.map((row, index) => {
+          const isDefault =
+            Number(row?.amount) > 0 && String(defaultAmount) === String(row?.amount);
+
+          return (
           <div
             key={index}
-            className="flex flex-col gap-3 rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-3 sm:flex-row sm:items-center"
+            className={`flex flex-col gap-3 rounded-2xl border p-3 sm:flex-row sm:items-center ${
+              isDefault ? "border-[#111827] bg-[#F3F4F6]" : "border-[#E5E7EB] bg-[#F9FAFB]"
+            }`}
           >
             <div className="flex w-full items-center gap-1 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 sm:w-[170px]">
               <span aria-hidden="true" className="text-[13px] font-semibold text-[#6B7280]">
@@ -100,6 +139,23 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
 
             <button
               type="button"
+              onClick={() => {
+                onDefaultChange?.(row?.amount ?? "");
+                onDirty?.();
+              }}
+              disabled={disabled || !(Number(row?.amount) > 0)}
+              aria-pressed={isDefault}
+              className={`cursor-pointer rounded-xl border px-3 py-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:text-[#9CA3AF] ${
+                isDefault
+                  ? "border-[#111827] bg-[#111827] text-white"
+                  : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
+              }`}
+            >
+              {isDefault ? "Default" : "Set default"}
+            </button>
+
+            <button
+              type="button"
               onClick={() => removeRow(index)}
               disabled={disabled || rows.length <= 1}
               className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
@@ -107,7 +163,8 @@ const PresetListEditor = ({ title, hint, amountPlaceholder = "Amount", presets =
               Remove
             </button>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="mt-4" hidden={collapsed}>
