@@ -1,5 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+import { adminHasPermission } from "@/utils/adminPermissions";
+
 function ActionButton({ label, icon, onClick, disabled }) {
   return (
     <button
@@ -87,6 +91,9 @@ function Skeleton() {
 }
 
 const DonorActionsPanel = ({ donor, loading, onSendEmail, onToggleStatus, onEditProfile }) => {
+  const { admin } = useAdminAuth();
+  const canExportData = adminHasPermission(admin, "data.export");
+
   if (loading) return <Skeleton />;
 
   const active = String(donor?.status || "").toLowerCase() === "active";
@@ -100,7 +107,18 @@ const DonorActionsPanel = ({ donor, loading, onSendEmail, onToggleStatus, onEdit
         <ActionButton label="Generate Report" icon={<FileIcon />} disabled />
         <ActionButton label="Edit Profile" icon={<EditIcon />} onClick={onEditProfile} disabled={!onEditProfile} />
         <ActionButton label="Delete Account" icon={<TrashIcon />} disabled />
-        <ActionButton label="Export Data" icon={<DownloadIcon />} disabled />
+
+        {canExportData ? (
+          <Link
+            href="/admin/data-export?tables=donors,guest_donors"
+            className="flex w-full cursor-pointer items-center gap-2 rounded-xl bg-[#F3F4F6] px-4 py-3 text-left text-[13px] font-semibold text-[#111827] transition hover:bg-[#E5E7EB]"
+          >
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-[#111827]">
+              <DownloadIcon />
+            </span>
+            <span className="min-w-0">Export Data</span>
+          </Link>
+        ) : null}
       </div>
     </section>
   );

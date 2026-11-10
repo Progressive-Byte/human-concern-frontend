@@ -253,43 +253,6 @@ const AdminDonorsPage = () => {
     };
   }, [summary, pageRecurringCount]);
 
-  function buildExportCsv() {
-    const header = ["Donor", "Email", "Status", "Total Donated", "Donations", "Last Donation", "Recurring"];
-    const rows = (Array.isArray(items) ? items : []).map((d) => {
-      const recurring = recurringByKey?.[d?.key]?.isRecurring ? "Yes" : "";
-      return [
-        String(d?.name || ""),
-        String(d?.email || ""),
-        String(d?.status || ""),
-        String(Number(d?.totalDonated || 0)),
-        String(Number(d?.donationCount || 0)),
-        String(d?.lastDonationAt || ""),
-        recurring,
-      ];
-    });
-    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const csv = [header.map(esc).join(","), ...rows.map((r) => r.map(esc).join(","))].join("\n");
-    return csv;
-  }
-
-  function downloadCsv() {
-    try {
-      const csv = buildExportCsv();
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `donors-page-${String(filters.page || 1)}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      toast.success("Export started");
-    } catch (e) {
-      toast.error("Export failed");
-    }
-  }
-
   async function confirmToggleStatus() {
     const donor = confirmDonor;
     if (!donor?.key) return;
@@ -326,7 +289,6 @@ const AdminDonorsPage = () => {
           setProfileDonor(null);
           setProfileOpen(true);
         }}
-        onExport={downloadCsv}
       />
 
       {error ? (

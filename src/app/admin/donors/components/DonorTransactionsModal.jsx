@@ -278,9 +278,6 @@ const DonorTransactionsModal = ({ open, donorKey, onClose }) => {
             </div>
           </div>
 
-          <div className="mt-3 text-[12px] text-[#6B7280]">
-            Tip: status filter map to API `status` query param. Export not in API doc; keep off.
-          </div>
         </div>
       </div>
     </div>

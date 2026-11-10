@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AlertIcon } from "@/components/common/SvgIcon";
-import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { formatCurrency } from "@/utils/helpers";
 import { getAdminTransactions, getAdminCampaigns, getAdminForms } from "@/services/admin";
 import DonationsHeader from "./components/DonationsHeader";
@@ -181,15 +180,7 @@ function normalizeDonation(raw) {
   };
 }
 
-function escapeCsvCell(value) {
-  const s = String(value ?? "");
-  if (s.includes('"') || s.includes(",") || s.includes("\n")) return `"${s.replaceAll('"', '""')}"`;
-  return s;
-}
-
 const AdminDonationsPage = () => {
-  const toast = useToast();
-
   const [filters, setFilters] = useState({
     page: "1",
     limit: "20",
@@ -349,81 +340,6 @@ const AdminDonationsPage = () => {
     refreshKey,
   ]);
 
-  function handleExport() {
-    try {
-      const rows = Array.isArray(items) ? items : [];
-      if (rows.length === 0) {
-        toast.info("No rows to export.");
-        return;
-      }
-
-      const header = [
-        "id",
-        "donationId",
-        "donorLabel",
-        "donorEmail",
-        "campaignName",
-        "formName",
-        "source",
-        "causeLabel",
-        "causeType",
-        "amount",
-        "currency",
-        "tipAmount",
-        "fees",
-        "netAmount",
-        "status",
-        "statusLabel",
-        "provider",
-        "providerTransactionId",
-        "reconciled",
-        "createdAt",
-      ];
-
-      const lines = [header.join(",")];
-      for (const d of rows) {
-        lines.push(
-          [
-            d.id,
-            d.donationId,
-            d?.donor?.name,
-            d?.donor?.email,
-            d.campaignName,
-            d.formName,
-            d.source,
-            d.causeLabel,
-            d.causeType,
-            d.amount,
-            d.currency,
-            d.tipAmount,
-            "",
-            "",
-            d.status,
-            d.statusLabel,
-            d.provider,
-            d.providerTransactionId,
-            d.reconciled,
-            d.createdAt,
-          ]
-            .map(escapeCsvCell)
-            .join(",")
-        );
-      }
-
-      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "transactions.csv";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      toast.error(e?.message || "Export failed.");
-    }
-  }
-
   const currency = String(summary?.currency || "USD");
 
   const currentPage = Number(pagination?.page || 1);
@@ -436,11 +352,7 @@ const AdminDonationsPage = () => {
 
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
-      <DonationsHeader
-        onExport={handleExport}
-        onRefresh={refresh}
-        refreshing={loading}
-      />
+      <DonationsHeader onRefresh={refresh} refreshing={loading} />
 
       {error ? (
         <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">

@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AlertIcon } from "@/components/common/SvgIcon";
-import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { formatCurrency } from "@/utils/helpers";
 import { getAdminSchedules } from "@/services/admin";
 import SchedulesHeader from "./components/SchedulesHeader";
@@ -99,15 +98,7 @@ function normalizeScheduleRow(raw) {
   };
 }
 
-function escapeCsvCell(value) {
-  const s = String(value ?? "");
-  if (s.includes('"') || s.includes(",") || s.includes("\n")) return `"${s.replaceAll('"', '""')}"`;
-  return s;
-}
-
 const AdminSchedulesPage = () => {
-  const toast = useToast();
-
   const [filters, setFilters] = useState({
     page: "1",
     limit: "20",
@@ -182,57 +173,12 @@ const AdminSchedulesPage = () => {
 
   const currency = useMemo(() => String(items?.[0]?.currency || "USD"), [items]);
 
-  function handleExport() {
-    try {
-      const rows = Array.isArray(items) ? items : [];
-      if (rows.length === 0) {
-        toast.info("No rows to export.");
-        return;
-      }
-
-      const header = ["donationId", "donorLabel", "donorEmail", "formName", "source", "primaryCauseLabel", "causeType", "frequencyLabel", "installmentAmount", "currency", "nextDueDate", "scheduleStatus"];
-      const lines = [header.join(",")];
-      for (const r of rows) {
-        lines.push(
-          [
-            r.donationId,
-            r?.donor?.label,
-            r?.donor?.email,
-            r.formName,
-            r.source,
-            r.primaryCauseLabel,
-            r.causeType,
-            r.frequencyLabel,
-            r.installmentAmount,
-            r.currency,
-            r.nextDueDate,
-            r.scheduleStatus,
-          ]
-            .map(escapeCsvCell)
-            .join(",")
-        );
-      }
-
-      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "schedules.csv";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      toast.error(e?.message || "Export failed.");
-    }
-  }
-
   const currentPage = Number(pagination?.page || 1);
   const totalPages = Number(pagination?.totalPages || 1);
 
   return (
     <main className="min-w-0 space-y-6 p-4 md:p-6">
-      <SchedulesHeader onExport={handleExport} onRefresh={refresh} refreshing={loading} />
+      <SchedulesHeader onRefresh={refresh} refreshing={loading} />
 
       {error ? (
         <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">

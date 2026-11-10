@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo } from "react";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+import { adminHasPermission } from "@/utils/adminPermissions";
 
 function ActionButton({ children, onClick, disabled, variant = "light" }) {
   const cls =
@@ -23,6 +26,8 @@ function ActionButton({ children, onClick, disabled, variant = "light" }) {
 }
 
 const ScheduleAdminActionsCard = ({ schedule, loading = false, onCancel, cancelLoading = false }) => {
+  const { admin } = useAdminAuth();
+  const canExportData = adminHasPermission(admin, "data.export");
   const status = useMemo(() => String(schedule?.scheduleStatus || "").toLowerCase(), [schedule]);
   const canCancel = status === "active";
 
@@ -53,9 +58,15 @@ const ScheduleAdminActionsCard = ({ schedule, loading = false, onCancel, cancelL
         <ActionButton disabled={!canCancel || loading || cancelLoading} onClick={onCancel} variant="danger">
           {cancelLoading ? "Cancelling..." : "Cancel Schedule"}
         </ActionButton>
-        <ActionButton disabled={true || loading}>
-          Export Data
-        </ActionButton>
+
+        {canExportData ? (
+          <Link
+            href="/admin/data-export?tables=schedule_revisions,transactions,donations"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]"
+          >
+            Export Data
+          </Link>
+        ) : null}
       </div>
     </section>
   );

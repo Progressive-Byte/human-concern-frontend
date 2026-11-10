@@ -573,15 +573,6 @@ export function getAdminFundBreakdown(options = {}) {
   return adminApiRequest(endpoint, { method: "GET" });
 }
 
-// Unpaginated CSV of every row matching the same filters. adminApiRequest returns
-// response.text() for non-JSON content types, so this resolves to the raw CSV string.
-export function exportAdminFundBreakdown(options = {}) {
-  const query = buildFundBreakdownParams(options).toString();
-  const endpoint = query ? `/admin/fund-breakdown/export?${query}` : "/admin/fund-breakdown/export";
-
-  return adminApiRequest(endpoint, { method: "GET" });
-}
-
 export function getAdminSettingsGeneral() {
   return adminApiRequest("/admin/settings/general", { method: "GET" });
 }

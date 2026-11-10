@@ -38,7 +38,7 @@ function RefreshIcon() {
   );
 }
 
-const DonationsHeader = ({ onExport, onRefresh, refreshing = false }) => {
+const DonationsHeader = ({ onRefresh, refreshing = false }) => {
   const { admin } = useAdminAuth();
   const canExportData = adminHasPermission(admin, "data.export");
 
@@ -50,23 +50,12 @@ const DonationsHeader = ({ onExport, onRefresh, refreshing = false }) => {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={onExport}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB] disabled:opacity-60"
-        >
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-[#111827]/5 text-[#111827]">
-            <DownloadIcon />
-          </span>
-          Export
-        </button>
-
         {canExportData ? (
           <Link
             href="/admin/data-export?tables=donations,transactions"
-            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#EA3335]/30 bg-[#EA3335]/5 px-4 py-2.5 text-[13px] font-semibold text-[#EA3335] transition-colors duration-200 hover:bg-[#EA3335]/10"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111827] transition-colors duration-200 hover:bg-[#F9FAFB]"
           >
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-[#EA3335]/10">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-[#111827]/5 text-[#111827]">
               <DownloadIcon />
             </span>
             Data Export
