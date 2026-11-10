@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AlertIcon } from "@/components/common/SvgIcon";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { useAdminAuth } from "@/context/AdminAuthContext";
@@ -73,6 +74,8 @@ const DataExportPageClient = () => {
   const toast = useToast();
   const { admin } = useAdminAuth();
   const canExport = useHasPermission("data.export");
+  /* A page can link here with the tables it already shows, e.g. ?tables=donations,transactions. */
+  const requestedTablesParam = useSearchParams().get("tables") || "";
 
   const [entities, setEntities] = useState([]);
   const [selection, setSelection] = useState({});
@@ -102,7 +105,29 @@ const DataExportPageClient = () => {
         const [entRes] = await Promise.all([getAdminExportEntities(), loadJobs()]);
         if (!alive) return;
         const data = normalizeObj(entRes);
-        setEntities(Array.isArray(data.entities) ? data.entities : []);
+        const list = Array.isArray(data.entities) ? data.entities : [];
+        setEntities(list);
+
+        /* A linked page names its tables; select them with their default columns. */
+        const requested = new Set(
+          requestedTablesParam
+            .split(",")
+            .map((key) => key.trim())
+            .filter(Boolean)
+        );
+
+        if (requested.size > 0) {
+          const next = {};
+          for (const entity of list) {
+            if (!requested.has(entity.key)) continue;
+            const columns =
+              Array.isArray(entity.defaultColumns) && entity.defaultColumns.length > 0
+                ? [...entity.defaultColumns]
+                : entity.columns.slice(0, 5).map((col) => col.key);
+            if (columns.length > 0) next[entity.key] = columns;
+          }
+          setSelection(next);
+        }
       } catch (e) {
         if (alive) setError(e?.message || "Failed to load export tables.");
       } finally {
@@ -112,7 +137,7 @@ const DataExportPageClient = () => {
     return () => {
       alive = false;
     };
-  }, [loadJobs]);
+  }, [loadJobs, requestedTablesParam]);
 
   // Poll while something is still running.
   const hasPending = useMemo(() => jobs.some((j) => j.status === "queued" || j.status === "processing"), [jobs]);

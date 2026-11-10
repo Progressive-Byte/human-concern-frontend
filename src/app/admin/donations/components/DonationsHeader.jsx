@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import AdminHeaderActions from "@/app/admin/components/AdminHeaderActions";
 import { useAdminAuth } from "@/context/AdminAuthContext";
+import { adminHasPermission } from "@/utils/adminPermissions";
 
 function DownloadIcon() {
   return (
@@ -38,6 +40,7 @@ function RefreshIcon() {
 
 const DonationsHeader = ({ onExport, onRefresh, refreshing = false }) => {
   const { admin } = useAdminAuth();
+  const canExportData = adminHasPermission(admin, "data.export");
 
   return (
     <div className="hc-animate-fade-up flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -46,7 +49,7 @@ const DonationsHeader = ({ onExport, onRefresh, refreshing = false }) => {
         <p className="mt-1 text-[14px] text-[#6B7280]">View and manage all donation transactions</p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={onExport}
@@ -57,6 +60,18 @@ const DonationsHeader = ({ onExport, onRefresh, refreshing = false }) => {
           </span>
           Export
         </button>
+
+        {canExportData ? (
+          <Link
+            href="/admin/data-export?tables=donations,transactions"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#EA3335]/30 bg-[#EA3335]/5 px-4 py-2.5 text-[13px] font-semibold text-[#EA3335] transition-colors duration-200 hover:bg-[#EA3335]/10"
+          >
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-[#EA3335]/10">
+              <DownloadIcon />
+            </span>
+            Data Export
+          </Link>
+        ) : null}
 
         <button
           type="button"
