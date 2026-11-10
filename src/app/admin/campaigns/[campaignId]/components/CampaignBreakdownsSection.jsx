@@ -70,16 +70,17 @@ const CampaignBreakdownsSection = ({ data, loading }) => {
 
       <Panel title="Forms" subtitle="Every form of this campaign." loading={loading}>
         {forms.length === 0 ? (
-          <Empty>No donations through this campaign yet.</Empty>
+          <Empty>No forms in this campaign yet.</Empty>
         ) : (
           <div className="hc-table-scroll">
-            <table className="w-full min-w-[720px] border-collapse">
+            <table className="w-full min-w-[900px] border-collapse">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                   <th className="px-5 py-3">Form</th>
+                  <th className="py-3 pr-4">Goal</th>
                   <th className="py-3 pr-4">Donations</th>
                   <th className="py-3 pr-4">Donors</th>
-                  <th className="py-3 pr-4">Total</th>
+                  <th className="py-3 pr-4">Raised</th>
                   <th className="py-3 pr-4">One-time</th>
                   <th className="py-3 pr-5">Recurring</th>
                 </tr>
@@ -88,6 +89,11 @@ const CampaignBreakdownsSection = ({ data, loading }) => {
                 {forms.map((f) => (
                   <tr key={f.formId} className="border-t border-[#F3F4F6] hover:bg-[#F9FAFB]">
                     <td className="px-5 py-3 font-semibold">{f.formName}</td>
+                    <td className="py-3 pr-4 text-[#6B7280]">
+                      {f.goalAmount === null || f.goalAmount === undefined || Number(f.goalAmount) <= 0
+                        ? "No target set"
+                        : formatCurrency(f.goalAmount, currency)}
+                    </td>
                     <td className="py-3 pr-4">{Number(f.donations || 0).toLocaleString()}</td>
                     <td className="py-3 pr-4">{Number(f.donors || 0).toLocaleString()}</td>
                     <td className="py-3 pr-4 font-semibold">{formatCurrency(f.committed, currency)}</td>

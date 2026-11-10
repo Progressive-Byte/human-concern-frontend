@@ -19,6 +19,7 @@ import SimpleFormEditor from "../components/SimpleFormEditor";
 const EMPTY_CONTENT = {
   displayName: "",
   feePercent: null,
+  goalAmount: null,
   presets: [],
   monthlyPresets: [],
   defaultAmount: null,

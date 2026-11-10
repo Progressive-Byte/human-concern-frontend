@@ -40,6 +40,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
 
   const [displayName, setDisplayName] = useState("");
   const [feePercent, setFeePercent] = useState("");
+  const [goalAmount, setGoalAmount] = useState("");
   const [presets, setPresets] = useState(() => toRows([]));
   const [monthlyPresets, setMonthlyPresets] = useState(() => toRows([]));
   const [defaultPresetAmount, setDefaultPresetAmount] = useState("");
@@ -60,6 +61,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     if (!initial) return;
     setDisplayName(String(initial.displayName || ""));
     setFeePercent(initial.feePercent === null || initial.feePercent === undefined ? "" : String(initial.feePercent));
+    setGoalAmount(initial.goalAmount === null || initial.goalAmount === undefined ? "" : String(initial.goalAmount));
 
     const presetRows = toRows(initial.presets);
     const monthlyRows = toRows(initial.monthlyPresets);
@@ -128,6 +130,13 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
       parsedFee = Number.isFinite(value) ? value : null;
     }
 
+    let parsedGoal = null;
+    const rawGoal = String(goalAmount).trim();
+    if (rawGoal !== "") {
+      const value = Number(rawGoal.replace(/,/g, ""));
+      parsedGoal = Number.isFinite(value) && value > 0 ? value : null;
+    }
+
     const presetAmounts = toAmounts(presets);
     const monthlyAmounts = toAmounts(monthlyPresets);
 
@@ -141,6 +150,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     return {
       displayName: name,
       feePercent: parsedFee,
+      goalAmount: parsedGoal,
       presets: presetAmounts,
       monthlyPresets: monthlyAmounts,
       defaultAmount: pickDefault(defaultPresetAmount, presetAmounts),
@@ -162,6 +172,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     defaultPresetAmount,
     displayName,
     feePercent,
+    goalAmount,
     monthlyPresets,
     presets,
   ]);
@@ -271,6 +282,29 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
           </div>
         </section>
       </div>
+
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+        <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Form Goal</h2>
+        <p className="mt-1 text-[13px] text-[#6B7280]">
+          Optional target for this form. It appears in the forms list only.
+        </p>
+        <div className="mt-4 max-w-[260px]">
+          <div className="flex items-center gap-1 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5">
+            <span aria-hidden="true" className="text-[13px] font-semibold text-[#6B7280]">$</span>
+            <input
+              value={goalAmount}
+              inputMode="decimal"
+              disabled={busy}
+              onChange={(e) => {
+                setGoalAmount(e.target.value);
+                touch();
+              }}
+              placeholder="e.g. 10000"
+              className="w-full bg-transparent text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+            />
+          </div>
+        </div>
+      </section>
 
       <PresetListEditor
         title="One-time Amounts"

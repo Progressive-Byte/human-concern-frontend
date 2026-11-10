@@ -1,5 +1,6 @@
 "use client";
 
+import { formatCurrency } from "@/utils/helpers";
 import StatusPill from "./StatusPill";
 import FormsPagination from "./FormsPagination";
 import FormRowActions from "./FormRowActions";
@@ -83,12 +84,14 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
         <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No forms found</div>
       ) : (
         <div className="hc-table-scroll">
-          <table className="min-w-[1200px] w-full border-collapse">
+          <table className="min-w-[1450px] w-full border-collapse">
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                 <th className="px-5 py-3">Form</th>
                 <th className="py-3 pr-4">Status</th>
                 <th className="py-3 pr-4">Type</th>
+                <th className="py-3 pr-4">Goal</th>
+                <th className="py-3 pr-4">Raised</th>
                 <th className="py-3 pr-4">Complete</th>
                 <th className="py-3 pr-4">Fund Code</th>
                 <th className="py-3 pr-4">Designation</th>
@@ -136,6 +139,16 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                       <span className="rounded-xl border border-solid border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-1 text-[11px] font-semibold text-[#111827]">
                         {formKind === "simple" ? "Simple" : "Complex"}
                       </span>
+                    </td>
+                    <td className="py-4 pr-4 align-top">
+                      {item?.goalAmount === null || item?.goalAmount === undefined || Number(item.goalAmount) <= 0 ? (
+                        <span className="text-[#6B7280]">No target set</span>
+                      ) : (
+                        formatCurrency(item.goalAmount, item?.currency || "USD")
+                      )}
+                    </td>
+                    <td className="py-4 pr-4 align-top">
+                      {formatCurrency(item?.raisedAmount || 0, item?.currency || "USD")}
                     </td>
                     <td className="py-4 pr-4 align-top">
                       <div className="flex items-center gap-3">
