@@ -100,7 +100,13 @@ const CampaignsTable = ({
                         ) : null}
                       </div>
                     </td>
-                    <td className="py-4 pr-4 align-top">{formatCurrency(item?.goalAmount || 0, currency)}</td>
+                    <td className="py-4 pr-4 align-top">
+                      {item?.goalAmount === null || item?.goalAmount === undefined || Number(item.goalAmount) <= 0 ? (
+                        <span className="text-[#6B7280]">No target set</span>
+                      ) : (
+                        formatCurrency(item.goalAmount, currency)
+                      )}
+                    </td>
                     <td className="py-4 pr-4 align-top">{formatCurrency(item?.raisedAmount || 0, currency)}</td>
                     <td className="py-4 pr-4 align-top">
                       {showPercent === null || Number.isNaN(showPercent) ? (

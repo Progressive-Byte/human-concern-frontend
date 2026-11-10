@@ -31,8 +31,8 @@ const CampaignSummaryCards = ({ data, loading }) => {
     <section className="hc-kpi-grid">
       <Stat
         label="Goal"
-        value={s.goal === null || s.goal === undefined ? "Open-ended" : money(s.goal)}
-        sub={s.goal === null ? "No target set" : `${s.percentAchieved ?? 0}% achieved`}
+        value={s.goal === null || s.goal === undefined ? "No target set" : money(s.goal)}
+        sub={s.goal === null || s.goal === undefined ? "Campaign goal is optional" : `${s.percentAchieved ?? 0}% achieved`}
       />
       <Stat label="Amount raised" value={money(s.collected)} sub="Payments received" />
       <Stat

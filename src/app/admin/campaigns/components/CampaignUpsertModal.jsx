@@ -15,6 +15,7 @@ const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [goalAmount, setGoalAmount] = useState("");
 
   /**
    * Suggest possibly-duplicate campaigns while the admin types the name.
@@ -85,6 +86,7 @@ const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => 
       setName("");
       setSlug("");
       setDescription("");
+      setGoalAmount("");
       return;
     }
 
@@ -100,6 +102,9 @@ const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => 
         setName(String(d?.name || ""));
         setSlug(String(d?.slug || ""));
         setDescription(String(d?.description || ""));
+        setGoalAmount(
+          d?.goalAmount === null || d?.goalAmount === undefined ? "" : String(d.goalAmount)
+        );
       } catch (e) {
         if (!alive) return;
         setError(e?.message || "Failed to load campaign.");
@@ -127,9 +132,21 @@ const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => 
     e.preventDefault();
     setError("");
 
+    const rawGoal = String(goalAmount || "").trim();
+    let parsedGoal = null;
+    if (rawGoal) {
+      const amount = Number(rawGoal.replace(/,/g, ""));
+      if (!Number.isFinite(amount) || amount <= 0) {
+        setError("Campaign goal must be a positive amount.");
+        return;
+      }
+      parsedGoal = amount;
+    }
+
     const payload = {
       name: String(name || "").trim(),
       description: String(description || "").trim(),
+      goalAmount: parsedGoal,
     };
 
     if (!payload.name) {
@@ -246,6 +263,22 @@ const CampaignUpsertModal = ({ open, mode, campaignId, onClose, onSuccess }) => 
                   />
                 </div>
               ) : null}
+
+              <div>
+                <div className="mb-2 text-[13px] font-semibold text-[#111827]">
+                  Campaign Goal <span className="font-normal text-[#6B7280]">(optional)</span>
+                </div>
+                <input
+                  value={goalAmount}
+                  inputMode="decimal"
+                  onChange={(e) => setGoalAmount(e.target.value)}
+                  className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                  placeholder="e.g. 50000"
+                />
+                <p className="mt-1 text-[12px] text-[#6B7280]">
+                  The target for the whole campaign. Forms keep their own goals.
+                </p>
+              </div>
 
               <div>
                 <div className="mb-2 text-[13px] font-semibold text-[#111827]">Description</div>

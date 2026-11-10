@@ -35,7 +35,11 @@ function MiniList({ title, items, currency, valueKey }) {
 
 const CampaignPerformanceSection = ({ data, loading }) => {
   const currency = data?.currency || "USD";
-  const items = Array.isArray(data?.items) ? data.items.filter((c) => c.committed > 0 || c.donations > 0) : [];
+  const items = Array.isArray(data?.goalItems)
+    ? data.goalItems
+    : Array.isArray(data?.items)
+      ? data.items.filter((c) => c.committed > 0 || c.donations > 0)
+      : [];
   const counts = data?.campaigns || {};
 
   return (
@@ -56,7 +60,10 @@ const CampaignPerformanceSection = ({ data, loading }) => {
 
       <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white">
         <div className="border-b border-[#F3F4F6] px-5 py-4">
-          <h3 className="text-[15px] font-semibold text-[#111827]">Goal vs raised</h3>
+          <h3 className="text-[15px] font-semibold text-[#111827]">
+            Goal vs raised{" "}
+            <span className="ml-1 text-[11px] font-medium text-[#6B7280]">All-time</span>
+          </h3>
         </div>
         {loading ? (
           <div className="space-y-3 px-5 py-4">
@@ -64,7 +71,7 @@ const CampaignPerformanceSection = ({ data, loading }) => {
             <div className="h-10 animate-pulse rounded-lg bg-[#F3F4F6]" />
           </div>
         ) : items.length === 0 ? (
-          <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No campaign donations in this period.</div>
+          <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No campaigns with a goal or donations yet.</div>
         ) : (
           <div className="hc-table-scroll">
             <table className="w-full min-w-[760px] border-collapse">
@@ -82,8 +89,8 @@ const CampaignPerformanceSection = ({ data, loading }) => {
                 {items.map((c, i) => (
                   <tr key={c.campaignId || i} className="border-t border-[#F3F4F6] hover:bg-[#F9FAFB]">
                     <td className="px-5 py-3 align-top font-semibold">{c.campaignName}</td>
-                    <td className="py-3 pr-4 align-top">{formatCurrency(c.committed, currency)}</td>
-                    <td className="py-3 pr-4 align-top text-[#6B7280]">{c.goal > 0 ? formatCurrency(c.goal, currency) : "—"}</td>
+                    <td className="py-3 pr-4 align-top">{formatCurrency(c.lifetimeCommitted ?? c.committed, currency)}</td>
+                    <td className="py-3 pr-4 align-top text-[#6B7280]">{c.goal > 0 ? formatCurrency(c.goal, currency) : "No target set"}</td>
                     <td className="py-3 pr-4 align-top">
                       {c.goalPercent === null || c.goalPercent === undefined ? (
                         <span className="text-[#9CA3AF]">—</span>
@@ -91,8 +98,8 @@ const CampaignPerformanceSection = ({ data, loading }) => {
                         `${c.goalPercent}%`
                       )}
                     </td>
-                    <td className="py-3 pr-4 align-top">{Number(c.donations || 0).toLocaleString()}</td>
-                    <td className="py-3 pr-5 align-top">{Number(c.donors || 0).toLocaleString()}</td>
+                    <td className="py-3 pr-4 align-top">{Number(c.lifetimeDonations ?? c.donations ?? 0).toLocaleString()}</td>
+                    <td className="py-3 pr-5 align-top">{Number(c.lifetimeDonors ?? c.donors ?? 0).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
