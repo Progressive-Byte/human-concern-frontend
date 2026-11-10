@@ -1,5 +1,4 @@
 import AdminHeaderActions from "@/app/admin/components/AdminHeaderActions";
-import DataExportLink from "@/app/admin/components/DataExportLink";
 
 const AdminDashboardHeader = ({ admin }) => {
   return (
@@ -11,8 +10,7 @@ const AdminDashboardHeader = ({ admin }) => {
         <p className="mt-1 text-[14px] text-[#6B7280]">Monitor platform performance and key metrics</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <DataExportLink tables="donations,transactions" />
+      <div className="flex items-center gap-2">
         <AdminHeaderActions admin={admin} />
       </div>
     </div>

@@ -28,7 +28,7 @@ const FundBreakdownHeader = ({ onRefresh, refreshing = false }) => {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <DataExportLink tables="donations,transactions" />
+        <DataExportLink tables="fund_breakdown" />
 
         <button
           type="button"
