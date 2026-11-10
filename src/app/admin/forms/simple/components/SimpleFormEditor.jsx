@@ -10,6 +10,22 @@ import SimpleFormControls from "./SimpleFormControls";
 const MAX_LABEL_LENGTH = 80;
 const MAX_FEE_PERCENT = 20;
 
+/* Keeps typed input numeric: digits with at most one dot and two decimals. */
+function toDecimalInput(raw) {
+  const cleaned = String(raw ?? "").replace(/[^\d.]/g, "");
+  const dot = cleaned.indexOf(".");
+
+  if (dot === -1) return cleaned;
+
+  const whole = cleaned.slice(0, dot) || "0";
+  const decimals = cleaned
+    .slice(dot + 1)
+    .replace(/\./g, "")
+    .slice(0, 2);
+
+  return `${whole}.${decimals}`;
+}
+
 function toRows(list) {
   const rows = Array.isArray(list) ? list : [];
   const source = rows.length > 0 ? rows : [{}];
@@ -272,7 +288,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
                 inputMode="decimal"
                 disabled={busy}
                 onChange={(e) => {
-                  setFeePercent(e.target.value);
+                  setFeePercent(toDecimalInput(e.target.value));
                   touch();
                 }}
                 placeholder={`Percentage (0-${MAX_FEE_PERCENT}, optional)`}
@@ -296,7 +312,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
               inputMode="decimal"
               disabled={busy}
               onChange={(e) => {
-                setGoalAmount(e.target.value);
+                setGoalAmount(toDecimalInput(e.target.value));
                 touch();
               }}
               placeholder="e.g. 10000"
