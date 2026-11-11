@@ -50,7 +50,7 @@ function FundDetailItem({ it, idx, hovered, onHover, currency }) {
         className="font-semibold shrink-0 ml-3 transition-colors"
         style={{ color: isHovered ? style.color : "#111827" }}
       >
-        {formatCurrency(amount, currency)}
+        {formatCurrency(amount, it?.currency || currency)}
       </p>
     </div>
   );

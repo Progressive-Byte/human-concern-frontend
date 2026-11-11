@@ -88,7 +88,6 @@ const DonationsTable = ({
               <th className="px-5 py-3">Reference</th>
               <th className="py-3 pr-4">Donor</th>
               <th className="py-3 pr-4">Campaign</th>
-              <th className="py-3 pr-4">Form</th>
               <th className="py-3 pr-4">Source</th>
               <th className="py-3 pr-4">Cause</th>
               <th className="py-3 pr-4 text-right">Amount</th>
@@ -103,7 +102,7 @@ const DonationsTable = ({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={13} className="px-5 py-10 text-center text-sm text-[#6B7280]">
+                <td colSpan={12} className="px-5 py-10 text-center text-sm text-[#6B7280]">
                   No transactions found.
                 </td>
               </tr>
@@ -154,11 +153,13 @@ const DonationsTable = ({
                       </div>
                     </td>
                     <td className="py-4 pr-4">
-                      <div className="truncate text-[#111827]">{campaignName}</div>
-                      <AddOnList addons={d?.addons} currency={String(d?.currency || currency)} className="mt-1.5" max={2} />
-                    </td>
-                    <td className="py-4 pr-4">
-                      <div className="truncate text-[#111827]">{formName}</div>
+                      <div className="min-w-0">
+                        <div className="truncate text-[#111827]" title={campaignName}>{campaignName}</div>
+                        <div className="mt-0.5 truncate text-[11px] text-[#6B7280]" title={formName}>
+                          {formName && formName !== "—" ? `From: ${formName}` : "—"}
+                        </div>
+                        <AddOnList addons={d?.addons} currency={String(d?.currency || currency)} className="mt-1.5" max={2} />
+                      </div>
                     </td>
                     <td className="py-4 pr-4">
                       <SourceBadge source={d?.source} />
