@@ -18,7 +18,7 @@ const FundPerformanceSection = ({ data, loading }) => {
         <div>
           <h2 className="text-[18px] font-semibold text-[#111827]">Cause code &amp; designation performance</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
-            Designations come from the donation&apos;s form. A cause code with several designations is split equally.
+            A designation is shown only when a payment line records one. Gift lines without a designation are left unassigned, never split.
           </p>
         </div>
         <div className="text-[13px] text-[#6B7280]">
