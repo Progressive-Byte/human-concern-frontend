@@ -5,26 +5,6 @@ import { apiBase } from "@/utils/constants";
 // Each function returns the parsed response from the backend and is responsible for building the request URL + query params.
 
 // -----------------------------
-// Dashboard
-// -----------------------------
-export function getAdminDashboardOverview({ currency, activeLimit } = {}) {
-  const params = new URLSearchParams();
-
-  if (typeof currency === "string" && currency.trim()) {
-    params.set("currency", currency.trim());
-  }
-
-  if (activeLimit !== undefined && activeLimit !== null && String(activeLimit).trim()) {
-    params.set("activeLimit", String(activeLimit).trim());
-  }
-
-  const query = params.toString();
-  const endpoint = query ? `/admin/dashboard/overview?${query}` : "/admin/dashboard/overview";
-
-  return adminApiRequest(endpoint, { method: "GET" });
-}
-
-// -----------------------------
 // Campaigns
 // -----------------------------
 export function getAdminCampaigns({ page, limit, sort, order, q, status, options } = {}) {
