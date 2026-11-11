@@ -23,7 +23,7 @@ const FundBreakdownHeader = ({ onRefresh, refreshing = false }) => {
       <div>
         <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">Fund Breakdown</h1>
         <p className="mt-1 text-[14px] text-[#6B7280]">
-          Donations received, grouped by the fund code of the cause each payment was allocated to
+          Donations received, grouped by the cause code each payment was allocated to
         </p>
       </div>
 

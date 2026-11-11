@@ -373,7 +373,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
             <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Add-ons</h2>
             <p className="mt-1 max-w-[60ch] text-[13px] text-[#6B7280]">
               Optional extras shown beside the amount. Pick them from the platform&apos;s add-ons;
-              their price and fund code stay there, so nothing is typed twice.
+              their price and cause code stay there, so nothing is typed twice.
             </p>
           </div>
 

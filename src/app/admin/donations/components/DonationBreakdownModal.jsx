@@ -127,11 +127,11 @@ const DonationBreakdownModal = ({ donation, onClose, formatAmount }) => {
           )}
 
           <div className="mt-5">
-            <div className={sectionTitleClass}>Fund codes</div>
+            <div className={sectionTitleClass}>Cause codes</div>
             <table className="mt-2 w-full table-fixed border-collapse">
               <thead>
                 <tr>
-                  <th className={`${thClass} w-[28%]`}>Fund code</th>
+                  <th className={`${thClass} w-[28%]`}>Cause code</th>
                   <th className={thClass}>Cause</th>
                   <th className={`${thRightClass} w-[24%]`}>Amount</th>
                 </tr>

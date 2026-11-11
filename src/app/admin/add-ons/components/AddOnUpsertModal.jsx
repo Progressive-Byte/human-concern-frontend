@@ -338,7 +338,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
       return;
     }
     if (!payload.fundCode) {
-      setError("Fund code is required.");
+      setError("Cause code is required.");
       return;
     }
 
@@ -464,13 +464,13 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
                 add-on will post to. Editing it later never changes past donations. */}
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div>
-                <div className="mb-2 text-[13px] font-semibold text-[#111827]">Fund Code</div>
+                <div className="mb-2 text-[13px] font-semibold text-[#111827]">Cause Code</div>
                 <select
                   value={fundCode}
                   onChange={(e) => setFundCode(e.target.value)}
                   className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 >
-                  <option value="">Select a fund code…</option>
+                  <option value="">Select a cause code…</option>
                   {fundOptions.map((code) => (
                     <option key={code} value={code}>
                       {code}
@@ -482,7 +482,7 @@ const AddOnUpsertModal = ({ open, mode, addOn, onClose, onSuccess }) => {
                   ) : null}
                 </select>
                 <div className="mt-1 text-[12px] text-[#6B7280]">
-                  From the fund codes defined on Causes. Cannot change per form.
+                  From the cause codes defined on Causes. Cannot change per form.
                 </div>
               </div>
               <div>

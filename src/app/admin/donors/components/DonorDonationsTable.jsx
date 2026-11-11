@@ -142,7 +142,7 @@ const DonorReceiptsTable = ({ donations, loading, onViewAll }) => {
                             <table className="mt-2 min-w-full text-left">
                               <thead>
                                 <tr className="text-[11px] uppercase tracking-wide text-[#9CA3AF]">
-                                  <th className="py-1.5 pr-4 font-semibold">Fund code</th>
+                                  <th className="py-1.5 pr-4 font-semibold">Cause code</th>
                                   <th className="py-1.5 pr-4 font-semibold">Designation</th>
                                   <th className="py-1.5 pr-4 font-semibold">Description</th>
                                   <th className="py-1.5 font-semibold">Amount</th>

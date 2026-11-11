@@ -101,7 +101,7 @@ const ReportFilterBar = ({ filters, options, onChange, onReset }) => {
 
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Select label="Fundraising campaign" value={filters.campaignId} onChange={set("campaignId")} options={campaignOptions} />
-        <Select label="Fund code" value={filters.fundCode} onChange={set("fundCode")} options={fundOptions} />
+        <Select label="Cause code" value={filters.fundCode} onChange={set("fundCode")} options={fundOptions} />
         <Select label="Designation" value={filters.designationId} onChange={set("designationId")} options={designationOptions} />
         <Select label="Donation type" value={filters.donationType} onChange={set("donationType")} options={DONATION_TYPES} />
       </div>

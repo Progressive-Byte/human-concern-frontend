@@ -224,7 +224,7 @@ const CauseUpsertModal = ({ open, mode, cause, onClose, onSuccess }) => {
       return;
     }
     if (!payload.fundCode) {
-      setError("Fund code is required.");
+      setError("Cause code is required.");
       return;
     }
     if (!payload.description) {
@@ -296,7 +296,7 @@ const CauseUpsertModal = ({ open, mode, cause, onClose, onSuccess }) => {
             </div>
 
             <div>
-              <div className="mb-2 text-[13px] font-semibold text-[#111827]">Fund Code</div>
+              <div className="mb-2 text-[13px] font-semibold text-[#111827]">Cause Code</div>
               <input
                 value={fundCode}
                 onChange={(e) => setFundCode(e.target.value)}

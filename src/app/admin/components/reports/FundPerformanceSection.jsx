@@ -16,9 +16,9 @@ const FundPerformanceSection = ({ data, loading }) => {
     <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-[18px] font-semibold text-[#111827]">Fund code &amp; designation performance</h2>
+          <h2 className="text-[18px] font-semibold text-[#111827]">Cause code &amp; designation performance</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
-            Designations come from the donation&apos;s form. A fund with several designations is split equally.
+            Designations come from the donation&apos;s form. A cause code with several designations is split equally.
           </p>
         </div>
         <div className="text-[13px] text-[#6B7280]">
@@ -41,7 +41,7 @@ const FundPerformanceSection = ({ data, loading }) => {
             <table className="w-full min-w-[900px] border-collapse">
               <thead>
                 <tr className="text-left text-[12px] font-medium text-[#6B7280]">
-                  <th className="px-5 py-3">Fund code</th>
+                  <th className="px-5 py-3">Cause code</th>
                   <th className="py-3 pr-4">Fund / cause</th>
                   <th className="py-3 pr-4">Donations</th>
                   <th className="py-3 pr-4">Total</th>

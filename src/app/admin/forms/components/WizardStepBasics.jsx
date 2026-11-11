@@ -522,7 +522,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         setTopError(msg);
 
         const nextErrors = {};
-        if (String(msg).includes("FUND_CODE_IN_USE")) nextErrors["internal.fundCode"] = "Fund code already in use";
+        if (String(msg).includes("FUND_CODE_IN_USE")) nextErrors["internal.fundCode"] = "Cause code already in use";
         if (String(msg).includes("BENEFICIARY_ID_IN_USE")) nextErrors["internal.beneficiaryId"] = "Beneficiary id already in use";
         if (String(msg).includes("FORM_NOT_EDITABLE")) setTopError("Form can’t be edited (not draft).");
         if (Object.keys(nextErrors).length) setFieldErrors(nextErrors);
@@ -617,7 +617,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
           {isInternalFieldVisible("fundCode") ? (
             <div>
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-                Fund Code <span className="text-red-600">*</span>
+                Cause Code <span className="text-red-600">*</span>
               </div>
               <input
                 value={fundCode}

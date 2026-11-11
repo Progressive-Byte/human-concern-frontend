@@ -60,7 +60,7 @@ const FundBreakdownTable = ({
         >
           <option value="amount:desc">Amount (high → low)</option>
           <option value="amount:asc">Amount (low → high)</option>
-          <option value="fundCode:asc">Fund code (A → Z)</option>
+          <option value="fundCode:asc">Cause code (A → Z)</option>
           <option value="payments:desc">Payments (high → low)</option>
           <option value="lastPaymentAt:desc">Last payment (newest)</option>
         </select>
@@ -72,7 +72,7 @@ const FundBreakdownTable = ({
         <table className="w-full min-w-250 border-collapse text-[13px] text-[#111827]">
           <thead>
             <tr className="text-left text-[12px] font-medium text-[#6B7280]">
-              <th className="px-5 py-3">Fund Code</th>
+              <th className="px-5 py-3">Cause Code</th>
               <th className="py-3 pr-4">Currency</th>
               <th className="py-3 pr-4 text-right">Amount</th>
               <th className="py-3 pr-4 text-right">Payments</th>

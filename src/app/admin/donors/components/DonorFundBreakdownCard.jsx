@@ -24,7 +24,7 @@ const DonorFundBreakdownCard = ({ breakdown, loading }) => {
   return (
     <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
-        <div className="text-[18px] font-semibold text-[#111827]">Fund Code Breakdown</div>
+        <div className="text-[18px] font-semibold text-[#111827]">Cause Code Breakdown</div>
         <div className="text-[12px] text-[#6B7280]">{formatCurrency(total)}</div>
       </div>
       <div className="border-t border-[#F3F4F6]" />
@@ -42,7 +42,7 @@ const DonorFundBreakdownCard = ({ breakdown, loading }) => {
               >
                 <div className="min-w-0">
                   <div className="truncate text-[13px] font-semibold text-[#111827]">
-                    {row.fundCode ? `Fund ${row.fundCode}` : "Unassigned"}
+                    {row.fundCode ? `Cause ${row.fundCode}` : "Unassigned"}
                   </div>
                   <div className="mt-1 truncate text-[12px] text-[#6B7280]">
                     {causeNames || `${row.payments || 0} payments`}

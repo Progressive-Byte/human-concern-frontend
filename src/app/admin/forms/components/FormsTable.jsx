@@ -93,7 +93,7 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                 <th className="py-3 pr-4">Goal</th>
                 <th className="py-3 pr-4">Raised</th>
                 <th className="py-3 pr-4">Complete</th>
-                <th className="py-3 pr-4">Fund Code</th>
+                <th className="py-3 pr-4">Cause Code</th>
                 <th className="py-3 pr-4">Designation</th>
                 <th className="py-3 pr-4">Published</th>
                 <th className="py-3 pr-5 text-right">Actions</th>
