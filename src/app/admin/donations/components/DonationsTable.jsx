@@ -24,6 +24,20 @@ function shortTransactionId(id) {
   return `#${tail}`;
 }
 
+// Cause names for one row. Prefer the payment's own allocations (one per cause) so a multi-cause
+// gift lists each name; fall back to the single joined label when allocations are missing.
+function causeNamesFor(row) {
+  const fromAllocations = (Array.isArray(row?.causeAllocations) ? row.causeAllocations : [])
+    .filter((a) => a && !a.isAddOn && String(a.label || "").trim())
+    .map((a) => String(a.label).trim());
+  const unique = Array.from(new Set(fromAllocations));
+  if (unique.length) return unique;
+
+  const fallback = String(row?.causeLabel || "").trim();
+  if (!fallback || fallback === "—") return [];
+  return Array.from(new Set(fallback.split(",").map((name) => name.trim()).filter(Boolean)));
+}
+
 function Skeleton() {
   return (
     <div className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
@@ -100,7 +114,7 @@ const DonationsTable = ({
                 const donorEmail = String(d?.donor?.email || "");
                 const campaignName = String(d?.campaignName || "—");
                 const formName = String(d?.formName || "—");
-                const cause = String(d?.causeLabel || "—");
+                const causeNames = causeNamesFor(d);
                 const amount = Number(d?.amount || 0);
                 const tip = Number(d?.tipAmount || 0);
                 // Processor fee/net are recorded when the payment settles; "—" until then.
@@ -150,9 +164,23 @@ const DonationsTable = ({
                       <SourceBadge source={d?.source} />
                     </td>
                     <td className="py-4 pr-4">
-                      <span className="inline-flex rounded-full bg-[#F3F4F6] px-3 py-1 text-[11px] font-semibold text-[#6B7280]">
-                        {cause}
-                      </span>
+                      {causeNames.length === 0 ? (
+                        <span className="text-[#9CA3AF]">—</span>
+                      ) : (
+                        <div
+                          className="flex max-w-[220px] items-center gap-1.5"
+                          title={causeNames.join(", ")}
+                        >
+                          <span className="min-w-0 truncate whitespace-nowrap rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-semibold text-[#6B7280]">
+                            {causeNames[0]}
+                          </span>
+                          {causeNames.length > 1 ? (
+                            <span className="shrink-0 whitespace-nowrap rounded-full bg-[#E5E7EB] px-2 py-1 text-[11px] font-semibold text-[#4B5563]">
+                              +{causeNames.length - 1}
+                            </span>
+                          ) : null}
+                        </div>
+                      )}
                     </td>
                     <td className="py-4 pr-4 text-right font-semibold">
                       <button

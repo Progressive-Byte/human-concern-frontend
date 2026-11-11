@@ -18,7 +18,7 @@ export function SourceBadge({ source = "" }) {
   if (!label) return <span className="text-[#9CA3AF]">—</span>;
 
   return (
-    <span className="inline-flex rounded-full bg-[#F3F4F6] px-3 py-1 text-[11px] font-semibold text-[#6B7280]">
+    <span className="inline-flex whitespace-nowrap rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-semibold text-[#6B7280]">
       {label}
     </span>
   );
