@@ -24,7 +24,7 @@ const FundBreakdownCard = ({ loading, items, currency }) => (
             <div className="h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-500 bg-[#EA3335]"
-                style={{ width: `${f.percent}%` }}
+                style={{ width: `${Number(f.percentOfTotal ?? f.percent ?? 0)}%` }}
               />
             </div>
           </div>
