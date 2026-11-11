@@ -79,7 +79,7 @@ const DashboardPage = () => {
     const nextCurrency = nextPayment?.currency || currency;
     const nextDue = nextPayment?.dueDate || "";
     return [
-      { label: "Total Donated",    value: formatCurrency(totalDonated, currency),                           hint: "Lifetime contributions",                                icon: DollarIcon,   accent: "#EA3335", bgColor: "#FFF5F5", borderColor: "#FECACA" },
+      { label: "Total Donated",    value: formatCurrency(totalDonated, currency),                           hint: "Collected payments",                                    icon: DollarIcon,   accent: "#EA3335", bgColor: "#FFF5F5", borderColor: "#FECACA" },
       { label: "Active Schedules", value: String(activeSchedules),                                          hint: "Recurring donations",                                   icon: CalendarIcon, accent: "#B45309", bgColor: "#FFF6EC", borderColor: "#FFE7CC" },
       { label: "Next Payment",     value: nextPayment ? formatCurrency(nextAmount, nextCurrency) : "—",     hint: nextPayment ? formatShortDate(nextDue) : "No upcoming payment", icon: ClockIcon, accent: "#EA3335", bgColor: "#FFF5F5", borderColor: "#FFCCCC" },
     ];
