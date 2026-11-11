@@ -59,7 +59,7 @@ const AdminLayout = ({ children }) => {
                   </div>
                 </div>
 
-                <div className="min-w-0 flex-1 overflow-y-auto">{children}</div>
+                <div data-admin-scroll className="relative min-w-0 flex-1 overflow-y-auto">{children}</div>
               </div>
             </div>
           </div>
