@@ -50,7 +50,7 @@ const DonorCausesCard = ({ causes, loading, onViewAll }) => {
                     <div className="truncate text-[13px] font-semibold text-[#111827]">{name}</div>
                     <div className="mt-1 text-[12px] text-[#6B7280]">{donationCount} donations</div>
                   </div>
-                  <div className="shrink-0 text-[13px] font-semibold text-[#111827]">{formatCurrency(totalDonated)}</div>
+                  <div className="shrink-0 text-[13px] font-semibold text-[#111827]">{formatCurrency(totalDonated, item?.currency || "USD")}</div>
                 </div>
               );
             })}

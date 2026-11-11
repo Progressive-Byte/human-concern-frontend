@@ -19,7 +19,7 @@ function BreakdownList({ title, rows, emptyText, idKey }) {
                   {row.donationCount || 0} donations · {row.payments || 0} payments
                 </div>
               </div>
-              <div className="shrink-0 text-[13px] font-semibold text-[#111827]">{formatCurrency(row.amount)}</div>
+              <div className="shrink-0 text-[13px] font-semibold text-[#111827]">{formatCurrency(row.amount, row.currency || "USD")}</div>
             </div>
           ))}
         </div>

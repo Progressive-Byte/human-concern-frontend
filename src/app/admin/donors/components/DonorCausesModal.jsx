@@ -109,7 +109,7 @@ const DonorCausesModal = ({ open, donorKey, onClose }) => {
               </div>
               <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-4 py-3">
                 <div className="text-[12px] text-[#6B7280]">Total Donated</div>
-                <div className="mt-1 text-[18px] font-semibold text-[#111827]">{formatCurrency(Number(summary?.totalDonated || 0))}</div>
+                <div className="mt-1 text-[18px] font-semibold text-[#111827]">{formatCurrency(Number(summary?.totalDonated || 0), summary?.currency || "USD")}</div>
               </div>
               <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-4 py-3">
                 <div className="text-[12px] text-[#6B7280]">Total Donations</div>
@@ -148,7 +148,7 @@ const DonorCausesModal = ({ open, donorKey, onClose }) => {
                     return (
                       <tr key={`${causeName}-${idx}`} className="border-t border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors duration-200">
                         <td className="px-5 py-4">{causeName}</td>
-                        <td className="py-4 pr-4 font-semibold">{formatCurrency(total)}</td>
+                        <td className="py-4 pr-4 font-semibold">{formatCurrency(total, c?.currency || "USD")}</td>
                         <td className="py-4 pr-4 text-[#6B7280]">{count}</td>
                       </tr>
                     );

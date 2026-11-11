@@ -25,7 +25,7 @@ const DonorFundBreakdownCard = ({ breakdown, loading }) => {
     <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="text-[18px] font-semibold text-[#111827]">Cause Code Breakdown</div>
-        <div className="text-[12px] text-[#6B7280]">{formatCurrency(total)}</div>
+        <div className="text-[12px] text-[#6B7280]">{formatCurrency(total, "USD")}</div>
       </div>
       <div className="border-t border-[#F3F4F6]" />
 
@@ -49,7 +49,7 @@ const DonorFundBreakdownCard = ({ breakdown, loading }) => {
                   </div>
                 </div>
                 <div className="shrink-0 text-right">
-                  <div className="text-[13px] font-semibold text-[#111827]">{formatCurrency(row.amount)}</div>
+                  <div className="text-[13px] font-semibold text-[#111827]">{formatCurrency(row.amount, row.currency || "USD")}</div>
                   <div className="mt-1 text-[12px] text-[#6B7280]">{row.payments || 0} payments</div>
                 </div>
               </div>
