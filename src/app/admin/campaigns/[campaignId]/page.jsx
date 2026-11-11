@@ -301,7 +301,7 @@ const AdminCampaignDetailsPage = ({ params }) => {
           <FundPerformanceSection
             data={{
               currency: report.currency,
-              total: report.summary?.committed || 0,
+              total: report.fundsTotal || 0,
               items: report.funds || [],
             }}
             loading={reportLoading}

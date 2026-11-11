@@ -22,7 +22,7 @@ const FundPerformanceSection = ({ data, loading }) => {
           </p>
         </div>
         <div className="text-[13px] text-[#6B7280]">
-          Total committed:{" "}
+          Total received:{" "}
           <span className="font-semibold text-[#111827]">{formatCurrency(data?.total || 0, currency)}</span>
         </div>
       </div>
