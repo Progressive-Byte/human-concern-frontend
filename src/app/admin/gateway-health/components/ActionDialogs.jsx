@@ -95,32 +95,31 @@ export function ForceCloseDialog({ open, row = null, onClose, onConfirm, loading
   return (
     <ModalShell
       open={open}
-      title="Force Close Circuit"
-      subtitle={row ? `Block traffic for ${row.provider} (${String(row.confId || "").slice(-8) || row.confId}) immediately.` : ""}
+      title="Allow this gateway"
+      subtitle={row ? `Send donations to ${row.provider} (${String(row.confId || "").slice(-8) || row.confId}) again and reset its counters.` : ""}
       onClose={loading ? undefined : onClose}
       footer={
         <FooterButtons
-          cancelLabel="Keep Open"
-          confirmLabel="Force Close"
-          confirmingLabel="Closing…"
+          cancelLabel="Cancel"
+          confirmLabel="Allow gateway"
+          confirmingLabel="Allowing…"
           confirming={loading}
           error={error}
-          danger
           onCancel={onClose}
           onConfirm={() => onConfirm?.({ adminNotes: notes })}
         />
       }
     >
-      <div className="rounded-xl border border-solid border-red-200 bg-red-50 p-3 text-[13px] text-red-700">
-        All transactions routed to this configuration will fail with a circuit-blocked error until manually re-opened or auto-expired.
+      <div className="rounded-xl border border-solid border-emerald-200 bg-emerald-50 p-3 text-[13px] text-emerald-700">
+        Donations will be routed to this gateway again. Its failure counters are reset.
       </div>
       <AdminNotesTextarea value={notes} onChange={setNotes} disabled={loading} />
     </ModalShell>
   );
 }
 
-const OPEN_DURATION_OPTIONS = [
-  { label: "Persistent (until closed)", valueMs: 0 },
+const BLOCK_DURATION_OPTIONS = [
+  { label: "Until I allow it", valueMs: 0 },
   { label: "15 minutes", valueMs: 15 * 60 * 1000 },
   { label: "1 hour (default)", valueMs: 60 * 60 * 1000 },
   { label: "24 hours", valueMs: 24 * 60 * 60 * 1000 },
@@ -133,30 +132,34 @@ export function ForceOpenDialog({ open, row = null, onClose, onConfirm, loading 
   return (
     <ModalShell
       open={open}
-      title="Force Open Circuit"
-      subtitle={row ? `Override breaker for ${row.provider} and allow traffic through.` : ""}
+      title="Block this gateway"
+      subtitle={row ? `Stop sending donations to ${row.provider} (${String(row.confId || "").slice(-8) || row.confId}) immediately.` : ""}
       onClose={loading ? undefined : onClose}
       footer={
         <FooterButtons
           cancelLabel="Cancel"
-          confirmLabel="Force Open"
-          confirmingLabel="Opening…"
+          confirmLabel="Block gateway"
+          confirmingLabel="Blocking…"
           confirming={loading}
           error={error}
+          danger
           onCancel={onClose}
           onConfirm={() => onConfirm?.({ openDurationMs: durationMs, adminNotes: notes })}
         />
       }
     >
+      <div className="rounded-xl border border-solid border-red-200 bg-red-50 p-3 text-[13px] text-red-700">
+        Donations routed to this gateway will fail until you allow it again or the block expires.
+      </div>
       <div>
-        <label className="block text-[13px] font-medium text-[#374151] mb-1.5">Open Duration</label>
+        <label className="block text-[13px] font-medium text-[#374151] mb-1.5">Block for</label>
         <select
           value={String(durationMs)}
           onChange={(e) => setDurationMs(Number(e.target.value))}
           disabled={loading}
           className="w-full rounded-xl border border-[#E5E7EB] bg-white py-2.5 px-3 text-[13px] text-[#111827] focus:outline-none focus:border-[#111827]/30 disabled:opacity-60"
         >
-          {OPEN_DURATION_OPTIONS.map((o) => (
+          {BLOCK_DURATION_OPTIONS.map((o) => (
             <option key={o.valueMs} value={o.valueMs}>{o.label}</option>
           ))}
         </select>
@@ -342,13 +345,13 @@ export function BulkPauseDialog({ open, provider = "", onClose, onConfirm, loadi
   return (
     <ModalShell
       open={open}
-      title="Bulk Pause Provider"
-      subtitle={`Pause all configurations for ${provider || "this provider"} across all jurisdictions.`}
+      title="Pause this provider"
+      subtitle={`Block all configurations for ${provider || "this provider"} across all jurisdictions.`}
       onClose={loading ? undefined : onClose}
       footer={
         <FooterButtons
           cancelLabel="Cancel"
-          confirmLabel="Pause All"
+          confirmLabel="Pause all"
           confirmingLabel="Pausing…"
           confirming={loading}
           error={error}
@@ -359,7 +362,7 @@ export function BulkPauseDialog({ open, provider = "", onClose, onConfirm, loadi
       }
     >
       <div className="rounded-xl border border-solid border-red-200 bg-red-50 p-3 text-[13px] text-red-700">
-        This will force-close every active circuit for the provider. Use for incidents, migrations, or scheduled maintenance.
+        Every active gateway for this provider will be blocked. Use for incidents, migrations, or scheduled maintenance.
       </div>
       <AdminNotesTextarea value={notes} onChange={setNotes} disabled={loading} />
     </ModalShell>
@@ -372,13 +375,13 @@ export function BulkResumeDialog({ open, provider = "", onClose, onConfirm, load
   return (
     <ModalShell
       open={open}
-      title="Bulk Resume Provider"
+      title="Resume this provider"
       subtitle={`Return all ${provider || "provider"} configurations to normal auto-tracking.`}
       onClose={loading ? undefined : onClose}
       footer={
         <FooterButtons
           cancelLabel="Cancel"
-          confirmLabel="Resume All"
+          confirmLabel="Resume all"
           confirmingLabel="Resuming…"
           confirming={loading}
           error={error}
@@ -387,8 +390,8 @@ export function BulkResumeDialog({ open, provider = "", onClose, onConfirm, load
         />
       }
     >
-      <div className="rounded-xl border border-solid border-sky-200 bg-sky-50 p-3 text-[13px] text-sky-800">
-        Force-open overrides will be lifted. Circuits will resume to TRACKING and re-arm breakers naturally.
+      <div className="rounded-xl border border-solid border-emerald-200 bg-emerald-50 p-3 text-[13px] text-emerald-700">
+        All blocks will be lifted. Gateways return to normal tracking and re-arm the breaker naturally.
       </div>
       <AdminNotesTextarea value={notes} onChange={setNotes} disabled={loading} />
     </ModalShell>
@@ -399,8 +402,8 @@ export function SweepConfirmDialog({ open, onClose, onConfirm, loading = false, 
   return (
     <ModalShell
       open={open}
-      title="Sweep Expired Open Overrides"
-      subtitle="Remove any force-open circuits whose duration has elapsed."
+      title="End expired blocks"
+      subtitle="End any block whose time has already passed."
       onClose={loading ? undefined : onClose}
       footer={
         <FooterButtons

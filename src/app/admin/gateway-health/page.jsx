@@ -66,11 +66,11 @@ function remapOverviewRow(rawRow) {
   if (docsClosedSet.has(rawCircuit)) circuitStatus = "CLOSED";
   else if (docsHalfOpenSet.has(rawCircuit)) circuitStatus = "HALF_OPEN";
   else if (docsOpenSet.has(rawCircuit)) {
-    if (["FORCE_CLOSED", "MANUAL_FORCE_CLOSE", "BULK_PAUSE"].includes(rawCircuit) ||
-        ["manual_force_close", "bulk_pause"].includes(String(r.lastTripReason ?? r.tripReason ?? "").toLowerCase())) {
+    if (["FORCE_CLOSED", "MANUAL_FORCE_CLOSE", "BULK_RESUME"].includes(rawCircuit) ||
+        ["manual_force_close", "bulk_resume"].includes(String(r.lastTripReason ?? r.tripReason ?? "").toLowerCase())) {
       circuitStatus = hasManualOverride ? "FORCE_CLOSED" : "CLOSED";
-    } else if (["FORCE_OPEN", "MANUAL_FORCE_OPEN", "BULK_RESUME"].includes(rawCircuit) ||
-               ["manual_force_open", "bulk_resume"].includes(String(r.lastTripReason ?? r.tripReason ?? "").toLowerCase())) {
+    } else if (["FORCE_OPEN", "MANUAL_FORCE_OPEN", "BULK_PAUSE"].includes(rawCircuit) ||
+               ["manual_force_open", "bulk_pause"].includes(String(r.lastTripReason ?? r.tripReason ?? "").toLowerCase())) {
       circuitStatus = hasManualOverride ? "FORCE_OPEN" : "OPEN";
     } else {
       circuitStatus = "OPEN";
@@ -716,7 +716,7 @@ const AdminGatewayHealthPage = () => {
     setGenericError((s) => ({ ...s, forceClose: "" }));
     try {
       await forceCloseCircuit({ provider: row.provider, confId: row.confId, adminNotes: payload.adminNotes });
-      toast.success("Circuit force-closed.");
+      toast.success("Gateway allowed.");
       setActionDialogs((s) => ({ ...s, forceClose: { ...s.forceClose, open: false, row: null } }));
       refresh();
     } catch (e) {
@@ -738,7 +738,7 @@ const AdminGatewayHealthPage = () => {
         openDurationMs: payload.openDurationMs,
         adminNotes: payload.adminNotes,
       });
-      toast.success("Circuit force-opened.");
+      toast.success("Gateway blocked.");
       setActionDialogs((s) => ({ ...s, forceOpen: { ...s.forceOpen, open: false, row: null } }));
       refresh();
     } catch (e) {

@@ -46,9 +46,9 @@ function tripReasonLabel(reason, forceOpenExpiresAt) {
   else if (key.includes("consecutive_5xx") || key.includes("5xx"))
     pill = <span className="inline-flex rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-semibold text-orange-800">Consecutive 5xx</span>;
   else if (key.includes("manual") && key.includes("force_open"))
-    pill = <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold text-sky-800">Manual Open</span>;
+    pill = <span className="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-700">Blocked manually</span>;
   else if (key.includes("manual") || key.includes("force_close"))
-    pill = <span className="inline-flex rounded-full bg-purple-50 px-2.5 py-1 text-[11px] font-semibold text-purple-700">Manual Close</span>;
+    pill = <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">Allowed manually</span>;
   else if (key.includes("bulk_pause") || key.includes("bulk"))
     pill = <span className="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">Bulk Pause</span>;
   else pill = <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-700">{r}</span>;
@@ -57,7 +57,7 @@ function tripReasonLabel(reason, forceOpenExpiresAt) {
   return (
     <div className="space-y-1">
       {pill}
-      <div className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700" title={`Force-open expires at ${String(forceOpenExpiresAt)}`}>
+      <div className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700" title={`Block ends ${String(forceOpenExpiresAt)}`}>
         <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none">
           <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
           <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -332,7 +332,7 @@ const GatewayHealthTable = ({
                       <div className="space-y-1">
                         <OrchestrationStatusBadge type="circuit" value={circuitStatus} />
                         {circuitStatus === "FORCE_OPEN" && forceOpenExpiresAt ? (
-                          <div className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700" title={`Force-open expires at ${String(forceOpenExpiresAt)}`}>
+                          <div className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700" title={`Block ends ${String(forceOpenExpiresAt)}`}>
                             <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none">
                               <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
                               <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -341,7 +341,7 @@ const GatewayHealthTable = ({
                           </div>
                         ) : null}
                         {circuitStatus === "FORCE_CLOSED" && row?.overrideMeta?.trippedAt ? (
-                          <div className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-700" title={`Force-closed at ${String(row.overrideMeta.trippedAt)}`}>
+                          <div className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-700" title={`Allowed at ${String(row.overrideMeta.trippedAt)}`}>
                             <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none">
                               <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
                               <path d="M8.5 8.5l7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

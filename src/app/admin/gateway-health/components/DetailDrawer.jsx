@@ -296,7 +296,7 @@ const DetailDrawer = ({ open, row = null, onClose, loading = false, detail = nul
               ) : null}
               {forceOpenExpiresAt ? (
                 <div className="col-span-2">
-                  <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Force-Open Expires</dt>
+                  <dt className="text-[#6B7280] text-[11px] uppercase tracking-wide">Block ends</dt>
                   <dd className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-[12px] font-semibold text-sky-800">
                     <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none">
                       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />

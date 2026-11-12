@@ -148,10 +148,10 @@ const GatewayRowActions = ({ row, onViewDetail, onForceClose, onForceOpen, onCan
               onForceOpen?.(row);
             }}
             disabled={!canOpen}
-            className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left text-[13px] text-sky-700 transition hover:bg-[#F0F9FF] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left text-[13px] text-red-700 transition hover:bg-[#FEF2F2] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <OpenIcon />
-            Force Open
+            <BlockIcon />
+            Block this gateway
           </button>
           <button
             type="button"
@@ -160,10 +160,10 @@ const GatewayRowActions = ({ row, onViewDetail, onForceClose, onForceOpen, onCan
               onForceClose?.(row);
             }}
             disabled={!canClose}
-            className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left text-[13px] text-red-700 transition hover:bg-[#FEF2F2] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left text-[13px] text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <BlockIcon />
-            Force Close
+            <OpenIcon />
+            Allow this gateway
           </button>
           <div className="border-t border-[#F3F4F6]" />
           <button
