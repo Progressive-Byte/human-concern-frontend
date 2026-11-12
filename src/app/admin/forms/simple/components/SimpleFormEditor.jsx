@@ -60,6 +60,8 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   const [displayName, setDisplayName] = useState("");
   const [currencies, setCurrencies] = useState(["USD"]);
   const [feePercent, setFeePercent] = useState("");
+  const [feeMinPercent, setFeeMinPercent] = useState("");
+  const [feeMaxPercent, setFeeMaxPercent] = useState("");
   const [goalAmount, setGoalAmount] = useState("");
   const [presets, setPresets] = useState(() => toRows([]));
   const [monthlyPresets, setMonthlyPresets] = useState(() => toRows([]));
@@ -86,6 +88,8 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
         : ["USD"]
     );
     setFeePercent(initial.feePercent === null || initial.feePercent === undefined ? "" : String(initial.feePercent));
+    setFeeMinPercent(initial.feeMinPercent === null || initial.feeMinPercent === undefined ? "" : String(initial.feeMinPercent));
+    setFeeMaxPercent(initial.feeMaxPercent === null || initial.feeMaxPercent === undefined ? "" : String(initial.feeMaxPercent));
     setGoalAmount(initial.goalAmount === null || initial.goalAmount === undefined ? "" : String(initial.goalAmount));
 
     const presetRows = toRows(initial.presets);
@@ -148,12 +152,15 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
         }))
         .filter((row) => Number.isFinite(row.amount) && row.amount > 0);
 
-    let parsedFee = null;
-    const rawFee = String(feePercent).trim();
-    if (rawFee !== "") {
-      const value = Number(rawFee);
-      parsedFee = Number.isFinite(value) ? value : null;
-    }
+    const parsePercent = (raw) => {
+      const value = String(raw ?? "").trim();
+      if (value === "") return null;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+    const parsedFee = parsePercent(feePercent);
+    const parsedFeeMin = parsePercent(feeMinPercent);
+    const parsedFeeMax = parsePercent(feeMaxPercent);
 
     let parsedGoal = null;
     const rawGoal = String(goalAmount).trim();
@@ -176,6 +183,8 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
       displayName: name,
       currency: currencies,
       feePercent: parsedFee,
+      feeMinPercent: parsedFeeMin,
+      feeMaxPercent: parsedFeeMax,
       goalAmount: parsedGoal,
       presets: presetAmounts,
       monthlyPresets: monthlyAmounts,
@@ -198,6 +207,8 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     defaultMonthlyAmount,
     defaultPresetAmount,
     displayName,
+    feeMaxPercent,
+    feeMinPercent,
     feePercent,
     goalAmount,
     monthlyPresets,
@@ -302,23 +313,53 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
         <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Platform Fee</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
-            The percentage shown on the form&apos;s fee slider.
+            The fee slider. The donor can pick a percent between Min and Max, and Default is where
+            it starts. Leave all three empty to show no slider.
           </p>
 
-          <div className="mt-4">
-            <div className="rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5">
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <label className="block">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">Min %</span>
               <input
-                value={feePercent}
-                inputMode="decimal"
+                value={feeMinPercent}
+                inputMode="numeric"
                 disabled={busy}
                 onChange={(e) => {
-                  setFeePercent(toDecimalInput(e.target.value));
+                  setFeeMinPercent(e.target.value.replace(/[^\d.]/g, ""));
                   touch();
                 }}
-                placeholder={`Percentage (0-${MAX_FEE_PERCENT}, optional)`}
-                className="w-full bg-transparent text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+                placeholder="0"
+                className="mt-1 w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
               />
-            </div>
+            </label>
+            <label className="block">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">Max %</span>
+              <input
+                value={feeMaxPercent}
+                inputMode="numeric"
+                disabled={busy}
+                onChange={(e) => {
+                  setFeeMaxPercent(e.target.value.replace(/[^\d.]/g, ""));
+                  touch();
+                }}
+                placeholder={`0-${MAX_FEE_PERCENT}`}
+                className="mt-1 w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+              />
+            </label>
+            <label className="block">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">Default %</span>
+              <input
+                value={feePercent}
+                inputMode="numeric"
+                disabled={busy}
+                onChange={(e) => {
+                  setFeePercent(e.target.value.replace(/[^\d.]/g, ""));
+                  touch();
+                }}
+                placeholder="Start"
+                className="mt-1 w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+              />
+            </label>
           </div>
         </section>
       </div>
