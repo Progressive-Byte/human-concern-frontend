@@ -118,7 +118,17 @@ const Step3Payment = () => {
     if (!tipSettings || tipWasRestored.current || tipTouched.current) return;
     const pct = Number(tipSettings.defaultPercent);
     if (!Number.isFinite(pct)) return;
-    setTipPct(Math.min(15, Math.max(0, Math.round(pct))));
+    const min = Number.isFinite(Number(tipSettings.minPercent)) ? Number(tipSettings.minPercent) : 0;
+    const max = Number.isFinite(Number(tipSettings.maxPercent)) ? Number(tipSettings.maxPercent) : 15;
+    setTipPct(Math.min(max, Math.max(min, Math.round(pct))));
+  }, [tipSettings]);
+
+  // Keep whatever percentage is already in state inside the admin's range.
+  useEffect(() => {
+    if (!tipSettings) return;
+    const min = Number.isFinite(Number(tipSettings.minPercent)) ? Number(tipSettings.minPercent) : 0;
+    const max = Number.isFinite(Number(tipSettings.maxPercent)) ? Number(tipSettings.maxPercent) : 15;
+    setTipPct((prev) => Math.min(max, Math.max(min, prev)));
   }, [tipSettings]);
 
   const handleTipPctChange = (next) => {
@@ -389,6 +399,8 @@ const Step3Payment = () => {
             setCustomTipAmount={setCustomTipAmount}
             label={tipSettings?.label}
             description={tipSettings?.description}
+            minPercent={tipSettings?.minPercent}
+            maxPercent={tipSettings?.maxPercent}
           />
         )}
 

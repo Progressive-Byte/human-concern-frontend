@@ -193,8 +193,46 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
         </div>
       </SettingsSectionCard>
 
-      <SettingsSectionCard icon={<TipIcon />} title="Tipping" subtitle="Customize the tip text and the default percentage shown to donors">
+      <SettingsSectionCard icon={<TipIcon />} title="Tipping" subtitle="The tip slider's range, its starting percent, and the text donors see">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Field label="Min Tip %">
+            <TextInput
+              type="number"
+              min={0}
+              max={15}
+              step={1}
+              value={organization.tipMinPercent ?? 0}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const next = raw === "" ? 0 : Math.min(15, Math.max(0, Math.round(Number(raw))));
+                onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), tipMinPercent: next } }));
+              }}
+              disabled={loading}
+            />
+            <p className="mt-1.5 text-[12px] text-[#6B7280]">
+              The donor cannot go below this.
+            </p>
+          </Field>
+
+          <Field label="Max Tip %">
+            <TextInput
+              type="number"
+              min={0}
+              max={15}
+              step={1}
+              value={organization.tipMaxPercent ?? 15}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const next = raw === "" ? 0 : Math.min(15, Math.max(0, Math.round(Number(raw))));
+                onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), tipMaxPercent: next } }));
+              }}
+              disabled={loading}
+            />
+            <p className="mt-1.5 text-[12px] text-[#6B7280]">
+              The donor cannot go above this.
+            </p>
+          </Field>
+
           <Field label="Default Tip %">
             <TextInput
               type="number"
@@ -210,7 +248,7 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
               disabled={loading}
             />
             <p className="mt-1.5 text-[12px] text-[#6B7280]">
-              Pre-selected on the donation form. Donors can still slide down to 0%.
+              Where the slider starts. Must sit between Min and Max.
             </p>
           </Field>
 

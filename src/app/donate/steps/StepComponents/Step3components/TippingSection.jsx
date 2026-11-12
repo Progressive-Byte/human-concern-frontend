@@ -3,9 +3,6 @@
 import { useDonation } from "@/context/DonationContext";
 import { useBranding } from "@/context/BrandingContext";
 
-const TIP_PERCENTAGES = [0, 5, 10, 15];
-const SLIDER_MAX      = 15;
-
 // Fallbacks so a failed settings fetch looks exactly like the admin defaults.
 const DEFAULT_TIP_LABEL       = "Platform Support Fees";
 const DEFAULT_TIP_DESCRIPTION = "Voluntary support for organization fees for platform maintenance and well being";
@@ -19,9 +16,21 @@ const TippingSection = ({
   setCustomTipAmount,
   label,
   description,
+  minPercent = 0,
+  maxPercent = 15,
 }) => {
   const { update } = useDonation();
   const { primaryColor } = useBranding();
+
+  /* The admin sets the slider's range; the donor can never move outside it. */
+  const minPct = Math.max(0, Math.min(100, Number(minPercent) || 0));
+  const maxPct = Math.max(minPct + 1, Math.min(100, Number(maxPercent) || 15));
+  const sliderValue = Math.min(maxPct, Math.max(minPct, Number(tipPct) || 0));
+  const tickValues = [0, 5, 10, 15].filter((tick) => tick >= minPct && tick <= maxPct);
+  if (!tickValues.includes(minPct)) tickValues.unshift(minPct);
+  if (!tickValues.includes(maxPct)) tickValues.push(maxPct);
+  const scaleTicks = Array.from(new Set(tickValues)).sort((a, b) => a - b);
+  const fillPercent = ((sliderValue - minPct) / (maxPct - minPct)) * 100;
 
   const customTipParsed = customTipAmount !== "" ? Math.max(0, Number(customTipAmount) || 0) : null;
   const tipAmount       = customTipParsed !== null
@@ -61,28 +70,28 @@ const TippingSection = ({
       <div className={`transition-opacity ${customTipParsed !== null ? "opacity-40 pointer-events-none select-none" : ""}`}>
         <input
           type="range"
-          min={0}
-          max={SLIDER_MAX}
+          min={minPct}
+          max={maxPct}
           step={1}
-          value={tipPct}
+          value={sliderValue}
           onChange={handleSliderChange}
           className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#EA3335]"
           style={{
-            background: `linear-gradient(to right, ${primaryColor} ${(tipPct / SLIDER_MAX) * 100}%, #E5E5E5 ${(tipPct / SLIDER_MAX) * 100}%)`,
+            background: `linear-gradient(to right, ${primaryColor} ${fillPercent}%, #E5E5E5 ${fillPercent}%)`,
           }}
         />
         <div className="flex justify-between mt-2">
-          {TIP_PERCENTAGES.map((pct) => (
+          {scaleTicks.map((pct) => (
             <span
               key={pct}
-              className={`text-[11px] font-medium transition-colors ${tipPct === pct ? "text-[#EA3335]" : "text-[#AEAEAE]"}`}
+              className={`text-[11px] font-medium transition-colors ${sliderValue === pct ? "text-[#EA3335]" : "text-[#AEAEAE]"}`}
             >
               {pct}%
             </span>
           ))}
         </div>
         <p className="text-[11px] text-[#AEAEAE] mt-2">
-          {tipPct}% of base donation ({sym}{Number(baseDonation.toFixed(2))})
+          {sliderValue}% of base donation ({sym}{Number(baseDonation.toFixed(2))})
         </p>
       </div>
 
