@@ -10,6 +10,9 @@ import SimpleFormControls from "./SimpleFormControls";
 const MAX_LABEL_LENGTH = 80;
 const MAX_FEE_PERCENT = 20;
 
+/* The currencies an admin can offer. The first ticked one is the base for every amount. */
+const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "CAD", "AUD", "CHF", "SEK", "NOK", "DKK"];
+
 /* Keeps typed input numeric: digits with at most one dot and two decimals. */
 function toDecimalInput(raw) {
   const cleaned = String(raw ?? "").replace(/[^\d.]/g, "");
@@ -55,6 +58,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   const guard = useFormEditorGuard();
 
   const [displayName, setDisplayName] = useState("");
+  const [currencies, setCurrencies] = useState(["USD"]);
   const [feePercent, setFeePercent] = useState("");
   const [goalAmount, setGoalAmount] = useState("");
   const [presets, setPresets] = useState(() => toRows([]));
@@ -76,6 +80,11 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   useEffect(() => {
     if (!initial) return;
     setDisplayName(String(initial.displayName || ""));
+    setCurrencies(
+      Array.isArray(initial.currency) && initial.currency.length
+        ? initial.currency.map((code) => String(code).toUpperCase())
+        : ["USD"]
+    );
     setFeePercent(initial.feePercent === null || initial.feePercent === undefined ? "" : String(initial.feePercent));
     setGoalAmount(initial.goalAmount === null || initial.goalAmount === undefined ? "" : String(initial.goalAmount));
 
@@ -165,6 +174,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
 
     return {
       displayName: name,
+      currency: currencies,
       feePercent: parsedFee,
       goalAmount: parsedGoal,
       presets: presetAmounts,
@@ -184,6 +194,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     addonsEnabled,
     allowRecurring,
     causeIds,
+    currencies,
     defaultMonthlyAmount,
     defaultPresetAmount,
     displayName,
@@ -196,6 +207,19 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   function touch() {
     setIsDirty(true);
     guard?.markDirty?.();
+  }
+
+  /* At least one currency stays ticked; the first one in the list is the base. */
+  function toggleCurrency(code) {
+    setCurrencies((prev) => {
+      const list = Array.isArray(prev) ? prev : [];
+      if (list.includes(code)) {
+        const next = list.filter((item) => item !== code);
+        return next.length ? next : ["USD"];
+      }
+      return [...list, code];
+    });
+    touch();
   }
 
   // Lets the unsaved-changes dialog save the draft before letting the admin leave.
@@ -306,7 +330,9 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
         </p>
         <div className="mt-4 max-w-[260px]">
           <div className="flex items-center gap-1 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5">
-            <span aria-hidden="true" className="text-[13px] font-semibold text-[#6B7280]">$</span>
+            <span aria-hidden="true" className="text-[12px] font-semibold text-[#6B7280]">
+              {currencies[0] || "USD"}
+            </span>
             <input
               value={goalAmount}
               inputMode="decimal"
@@ -319,6 +345,40 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
               className="w-full bg-transparent text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
             />
           </div>
+        </div>
+      </section>
+
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+        <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Currencies</h2>
+        <p className="mt-1 text-[13px] text-[#6B7280]">
+          Tick every currency this form offers. The first one is the base. The amounts below are
+          entered in the base currency and converted for the others using your saved rates.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {CURRENCY_OPTIONS.map((code) => {
+            const checked = currencies.includes(code);
+            return (
+              <label
+                key={code}
+                className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-[13px] transition-colors ${
+                  checked ? "border-[#EA3335] text-[#EA3335]" : "border-[#E5E7EB] text-[#111827]"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  disabled={busy}
+                  onChange={() => toggleCurrency(code)}
+                  className="size-4 cursor-pointer"
+                  style={{ accentColor: "#EA3335" }}
+                />
+                {code}
+                {currencies[0] === code ? (
+                  <span className="text-[11px] font-normal text-[#6B7280]">base</span>
+                ) : null}
+              </label>
+            );
+          })}
         </div>
       </section>
 
