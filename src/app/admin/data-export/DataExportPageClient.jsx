@@ -12,7 +12,10 @@ import {
   getAdminExportJobs,
   downloadAdminExport,
   deleteAdminExport,
+  getAdminCampaigns,
+  getAdminForms,
 } from "@/services/admin";
+import MultiSelectFilter from "@/app/admin/fund-breakdown/components/MultiSelectFilter";
 
 function useHasPermission(perm) {
   try {
@@ -38,6 +41,15 @@ function normalizeObj(res) {
   if (res?.data && typeof res.data === "object" && !Array.isArray(res.data)) return res.data;
   if (res?.data?.data && typeof res.data.data === "object" && !Array.isArray(res.data.data)) return res.data.data;
   return res && typeof res === "object" ? res : {};
+}
+
+function normalizeItems(res) {
+  const r = res || {};
+  if (Array.isArray(r?.data?.items)) return r.data.items;
+  if (Array.isArray(r?.data?.data?.items)) return r.data.data.items;
+  if (Array.isArray(r?.items)) return r.items;
+  if (Array.isArray(r?.data)) return r.data;
+  return [];
 }
 
 const FORMATS = [
@@ -87,6 +99,9 @@ const DataExportPageClient = () => {
   const [deletingId, setDeletingId] = useState("");
   const [expanded, setExpanded] = useState({});
   const [error, setError] = useState("");
+  /* Tables that let the admin pick rows (Campaigns, Campaign Forms). */
+  const [rowOptions, setRowOptions] = useState({});
+  const [rowSelection, setRowSelection] = useState({});
 
   const loadJobs = useCallback(async () => {
     try {
@@ -142,6 +157,42 @@ const DataExportPageClient = () => {
     };
   }, [loadJobs, requestedTablesParam]);
 
+  /* Load the campaign and form lists once, for the row pickers. */
+  useEffect(() => {
+    const keys = entities.filter((e) => e.selectableRows).map((e) => e.key);
+    if (!keys.length) return undefined;
+
+    let alive = true;
+    (async () => {
+      try {
+        const [campaignRes, formRes] = await Promise.all([
+          keys.includes("campaigns") ? getAdminCampaigns({ page: "1", limit: "500" }) : null,
+          keys.includes("campaign_forms") ? getAdminForms({ page: "1", limit: "500" }) : null,
+        ]);
+        if (!alive) return;
+
+        const next = {};
+        if (campaignRes) {
+          next.campaigns = normalizeItems(campaignRes)
+            .map((c) => ({ value: String(c?.id || c?._id || ""), label: String(c?.name || "Untitled campaign") }))
+            .filter((option) => option.value);
+        }
+        if (formRes) {
+          next.campaign_forms = normalizeItems(formRes)
+            .map((f) => ({ value: String(f?.id || f?._id || ""), label: String(f?.name || "Untitled form") }))
+            .filter((option) => option.value);
+        }
+        setRowOptions(next);
+      } catch {
+        /* Leave the picker empty; the export still covers every row. */
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [entities]);
+
   // Poll while something is still running.
   const hasPending = useMemo(() => jobs.some((j) => j.status === "queued" || j.status === "processing"), [jobs]);
   useEffect(() => {
@@ -183,6 +234,8 @@ const DataExportPageClient = () => {
   }
 
   function toggleTable(entity) {
+    const wasSelected = Array.isArray(selection[entity.key]) && selection[entity.key].length > 0;
+
     setSelection((prev) => {
       const next = { ...prev };
       if (Array.isArray(next[entity.key]) && next[entity.key].length) {
@@ -195,6 +248,16 @@ const DataExportPageClient = () => {
       }
       return next;
     });
+
+    /* Turning a table off also forgets the rows picked for it. */
+    if (wasSelected) {
+      setRowSelection((prev) => {
+        if (!(entity.key in prev)) return prev;
+        const next = { ...prev };
+        delete next[entity.key];
+        return next;
+      });
+    }
   }
 
   function toggleColumn(entity, columnKey) {
@@ -227,7 +290,10 @@ const DataExportPageClient = () => {
     try {
       await createAdminExportJob({
         format,
-        tables: selectedTables.map(([key, columns]) => ({ key, columns })),
+        tables: selectedTables.map(([key, columns]) => {
+          const ids = rowSelection[key] || [];
+          return { key, columns, ...(ids.length ? { ids } : {}) };
+        }),
       });
       toast.success("Export queued — it will appear below when ready");
       await loadJobs();
@@ -299,7 +365,8 @@ const DataExportPageClient = () => {
         <section className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
           <div className="text-[16px] font-semibold text-[#111827]">1. Tables &amp; columns</div>
           <div className="mt-1 text-[12px] text-[#6B7280]">
-            Only business data is available. Sensitive fields are never listed.
+            Only business data is available. Sensitive fields are never listed. For Campaigns and
+            Campaign Forms you can pick exact rows.
           </div>
 
           {loading ? (
@@ -369,6 +436,25 @@ const DataExportPageClient = () => {
                         {open ? "Hide columns" : "Columns"}
                       </span>
                     </div>
+
+                    {isSelected && entity.selectableRows ? (
+                      <div className="border-t border-[#F3F4F6] px-3 py-2.5">
+                        <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">
+                          Rows to export
+                        </div>
+                        <MultiSelectFilter
+                          options={rowOptions[entity.key] || []}
+                          value={rowSelection[entity.key] || []}
+                          onChange={(ids) =>
+                            setRowSelection((prev) => ({ ...prev, [entity.key]: ids }))
+                          }
+                          placeholder={entity.key === "campaigns" ? "All campaigns" : "All forms"}
+                        />
+                        <p className="mt-1.5 text-[11px] text-[#6B7280]">
+                          Leave empty to export every row.
+                        </p>
+                      </div>
+                    ) : null}
 
                     {open ? (
                       <div className="border-t border-[#F3F4F6] p-3">
@@ -481,6 +567,7 @@ const DataExportPageClient = () => {
                         {(job.tables || []).map((t) => (
                           <span key={t.key} className="rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[11px] font-semibold text-[#6B7280]">
                             {t.label} · {t.rowCount || 0}{t.truncated ? " (capped)" : ""}
+                            {t.selected ? ` · ${t.selected} selected` : ""}
                           </span>
                         ))}
                       </div>
