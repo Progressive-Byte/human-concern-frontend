@@ -57,12 +57,13 @@ const CampaignsTable = ({
         <div className="px-5 py-10 text-center text-sm text-[#6B7280]">No campaigns found</div>
       ) : (
         <div className="hc-table-scroll">
-          <table className="min-w-[1150px] w-full border-collapse">
+          <table className="min-w-[1250px] w-full border-collapse">
             <thead>
               <tr className="text-left text-[12px] font-medium text-[#6B7280]">
                 <th className="px-5 py-3">Campaign</th>
                 <th className="py-3 pr-4">Status</th>
                 <th className="py-3 pr-4">Goal</th>
+                <th className="py-3 pr-4">Form Goal</th>
                 <th className="py-3 pr-4">Raised</th>
                 <th className="py-3 pr-4">Progress</th>
                 <th className="py-3 pr-4">Donors</th>
@@ -105,6 +106,13 @@ const CampaignsTable = ({
                         <span className="text-[#6B7280]">No target set</span>
                       ) : (
                         formatCurrency(item.goalAmount, currency)
+                      )}
+                    </td>
+                    <td className="py-4 pr-4 align-top">
+                      {item?.formGoal === null || item?.formGoal === undefined || Number(item.formGoal) <= 0 ? (
+                        <span className="text-[#6B7280]">No target set</span>
+                      ) : (
+                        formatCurrency(item.formGoal, currency)
                       )}
                     </td>
                     <td className="py-4 pr-4 align-top">{formatCurrency(item?.raisedAmount || 0, currency)}</td>
