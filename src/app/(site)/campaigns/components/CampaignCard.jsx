@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { apiBase, siteUrl } from "@/utils/constants";
+import { stripHtml } from "@/utils/richText";
 
 let brandingLogoUrlCache = null;
 let brandingLogoLoaded = false;
@@ -150,7 +151,7 @@ const CampaignCard = ({ campaign }) => {
         </h3>
 
         <p className="text-[#383838] pt-2 font-normal text-sm sm:text-[15px] leading-relaxed" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-          {campaign.description}
+          {stripHtml(campaign.description)}
         </p>
 
         {/* Progress bar — hidden by "Show Progress Bar" */}

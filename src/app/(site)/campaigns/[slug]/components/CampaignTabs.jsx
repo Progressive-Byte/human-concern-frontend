@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CircleCheckIcon } from "@/components/common/SvgIcon";
+import { sanitizeHtml } from "@/utils/richText";
 
 const TABS = ["About", "Updates", "Donors"];
 
@@ -31,9 +32,10 @@ const CampaignTabs = ({ campaign }) => {
       {activeTab === "About" && (
         <div className="space-y-6 sm:space-y-8">
           {campaign.description && (
-            <p className="text-[15px] sm:text-[17px] text-[#383838] leading-relaxed">
-              {campaign.description}
-            </p>
+            <div
+              className="hc-rich-text text-[15px] sm:text-[17px] text-[#383838] leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(campaign.description) }}
+            />
           )}
 
           {campaign.objectives?.length > 0 && (

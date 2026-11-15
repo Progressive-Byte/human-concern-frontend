@@ -162,6 +162,36 @@
     margin: 0.15rem 0;
   }
 
+  /* The same marks, when the saved description is shown on the public campaign page. */
+  .hc-rich-text p {
+    margin: 0 0 0.75rem;
+  }
+
+  .hc-rich-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .hc-rich-text ul {
+    list-style: disc;
+    padding-left: 1.4rem;
+    margin: 0.5rem 0;
+  }
+
+  .hc-rich-text ol {
+    list-style: decimal;
+    padding-left: 1.4rem;
+    margin: 0.5rem 0;
+  }
+
+  .hc-rich-text li {
+    margin: 0.2rem 0;
+  }
+
+  .hc-rich-text a {
+    color: #ea3335;
+    text-decoration: underline;
+  }
+
   /* Stat cards sit in one row on wide screens. Wrapping them by a minimum width keeps long money
      values inside the card instead of squeezing the card until the value spills over the next. */
   .hc-kpi-grid {
