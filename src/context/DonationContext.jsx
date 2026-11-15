@@ -21,7 +21,7 @@ const initialState = {
   zakatEligible: false,
   submitted: false,
   progressPercent: 0,
-  marketingConsent: false,
+  marketingConsent: true,
   pendingSessionId: null,
   setupIntentId: null,
   finalizedDonationId: null,

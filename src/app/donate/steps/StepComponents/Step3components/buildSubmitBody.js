@@ -157,7 +157,7 @@ export function buildSubmitBody({
     ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
     paymentMethod: gateway,
     ...(data.anonymous && { isAnonymous: true }),
-    marketingConsent: Boolean(data.marketingConsent),
+    marketingConsent: data.marketingConsent !== false,
     ...buildNoteAnswers({ data, campaignMeta }),
     addons: {
       items: (data.addOnBreakdown ?? []).map((addon) => ({

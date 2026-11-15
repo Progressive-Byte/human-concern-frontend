@@ -4,7 +4,7 @@ import { useDonation } from "@/context/DonationContext";
 
 const MarketingConsent = () => {
   const { data, update } = useDonation();
-  const checked = Boolean(data.marketingConsent);
+  const checked = data.marketingConsent !== false;
 
   return (
     <label className="flex items-start gap-2.5 cursor-pointer select-none">
