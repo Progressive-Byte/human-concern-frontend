@@ -6,6 +6,7 @@ import { getAdminAddOns } from "@/services/admin";
 import PresetListEditor from "./PresetListEditor";
 import PurposePicker from "./PurposePicker";
 import SimpleFormControls from "./SimpleFormControls";
+import CustomNotesEditor from "../../components/goalsDates/CustomNotesEditor";
 
 const MAX_LABEL_LENGTH = 80;
 const MAX_FEE_PERCENT = 20;
@@ -71,6 +72,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   const [allowRecurring, setAllowRecurring] = useState(false);
   const [addonsEnabled, setAddonsEnabled] = useState(false);
   const [addOnIds, setAddOnIds] = useState([]);
+  const [customNotes, setCustomNotes] = useState([]);
   const [availableAddOns, setAvailableAddOns] = useState([]);
   const [addOnsLoading, setAddOnsLoading] = useState(true);
   const [addOnsError, setAddOnsError] = useState("");
@@ -113,6 +115,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     setAllowRecurring(initial.allowRecurringDonations === true);
     setAddonsEnabled(initial.addonsEnabled === true);
     setAddOnIds((Array.isArray(initial.addOnIds) ? initial.addOnIds : []).map((id) => String(id)));
+    setCustomNotes(Array.isArray(initial.customNotes) ? initial.customNotes : []);
     setIsDirty(false);
   }, [initial]);
 
@@ -197,6 +200,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
       allowRecurringDonations: allowRecurring === true,
       addonsEnabled,
       addOnIds: addonsEnabled ? addOnIds : [],
+      customNotes,
     };
   }, [
     addOnIds,
@@ -204,6 +208,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     allowRecurring,
     causeIds,
     currencies,
+    customNotes,
     defaultMonthlyAmount,
     defaultPresetAmount,
     displayName,
@@ -555,6 +560,16 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
           </div>
         ) : null}
       </section>
+
+      <CustomNotesEditor
+        title="Custom Fields"
+        value={customNotes}
+        onChange={(next) => {
+          setCustomNotes(next);
+          touch();
+        }}
+        disabled={busy}
+      />
 
       {/* Bottom of the page, the same place the advanced form puts its actions. */}
       <div className="sticky bottom-0 z-10">

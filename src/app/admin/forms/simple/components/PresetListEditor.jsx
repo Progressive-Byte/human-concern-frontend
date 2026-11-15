@@ -105,9 +105,7 @@ const PresetListEditor = ({
           return (
           <div
             key={index}
-            className={`flex flex-col gap-3 rounded-2xl border p-3 sm:flex-row sm:items-center ${
-              isDefault ? "border-[#111827] bg-[#F3F4F6]" : "border-[#E5E7EB] bg-[#F9FAFB]"
-            }`}
+            className="flex flex-col gap-3 rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-3 sm:flex-row sm:items-center"
           >
             <div className="flex w-full items-center gap-1 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2.5 sm:w-[170px]">
               <span aria-hidden="true" className="text-[13px] font-semibold text-[#6B7280]">

@@ -50,7 +50,7 @@ function CheckField({ label, checked, onChange, disabled }) {
 const INPUT_CLASS =
   "w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60";
 
-const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonClassName = "" }) => {
+const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonClassName = "", title = "Custom Notes" }) => {
   const notes = Array.isArray(value) ? value : [];
   const [advancedOpen, setAdvancedOpen] = useState({});
 
@@ -100,7 +100,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
   return (
     <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
       <div className="mb-4">
-        <h3 className="text-[14px] font-semibold text-[#111827]">Custom Notes</h3>
+        <h3 className="text-[14px] font-semibold text-[#111827]">{title}</h3>
         <p className="mt-1 text-[13px] text-[#6B7280]">
           Extra questions asked at checkout. Give it a label, pick an answer type, and you&apos;re done.
         </p>
