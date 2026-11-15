@@ -126,7 +126,9 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
     }
 
     const { errors, payload } = validate();
-    if (Object.keys(errors).length) {
+
+    /* Save Draft and autosave keep what is filled in. Only Next asks for the required fields. */
+    if (goNext && Object.keys(errors).length) {
       setFieldErrors(errors);
       if (!silent) toast.error("Fix the highlighted fields");
       return { ok: false, error: "Fix the highlighted fields" };
