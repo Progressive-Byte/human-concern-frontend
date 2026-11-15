@@ -458,22 +458,21 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     });
   }
 
-  async function save({ silent = false } = {}) {
+  async function save({ goNext = false, silent = false } = {}) {
     if (!silent) {
       setTopError("");
       setFieldErrors({});
     }
 
     const { errors, payload } = validate();
-    if (Object.keys(errors).length) {
-      // Highlight even on autosave: the guard surfaces "Fix the highlighted fields", so the
-      // fields must actually be marked or the message is meaningless.
+
+    /* Save Draft keeps whatever is filled in. Only Next asks for the required fields. */
+    if (goNext && Object.keys(errors).length) {
       setFieldErrors(errors);
       if (!silent) toast.error("Fix the highlighted fields");
       return { ok: false, error: "Fix the highlighted fields" };
     }
 
-    // Valid again — drop highlights left over from an earlier failed attempt.
     setFieldErrors({});
 
     if (!campaignId) {
@@ -552,7 +551,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   }
 
   async function handleNext() {
-    const res = await save();
+    const res = await save({ goNext: true });
     if (!res.ok) return;
     const nextFormId = String(res.formId || formId || "").trim();
     toast.success("Basics complete");

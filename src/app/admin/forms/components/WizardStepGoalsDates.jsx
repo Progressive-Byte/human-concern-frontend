@@ -728,7 +728,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     return { errors, payload, suggErrors, presetsErrors, notesErrors };
   }
 
-  async function save({ goNext, silent = false } = { goNext: false }) {
+  async function save({ goNext = false, silent = false } = {}) {
     if (!silent) {
       setTopError("");
       setFieldErrors({});
@@ -747,9 +747,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     }
 
     const { errors, payload, suggErrors, presetsErrors, notesErrors } = validate();
-    if (Object.keys(errors).length) {
-      // Highlight even on autosave: the guard surfaces "Fix the highlighted fields", so the
-      // fields must actually be marked or the message is meaningless.
+
+    /* Save Draft keeps whatever is filled in. Only Next asks for the required fields. */
+    if (goNext && Object.keys(errors).length) {
       setFieldErrors(errors);
       setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
       setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
@@ -758,7 +758,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: false, error: "Fix the highlighted fields" };
     }
 
-    // Valid again — drop highlights left over from an earlier failed attempt.
     setFieldErrors({});
     setSuggestedAmountsErrors([]);
     setRecurringPresetsErrors([]);
