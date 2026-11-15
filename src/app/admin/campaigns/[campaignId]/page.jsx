@@ -15,6 +15,7 @@ import CampaignUpsertModal from "../components/CampaignUpsertModal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useToast } from "../components/ToastProvider";
 import CampaignSummaryCards from "./components/CampaignSummaryCards";
+import CampaignGoalChart from "./components/CampaignGoalChart";
 import CampaignBreakdownsSection from "./components/CampaignBreakdownsSection";
 import CampaignPublicDisplaySection from "./components/CampaignPublicDisplaySection";
 import CampaignDonorsSection from "./components/CampaignDonorsSection";
@@ -255,6 +256,8 @@ const AdminCampaignDetailsPage = ({ params }) => {
 
       {/* Report — aggregated across every form of this campaign */}
       <CampaignSummaryCards data={report} loading={reportLoading} />
+
+      <CampaignGoalChart data={report} loading={reportLoading} />
 
       {report ? (
         <>
