@@ -247,7 +247,9 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
             >
               <div className="text-[14px] font-semibold text-[#111827]">{basics?.displayName || "—"}</div>
               {basics?.description ? (
-                <div className="mt-1 text-[12px] text-[#6B7280] leading-snug">{basics.description}</div>
+                <div className="mt-1 text-[12px] text-[#6B7280] leading-snug">
+                  {String(basics.description).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()}
+                </div>
               ) : null}
               <div className="mt-3 flex flex-wrap gap-2">
                 {basics?.campaignType ? <Chip>{String(basics.campaignType)}</Chip> : null}

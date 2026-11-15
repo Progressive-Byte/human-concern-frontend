@@ -17,7 +17,23 @@ const SPECIAL_TYPES = [
 import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
 import FieldError from "./FieldError";
+import RichTextEditor from "./RichTextEditor";
 import WizardFooterNav from "./WizardFooterNav";
+
+/* The stored description is HTML. The 500 limit counts the words the admin sees, not the tags. */
+function plainTextLength(value) {
+  const html = String(value || "");
+  const text =
+    typeof document === "undefined"
+      ? html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ")
+      : (() => {
+          const el = document.createElement("div");
+          el.innerHTML = html;
+          return el.textContent || "";
+        })();
+
+  return text.replace(/\s+/g, " ").trim().length;
+}
 
 function isMongoId(value) {
   return /^[a-fA-F0-9]{24}$/.test(String(value || "").trim());
@@ -353,7 +369,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     else if (pub.displayName.length < 3) errors["public.displayName"] = "Min 3 characters";
     else if (pub.displayName.length > 80) errors["public.displayName"] = "Max 80 characters";
 
-    if (pub.description && pub.description.length > 500) errors["public.description"] = "Max 500 characters";
+    if (pub.description && plainTextLength(pub.description) > 500) errors["public.description"] = "Max 500 characters";
 
     // Collaboration is stored as the name/image pair, so "switched on with nothing entered" isn't
     // representable server-side: the payload would carry neither key, and the post-save refresh
@@ -731,14 +747,15 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
 
             <div className="mt-4">
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">Description</div>
-              <textarea
+              <RichTextEditor
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional description (max 500)"
-                className="min-h-30 w-full resize-none rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
+                onChange={setDescription}
+                placeholder="Optional description (max 500 characters)"
                 disabled={saving}
               />
-              <div className="mt-1 text-[12px] text-[#6B7280]">{Math.min(500, description.length)}/500 characters</div>
+              <div className="mt-1 text-[12px] text-[#6B7280]">
+                {Math.min(500, plainTextLength(description))}/500 characters
+              </div>
               <FieldError message={fieldErrors["public.description"]} />
             </div>
 
