@@ -43,6 +43,18 @@ const RecurringSchedule = ({
   const minDateStr = useMemo(() => earliestAllowedDateStr(), []);
   // A preset date strictly before today is "missed" (make-up eligible).
   const todayKey = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  // Fully-passed presets are only usable through make-up; otherwise hide them so a donor
+  // can never pick a schedule with no future payment.
+  const visibleApiPresets = useMemo(
+    () => (Array.isArray(apiPresets) ? apiPresets : []).filter((preset) => {
+      const dates = fullPresetDates(preset);
+      if (!dates.length) return false;
+      if (dates.some((d) => d >= minDateStr)) return true;
+      return Boolean(preset.allowMissedMakeUp) && dates.some((d) => d < todayKey);
+    }),
+    [apiPresets, minDateStr, todayKey]
+  );
   const [activePreset,   setActivePreset]   = useState(initialActivePreset ?? "custom");
   const [makeUpMissedDates, setMakeUpMissedDates] = useState(Boolean(initialMakeUpMissedDates));
   const [scheduleType,   setScheduleType]   = useState(initialScheduleType ?? "specific_dates");
@@ -66,9 +78,9 @@ const RecurringSchedule = ({
     return d === null ? [] : [d];
   }, [rangeFreq, weekDays, rangeStart]);
 
-  const hasPresets       = apiPresets.length > 0;
+  const hasPresets       = visibleApiPresets.length > 0;
   const isCustom         = activePreset === "custom";
-  const activeApiPreset  = apiPresets.find((p) => p.id === activePreset);
+  const activeApiPreset  = visibleApiPresets.find((p) => p.id === activePreset);
   const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
   // Show full controls for: Custom pill, template presets, or no API presets at all
   const showFullControls = isCustom || isTemplateActive || !hasPresets;
@@ -100,7 +112,7 @@ const RecurringSchedule = ({
     : [...selectedDates].sort();
 
   // Full date list a preset covers (past AND future), as YYYY-MM-DD keys.
-  const fullPresetDates = (preset) => {
+  function fullPresetDates(preset) {
     if (!preset) return [];
     const cfg = preset.scheduleConfig && typeof preset.scheduleConfig === "object" ? preset.scheduleConfig : {};
     if (preset.scheduleType === "date_range") {
@@ -116,7 +128,7 @@ const RecurringSchedule = ({
       return generateDatesInRange(start, end, freq, interval > 1 ? interval : 1, days);
     }
     return (Array.isArray(cfg.dates) ? cfg.dates : []).map((d) => String(d).split("T")[0]);
-  };
+  }
 
   const notify = (type, dates, start, end, freq, amounts, interval, preset = activePreset, daysOverride, opts = {}) => {
     const days = daysOverride !== undefined ? daysOverride : effectiveWeekDays;
@@ -167,8 +179,10 @@ const RecurringSchedule = ({
     const missedDates = allPresetDates.filter((d) => d < todayKey);
     const futurePresetDates = allPresetDates.filter((d) => d >= minDateStr);
     const canMakeUp = Boolean(preset.allowMissedMakeUp) && missedDates.length > 0;
+    // No future dates left: make-up is the only way to use this preset, so force it on.
+    const makeUpRequired = canMakeUp && futurePresetDates.length === 0;
     const wantMakeUp = makeUpOverride !== undefined ? Boolean(makeUpOverride) : makeUpMissedDates;
-    const nextMakeUp = canMakeUp && wantMakeUp;
+    const nextMakeUp = canMakeUp && (makeUpRequired || wantMakeUp);
     setMakeUpMissedDates(nextMakeUp);
 
     if (preset.scheduleType === "date_range") {
@@ -208,13 +222,28 @@ const RecurringSchedule = ({
     );
   };
 
+  // A saved selection can point at a preset that is now hidden (expired without make-up).
+  // Fall back to Custom instead of leaving the donor on an invisible preset.
+  useEffect(() => {
+    if (!activePreset || activePreset === "custom") return;
+    if (visibleApiPresets.some((p) => p.id === activePreset)) return;
+    setActivePreset("custom");
+    setMakeUpMissedDates(false);
+    setScheduleType("specific_dates");
+    setSelectedDates([]);
+    setDateAmounts({});
+    setWeekDays([]);
+    notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, "custom");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePreset, visibleApiPresets]);
+
   // Pre-select the admin-configured default preset once, unless the donor already has a
   // selection to restore (a stored choice, including "custom", always wins). Reusing
   // handlePreset means the default goes through the exact same mapping as a click.
   useEffect(() => {
     if (initialActivePreset) return;
     if (!defaultPresetId) return;
-    if (!apiPresets.some((p) => p.id === defaultPresetId)) return;
+    if (!visibleApiPresets.some((p) => p.id === defaultPresetId)) return;
     handlePreset(defaultPresetId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -345,10 +374,13 @@ const RecurringSchedule = ({
     : null;
 
   // Make-up offer: only for a real preset that allows it and has already-passed dates.
+  const activePresetDates = activeApiPreset ? fullPresetDates(activeApiPreset) : [];
   const presetMissedDates = activeApiPreset && !isTemplateActive
-    ? fullPresetDates(activeApiPreset).filter((d) => d < todayKey)
+    ? activePresetDates.filter((d) => d < todayKey)
     : [];
   const showMakeUp = Boolean(activeApiPreset?.allowMissedMakeUp) && presetMissedDates.length > 0;
+  // Nothing future left: make-up is mandatory, not optional.
+  const makeUpRequired = showMakeUp && !activePresetDates.some((d) => d >= minDateStr);
   const makeUpAmount = presetMissedDates.length * (Number(effectiveAmount) || 0);
   const scheduledDateCount = makeUpMissedDates
     ? (scheduleType === "date_range" ? generatedDates.length : selectedDates.length)
@@ -360,7 +392,7 @@ const RecurringSchedule = ({
       {/* Preset pills */}
       {hasPresets && (
         <div className="flex flex-wrap gap-2">
-          {[...apiPresets, { id: "custom", name: "Custom" }].map((p) => {
+          {[...visibleApiPresets, { id: "custom", name: "Custom" }].map((p) => {
             const active = activePreset === p.id;
             return (
               <button
@@ -385,18 +417,28 @@ const RecurringSchedule = ({
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E5E5E5] bg-white px-4 py-3">
           <input
             type="checkbox"
-            checked={makeUpMissedDates}
-            onChange={(e) => handlePreset(activePreset, e.target.checked)}
-            className="mt-0.5 h-4 w-4 cursor-pointer"
+            checked={makeUpMissedDates || makeUpRequired}
+            disabled={makeUpRequired}
+            onChange={(e) => {
+              if (makeUpRequired) return;
+              handlePreset(activePreset, e.target.checked);
+            }}
+            className="mt-0.5 h-4 w-4 cursor-pointer disabled:cursor-not-allowed"
             style={{ accentColor: "#EA3335" }}
           />
           <span className="text-[12px] text-[#383838]">
-            <span className="font-medium">Make up for {presetMissedDates.length} missed date{presetMissedDates.length !== 1 ? "s" : ""}</span>
+            <span className="font-medium">
+              {makeUpRequired
+                ? `Pay all ${presetMissedDates.length} past date${presetMissedDates.length !== 1 ? "s" : ""}`
+                : `Make up for ${presetMissedDates.length} missed date${presetMissedDates.length !== 1 ? "s" : ""}`}
+            </span>
             {makeUpAmount > 0 ? (
               <span className="text-[#EA3335] font-medium"> (+{sym}{makeUpAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })})</span>
             ) : null}
             <span className="mt-0.5 block text-[11px] text-[#737373]">
-              You&apos;ll pay for the dates that already passed, in addition to the remaining ones.
+              {makeUpRequired
+                ? "Every date in this preset has already passed, so make-up is required."
+                : "You\u2019ll pay for the dates that already passed, in addition to the remaining ones."}
             </span>
           </span>
         </label>

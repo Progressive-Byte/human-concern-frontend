@@ -15,6 +15,83 @@ const FREQ_OPTIONS = [
   { value: "custom", label: "Custom" },
 ];
 
+const MONTHS = [
+  { value: 1, label: "January" },
+  { value: 2, label: "February" },
+  { value: 3, label: "March" },
+  { value: 4, label: "April" },
+  { value: 5, label: "May" },
+  { value: 6, label: "June" },
+  { value: 7, label: "July" },
+  { value: 8, label: "August" },
+  { value: 9, label: "September" },
+  { value: 10, label: "October" },
+  { value: 11, label: "November" },
+  { value: 12, label: "December" },
+];
+
+function utcTodayDate() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+}
+
+function parseDateInput(value) {
+  const s = String(value || "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  const d = new Date(`${s}T00:00:00.000Z`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function addYearsUtc(date, years) {
+  return new Date(Date.UTC(date.getUTCFullYear() + years, date.getUTCMonth(), date.getUTCDate()));
+}
+
+function firstWeekdayOnOrAfter(base, weekday) {
+  const d = new Date(base);
+  const diff = (Number(weekday) - d.getUTCDay() + 7) % 7;
+  d.setUTCDate(d.getUTCDate() + diff);
+  return d;
+}
+
+// The first payment date for a quick-added preset.
+function quickStartDate(frequency, { weekday, month, campaignStartDate } = {}) {
+  const today = utcTodayDate();
+  const campaignStart = parseDateInput(campaignStartDate);
+  const base = campaignStart && campaignStart >= today ? campaignStart : today;
+
+  if (frequency === "weekly") return firstWeekdayOnOrAfter(base, weekday);
+
+  if (frequency === "monthly") {
+    const year = campaignStart ? campaignStart.getUTCFullYear() : today.getUTCFullYear();
+    let candidate = new Date(Date.UTC(year, Number(month) - 1, 1));
+    while (candidate < today) {
+      candidate = new Date(Date.UTC(candidate.getUTCFullYear() + 1, candidate.getUTCMonth(), 1));
+    }
+    return candidate;
+  }
+
+  if (frequency === "yearly") {
+    const seed = campaignStart || today;
+    let candidate = new Date(Date.UTC(seed.getUTCFullYear(), seed.getUTCMonth(), seed.getUTCDate()));
+    while (candidate < today) {
+      candidate = new Date(Date.UTC(candidate.getUTCFullYear() + 1, candidate.getUTCMonth(), candidate.getUTCDate()));
+    }
+    return candidate;
+  }
+
+  return base;
+}
+
+function quickEndDate(start, campaignEndDate) {
+  const formEnd = parseDateInput(campaignEndDate);
+  if (formEnd && formEnd > start) return formEnd;
+  return addYearsUtc(start, 1);
+}
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 function toDateInputValue(value) {
   const s = String(value || "").trim();
   if (!s) return "";
@@ -182,8 +259,8 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
   const showWeekDays = String(frequency) === "weekly";
 
   function toggleDay(day) {
-    const next = days.includes(day) ? days.filter((d) => d !== day) : [...days, day].sort((a, b) => a - b);
-    setField({ daysOfWeek: next });
+    // A preset runs on exactly one weekday; clicking a day replaces the previous one.
+    setField({ daysOfWeek: [day] });
   }
 
   const startBtnRef = useRef(null);
@@ -307,7 +384,7 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
       {showWeekDays ? (
         <div>
           <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-            Days of the week <span className="text-red-600">*</span>
+            Day of the week <span className="text-red-600">*</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {WEEKDAYS.map((w) => {
@@ -452,6 +529,8 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
   const scheduleType = String(v.scheduleType || "date_range");
   const config = v.scheduleConfig && typeof v.scheduleConfig === "object" ? v.scheduleConfig : {};
   const cardErrors = errors && typeof errors === "object" ? errors : {};
+  const endDateKey = String(config.endDate || "").slice(0, 10);
+  const isExpired = Boolean(endDateKey && endDateKey < todayKey());
 
   function setField(patch) {
     onChange?.({ ...(v || {}), ...(patch || {}) });
@@ -543,6 +622,15 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
             />
           </div>
 
+          {isExpired ? (
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-800">
+              All dates in this preset are in the past.{" "}
+              {v.allowMissedMakeUp
+                ? "Donors can only use it by paying the missed dates."
+                : "It is hidden from donors until make-up is enabled."}
+            </div>
+          ) : null}
+
           {scheduleType === "date_range" ? (
             <DateRangeEditor
               value={config}
@@ -611,11 +699,66 @@ const RecurringPresetsEditor = ({
     onChange?.(next);
   }
 
-  function addPreset() {
-    onChange?.([
-      ...(presets || []),
-      { name: "", enabled: true, allowMissedMakeUp: false, sortOrder: String((presets.length + 1) * 10), scheduleType: "date_range", scheduleConfig: {} },
-    ]);
+  const [pendingAdd, setPendingAdd] = useState(null); // "weekly" | "monthly" | null
+  const [quickAddMessage, setQuickAddMessage] = useState("");
+  const maxPresetsReached = presets.length >= 12;
+  const formEnd = parseDateInput(campaignEndDate);
+  const afterFormEnd = (date) => Boolean(formEnd && date > formEnd);
+
+  function addPreset(nextPreset) {
+    if (maxPresetsReached) {
+      setQuickAddMessage("You can add up to 12 presets.");
+      return false;
+    }
+    onChange?.([...(presets || []), nextPreset]);
+    setQuickAddMessage("");
+    setPendingAdd(null);
+    return true;
+  }
+
+  function addQuick(frequency, extra = {}) {
+    const start = quickStartDate(frequency, { ...extra, campaignStartDate });
+    if (afterFormEnd(start)) {
+      setQuickAddMessage("That start date is after the form end date.");
+      return;
+    }
+
+    let name = "Daily";
+    if (frequency === "weekly") {
+      const day = WEEKDAYS.find((w) => w.value === Number(extra.weekday));
+      name = `Weekly – ${day?.label || "Day"}`;
+    } else if (frequency === "monthly") {
+      const month = MONTHS.find((m) => m.value === Number(extra.month));
+      name = `Monthly – ${month?.label || "Month"}`;
+    } else if (frequency === "yearly") {
+      name = "Annually";
+    }
+
+    const end = quickEndDate(start, campaignEndDate);
+    addPreset({
+      name,
+      enabled: true,
+      allowMissedMakeUp: false,
+      sortOrder: String((presets.length + 1) * 10),
+      scheduleType: "date_range",
+      scheduleConfig: {
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+        frequency,
+        ...(frequency === "weekly" ? { daysOfWeek: [Number(extra.weekday)] } : {}),
+      },
+    });
+  }
+
+  function addCustomPreset() {
+    addPreset({
+      name: "",
+      enabled: true,
+      allowMissedMakeUp: false,
+      sortOrder: String((presets.length + 1) * 10),
+      scheduleType: "date_range",
+      scheduleConfig: {},
+    });
   }
 
   return (
@@ -675,15 +818,115 @@ const RecurringPresetsEditor = ({
             </div>
           )}
 
-          <div>
-            <button
-              type="button"
-              onClick={addPreset}
-              disabled={disabled}
-              className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-            >
-              Add Preset
-            </button>
+          <div className="space-y-2">
+            <div className="text-[12px] font-semibold uppercase tracking-wide text-[#9CA3AF]">Add preset</div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => { setQuickAddMessage(""); addQuick("daily"); }}
+                disabled={disabled || maxPresetsReached || afterFormEnd(quickStartDate("daily", { campaignStartDate }))}
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+              >
+                Daily
+              </button>
+              <button
+                type="button"
+                onClick={() => { setQuickAddMessage(""); setPendingAdd((p) => (p === "weekly" ? null : "weekly")); }}
+                disabled={disabled || maxPresetsReached}
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+              >
+                Weekly
+              </button>
+              <button
+                type="button"
+                onClick={() => { setQuickAddMessage(""); setPendingAdd((p) => (p === "monthly" ? null : "monthly")); }}
+                disabled={disabled || maxPresetsReached}
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                onClick={() => { setQuickAddMessage(""); addQuick("yearly"); }}
+                disabled={disabled || maxPresetsReached || afterFormEnd(quickStartDate("yearly", { campaignStartDate }))}
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+              >
+                Annually
+              </button>
+              <button
+                type="button"
+                onClick={addCustomPreset}
+                disabled={disabled || maxPresetsReached}
+                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#6B7280] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+              >
+                Custom
+              </button>
+            </div>
+
+            {quickAddMessage ? (
+              <div className="text-[12px] text-[#B45309]">{quickAddMessage}</div>
+            ) : null}
+
+            {pendingAdd === "weekly" ? (
+              <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-3">
+                <div className="mb-2 text-[12px] font-semibold text-[#111827]">Which day should the weekly preset start?</div>
+                <div className="flex flex-wrap gap-2">
+                  {WEEKDAYS.map((day) => {
+                    const blocked = disabled || maxPresetsReached || afterFormEnd(quickStartDate("weekly", { weekday: day.value, campaignStartDate }));
+                    return (
+                      <button
+                        key={day.value}
+                        type="button"
+                        onClick={() => addQuick("weekly", { weekday: day.value })}
+                        disabled={blocked}
+                        className="cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                      >
+                        {day.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPendingAdd(null)}
+                  className="mt-2 text-[12px] font-semibold text-[#6B7280] transition hover:text-[#111827]"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : null}
+
+            {pendingAdd === "monthly" ? (
+              <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-3">
+                <div className="mb-2 text-[12px] font-semibold text-[#111827]">Which month should the monthly preset start?</div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                  {MONTHS.map((month) => {
+                    const blocked = disabled || maxPresetsReached || afterFormEnd(quickStartDate("monthly", { month: month.value, campaignStartDate }));
+                    return (
+                      <button
+                        key={month.value}
+                        type="button"
+                        onClick={() => addQuick("monthly", { month: month.value })}
+                        disabled={blocked}
+                        className="cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                      >
+                        {month.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-2 text-[11px] text-[#6B7280]">
+                  Months after the form end date are disabled. The preset starts on the 1st of that month and moves to next year if it has already passed.
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPendingAdd(null)}
+                  className="mt-2 text-[12px] font-semibold text-[#6B7280] transition hover:text-[#111827]"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}
