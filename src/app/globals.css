@@ -767,3 +767,57 @@
     line-height: 1.25rem;
   }
 }
+
+/* Fee slider: native range input drawn transparently over the custom groove and fill.
+   The thumb colour follows the brand via --hc-fee-color set inline. */
+.hc-fee-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hc-fee-slider::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.hc-fee-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: -0.375rem;
+  border: 2px solid var(--hc-fee-color, #EA3335);
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgb(10 10 10 / 0.25);
+  transition: transform 150ms ease;
+}
+
+.hc-fee-slider:hover::-webkit-slider-thumb,
+.hc-fee-slider:active::-webkit-slider-thumb {
+  transform: scale(1.08);
+}
+
+.hc-fee-slider::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.hc-fee-slider::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--hc-fee-color, #EA3335);
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgb(10 10 10 / 0.25);
+}
+
+.hc-fee-slider:focus-visible {
+  outline: 2px solid var(--hc-fee-color, #EA3335);
+  outline-offset: 3px;
+  border-radius: 999px;
+}

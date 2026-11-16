@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useDonation } from "@/context/DonationContext";
 import { useBranding } from "@/context/BrandingContext";
 
@@ -22,16 +23,21 @@ const TippingSection = ({
 }) => {
   const { update } = useDonation();
   const { primaryColor } = useBranding();
+  const [isSliding, setIsSliding] = useState(false);
 
   /* The admin sets the slider's range; the donor can never move outside it. */
   const minPct = Math.max(0, Math.min(100, Number(minPercent) || 0));
   const maxPct = Math.max(minPct + 1, Math.min(100, Number(maxPercent) || 15));
   const sliderValue = Math.min(maxPct, Math.max(minPct, Number(tipPct) || 0));
-  const tickValues = [0, 5, 10, 15].filter((tick) => tick >= minPct && tick <= maxPct);
+  const ratio = Math.min(1, Math.max(0, (sliderValue - minPct) / (maxPct - minPct)));
+  const filled = `${ratio * 100}%`;
+  /* The bar stays the same colour, but it starts faint and becomes solid as the figure rises. */
+  const fillOpacity = 0.2 + ratio * 0.8;
+
+  const tickValues = [0, 5, 10, 15, 20].filter((tick) => tick >= minPct && tick <= maxPct);
   if (!tickValues.includes(minPct)) tickValues.unshift(minPct);
   if (!tickValues.includes(maxPct)) tickValues.push(maxPct);
   const scaleTicks = Array.from(new Set(tickValues)).sort((a, b) => a - b);
-  const fillPercent = ((sliderValue - minPct) / (maxPct - minPct)) * 100;
 
   const customTipParsed = customTipAmount !== "" ? Math.max(0, Number(customTipAmount) || 0) : null;
   const tipAmount       = customTipParsed !== null
@@ -69,28 +75,71 @@ const TippingSection = ({
       </div>
 
       <div className={`transition-opacity ${customTipParsed !== null ? "opacity-40 pointer-events-none select-none" : ""}`}>
-        <input
-          type="range"
-          min={minPct}
-          max={maxPct}
-          step={1}
-          value={sliderValue}
-          onChange={handleSliderChange}
-          className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#EA3335]"
-          style={{
-            background: `linear-gradient(to right, ${primaryColor} ${fillPercent}%, #E5E5E5 ${fillPercent}%)`,
-          }}
-        />
-        <div className="flex justify-between mt-2">
+        <div className="relative flex h-5 items-center">
+          {/* The figure above the thumb. It shows while dragging or focused, and the clamp keeps it inside the track ends. */}
+          <span
+            aria-hidden="true"
+            className={`pointer-events-none absolute bottom-full mb-1 origin-bottom -translate-x-1/2 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white transition-all duration-150 ease-out ${
+              isSliding ? "translate-y-0 scale-100 opacity-100" : "translate-y-1 scale-90 opacity-0"
+            }`}
+            style={{
+              left: `clamp(1.25rem, ${filled}, calc(100% - 1.25rem))`,
+              backgroundColor: primaryColor,
+            }}
+          >
+            {sliderValue}%
+          </span>
+
+          {/* The groove. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 h-2 rounded-full bg-[#EFEFEF] shadow-[inset_0_1px_2px_rgb(10_10_10_/_0.15)]"
+          />
+
+          {/* The glow behind the filled part, then the filled part itself. */}
+          <div
+            aria-hidden="true"
+            className="absolute h-2 rounded-full blur-[6px] transition-[width,opacity] duration-200"
+            style={{ width: filled, opacity: fillOpacity * 0.4, backgroundColor: primaryColor }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute h-2 rounded-full transition-[width,opacity] duration-200"
+            style={{ width: filled, opacity: fillOpacity, backgroundColor: primaryColor }}
+          />
+
+          <label htmlFor="hc-fee-percent" className="sr-only">
+            Extra percentage to help cover costs
+          </label>
+          <input
+            id="hc-fee-percent"
+            type="range"
+            min={minPct}
+            max={maxPct}
+            step={1}
+            value={sliderValue}
+            onChange={handleSliderChange}
+            onPointerDown={() => setIsSliding(true)}
+            onPointerUp={() => setIsSliding(false)}
+            onPointerCancel={() => setIsSliding(false)}
+            onFocus={() => setIsSliding(true)}
+            onBlur={() => setIsSliding(false)}
+            className="hc-fee-slider relative z-10 h-5 w-full"
+            style={{ "--hc-fee-color": primaryColor }}
+          />
+        </div>
+
+        {/* The scale under the track. A dot turns brand colour once the figure has reached it. */}
+        <div aria-hidden="true" className="mt-2 flex justify-between px-[11px]">
           {scaleTicks.map((pct) => (
             <span
               key={pct}
-              className={`text-[11px] font-medium transition-colors ${sliderValue === pct ? "text-[#EA3335]" : "text-[#AEAEAE]"}`}
-            >
-              {pct}%
-            </span>
+              className="size-1 rounded-full transition-colors"
+              style={{ backgroundColor: pct <= sliderValue ? primaryColor : "#E5E5E5" }}
+            />
           ))}
         </div>
+
         <p className="text-[11px] text-[#AEAEAE] mt-2">
           {sliderValue}% of base donation ({sym}{Number(baseDonation.toFixed(2))})
         </p>
