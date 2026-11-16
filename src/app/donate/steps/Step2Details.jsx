@@ -17,6 +17,10 @@ function normalizeNoteFields(value) {
   return Array.isArray(value) ? value.filter((field) => field && typeof field === "object") : [];
 }
 
+const NAME_FIELDS = new Set(["firstName", "lastName"]);
+const NAME_INPUT_DISALLOWED = /[^\p{L}\p{M}\s'’ʼ.\-·]/gu;
+const sanitizeNameInput = (value) => String(value ?? "").replace(NAME_INPUT_DISALLOWED, "");
+
 const Step2Details = () => {
   const pathname = usePathname();
   const isPreview = pathname.startsWith("/admin/forms/preview");
@@ -185,7 +189,12 @@ const Step2Details = () => {
 
   const personalField = (key) => ({
     value:    data[key] ?? "",
-    onChange: isLocked(key) ? undefined : (e) => { update({ [key]: e.target.value }); setError(""); setHasEdited(true); },
+    onChange: isLocked(key) ? undefined : (e) => {
+      const nextValue = NAME_FIELDS.has(key) ? sanitizeNameInput(e.target.value) : e.target.value;
+      update({ [key]: nextValue });
+      setError("");
+      setHasEdited(true);
+    },
     readOnly: isLocked(key),
   });
 

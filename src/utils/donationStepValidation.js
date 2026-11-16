@@ -169,6 +169,11 @@ export function validateDetailsStep({
     return "Please fill in all required fields.";
   }
 
+  const namePattern = /^[\p{L}\p{M}\s'’ʼ.\-·]+$/u;
+  if (!namePattern.test(String(firstName).trim()) || !namePattern.test(String(lastName).trim())) {
+    return "First and last name can only contain letters.";
+  }
+
   const code = String(donorCountryCode ?? "").trim() || resolveCountryIso(String(country ?? ""));
   if (!code) return "Please select your country.";
 
