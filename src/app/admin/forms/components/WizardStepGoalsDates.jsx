@@ -377,7 +377,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     };
   }, [formId]);
 
-  function validate() {
+  function validate({ requireEnabledPreset = false } = {}) {
     const errors = {};
     const suggErrors = [];
     const presetsErrors = [];
@@ -614,7 +614,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
       if (presetsErrors.some((e) => e && Object.keys(e).length)) {
         errors.recurringPresets = "Fix recurring presets";
-      } else if (!normalizedPresets.some((p) => p.enabled !== false)) {
+      } else if (requireEnabledPreset && !normalizedPresets.some((p) => p.enabled !== false)) {
         errors.recurringPresets = "Add at least one enabled preset when recurring donations are on.";
       }
     }
@@ -748,7 +748,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: false, error: "Complete Basics first" };
     }
 
-    const { errors, payload, suggErrors, presetsErrors, notesErrors } = validate();
+    const { errors, payload, suggErrors, presetsErrors, notesErrors } = validate({
+      requireEnabledPreset: Boolean(goNext),
+    });
     if (Object.keys(errors).length) {
       // Highlight even on autosave: the guard surfaces "Fix the highlighted fields", so the
       // fields must actually be marked or the message is meaningless.
