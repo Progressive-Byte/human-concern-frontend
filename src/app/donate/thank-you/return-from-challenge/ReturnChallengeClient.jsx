@@ -68,7 +68,7 @@ const ReturnChallengeClient = () => {
   const router = useRouter();
   const rawSearchParams = useSearchParams();
   const { isAuthenticated } = useAuth();
-  const { data, update, clearDonationSession } = useDonation();
+  const { data, update } = useDonation();
 
   const [outcome, setOutcome] = useState(null);
   const [outcomeResult, setOutcomeResult] = useState({});
@@ -79,6 +79,14 @@ const ReturnChallengeClient = () => {
   const [attempt, setAttempt] = useState(0);
   const finalizeRef = useRef(false);
   const debugRef = useRef({ steps: [] });
+
+  // Same cleanup the thank-you page uses; the donation context does not expose one.
+  const clearDonationSession = useCallback(() => {
+    try {
+      sessionStorage.removeItem("hc_donation_done");
+      sessionStorage.removeItem("hc_donation");
+    } catch {}
+  }, []);
 
   const sym = CURRENCY_SYMBOLS[data.currency] || "$";
   const donationAmount = Number(data.grandTotal ?? data.amountTier ?? 0);
@@ -346,10 +354,15 @@ const ReturnChallengeClient = () => {
         const donationId =
           payload?.donationId ?? queryReturnParams.donationId ?? data.donationId ?? null;
         const finalizedId = donationId ?? "returned-challenge";
+        // `amountMinor` is cents; use it only when present, otherwise fall back to the major amount.
+        const amount =
+          payload.amountMinor !== undefined && payload.amountMinor !== null && payload.amountMinor !== ""
+            ? Number(payload.amountMinor) / 100
+            : Number(payload.amount ?? payload.grandTotal ?? donationAmount);
         const receipt = {
           ...payload,
           donationId: finalizedId,
-          amount: payload.amount ?? payload.grandTotal ?? payload.amountMinor ? (payload.amountMinor / 100) : donationAmount,
+          amount: Number.isFinite(amount) ? amount : donationAmount,
           currency: payload.currency ?? data.currency ?? "USD",
           paymentType: body.paymentMode === "split" ? "recurring" : "one_time",
           isSplit: body.paymentMode === "split",
@@ -568,6 +581,7 @@ const ReturnChallengeClient = () => {
         {outcome && (
           <ReturnChallengeResultCard
             outcome={outcome}
+            receipt={outcomeResult?.receipt || null}
             result={outcomeResult}
             failureDetail={failureDetail}
             sessionWarnings={sessionWarnings}

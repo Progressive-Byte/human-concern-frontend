@@ -406,7 +406,9 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         collaborationOrganizationImage: collaborating
           ? collaborationImageRemoved
             ? null
-            : pub.collaborationOrganizationImage || undefined
+            : pub.collaborationOrganizationImage
+              ? { path: pub.collaborationOrganizationImage }
+              : undefined
           : null,
         campaignType: pub.campaignType,
         categoryIds: uniqueCats,

@@ -377,7 +377,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     };
   }, [formId]);
 
-  function validate() {
+  function validate({ requireEnabledPreset = false } = {}) {
     const errors = {};
     const suggErrors = [];
     const presetsErrors = [];
@@ -614,6 +614,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
       if (presetsErrors.some((e) => e && Object.keys(e).length)) {
         errors.recurringPresets = "Fix recurring presets";
+      } else if (requireEnabledPreset && !normalizedPresets.some((p) => p.enabled !== false)) {
+        errors.recurringPresets = "Add at least one enabled preset when recurring donations are on.";
       }
     }
 
@@ -746,7 +748,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: false, error: "Complete Basics first" };
     }
 
-    const { errors, payload, suggErrors, presetsErrors, notesErrors } = validate();
+    const { errors, payload, suggErrors, presetsErrors, notesErrors } = validate({
+      requireEnabledPreset: Boolean(goNext),
+    });
 
     /* Save Draft keeps whatever is filled in. Only Next asks for the required fields. */
     if (goNext && Object.keys(errors).length) {
@@ -956,46 +960,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           </div>
         </div>
 
-        <div className="mt-4">
-          <div className="mb-2 text-[13px] font-semibold text-[#111827]">Payment Methods</div>
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-3">
-            {paymentMethodOptions.length ? (
-              <div className="flex flex-wrap gap-2">
-                {paymentMethodOptions.map((method) => {
-                  const key = `${method.provider}:${method.configurationId}`;
-                  const selected = Array.isArray(paymentMethods)
-                    ? paymentMethods.some((m) => String(m?.provider || "").toLowerCase() === method.provider && String(m?.configurationId || "").trim() === method.configurationId)
-                    : false;
-
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() =>
-                        setPaymentMethods((prev) => {
-                          const list = normalizePaymentMethodsState(prev);
-                          const exists = list.some((m) => m.provider === method.provider && m.configurationId === method.configurationId);
-                          if (exists) return list.filter((m) => !(m.provider === method.provider && m.configurationId === method.configurationId));
-                          return [...list, { provider: method.provider, configurationId: method.configurationId, name: method.name }];
-                        })
-                      }
-                      disabled={disabled}
-                      className={`rounded-xl border px-3 py-2 text-[13px] font-semibold transition ${
-                        selected ? "border-[#111827] bg-[#111827] text-white" : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
-                      } disabled:opacity-60`}
-                      title={method.configurationId}
-                    >
-                      {getPaymentProviderLabel(method.provider)} · {method.name || "Unnamed"}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-[13px] text-[#6B7280]">No enabled payment methods available. Enable a gateway configuration in Settings → Payment first.</div>
-            )}
-          </div>
-        </div>
-
         <div className="mt-4 space-y-3">
           <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
             <div className="flex items-center justify-between gap-4">
@@ -1060,9 +1024,50 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         disabled={disabled}
         errors={recurringPresetsErrors}
         allowError={fieldErrors.allowRecurringDonations}
+        sectionError={fieldErrors.recurringPresets}
         campaignStartDate={startAt}
         campaignEndDate={endAt}
       />
+
+      <div className="mt-4">
+        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Payment Methods</div>
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-3">
+          {paymentMethodOptions.length ? (
+            <div className="flex flex-wrap gap-2">
+              {paymentMethodOptions.map((method) => {
+                const key = `${method.provider}:${method.configurationId}`;
+                const selected = Array.isArray(paymentMethods)
+                  ? paymentMethods.some((m) => String(m?.provider || "").toLowerCase() === method.provider && String(m?.configurationId || "").trim() === method.configurationId)
+                  : false;
+
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() =>
+                      setPaymentMethods((prev) => {
+                        const list = normalizePaymentMethodsState(prev);
+                        const exists = list.some((m) => m.provider === method.provider && m.configurationId === method.configurationId);
+                        if (exists) return list.filter((m) => !(m.provider === method.provider && m.configurationId === method.configurationId));
+                        return [...list, { provider: method.provider, configurationId: method.configurationId, name: method.name }];
+                      })
+                    }
+                    disabled={disabled}
+                    className={`rounded-xl border px-3 py-2 text-[13px] font-semibold transition ${
+                      selected ? "border-[#111827] bg-[#111827] text-white" : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB]"
+                    } disabled:opacity-60`}
+                    title={method.configurationId}
+                  >
+                    {getPaymentProviderLabel(method.provider)} · {method.name || "Unnamed"}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-[13px] text-[#6B7280]">No enabled payment methods available. Enable a gateway configuration in Settings → Payment first.</div>
+          )}
+        </div>
+      </div>
 
       <WizardFooterNav
         saving={saving}
