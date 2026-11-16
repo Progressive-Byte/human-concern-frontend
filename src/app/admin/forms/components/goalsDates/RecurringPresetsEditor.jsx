@@ -11,7 +11,7 @@ const FREQ_OPTIONS = [
   { value: "daily", label: "Daily" },
   { value: "weekly", label: "Weekly" },
   { value: "monthly", label: "Monthly" },
-  { value: "yearly", label: "Yearly" },
+  { value: "yearly", label: "Annually" },
   { value: "custom", label: "Custom" },
 ];
 
@@ -90,6 +90,83 @@ function quickEndDate(start, campaignEndDate) {
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function formatPresetDate(date) {
+  if (!date || Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
+function PresetIcon({ name }) {
+  const common = {
+    className: "h-4 w-4",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+  };
+  if (name === "daily") {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </svg>
+    );
+  }
+  if (name === "weekly") {
+    return (
+      <svg {...common}>
+        <rect x="3" y="4" width="18" height="17" rx="2" />
+        <path d="M8 2v4M16 2v4M3 10h18" />
+        <path d="M7 14h.01M12 14h.01M17 14h.01M7 18h.01M12 18h.01" />
+      </svg>
+    );
+  }
+  if (name === "monthly") {
+    return (
+      <svg {...common}>
+        <rect x="3" y="4" width="18" height="17" rx="2" />
+        <path d="M8 2v4M16 2v4M3 10h18" />
+      </svg>
+    );
+  }
+  if (name === "annually") {
+    return (
+      <svg {...common}>
+        <path d="M21 12a9 9 0 1 1-3-6.7" />
+        <path d="M21 3v6h-6" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common}>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+      <circle cx="8" cy="6" r="2" />
+      <circle cx="16" cy="12" r="2" />
+      <circle cx="10" cy="18" r="2" />
+    </svg>
+  );
+}
+
+function PresetTile({ label, hint, icon, onClick, disabled, active }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex flex-col items-start gap-1 rounded-xl border px-3 py-2.5 text-left transition ${
+        active ? "border-[#111827] bg-white shadow-sm" : "border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]"
+      } disabled:cursor-not-allowed disabled:opacity-60`}
+    >
+      <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#111827]">
+        <span className="text-[#6B7280]"><PresetIcon name={icon} /></span>
+        {label}
+      </span>
+      <span className="text-[11px] leading-4 text-[#6B7280]">{hint}</span>
+    </button>
+  );
 }
 
 function toDateInputValue(value) {
@@ -700,18 +777,27 @@ const RecurringPresetsEditor = ({
   }
 
   const [pendingAdd, setPendingAdd] = useState(null); // "weekly" | "monthly" | null
-  const [quickAddMessage, setQuickAddMessage] = useState("");
+  const [quickNotice, setQuickNotice] = useState(null); // { kind: "success"|"error", text }
   const maxPresetsReached = presets.length >= 12;
   const formEnd = parseDateInput(campaignEndDate);
   const afterFormEnd = (date) => Boolean(formEnd && date > formEnd);
 
+  useEffect(() => {
+    if (!quickNotice) return undefined;
+    const t = setTimeout(() => setQuickNotice(null), 4000);
+    return () => clearTimeout(t);
+  }, [quickNotice]);
+
   function addPreset(nextPreset) {
     if (maxPresetsReached) {
-      setQuickAddMessage("You can add up to 12 presets.");
+      setQuickNotice({ kind: "error", text: "You can add up to 12 presets." });
       return false;
     }
     onChange?.([...(presets || []), nextPreset]);
-    setQuickAddMessage("");
+    setQuickNotice({
+      kind: "success",
+      text: nextPreset.name ? `${nextPreset.name} preset added.` : "Preset added — give it a name.",
+    });
     setPendingAdd(null);
     return true;
   }
@@ -719,7 +805,7 @@ const RecurringPresetsEditor = ({
   function addQuick(frequency, extra = {}) {
     const start = quickStartDate(frequency, { ...extra, campaignStartDate });
     if (afterFormEnd(start)) {
-      setQuickAddMessage("That start date is after the form end date.");
+      setQuickNotice({ kind: "error", text: "That start date is after the form end date." });
       return;
     }
 
@@ -797,91 +883,94 @@ const RecurringPresetsEditor = ({
       ) : null}
 
       {allowRecurringDonations ? (
-        <div className="mt-4 space-y-3">
-          {presets.length ? (
-            presets.map((p, idx) => (
-              <PresetCard
-                key={p?.id || idx}
-                value={p}
-                onChange={(next) => setPreset(idx, next)}
-                onRemove={() => removePreset(idx)}
-                onSetDefault={() => setDefault(idx)}
-                disabled={disabled}
-                errors={errors?.[idx]}
-                campaignStartDate={campaignStartDate}
-                campaignEndDate={campaignEndDate}
-              />
-            ))
-          ) : (
-            <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
-              No recurring presets added.
+        <div className="mt-4 space-y-4">
+          <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB]/60 p-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <div className="text-[13px] font-semibold text-[#111827]">Add a preset</div>
+                <div className="mt-0.5 text-[12px] text-[#6B7280]">One-click schedule options shown to donors.</div>
+              </div>
+              <div className="text-[11px] text-[#6B7280]">
+                {formEnd ? (
+                  <>
+                    Presets must start before the form ends{" "}
+                    <span className="font-semibold text-[#374151]">({formatPresetDate(formEnd)})</span>.
+                  </>
+                ) : (
+                  <span className="text-[#B45309]">No form end date — presets default to one year.</span>
+                )}
+              </div>
             </div>
-          )}
 
-          <div className="space-y-2">
-            <div className="text-[12px] font-semibold uppercase tracking-wide text-[#9CA3AF]">Add preset</div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => { setQuickAddMessage(""); addQuick("daily"); }}
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+              <PresetTile
+                label="Daily"
+                hint="Every day"
+                icon="daily"
+                onClick={() => { setQuickNotice(null); addQuick("daily"); }}
                 disabled={disabled || maxPresetsReached || afterFormEnd(quickStartDate("daily", { campaignStartDate }))}
-                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-              >
-                Daily
-              </button>
-              <button
-                type="button"
-                onClick={() => { setQuickAddMessage(""); setPendingAdd((p) => (p === "weekly" ? null : "weekly")); }}
+              />
+              <PresetTile
+                label="Weekly"
+                hint="Pick a weekday"
+                icon="weekly"
+                active={pendingAdd === "weekly"}
+                onClick={() => { setQuickNotice(null); setPendingAdd((p) => (p === "weekly" ? null : "weekly")); }}
                 disabled={disabled || maxPresetsReached}
-                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-              >
-                Weekly
-              </button>
-              <button
-                type="button"
-                onClick={() => { setQuickAddMessage(""); setPendingAdd((p) => (p === "monthly" ? null : "monthly")); }}
+              />
+              <PresetTile
+                label="Monthly"
+                hint="Pick a month"
+                icon="monthly"
+                active={pendingAdd === "monthly"}
+                onClick={() => { setQuickNotice(null); setPendingAdd((p) => (p === "monthly" ? null : "monthly")); }}
                 disabled={disabled || maxPresetsReached}
-                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-              >
-                Monthly
-              </button>
-              <button
-                type="button"
-                onClick={() => { setQuickAddMessage(""); addQuick("yearly"); }}
+              />
+              <PresetTile
+                label="Annually"
+                hint="Once a year"
+                icon="annually"
+                onClick={() => { setQuickNotice(null); addQuick("yearly"); }}
                 disabled={disabled || maxPresetsReached || afterFormEnd(quickStartDate("yearly", { campaignStartDate }))}
-                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-              >
-                Annually
-              </button>
-              <button
-                type="button"
+              />
+              <PresetTile
+                label="Custom"
+                hint="Full control"
+                icon="custom"
                 onClick={addCustomPreset}
                 disabled={disabled || maxPresetsReached}
-                className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#6B7280] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-              >
-                Custom
-              </button>
+              />
             </div>
 
-            {quickAddMessage ? (
-              <div className="text-[12px] text-[#B45309]">{quickAddMessage}</div>
+            {quickNotice ? (
+              <div
+                className={`mt-2 text-[12px] ${
+                  quickNotice.kind === "success" ? "text-emerald-700" : "text-[#B45309]"
+                }`}
+              >
+                {quickNotice.text}
+              </div>
             ) : null}
 
             {pendingAdd === "weekly" ? (
-              <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-3">
+              <div className="mt-3 rounded-xl border border-[#E5E7EB] bg-white p-3">
                 <div className="mb-2 text-[12px] font-semibold text-[#111827]">Which day should the weekly preset start?</div>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
                   {WEEKDAYS.map((day) => {
-                    const blocked = disabled || maxPresetsReached || afterFormEnd(quickStartDate("weekly", { weekday: day.value, campaignStartDate }));
+                    const start = quickStartDate("weekly", { weekday: day.value, campaignStartDate });
+                    const blocked = disabled || maxPresetsReached || afterFormEnd(start);
                     return (
                       <button
                         key={day.value}
                         type="button"
                         onClick={() => addQuick("weekly", { weekday: day.value })}
                         disabled={blocked}
-                        className="cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                        className="flex flex-col items-start gap-0.5 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 text-left text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {day.label}
+                        <span className="text-[12px] font-semibold">{day.label}</span>
+                        <span className="text-[10px] text-[#6B7280]">
+                          {blocked ? "After form end" : formatPresetDate(start)}
+                        </span>
                       </button>
                     );
                   })}
@@ -897,26 +986,30 @@ const RecurringPresetsEditor = ({
             ) : null}
 
             {pendingAdd === "monthly" ? (
-              <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-3">
+              <div className="mt-3 rounded-xl border border-[#E5E7EB] bg-white p-3">
                 <div className="mb-2 text-[12px] font-semibold text-[#111827]">Which month should the monthly preset start?</div>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                   {MONTHS.map((month) => {
-                    const blocked = disabled || maxPresetsReached || afterFormEnd(quickStartDate("monthly", { month: month.value, campaignStartDate }));
+                    const start = quickStartDate("monthly", { month: month.value, campaignStartDate });
+                    const blocked = disabled || maxPresetsReached || afterFormEnd(start);
                     return (
                       <button
                         key={month.value}
                         type="button"
                         onClick={() => addQuick("monthly", { month: month.value })}
                         disabled={blocked}
-                        className="cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+                        className="flex flex-col items-start gap-0.5 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 text-left text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {month.label}
+                        <span className="text-[12px] font-semibold">{month.label}</span>
+                        <span className="text-[10px] text-[#6B7280]">
+                          {blocked ? "After form end" : formatPresetDate(start)}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
                 <div className="mt-2 text-[11px] text-[#6B7280]">
-                  Months after the form end date are disabled. The preset starts on the 1st of that month and moves to next year if it has already passed.
+                  Starts on the 1st of that month and moves to next year if that date has already passed.
                 </div>
                 <button
                   type="button"
@@ -928,6 +1021,31 @@ const RecurringPresetsEditor = ({
               </div>
             ) : null}
           </div>
+
+          {presets.length ? (
+            <div className="space-y-3">
+              {presets.map((p, idx) => (
+                <PresetCard
+                  key={p?.id || idx}
+                  value={p}
+                  onChange={(next) => setPreset(idx, next)}
+                  onRemove={() => removePreset(idx)}
+                  onSetDefault={() => setDefault(idx)}
+                  disabled={disabled}
+                  errors={errors?.[idx]}
+                  campaignStartDate={campaignStartDate}
+                  campaignEndDate={campaignEndDate}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-5 py-8 text-center">
+              <div className="text-[13px] font-semibold text-[#111827]">No presets yet</div>
+              <div className="mt-1 text-[12px] text-[#6B7280]">
+                Pick an option above to add your first preset.
+              </div>
+            </div>
+          )}
         </div>
       ) : null}
     </section>
