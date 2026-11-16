@@ -252,7 +252,7 @@ const AmountSelector = ({
         </div>
       )}
 
-      {!locked && feeSlot && <div>{feeSlot}</div>}
+      {feeSlot && <div>{feeSlot}</div>}
     </div>
   );
 };
