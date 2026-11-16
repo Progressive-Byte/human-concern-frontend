@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
@@ -15,7 +15,6 @@ import { TURNSTILE_ENABLED } from "@/utils/turnstile";
 import StepLayout from "./StepComponents/StepLayout";
 import StepProgress from "./StepComponents/StepProgress";
 import DonateFormHeader from "./StepComponents/DonateFormHeader";
-import TippingSection from "./StepComponents/Step3components/TippingSection";
 import PaymentGatewaySelector from "./StepComponents/Step3components/PaymentGatewaySelector";
 import DonationPreview from "./StepComponents/DonationPreview";
 import OneTimeUpsell from "./StepComponents/Step3components/OneTimeUpsell";
@@ -62,11 +61,9 @@ const Step3Payment = () => {
     : amountTier;
 
   const [phase, setPhase] = useState("review");
-  const [tipPct, setTipPct] = useState(data.tipPct ?? 10);
-  const [customTipAmount, setCustomTipAmount] = useState(data.customTipAmount ?? "");
-  const [tipSettings, setTipSettings] = useState(null);
-  const tipWasRestored = useRef(data.tipPct !== undefined && data.tipPct !== null);
-  const tipTouched = useRef(false);
+  // The slider lives in Step 1; its values are carried in the donation context.
+  const tipPct = Number(data.tipPct ?? 0);
+  const customTipAmount = data.customTipAmount ?? "";
 
   const [gatewayState, setGatewayStateInternal] = useState({
     gateway: isPreview ? "stripe" : (["stripe", "paypal"].includes(data.paymentMethod) ? data.paymentMethod : null),
@@ -96,44 +93,6 @@ const Step3Payment = () => {
       if (merged.configurationId) patch.gatewayConfigurationId = merged.configurationId;
     }
     update(patch);
-  };
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const res = await apiRequest("payment/settings", { method: "GET" });
-        if (!alive) return;
-        setTipSettings(res?.data?.tips ?? null);
-      } catch (err) {
-        console.error("Failed to fetch payment settings", err);
-      }
-    })();
-    return () => { alive = false; };
-  }, []);
-
-  // Open on the admin's default percentage, but only when the donor has nothing of
-  // their own yet. Clamped to the slider's 0-15 range.
-  useEffect(() => {
-    if (!tipSettings || tipWasRestored.current || tipTouched.current) return;
-    const pct = Number(tipSettings.defaultPercent);
-    if (!Number.isFinite(pct)) return;
-    const min = Number.isFinite(Number(tipSettings.minPercent)) ? Number(tipSettings.minPercent) : 0;
-    const max = Number.isFinite(Number(tipSettings.maxPercent)) ? Number(tipSettings.maxPercent) : 15;
-    setTipPct(Math.min(max, Math.max(min, Math.round(pct))));
-  }, [tipSettings]);
-
-  // Keep whatever percentage is already in state inside the admin's range.
-  useEffect(() => {
-    if (!tipSettings) return;
-    const min = Number.isFinite(Number(tipSettings.minPercent)) ? Number(tipSettings.minPercent) : 0;
-    const max = Number.isFinite(Number(tipSettings.maxPercent)) ? Number(tipSettings.maxPercent) : 15;
-    setTipPct((prev) => Math.min(max, Math.max(min, prev)));
-  }, [tipSettings]);
-
-  const handleTipPctChange = (next) => {
-    tipTouched.current = true;
-    setTipPct(next);
   };
 
   const customTipParsed = customTipAmount !== "" ? Math.max(0, Number(customTipAmount) || 0) : null;
@@ -388,21 +347,6 @@ const Step3Payment = () => {
       nextLabel={nextLabel}
     >
       <div className="flex flex-col gap-4">
-
-        {enableTipping && (
-          <TippingSection
-            sym={sym}
-            baseDonation={tipBasis}
-            tipPct={tipPct}
-            setTipPct={handleTipPctChange}
-            customTipAmount={customTipAmount}
-            setCustomTipAmount={setCustomTipAmount}
-            label={tipSettings?.label}
-            description={tipSettings?.description}
-            minPercent={tipSettings?.minPercent}
-            maxPercent={tipSettings?.maxPercent}
-          />
-        )}
 
         {!isPreview && !isEditMode ? (
           <PaymentGatewaySelector

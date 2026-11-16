@@ -16,8 +16,11 @@ import AmountSelector from "./StepComponents/Step2components/AmountSelector";
 import RecurringSchedule from "./StepComponents/Step2components/RecurringSchedule";
 import SectionStep from "./StepComponents/Step2components/SectionStep";
 import AddOnsList from "./StepComponents/Step3components/AddOnsList";
+import TippingSection from "./StepComponents/Step3components/TippingSection";
 import { useGiftAmountSchedule } from "./StepComponents/useGiftAmountSchedule";
 import { useCampaignAddOns } from "./StepComponents/useCampaignAddOns";
+import { resolveFirstInstallment } from "./StepComponents/firstPayment";
+import { apiRequest } from "@/services/api";
 
 const PAYMENT_TYPES = [
   { value: "one-time",  label: "One-time payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
@@ -88,6 +91,75 @@ const Step1Gift = ({ campaignSlug }) => {
     addOnInputs,
     updateAddOnInput,
   } = useCampaignAddOns();
+
+  const campaignMeta = useMemo(() => {
+    try { return JSON.parse(sessionStorage.getItem("campaignData") || "{}"); }
+    catch { return {}; }
+  }, []);
+  const goalsDatesCompleted = Boolean(campaignMeta.sectionsCompleted?.goalsDates);
+  const enableTipping = isPreview
+    ? (goalsDatesCompleted ? Boolean(campaignMeta.goalsDates?.enableTipping) : false)
+    : (campaignMeta.goalsDates?.enableTipping ?? true);
+
+  // The platform support slider lives here, beside the amount it is a percentage of.
+  const [tipSettings, setTipSettings] = useState(null);
+  const [tipPct, setTipPctState] = useState(data.tipPct ?? 10);
+  const [customTipAmount, setCustomTipAmountState] = useState(data.customTipAmount ?? "");
+  const tipWasRestored = useRef(data.tipPct !== undefined && data.tipPct !== null);
+  const tipTouched = useRef(false);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await apiRequest("payment/settings", { method: "GET" });
+        if (!alive) return;
+        setTipSettings(res?.data?.tips ?? null);
+      } catch (err) {
+        console.error("Failed to fetch payment settings", err);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  // Start on the admin's default percentage, unless the donor already chose one.
+  useEffect(() => {
+    if (!tipSettings || tipWasRestored.current || tipTouched.current) return;
+    const pct = Number(tipSettings.defaultPercent);
+    if (!Number.isFinite(pct)) return;
+    const min = Number.isFinite(Number(tipSettings.minPercent)) ? Number(tipSettings.minPercent) : 0;
+    const max = Number.isFinite(Number(tipSettings.maxPercent)) ? Number(tipSettings.maxPercent) : 15;
+    setTipPctState(Math.min(max, Math.max(min, Math.round(pct))));
+  }, [tipSettings]);
+
+  useEffect(() => {
+    if (!tipSettings) return;
+    const min = Number.isFinite(Number(tipSettings.minPercent)) ? Number(tipSettings.minPercent) : 0;
+    const max = Number.isFinite(Number(tipSettings.maxPercent)) ? Number(tipSettings.maxPercent) : 15;
+    setTipPctState((prev) => Math.min(max, Math.max(min, prev)));
+  }, [tipSettings]);
+
+  useEffect(() => {
+    update({ tipPct, customTipAmount });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipPct, customTipAmount]);
+
+  const handleTipPctChange = (next) => {
+    tipTouched.current = true;
+    setTipPctState(next);
+  };
+  const handleCustomTipChange = (next) => {
+    setCustomTipAmountState(next);
+  };
+
+  const tipBasis = isRecurring
+    ? resolveFirstInstallment({
+        isRecurring,
+        scheduleType: data.scheduleType,
+        scheduleConfig: data.scheduleConfig,
+        amountTier: defaultPerDate,
+      }).base
+    : effectiveAmount;
 
   // Campaign context (id, title, zakat flag) comes from the form config written by
   // CampaignConfigLoader or the admin preview.
@@ -274,6 +346,23 @@ const Step1Gift = ({ campaignSlug }) => {
             initialAmount={initAmount}
             onAmountChange={handleAmountChange}
             overrideTotal={perDateTotal}
+            feeSlot={
+              enableTipping ? (
+                <TippingSection
+                  sym={sym}
+                  baseDonation={tipBasis}
+                  tipPct={tipPct}
+                  setTipPct={handleTipPctChange}
+                  customTipAmount={customTipAmount}
+                  setCustomTipAmount={handleCustomTipChange}
+                  label={tipSettings?.label}
+                  description={tipSettings?.description}
+                  minPercent={tipSettings?.minPercent}
+                  maxPercent={tipSettings?.maxPercent}
+                  embedded
+                />
+              ) : null
+            }
           />
         </div>
 

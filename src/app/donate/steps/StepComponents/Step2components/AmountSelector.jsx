@@ -29,6 +29,7 @@ const AmountSelector = ({
   suggestedAmountsData = [],   // [{ value, description, isDefault }] — the admin's preset list
   onAmountChange,
   overrideTotal,
+  feeSlot = null,              // platform fee slider, shown with the amount controls
 }) => {
   // Build rate map from campaign data
   const rateMap = useMemo(() => {
@@ -250,6 +251,8 @@ const AmountSelector = ({
           )}
         </div>
       )}
+
+      {!locked && feeSlot && <div>{feeSlot}</div>}
     </div>
   );
 };

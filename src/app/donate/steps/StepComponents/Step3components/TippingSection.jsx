@@ -18,6 +18,7 @@ const TippingSection = ({
   description,
   minPercent = 0,
   maxPercent = 15,
+  embedded = false,
 }) => {
   const { update } = useDonation();
   const { primaryColor } = useBranding();
@@ -57,7 +58,7 @@ const TippingSection = ({
   };
 
   return (
-    <div className="border border-[#E5E5E5] rounded-xl bg-[#F9F9F9] px-4 py-4">
+    <div className={embedded ? "border-t border-[#E5E5E5] pt-4" : "border border-[#E5E5E5] rounded-xl bg-[#F9F9F9] px-4 py-4"}>
       <p className="text-[14px] font-semibold text-[#383838]">{label || DEFAULT_TIP_LABEL}</p>
       <p className="text-[12px] text-[#737373] mt-0.5 mb-4">
         {description || DEFAULT_TIP_DESCRIPTION}

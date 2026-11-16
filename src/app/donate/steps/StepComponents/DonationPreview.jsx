@@ -55,7 +55,7 @@ const DonationPreview = ({ currentStep }) => {
       }).base
     : baseTotal;
 
-  const tipAmount = (currentStep >= 3 && enableTipping)
+  const tipAmount = (currentStep >= 1 && enableTipping)
     ? (customTipParsed !== null
         ? customTipParsed
         : data.tipPct
