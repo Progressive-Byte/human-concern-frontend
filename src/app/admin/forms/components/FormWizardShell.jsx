@@ -44,18 +44,18 @@ const FormWizardShell = ({
 
   return (
     <div className="min-w-0 p-4 md:p-6 space-y-6">
-      <div className="hc-animate-fade-up flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">{title}</h1>
-            <p className="mt-1 text-[14px] text-[#6B7280]">
-              Changes are saved automatically. Wizard configuration is saved on the Form.
-            </p>
-          </div>
-
-          <SaveStatusChip state={guard?.saveState} />
+      <div className="hc-animate-fade-up flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">{title}</h1>
+          <p className="mt-1 text-[14px] text-[#6B7280]">
+            Changes are saved automatically. Wizard configuration is saved on the Form.
+          </p>
         </div>
 
+        <SaveStatusChip state={guard?.saveState} />
+      </div>
+
+      <div className="sticky top-0 z-30 -mx-4 border-b border-[#E5E7EB] bg-white/95 px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
         <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white px-4 py-3">
           <div className="flex flex-wrap items-center gap-2">
             {list.map((s, idx) => {
