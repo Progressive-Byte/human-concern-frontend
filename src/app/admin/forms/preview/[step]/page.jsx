@@ -88,6 +88,7 @@ function buildCampaignDataFromAdminReview(review, formId, globalNote = []) {
     addOns,
     sectionsCompleted,
     globalNote,
+    display: form?.publicDisplay && typeof form.publicDisplay === "object" ? form.publicDisplay : {},
     goalsDates: {
       allowOneTimeDonations: goalsDates?.allowOneTimeDonations === undefined ? true : Boolean(goalsDates.allowOneTimeDonations),
       allowRecurringDonations: goalsDates?.allowRecurringDonations === undefined ? true : Boolean(goalsDates.allowRecurringDonations),

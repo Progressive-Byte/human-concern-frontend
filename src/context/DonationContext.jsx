@@ -22,6 +22,7 @@ const initialState = {
   submitted: false,
   progressPercent: 0,
   marketingConsent: true,
+  marketingConsentTouched: false,
   pendingSessionId: null,
   setupIntentId: null,
   finalizedDonationId: null,

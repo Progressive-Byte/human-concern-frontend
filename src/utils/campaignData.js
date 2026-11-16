@@ -36,6 +36,7 @@ export function buildCampaignData(campaign, globalNote = []) {
     suggestedAmountsData: normalizeSuggestedData(c.suggestedAmounts),
     addOns:              c.addOns             ?? [],
     currenciesWithRates: c.currenciesWithRates ?? [],
+    display:              c.display ?? {},
     globalNote,
     goalsDates: {
       allowOneTimeDonations:   gd.allowOneTimeDonations   ?? true,

@@ -35,6 +35,8 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
   const [showDonorCount, setShowDonorCount] = useState(true);
   // Blank means "use the default label" (Support) on the public Donate buttons.
   const [donateButtonLabel, setDonateButtonLabel] = useState("");
+  // How the marketing opt-in checkbox starts on the donation form.
+  const [marketingConsentMode, setMarketingConsentMode] = useState("checked");
 
   function applyServerValue(pd) {
     // Same rule as before this step existed: never set means ON.
@@ -47,6 +49,8 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
     // what is actually stored (empty = default).
     const label = String(pd?.donateButtonLabel || "").trim();
     setDonateButtonLabel(label === DEFAULT_DONATE_BUTTON_LABEL ? "" : label);
+    const mode = String(pd?.marketingConsentMode || "").trim().toLowerCase();
+    setMarketingConsentMode(["checked", "unchecked", "hidden"].includes(mode) ? mode : "checked");
   }
 
   useEffect(() => {
@@ -81,7 +85,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
   // Same autosave contract as every other step.
   useStepAutosave({
     formId,
-    deps: [showProgressBar, showStartEndDates, showAmountRaised, showTargetAmount, showDonorCount, donateButtonLabel],
+    deps: [showProgressBar, showStartEndDates, showAmountRaised, showTargetAmount, showDonorCount, donateButtonLabel, marketingConsentMode],
     ready: !loading,
     persist: () => save({ silent: true }),
   });
@@ -106,6 +110,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
         showTargetAmount: Boolean(showTargetAmount),
         showDonorCount: Boolean(showDonorCount),
         donateButtonLabel: String(donateButtonLabel || "").trim(),
+        marketingConsentMode,
       });
       // Reflect exactly what the server stored, so autosave and Save agree.
       applyServerValue(readPublicDisplay(res));
@@ -243,6 +248,33 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
           <div className="mt-2 text-[12px] text-[#6B7280]">
             Leave empty to use <span className="font-semibold">{DEFAULT_DONATE_BUTTON_LABEL}</span>. Maximum{" "}
             {MAX_LABEL_LENGTH} characters.
+          </div>
+        </div>
+      </section>
+
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+        <div>
+          <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Marketing Opt-in</h2>
+          <p className="mt-1 text-[13px] text-[#6B7280]">
+            The “email updates” checkbox on this form&apos;s donation form.
+          </p>
+        </div>
+
+        <div className="mt-5 max-w-md">
+          <div className="mb-2 text-[13px] font-semibold text-[#111827]">Default state</div>
+          <select
+            value={marketingConsentMode}
+            onChange={(e) => setMarketingConsentMode(e.target.value)}
+            disabled={saving}
+            className={inputClass}
+          >
+            <option value="checked">Checked by default (donor can uncheck)</option>
+            <option value="unchecked">Unchecked by default (donor can check)</option>
+            <option value="hidden">Hidden (collect no consent)</option>
+          </select>
+          <div className="mt-2 text-[12px] text-[#6B7280]">
+            Forms that never set this stay on “Checked by default”. The donor&apos;s final choice is
+            stored with every donation.
           </div>
         </div>
       </section>

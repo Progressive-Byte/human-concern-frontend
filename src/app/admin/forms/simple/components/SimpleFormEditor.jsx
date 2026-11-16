@@ -70,6 +70,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   const [defaultMonthlyAmount, setDefaultMonthlyAmount] = useState("");
   const [causeIds, setCauseIds] = useState([]);
   const [allowRecurring, setAllowRecurring] = useState(false);
+  const [marketingConsentMode, setMarketingConsentMode] = useState("checked");
   const [addonsEnabled, setAddonsEnabled] = useState(false);
   const [addOnIds, setAddOnIds] = useState([]);
   const [customNotes, setCustomNotes] = useState([]);
@@ -113,6 +114,11 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     );
     setCauseIds((Array.isArray(initial.causeIds) ? initial.causeIds : []).map((id) => String(id)));
     setAllowRecurring(initial.allowRecurringDonations === true);
+    setMarketingConsentMode(
+      ["checked", "unchecked", "hidden"].includes(String(initial.marketingConsentMode || ""))
+        ? String(initial.marketingConsentMode)
+        : "checked"
+    );
     setAddonsEnabled(initial.addonsEnabled === true);
     setAddOnIds((Array.isArray(initial.addOnIds) ? initial.addOnIds : []).map((id) => String(id)));
     setCustomNotes(Array.isArray(initial.customNotes) ? initial.customNotes : []);
@@ -198,6 +204,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
       ),
       causeIds,
       allowRecurringDonations: allowRecurring === true,
+      marketingConsentMode,
       addonsEnabled,
       addOnIds: addonsEnabled ? addOnIds : [],
       customNotes,
@@ -216,6 +223,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     feeMinPercent,
     feePercent,
     goalAmount,
+    marketingConsentMode,
     monthlyPresets,
     presets,
   ]);
@@ -472,6 +480,28 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
       />
 
       <PurposePicker selectedIds={causeIds} onChange={setCauseIds} onDirty={touch} disabled={busy} />
+
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+        <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Marketing Opt-in</h2>
+        <p className="mt-1 text-[13px] text-[#6B7280]">
+          How the “email updates” checkbox starts in this popup.
+        </p>
+        <div className="mt-4 max-w-md">
+          <select
+            value={marketingConsentMode}
+            onChange={(e) => {
+              setMarketingConsentMode(e.target.value);
+              touch();
+            }}
+            disabled={busy}
+            className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+          >
+            <option value="checked">Checked by default (donor can uncheck)</option>
+            <option value="unchecked">Unchecked by default (donor can check)</option>
+            <option value="hidden">Hidden (collect no consent)</option>
+          </select>
+        </div>
+      </section>
 
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
