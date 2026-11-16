@@ -272,29 +272,45 @@ function CalendarPopover({ open, anchorRef, children, onRequestClose }) {
   );
 }
 
-function DateField({ label, value, placeholder = "Select date", onClick, disabled, error, buttonRef }) {
+function DateField({ label, value, placeholder = "Select date", onClick, disabled, error, buttonRef, onClear }) {
+  const canClear = Boolean(value) && typeof onClear === "function" && !disabled;
   return (
     <div className="relative">
       <div className="mb-2 text-[13px] font-semibold text-[#111827]">{label}</div>
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        className="flex w-full items-center justify-between rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
-      >
-        <span className={value ? "text-[#111827]" : "text-[#6B7280]"}>{value || placeholder}</span>
-        <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#9CA3AF]" fill="none">
-          <path d="M8 2v4M16 2v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path
-            d="M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          ref={buttonRef}
+          type="button"
+          onClick={onClick}
+          disabled={disabled}
+          className="flex w-full items-center justify-between rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-left text-[13px] text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+        >
+          <span className={value ? "text-[#111827]" : "text-[#6B7280]"}>{value || placeholder}</span>
+          <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#9CA3AF]" fill="none">
+            <path d="M8 2v4M16 2v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path
+              d="M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        {canClear ? (
+          <button
+            type="button"
+            onClick={onClear}
+            aria-label={`Clear ${label}`}
+            title="Clear date"
+            className="inline-flex h-[42px] w-10 shrink-0 items-center justify-center rounded-xl border border-solid border-[#E5E7EB] bg-white text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827]"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+        ) : null}
+      </div>
       <FieldError message={error} />
     </div>
   );
@@ -362,6 +378,7 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
             disabled={disabled}
             error={errors?.startDate}
             buttonRef={startBtnRef}
+            onClear={startDate ? () => { setField({ startDate: "" }); setOpenPicker(null); } : undefined}
           />
           <CalendarPopover
             open={openPicker === "start"}
@@ -386,6 +403,7 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
             disabled={disabled}
             error={errors?.endDate}
             buttonRef={endBtnRef}
+            onClear={endDate ? () => { setField({ endDate: "" }); setOpenPicker(null); } : undefined}
           />
           <CalendarPopover
             open={openPicker === "end"}
@@ -527,6 +545,7 @@ function SpecificDatesEditor({ value, onChange, disabled, errors, campaignStartD
           disabled={disabled}
           error={errors?.dates}
           buttonRef={datesBtnRef}
+          onClear={dates.length ? () => { onChange?.({ ...v, dates: [] }); setOpen(false); } : undefined}
         />
         <CalendarPopover open={open} anchorRef={datesBtnRef} onRequestClose={() => setOpen(false)}>
           <div className="space-y-3">
