@@ -614,6 +614,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
       if (presetsErrors.some((e) => e && Object.keys(e).length)) {
         errors.recurringPresets = "Fix recurring presets";
+      } else if (!normalizedPresets.some((p) => p.enabled !== false)) {
+        errors.recurringPresets = "Add at least one enabled preset when recurring donations are on.";
       }
     }
 
@@ -1021,6 +1023,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         disabled={disabled}
         errors={recurringPresetsErrors}
         allowError={fieldErrors.allowRecurringDonations}
+        sectionError={fieldErrors.recurringPresets}
         campaignStartDate={startAt}
         campaignEndDate={endAt}
       />

@@ -753,6 +753,7 @@ const RecurringPresetsEditor = ({
   disabled,
   errors,
   allowError,
+  sectionError = "",
   campaignStartDate,
   campaignEndDate,
 }) => {
@@ -853,6 +854,12 @@ const RecurringPresetsEditor = ({
         <h3 className="text-[14px] font-semibold text-[#111827]">Recurring Donations</h3>
         <p className="mt-1 text-[13px] text-[#6B7280]">Configure preset recurring schedules shown to donors</p>
       </div>
+
+      {allowRecurringDonations && sectionError ? (
+        <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2">
+          <FieldError message={sectionError} />
+        </div>
+      ) : null}
 
       <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
         <div className="flex items-center justify-between gap-4">
