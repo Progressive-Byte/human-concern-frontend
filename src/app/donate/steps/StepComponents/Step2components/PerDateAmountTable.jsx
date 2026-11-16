@@ -2,7 +2,7 @@
 
 import DateAmountRow from "./DateAmountRow";
 
-const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange, minDateStr, causeSplit, causeLabelById, resolvedAmounts = null }) => {
+const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange, minDateStr, causeSplit, causeLabelById, resolvedAmounts = null, readOnly = false }) => {
   const cutoff = minDateStr ?? new Date().toISOString().split("T")[0];
 
   const futureDates = activeDates.filter((d) => d >= cutoff);
@@ -51,7 +51,7 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
             resolved={resolvedAmounts ? resolvedAmounts[d] : undefined}
             sym={sym}
             onChange={onChange}
-            disabled={d < cutoff}
+            disabled={readOnly || d < cutoff}
             causeSplit={causeSplit}
             causeLabelById={causeLabelById}
           />

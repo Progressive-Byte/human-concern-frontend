@@ -23,6 +23,121 @@ const SCHEDULE_TYPES = [
 const TEMPLATE_NAMES = new Set(["specific dates", "date range", "interval"]);
 const isTemplate = (preset) => TEMPLATE_NAMES.has((preset?.name ?? "").toLowerCase().trim());
 
+const DAY_MS = 86400000;
+
+function keyToDate(key) {
+  const s = String(key || "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  const d = new Date(`${s}T00:00:00.000Z`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function dateToKey(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function addMonthsKey(key, months) {
+  const d = keyToDate(key);
+  if (!d) return "";
+  const day = d.getUTCDate();
+  const target = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + months, 1));
+  const daysInMonth = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+  target.setUTCDate(Math.min(day, daysInMonth));
+  return dateToKey(target);
+}
+
+// Presets without an end date run until the donor/admin cancels them. Templates
+// ("Specific dates" / "Date range" / "Interval") are not presets and stay editable.
+function isOpenEndedPreset(preset) {
+  const cfg = preset?.scheduleConfig && typeof preset.scheduleConfig === "object" ? preset.scheduleConfig : {};
+  return !isTemplate(preset) && preset?.scheduleType === "date_range" && Boolean(cfg.startDate) && !cfg.endDate;
+}
+
+function presetCadence(preset) {
+  const cfg = preset?.scheduleConfig && typeof preset.scheduleConfig === "object" ? preset.scheduleConfig : {};
+  return {
+    startKey: cfg.startDate?.split("T")[0] ?? "",
+    frequency: cfg.frequency ?? "daily",
+    intervalValue: Math.max(1, Number(cfg.intervalValue) || 1),
+    daysOfWeek: Array.isArray(cfg.daysOfWeek) ? cfg.daysOfWeek.map(Number) : [],
+  };
+}
+
+// First occurrence on/after today, keeping the preset's original cadence anchor.
+function firstOccurrenceOnOrAfter({ startKey, frequency, intervalValue, daysOfWeek }, today) {
+  const anchor = keyToDate(startKey);
+  const todayDate = keyToDate(today);
+  if (!anchor || !todayDate) return today;
+  const interval = Math.max(1, Number(intervalValue) || 1);
+
+  if (frequency === "interval" || interval > 1) {
+    if (anchor >= todayDate) return dateToKey(anchor);
+    const diff = Math.floor((todayDate.getTime() - anchor.getTime()) / DAY_MS);
+    const steps = Math.max(1, Math.ceil(diff / interval));
+    const candidate = new Date(anchor);
+    candidate.setUTCDate(candidate.getUTCDate() + steps * interval);
+    if (candidate < todayDate) candidate.setUTCDate(candidate.getUTCDate() + interval);
+    return dateToKey(candidate);
+  }
+
+  if (frequency === "daily") return dateToKey(anchor < todayDate ? todayDate : anchor);
+
+  if (frequency === "weekly") {
+    const set = new Set((daysOfWeek.length ? daysOfWeek : [anchor.getUTCDay()]).map(Number));
+    const cursor = new Date(anchor < todayDate ? todayDate : anchor);
+    for (let i = 0; i < 7; i += 1) {
+      if (set.has(cursor.getUTCDay())) return dateToKey(cursor);
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+    return dateToKey(cursor);
+  }
+
+  if (frequency === "monthly") {
+    const day = anchor.getUTCDate();
+    const makeDate = (year, month) => {
+      const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+      return new Date(Date.UTC(year, month, Math.min(day, daysInMonth)));
+    };
+    let year = todayDate.getUTCFullYear();
+    let month = todayDate.getUTCMonth();
+    let candidate = makeDate(year, month);
+    while (candidate < todayDate) {
+      month += 1;
+      if (month > 11) { month = 0; year += 1; }
+      candidate = makeDate(year, month);
+    }
+    return dateToKey(candidate);
+  }
+
+  if (frequency === "yearly") {
+    const month = anchor.getUTCMonth();
+    const day = anchor.getUTCDate();
+    const makeDate = (year) => {
+      const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+      return new Date(Date.UTC(year, month, Math.min(day, daysInMonth)));
+    };
+    let year = todayDate.getUTCFullYear();
+    let candidate = makeDate(year);
+    while (candidate < todayDate) { year += 1; candidate = makeDate(year); }
+    return dateToKey(candidate);
+  }
+
+  return dateToKey(anchor);
+}
+
+// Open-ended plans submit a 12-month horizon; the backend keeps extending it.
+function openEndedHorizon({ startKey, frequency, intervalValue, daysOfWeek }) {
+  const interval = Math.max(1, Number(intervalValue) || 1);
+  const freq = interval > 1 ? "custom" : frequency;
+  let endKey = addMonthsKey(startKey, 12);
+  let dates = generateDatesInRange(startKey, endKey, freq, interval, daysOfWeek);
+  if (dates.length > 365) {
+    dates = dates.slice(0, 365);
+    endKey = dates[dates.length - 1];
+  }
+  return { endKey, dates };
+}
+
 const RecurringSchedule = ({
   sym,
   effectiveAmount,
@@ -83,9 +198,11 @@ const RecurringSchedule = ({
   const hasPresets       = visibleApiPresets.length > 0;
   const isCustom         = activePreset === "custom";
   const activeApiPreset  = visibleApiPresets.find((p) => p.id === activePreset);
+  const activeIsOpenEnded = isOpenEndedPreset(activeApiPreset);
   const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
   // Show full controls for: Custom pill, template presets, or no API presets at all
   const showFullControls = isCustom || isTemplateActive || !hasPresets;
+  const openEndedLocked = activeIsOpenEnded && !showFullControls;
   // Only snap monthly/yearly onto whole periods while the donor is editing the range. A
   // fixed admin preset keeps its exact anchor day (e.g. a monthly preset on the 15th).
   const anchorPeriods = showFullControls;
@@ -118,6 +235,11 @@ const RecurringSchedule = ({
     if (!preset) return [];
     const cfg = preset.scheduleConfig && typeof preset.scheduleConfig === "object" ? preset.scheduleConfig : {};
     if (preset.scheduleType === "date_range") {
+      if (isOpenEndedPreset(preset)) {
+        const cadence = presetCadence(preset);
+        const startKey = firstOccurrenceOnOrAfter(cadence, todayKey);
+        return openEndedHorizon({ ...cadence, startKey }).dates;
+      }
       const start = cfg.startDate?.split("T")[0] ?? "";
       const end = cfg.endDate?.split("T")[0] ?? "";
       const interval = cfg.intervalValue ?? 1;
@@ -154,6 +276,7 @@ const RecurringSchedule = ({
       occurrences: occ,
       remainingOccurrences: opts.remainingOccurrences !== undefined ? opts.remainingOccurrences : occ,
       makeUpMissedDates: Boolean(opts.makeUpMissedDates),
+      openEnded: Boolean(opts.openEnded),
       activePreset: preset,
     });
   };
@@ -188,27 +311,33 @@ const RecurringSchedule = ({
     setMakeUpMissedDates(nextMakeUp);
 
     if (preset.scheduleType === "date_range") {
-      const start    = cfg.startDate?.split("T")[0] ?? "";
-      const end      = cfg.endDate?.split("T")[0]   ?? "";
-      const interval = cfg.intervalValue ?? 1;
-      const freq     = interval > 1 ? "custom" : (cfg.frequency ?? "daily");
+      const openEnded = isOpenEndedPreset(preset);
+      const cadence = presetCadence(preset);
+      const interval = cadence.intervalValue;
+      const freq = interval > 1 ? "custom" : cadence.frequency;
+      let start = cadence.startKey;
+      let end = String(cfg.endDate || "").split("T")[0] ?? "";
+      if (openEnded) {
+        start = firstOccurrenceOnOrAfter(cadence, todayKey);
+        end = openEndedHorizon({ ...cadence, startKey: start }).endKey;
+      }
       const presetDays = freq === "weekly"
-        ? (Array.isArray(cfg.daysOfWeek) && cfg.daysOfWeek.length ? cfg.daysOfWeek : (weekdayOf(start) === null ? [] : [weekdayOf(start)]))
+        ? (cadence.daysOfWeek.length ? cadence.daysOfWeek : (weekdayOf(start) === null ? [] : [weekdayOf(start)]))
         : [];
       // With make-up OFF, clamp the range start so already-passed dates are excluded — otherwise
-      // the API rejects the schedule (past dates).
+      // the API rejects the schedule (past dates). Open-ended presets always start in the future.
       const effectiveStart = nextMakeUp ? start : (futurePresetDates[0] ?? start);
       setScheduleType("date_range");
       setRangeStart(effectiveStart);
       setRangeEnd(end);
       setRangeFreq(freq);
-      setCustomInterval(interval > 1 ? interval : 1);
+      setCustomInterval(interval);
       setSelectedDates([]);
       setDateAmounts({});
       setWeekDays(presetDays);
       notify(
-        "date_range", [], effectiveStart, end, freq, {}, interval > 1 ? interval : 1, presetId, presetDays,
-        { includePast: nextMakeUp, makeUpMissedDates: nextMakeUp, remainingOccurrences: futurePresetDates.length },
+        "date_range", [], effectiveStart, end, freq, {}, interval, presetId, presetDays,
+        { includePast: nextMakeUp, makeUpMissedDates: nextMakeUp, remainingOccurrences: futurePresetDates.length, openEnded },
       );
       return;
     }
@@ -454,6 +583,12 @@ const RecurringSchedule = ({
         </label>
       )}
 
+      {!showFullControls && activeIsOpenEnded ? (
+        <div className="rounded-xl border border-[#E5E5E5] bg-white px-4 py-2.5 text-[12px] text-[#383838]">
+          <span className="font-medium">Ongoing</span> — this plan continues until you cancel it.
+        </div>
+      ) : null}
+
       {/* Summary banner — only for fixed presets (not template, not custom) */}
       {!showFullControls && (scheduledDateCount > 0 || (!makeUpMissedDates && pastPresetCount > 0)) && (
         <div className="flex items-center justify-between bg-[#FFF5F5] border border-[#FFCCCC] rounded-xl px-4 py-2.5">
@@ -530,9 +665,10 @@ const RecurringSchedule = ({
           activeDates={activeDates}
           dateAmounts={dateAmounts}
           effectiveAmount={effectiveAmount}
-          resolvedAmounts={resolvedAmounts}
+          resolvedAmounts={openEndedLocked ? null : resolvedAmounts}
           sym={sym}
           onChange={handleDateAmountChange}
+          readOnly={openEndedLocked}
           minDateStr={minDateStr}
           causeSplit={causeSplit}
           causeLabelById={causeLabelById}

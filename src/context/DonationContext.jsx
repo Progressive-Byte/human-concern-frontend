@@ -49,6 +49,7 @@ const initialState = {
   paypalOrderId: null,
   gatewayConfigurationId: null,
   paymentType: "one-time",
+  openEnded: false,
   grandTotal: 0,
   unifiedChallenge: null,
   customNoteValues: {},

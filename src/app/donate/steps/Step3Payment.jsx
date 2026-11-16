@@ -58,7 +58,7 @@ const Step3Payment = () => {
   const sym          = getCurrencySymbol(currency);
 
   const baseDonation = isRecurring
-    ? (data.perDateTotal ?? amountTier * numberOfDays)
+    ? (data.openEnded ? amountTier : (data.perDateTotal ?? amountTier * numberOfDays))
     : amountTier;
 
   const [phase, setPhase] = useState("review");

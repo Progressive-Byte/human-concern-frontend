@@ -42,10 +42,6 @@ function parseDateInput(value) {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-function addYearsUtc(date, years) {
-  return new Date(Date.UTC(date.getUTCFullYear() + years, date.getUTCMonth(), date.getUTCDate()));
-}
-
 function firstWeekdayOnOrAfter(base, weekday) {
   const d = new Date(base);
   const diff = (Number(weekday) - d.getUTCDay() + 7) % 7;
@@ -85,7 +81,8 @@ function quickStartDate(frequency, { weekday, month, campaignStartDate } = {}) {
 function quickEndDate(start, campaignEndDate) {
   const formEnd = parseDateInput(campaignEndDate);
   if (formEnd && formEnd > start) return formEnd;
-  return addYearsUtc(start, 1);
+  // No form end date: the preset is open-ended and runs until cancelled.
+  return null;
 }
 
 function todayKey() {
@@ -383,7 +380,7 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
 
         <div className="relative">
           <DateField
-            label="End Date (Optional)"
+            label="End Date (Optional — empty = runs until cancelled)"
             value={endDate}
             onClick={() => setOpenPicker((p) => (p === "end" ? null : "end"))}
             disabled={disabled}
@@ -830,7 +827,7 @@ const RecurringPresetsEditor = ({
       scheduleType: "date_range",
       scheduleConfig: {
         startDate: start.toISOString(),
-        endDate: end.toISOString(),
+        ...(end ? { endDate: end.toISOString() } : {}),
         frequency,
         ...(frequency === "weekly" ? { daysOfWeek: [Number(extra.weekday)] } : {}),
       },
@@ -904,7 +901,7 @@ const RecurringPresetsEditor = ({
                     <span className="font-semibold text-[#374151]">({formatPresetDate(formEnd)})</span>.
                   </>
                 ) : (
-                  <span className="text-[#B45309]">No form end date — presets default to one year.</span>
+                  <span className="text-[#B45309]">No form end date — presets run until cancelled.</span>
                 )}
               </div>
             </div>

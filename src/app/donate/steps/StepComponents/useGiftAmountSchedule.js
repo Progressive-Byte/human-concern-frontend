@@ -233,12 +233,14 @@ export function useGiftAmountSchedule() {
     remainingOccurrences: remOcc,
     makeUpMissedDates: mk,
     activePreset: preset,
+    openEnded: openEndedNext,
   }) => {
     setOccurrences(occ);
     if (remOcc !== undefined) setRemainingOccurrences(remOcc);
     if (mk !== undefined) setMakeUpMissedDates(Boolean(mk));
     setScheduleState({ scheduleType, scheduleConfig });
     if (preset !== undefined) setActivePreset(preset);
+    update({ openEnded: Boolean(openEndedNext) });
   };
 
   const handleSplitModeChange = (val) => {

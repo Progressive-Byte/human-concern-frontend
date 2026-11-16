@@ -50,7 +50,7 @@ export function buildApiScheduleConfig({ data, amountTier, scheduleType, schedul
   const dates = buildDatesFromConfig({
     scheduleType,
     scheduleConfig,
-    resolvedAmounts: data.resolvedScheduleAmounts,
+    resolvedAmounts: data.openEnded ? null : data.resolvedScheduleAmounts,
     amountTier,
   }).map((row) => ({
     ...row,
@@ -156,6 +156,7 @@ export function buildSubmitBody({
     },
     ...(data.isRamadan && data.objective && { objectiveId: data.objective }),
     paymentMethod: gateway,
+    ...(isRecurring && data.openEnded ? { openEnded: true } : {}),
     ...(data.anonymous && { isAnonymous: true }),
     marketingConsent: data.marketingConsent !== false,
     ...buildNoteAnswers({ data, campaignMeta }),
@@ -171,7 +172,8 @@ export function buildSubmitBody({
     const howToSplit = (data.splitMode ?? "repeat") === "divide" ? "divide" : "each";
     body.payment = {
       paymentMode: "split",
-      amount:      baseDonation,
+      // Open-ended plans commit to one installment, not the whole horizon.
+      amount:      data.openEnded ? amountTier : baseDonation,
       currency,
       howToSplit,
       ...(tipAmount > 0
