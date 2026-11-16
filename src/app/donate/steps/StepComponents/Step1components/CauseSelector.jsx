@@ -62,6 +62,8 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
   if (!causes.length) return null;
 
   const showSplit = selectedCauseIds.length > 1;
+  const total = Number(totalAmount);
+  const splitDisabled = !Number.isFinite(total) || total <= 0;
 
   return (
     <div className="flex flex-col gap-3">
@@ -117,11 +119,17 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
               </button>
 
               {active && showSplit && (
-                <CauseAmountInput
-                  amount={allocations[cause.id] ?? 0}
-                  sym={sym}
-                  onChange={(amount) => onSplitChange(cause.id, amount)}
-                />
+                splitDisabled ? (
+                  <div className="mt-2 rounded-lg bg-white/70 px-3 py-2 text-[11px] text-[#737373]">
+                    Enter a donation amount first to split causes.
+                  </div>
+                ) : (
+                  <CauseAmountInput
+                    amount={allocations[cause.id] ?? 0}
+                    sym={sym}
+                    onChange={(amount) => onSplitChange(cause.id, amount)}
+                  />
+                )
               )}
             </div>
           );

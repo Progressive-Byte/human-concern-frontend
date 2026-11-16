@@ -77,7 +77,7 @@ export function useGiftAmountSchedule() {
   //               for restoring the amount field because it would show the divided value.
   const _donorAmt   = data.donorAmount && Number.isFinite(data.donorAmount) ? data.donorAmount : null;
   const _urlAmt     = data.amount && Number.isFinite(Number(data.amount)) ? Number(data.amount) : null;
-  const initAmount  = _donorAmt ?? _urlAmt ?? suggestedAmounts[0] ?? (isPreview ? 0 : 25);
+  const initAmount  = _donorAmt ?? _urlAmt ?? suggestedAmounts[0] ?? 25;
   const sym         = CURRENCY_SYMBOLS[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
   const causeSplit = data.causeSplit ?? {};
