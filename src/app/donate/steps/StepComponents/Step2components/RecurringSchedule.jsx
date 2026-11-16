@@ -48,6 +48,8 @@ const RecurringSchedule = ({
   // can never pick a schedule with no future payment.
   const visibleApiPresets = useMemo(
     () => (Array.isArray(apiPresets) ? apiPresets : []).filter((preset) => {
+      // Template pills ("Specific dates", "Date range", "Interval") start empty by design.
+      if (isTemplate(preset)) return true;
       const dates = fullPresetDates(preset);
       if (!dates.length) return false;
       if (dates.some((d) => d >= minDateStr)) return true;
@@ -382,6 +384,14 @@ const RecurringSchedule = ({
   // Nothing future left: make-up is mandatory, not optional.
   const makeUpRequired = showMakeUp && !activePresetDates.some((d) => d >= minDateStr);
   const makeUpAmount = presetMissedDates.length * (Number(effectiveAmount) || 0);
+
+  // Restored sessions can point at a fully-expired make-up preset that was saved with make-up
+  // off. Force it on so the submitted dates match the make-up payload the API expects.
+  useEffect(() => {
+    if (!makeUpRequired || makeUpMissedDates) return;
+    handlePreset(activePreset, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [makeUpRequired, makeUpMissedDates, activePreset]);
   const scheduledDateCount = makeUpMissedDates
     ? (scheduleType === "date_range" ? generatedDates.length : selectedDates.length)
     : presetDateCount;
