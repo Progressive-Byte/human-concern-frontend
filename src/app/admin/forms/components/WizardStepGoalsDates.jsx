@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Toggle from "@/components/ui/Toggle";
-import { getAdminFormGoalsDates, getAdminSettingsExchangeRates, getAdminSettingsPayment, updateAdminFormGoalsDates } from "@/services/admin";
+import { getAdminFormById, getAdminFormGoalsDates, getAdminSettingsExchangeRates, getAdminSettingsPayment, updateAdminFormGoalsDates } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import useStepAutosave from "../hooks/useStepAutosave";
 import FieldError from "./FieldError";
@@ -271,6 +271,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
   const [topError, setTopError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [suggestedAmountsErrors, setSuggestedAmountsErrors] = useState([]);
@@ -334,8 +335,16 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     setTopError("");
     (async () => {
       try {
-        const [res, exchangeRatesRes, paymentRes] = await Promise.all([getAdminFormGoalsDates(formId), getAdminSettingsExchangeRates(), getAdminSettingsPayment()]);
+        const [res, exchangeRatesRes, paymentRes, formRes] = await Promise.all([
+          getAdminFormGoalsDates(formId),
+          getAdminSettingsExchangeRates(),
+          getAdminSettingsPayment(),
+          getAdminFormById(formId),
+        ]);
         if (!alive) return;
+        const form = formRes?.data?.item || formRes?.data?.data || formRes?.data || {};
+        const status = String(form?.status || "").trim().toLowerCase();
+        setIsPublished(Boolean(status && status !== "draft"));
         const d = normalizeGoalsDatesResponse(res);
         const exchangeRates = normalizeExchangeRatesResponse(exchangeRatesRes);
         const nextCurrencyOptions = buildCurrencyOptionsFromRates(exchangeRates);
@@ -746,6 +755,15 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     if (!formId) {
       if (!silent) toast.error("Complete Basics first");
       return { ok: false, error: "Complete Basics first" };
+    }
+
+    /*
+      A published form cannot be changed here, so skip validation and the save. The admin must
+      move it back to Draft first.
+    */
+    if (isPublished) {
+      if (goNext) onExit?.({ nextStep: "causes" });
+      return { ok: true };
     }
 
     const { errors, payload, suggErrors, presetsErrors, notesErrors } = validate({
