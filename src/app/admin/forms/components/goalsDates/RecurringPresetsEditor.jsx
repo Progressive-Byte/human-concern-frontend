@@ -617,13 +617,17 @@ function SpecificDatesEditor({ value, onChange, disabled, errors, campaignStartD
   );
 }
 
-function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors, campaignStartDate, campaignEndDate }) {
+function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors, campaignStartDate, campaignEndDate, open, onToggle, innerRef }) {
   const v = value && typeof value === "object" ? value : {};
   const scheduleType = String(v.scheduleType || "date_range");
   const config = v.scheduleConfig && typeof v.scheduleConfig === "object" ? v.scheduleConfig : {};
   const cardErrors = errors && typeof errors === "object" ? errors : {};
   const endDateKey = String(config.endDate || "").slice(0, 10);
   const isExpired = Boolean(endDateKey && endDateKey < todayKey());
+  const frequencyLabel = FREQ_OPTIONS.find((item) => item.value === String(config.frequency || ""))?.label || "Custom";
+  const summary = scheduleType === "specific_dates"
+    ? `Specific dates · ${Array.isArray(config.dates) ? config.dates.length : 0} date(s)`
+    : `Date range · ${frequencyLabel}`;
 
   function setField(patch) {
     onChange?.({ ...(v || {}), ...(patch || {}) });
@@ -634,8 +638,56 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
   }
 
   return (
-    <div className="rounded-2xl border border-[#F3F4F6] bg-white p-4 transition hover:bg-[#F9FAFB]">
-      <div className="flex items-start justify-between gap-3">
+    <div
+      ref={innerRef}
+      className={`rounded-2xl border bg-white transition ${
+        open ? "border-[#E5E7EB]" : "border-[#F3F4F6] hover:bg-[#F9FAFB]"
+      }`}
+    >
+      <div className="flex items-center gap-2 px-4 py-3">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={Boolean(open)}
+          className="flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-3 text-left"
+        >
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="truncate text-[13px] font-semibold text-[#111827]">
+                {String(v.name || "").trim() || "Untitled preset"}
+              </span>
+              {v.isDefault ? (
+                <span className="rounded-full bg-[#F3F4F6] px-2 py-0.5 text-[10px] font-semibold text-[#374151]">Default</span>
+              ) : null}
+              {!v.enabled ? (
+                <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Disabled</span>
+              ) : null}
+              {isExpired ? (
+                <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600">Expired</span>
+              ) : null}
+              {Object.keys(cardErrors).length ? (
+                <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600">Needs attention</span>
+              ) : null}
+            </div>
+            <div className="mt-0.5 truncate text-[11px] text-[#6B7280]">{summary}</div>
+          </div>
+          <span className="shrink-0 text-[12px] font-semibold text-[#6B7280]">
+            {open ? "Close" : "Edit"}
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={onRemove}
+          disabled={disabled}
+          aria-label="Remove preset"
+          className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-[#E5E7EB] bg-white text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827] disabled:opacity-60"
+        >
+          <TrashIcon />
+        </button>
+      </div>
+
+      {open ? (
+        <div className="border-t border-[#F3F4F6] p-4">
         <div className="w-full">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div className="md:col-span-2">
@@ -744,17 +796,8 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
             />
           )}
         </div>
-
-        <button
-          type="button"
-          onClick={onRemove}
-          disabled={disabled}
-          aria-label="Remove preset"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#E5E7EB] bg-white text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827] disabled:opacity-60"
-        >
-          <TrashIcon />
-        </button>
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -774,6 +817,8 @@ const RecurringPresetsEditor = ({
   campaignEndDate,
 }) => {
   const presets = Array.isArray(value) ? value : [];
+  const [openIndex, setOpenIndex] = useState(null);
+  const cardRefs = useRef({});
 
   function setPreset(idx, patch) {
     onChange?.(presets.map((p, i) => (i === idx ? { ...(p || {}), ...(patch || {}) } : p)));
@@ -790,6 +835,7 @@ const RecurringPresetsEditor = ({
     if (next.length && !next.some((p) => Boolean(p?.isDefault))) {
       next[0] = { ...(next[0] || {}), isDefault: true };
     }
+    setOpenIndex((cur) => (cur === idx ? null : cur > idx ? cur - 1 : cur));
     onChange?.(next);
   }
 
@@ -810,12 +856,21 @@ const RecurringPresetsEditor = ({
       setQuickNotice({ kind: "error", text: "You can add up to 12 presets." });
       return false;
     }
+    const nextIndex = presets.length;
     onChange?.([...(presets || []), nextPreset]);
+    setOpenIndex(nextIndex);
     setQuickNotice({
       kind: "success",
-      text: nextPreset.name ? `${nextPreset.name} preset added.` : "Preset added — give it a name.",
+      text: nextPreset.name
+        ? `${nextPreset.name} added and opened below.`
+        : "Preset added and opened below — give it a name.",
     });
     setPendingAdd(null);
+
+    // The new card sits at the end of the list, so bring it into view.
+    setTimeout(() => {
+      cardRefs.current[nextIndex]?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    }, 80);
     return true;
   }
 
@@ -1047,9 +1102,20 @@ const RecurringPresetsEditor = ({
 
           {presets.length ? (
             <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="text-[13px] font-semibold text-[#111827]">Presets ({presets.length})</div>
+                <div className="text-[11px] text-[#6B7280]">
+                  {presets.filter((p) => p?.enabled !== false).length} enabled
+                </div>
+              </div>
               {presets.map((p, idx) => (
                 <PresetCard
                   key={p?.id || idx}
+                  innerRef={(el) => {
+                    cardRefs.current[idx] = el;
+                  }}
+                  open={openIndex === idx}
+                  onToggle={() => setOpenIndex((cur) => (cur === idx ? null : idx))}
                   value={p}
                   onChange={(next) => setPreset(idx, next)}
                   onRemove={() => removePreset(idx)}
