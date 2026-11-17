@@ -9,6 +9,12 @@ const STATUS_STYLES = {
   error: { label: "Save failed", className: "bg-red-500/10 text-red-600" },
 };
 
+const FORM_STATUS = {
+  draft: { label: "Draft", className: "border-amber-200 bg-amber-50 text-amber-700" },
+  published: { label: "Published", className: "border-emerald-200 bg-emerald-50 text-emerald-700" },
+  archived: { label: "Archived", className: "border-[#E5E7EB] bg-[#F3F4F6] text-[#6B7280]" },
+};
+
 function SaveStatusChip({ state }) {
   const entry = STATUS_STYLES[String(state || "")];
   if (!entry) return null;
@@ -23,12 +29,15 @@ function SaveStatusChip({ state }) {
 const FormWizardShell = ({
   step = "basics",
   title = "Create Form",
+  status = "",
   steps,
   completedKeys,
   onStepClick,
   children,
 }) => {
   const guard = useFormEditorGuard();
+  const statusKey = String(status || "").trim().toLowerCase();
+  const statusMeta = FORM_STATUS[statusKey];
   const saveError = guard?.saveError;
   const list = Array.isArray(steps) && steps.length ? steps : [
     { key: "basics", label: "Basics" },
@@ -46,9 +55,20 @@ const FormWizardShell = ({
     <div className="min-w-0 p-4 md:p-6 space-y-6">
       <div className="hc-animate-fade-up flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">{title}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-[24px] font-semibold leading-tight text-[#111827]">{title}</h1>
+            {statusMeta ? (
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusMeta.className}`}>
+                {statusMeta.label}
+              </span>
+            ) : null}
+          </div>
           <p className="mt-1 text-[14px] text-[#6B7280]">
-            Changes are saved automatically. Wizard configuration is saved on the Form.
+            {statusKey === "published"
+              ? "Published forms are read-only here. Move the form to Draft to edit."
+              : statusKey === "archived"
+              ? "Archived forms are read-only here."
+              : "Changes are saved automatically. Wizard configuration is saved on the Form."}
           </p>
         </div>
 
