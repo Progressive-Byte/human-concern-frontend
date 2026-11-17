@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useDonation } from "@/context/DonationContext";
-import { useBranding } from "@/context/BrandingContext";
 
 // Fallbacks so a failed settings fetch looks exactly like the admin defaults.
 const DEFAULT_TIP_LABEL       = "Platform Support Fees";
 const DEFAULT_TIP_DESCRIPTION = "Voluntary support for organization fees for platform maintenance and well being";
+
+// Human Concern's brand red, used for every part of the tip slider.
+const SLIDER_COLOR = "#EA3335";
 
 const TippingSection = ({
   sym,
@@ -22,7 +24,6 @@ const TippingSection = ({
   embedded = false,
 }) => {
   const { update } = useDonation();
-  const { primaryColor } = useBranding();
   const [isSliding, setIsSliding] = useState(false);
 
   /* The admin sets the slider's range; the donor can never move outside it. */
@@ -84,7 +85,7 @@ const TippingSection = ({
             }`}
             style={{
               left: `clamp(1.25rem, ${filled}, calc(100% - 1.25rem))`,
-              backgroundColor: primaryColor,
+              backgroundColor: SLIDER_COLOR,
             }}
           >
             {sliderValue}%
@@ -100,12 +101,12 @@ const TippingSection = ({
           <div
             aria-hidden="true"
             className="absolute h-2 rounded-full blur-[6px] transition-[width,opacity] duration-200"
-            style={{ width: filled, opacity: fillOpacity * 0.4, backgroundColor: primaryColor }}
+            style={{ width: filled, opacity: fillOpacity * 0.4, backgroundColor: SLIDER_COLOR }}
           />
           <div
             aria-hidden="true"
             className="absolute h-2 rounded-full transition-[width,opacity] duration-200"
-            style={{ width: filled, opacity: fillOpacity, backgroundColor: primaryColor }}
+            style={{ width: filled, opacity: fillOpacity, backgroundColor: SLIDER_COLOR }}
           />
 
           <label htmlFor="hc-fee-percent" className="sr-only">
@@ -125,7 +126,7 @@ const TippingSection = ({
             onFocus={() => setIsSliding(true)}
             onBlur={() => setIsSliding(false)}
             className="hc-fee-slider relative z-10 h-5 w-full"
-            style={{ "--hc-fee-color": primaryColor }}
+            style={{ "--hc-fee-color": SLIDER_COLOR }}
           />
         </div>
 
@@ -135,7 +136,7 @@ const TippingSection = ({
             <span
               key={pct}
               className="size-1 rounded-full transition-colors"
-              style={{ backgroundColor: pct <= sliderValue ? primaryColor : "#E5E5E5" }}
+              style={{ backgroundColor: pct <= sliderValue ? SLIDER_COLOR : "#E5E5E5" }}
             />
           ))}
         </div>

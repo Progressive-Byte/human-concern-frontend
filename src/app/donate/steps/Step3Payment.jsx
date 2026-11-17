@@ -76,7 +76,6 @@ const Step3Payment = () => {
   const [submitError, setSubmitError] = useState(null);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReset, setTurnstileReset] = useState(0);
-  const [upsellDismissed, setUpsellDismissed] = useState(false);
 
   const setGatewayState = (next) => {
     const merged = typeof next === "function" ? next(gatewayState) : { ...gatewayState, ...(next || {}) };
@@ -377,7 +376,7 @@ const Step3Payment = () => {
           />
         ) : null}
 
-        {isOneTime && allowRecurring && !upsellDismissed && (
+        {isOneTime && allowRecurring && (
           <OneTimeUpsell
             amount={amountTier}
             currency={currency}
@@ -385,7 +384,6 @@ const Step3Payment = () => {
               update({ paymentType: "recurring" });
               router.push(`${base}/1`);
             }}
-            onDismiss={() => setUpsellDismissed(true)}
           />
         )}
 

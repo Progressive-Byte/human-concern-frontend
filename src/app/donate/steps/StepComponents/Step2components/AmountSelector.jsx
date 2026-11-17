@@ -48,6 +48,13 @@ const AmountSelector = ({
     return Math.round(v * 100) / 100;
   }
 
+  // Preset tiles show a clean whole amount once the currency changes. The base currency keeps
+  // its own values, and a custom amount is still typed by the donor.
+  function toPresetAmount(baseAmt) {
+    if (rate === 1) return baseAmt;
+    return Math.round(baseAmt * rate);
+  }
+
   function toBase(convertedAmt) {
     return convertedAmt / rate;
   }
@@ -56,7 +63,9 @@ const AmountSelector = ({
   const { initialBase, isCustomInit } = useMemo(() => {
     const r = rateMap[currency] ?? 1;
     const base = initialAmount
-      ? suggestedAmounts.find((b) => Math.abs(b - initialAmount / r) < 0.01) ?? null
+      ? suggestedAmounts.find(
+          (b) => Math.abs(Math.round(b * r) - initialAmount) < 0.01 || Math.abs(b - initialAmount / r) < 0.01
+        ) ?? null
       : suggestedAmounts[0] ?? null;
     return { initialBase: base, isCustomInit: !base && Number(initialAmount) > 0 };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,7 +101,7 @@ const AmountSelector = ({
 
   const effectiveAmount = customAmount
     ? Number(customAmount)
-    : toConverted(selectedBase ?? 0);
+    : toPresetAmount(selectedBase ?? 0);
 
   // Admin description for a preset. A typed custom amount has no preset, so it has none.
   const descriptionFor = (base) =>
@@ -106,7 +115,7 @@ const AmountSelector = ({
     setSelectedBase(base);
     setCustomAmount("");
     setCustomAmountError("");
-    onAmountChange(toConverted(base), false);
+    onAmountChange(toPresetAmount(base), false);
   };
 
   // Currency is now selected by the parent (Step2Payment); recompute the
@@ -118,7 +127,7 @@ const AmountSelector = ({
       return;
     }
     if (selectedBase !== null && !customAmount) {
-      onAmountChange(toConverted(selectedBase), false);
+      onAmountChange(toPresetAmount(selectedBase), false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency]);
@@ -199,7 +208,7 @@ const AmountSelector = ({
         {!locked && (
           <div className="grid grid-cols-2 gap-3">
             {suggestedAmounts.map((base) => {
-              const displayAmt = toConverted(base);
+              const displayAmt = toPresetAmount(base);
               const active     = selectedBase === base && !customAmount;
               const desc       = descriptionFor(base);
               return (

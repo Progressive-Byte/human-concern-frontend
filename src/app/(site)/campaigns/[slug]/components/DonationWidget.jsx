@@ -100,9 +100,9 @@ const DonationWidget = ({ campaign }) => {
   const sym  = getCurrencySymbol(currency);
 
   function toDisplay(baseAmt) {
-    const converted = baseAmt * rate;
-    const rounded   = Math.round(converted * 100) / 100;
-    return Number.isInteger(rounded) ? rounded : rounded;
+    // Converted currencies show a clean whole amount. The base currency keeps its own values.
+    if (rate === 1) return baseAmt;
+    return Math.round(baseAmt * rate);
   }
 
   function formatDisplay(val) {
