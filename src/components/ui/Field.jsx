@@ -4,6 +4,7 @@ const Field = ({
   label,
   value,
   onChange,
+  onBlur,
   placeholder = "",
   type = "text",
   error,
@@ -23,6 +24,7 @@ const Field = ({
         type={type}
         value={value}
         onChange={readOnly ? undefined : onChange}
+        onBlur={onBlur}
         readOnly={readOnly}
         placeholder={placeholder}
         className={`w-full border border-solid rounded-xl px-4 py-3 text-[15px] focus:outline-none transition-colors ${

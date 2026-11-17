@@ -10,6 +10,7 @@ import CustomDropdown from "@/components/common/CustomDropdown";
 import GooglePlacesInput from "@/components/common/GooglePlacesInput";
 import { ChevronIcon } from "@/components/common/SvgIcon";
 import { resolveCountryIso, resolveStateIso } from "@/utils/isoHelpers";
+import { countryUsesPostalCode, isValidPostalCode } from "@/utils/postalCode";
 
 const AddressSection = ({ setError, addressExpanded, setAddressExpanded, addressManual, setAddressManual }) => {
   const { data, update } = useDonation();
@@ -25,6 +26,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
   // payment processing and tax receipts) so the two can never drift apart.
   const [countryCode, setCountryCode] = useState("");
   const [stateCode, setStateCode] = useState("");
+  const [zipTouched, setZipTouched] = useState(false);
   const prefillAttempted = useRef(false);
 
   // On mount only: an address that is already filled (draft or profile prefill) starts
@@ -106,7 +108,10 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
       donorCountryCode: country?.isoCode ?? isoCode,
       province: "",
       city: "",
+      // An old country's postal code should not stay behind.
+      zip: "",
     });
+    setZipTouched(false);
     setError("");
   };
 
@@ -278,8 +283,17 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
 
               <Field
                 label="Zip or Postal Code"
-                required
+                required={countryUsesPostalCode(countryCode) || !countryCode}
                 placeholder="e.g. 10001"
+                error={
+                  zipTouched &&
+                  countryUsesPostalCode(countryCode) &&
+                  String(data.zip ?? "").trim() &&
+                  !isValidPostalCode(data.zip, countryCode)
+                    ? "Enter a valid postal code for this country."
+                    : ""
+                }
+                onBlur={() => setZipTouched(true)}
                 {...addressField("zip")}
               />
             </>

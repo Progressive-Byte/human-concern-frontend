@@ -5,6 +5,7 @@
 import { earliestAllowedDateStr, isDueDateAllowed } from "./scheduleDateLimits";
 import { generateDatesInRange } from "@/app/donate/steps/StepComponents/countOccurrences";
 import { resolveCountryIso } from "./isoHelpers";
+import { countryUsesPostalCode, isValidPostalCode } from "./postalCode";
 
 // publicDonationValidators.js: MAX_INSTALLMENTS
 export const MAX_INSTALLMENTS = 365;
@@ -157,6 +158,11 @@ export function validateDetailsStep({
   donorCountryCode,
   country,
 }) {
+  const code = String(donorCountryCode ?? "").trim() || resolveCountryIso(String(country ?? ""));
+  if (!code) return "Please select your country.";
+
+  const postalRequired = countryUsesPostalCode(code);
+
   if (
     !String(firstName ?? "").trim() ||
     !String(lastName ?? "").trim() ||
@@ -164,7 +170,7 @@ export function validateDetailsStep({
     !String(addressLine1 ?? "").trim() ||
     !String(city ?? "").trim() ||
     !String(province ?? "").trim() ||
-    !String(zip ?? "").trim()
+    (postalRequired && !String(zip ?? "").trim())
   ) {
     return "Please fill in all required fields.";
   }
@@ -174,10 +180,11 @@ export function validateDetailsStep({
     return "First and last name can only contain letters.";
   }
 
-  const code = String(donorCountryCode ?? "").trim() || resolveCountryIso(String(country ?? ""));
-  if (!code) return "Please select your country.";
-
   if (!/^\S+@\S+\.\S+$/.test(String(email))) return "Enter a valid email address.";
+
+  if (postalRequired && !isValidPostalCode(zip, code)) {
+    return "Enter a valid postal code for your country.";
+  }
 
   return null;
 }
