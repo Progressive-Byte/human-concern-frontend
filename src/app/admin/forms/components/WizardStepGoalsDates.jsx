@@ -1087,8 +1087,15 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       </div>
 
+      {isPublished ? (
+        <div className="rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-[12px] text-[#6B7280]">
+          This form is published. Move it to Draft to edit. Save Draft is turned off here.
+        </div>
+      ) : null}
+
       <WizardFooterNav
         saving={saving}
+        saveDisabled={isPublished}
         onBack={() => onExit?.({ nextStep: "basics" })}
         onSave={() => save({ goNext: false })}
         onNext={() => save({ goNext: true })}

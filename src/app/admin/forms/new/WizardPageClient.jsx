@@ -35,6 +35,7 @@ const WizardContent = () => {
   const [categories, setCategories] = useState([]);
   const [basicsCategoryIds, setBasicsCategoryIds] = useState([]);
   const [sectionsCompleted, setSectionsCompleted] = useState({});
+  const [formStatus, setFormStatus] = useState("");
 
   function goToStep(nextStep, nextFormId = initialFormId) {
     const s = String(nextStep || "").trim();
@@ -68,6 +69,7 @@ const WizardContent = () => {
       const pub = basics?.public || {};
 
       setSectionsCompleted(form?.sectionsCompleted || form?.data?.sectionsCompleted || {});
+      setFormStatus(String(form?.status || "").trim().toLowerCase());
       setBasicsCategoryIds(
         Array.isArray(pub?.categoryIds) ? pub.categoryIds.map((x) => String(x).trim()).filter(Boolean) : []
       );
@@ -142,9 +144,11 @@ const WizardContent = () => {
         if (!alive) return;
         const d = res?.data?.item || res?.data?.data || res?.data || {};
         setSectionsCompleted(d?.sectionsCompleted || d?.data?.sectionsCompleted || {});
+        setFormStatus(String(d?.status || "").trim().toLowerCase());
       } catch {
         if (!alive) return;
         setSectionsCompleted({});
+        setFormStatus("");
       }
     })();
     return () => {
@@ -233,7 +237,8 @@ const WizardContent = () => {
   return (
     <FormWizardShell
       step={step}
-      title="Create Form"
+      title={initialFormId ? "Edit Form" : "Create Form"}
+      status={formStatus}
       steps={steps}
       completedKeys={completedKeys}
       onStepClick={(nextStep) => navigateToStep(nextStep, initialFormId)}
