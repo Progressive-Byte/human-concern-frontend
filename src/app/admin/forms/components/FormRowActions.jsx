@@ -88,9 +88,31 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
     const slug = String(item?.slug || "").trim();
     if (!slug) return "";
 
-    const url = `${hcusaSiteUrl}/donate/embed?slug=${encodeURIComponent(slug)}`;
+    const url = `${hcusaSiteUrl}/donate/embed`;
 
-    return `<iframe src="${url}" title="Donation form" loading="lazy" style="width:100%;max-width:480px;height:900px;border:0;display:block;margin:0 auto;"></iframe>`;
+    /*
+      The script copies the host page's UTM parameters into the iframe URL. The iframe is a
+      separate page, so it cannot read the parent page's query string on its own.
+    */
+    return `<script>
+(function () {
+  var keys = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id", "gclid", "fbclid", "msclkid", "ttclid"];
+  var params = new URLSearchParams(window.location.search);
+  var query = new URLSearchParams({ slug: ${JSON.stringify(slug)} });
+  keys.forEach(function (key) {
+    var value = params.get(key);
+    if (value) query.set(key, value);
+  });
+  var frame = document.createElement("iframe");
+  frame.src = ${JSON.stringify(url)} + "?" + query.toString();
+  frame.title = "Donation form";
+  frame.loading = "lazy";
+  frame.style.cssText = "width:100%;max-width:480px;height:900px;border:0;display:block;margin:0 auto;";
+  var script = document.currentScript;
+  if (script && script.parentNode) script.parentNode.insertBefore(frame, script);
+  else document.body.appendChild(frame);
+})();
+</script>`;
   }
 
   async function copyEmbedCode() {
@@ -241,8 +263,8 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
           <div className="relative w-full max-w-[560px] rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5 shadow-lg">
             <div className="text-[16px] font-semibold text-[#111827]">Embed Code</div>
             <p className="mt-1 text-[12px] text-[#6B7280]">
-              Paste this into a WordPress page or any other site. Change the height if the form is
-              cut off.
+              Paste this into a WordPress page or any other site. It passes the page&apos;s UTM
+              parameters into the form. Change the height if the form is cut off.
             </p>
 
             <textarea
