@@ -72,11 +72,12 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
                       </div>
 
                       <div className="md:col-span-2">
-                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Description</div>
+                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Description (optional)</div>
                         <input
                           value={String(row.description ?? "")}
                           onChange={(e) => setItem(idx, { description: e.target.value })}
-                          placeholder="Small"
+                          maxLength={120}
+                          placeholder="Small (optional)"
                           disabled={disabled}
                           className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
                         />

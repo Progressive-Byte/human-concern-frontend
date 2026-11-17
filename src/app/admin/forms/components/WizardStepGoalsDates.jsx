@@ -466,7 +466,6 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         if (!rawValue) rowErr.value = "Required";
         else if (!Number.isFinite(n)) rowErr.value = "Must be a number";
         else if (!(n > 0)) rowErr.value = "Must be greater than 0";
-        if (!desc) rowErr.description = "Required";
 
         const key = Number.isFinite(n) ? String(n) : rawValue;
         if (!rowErr.value) {
