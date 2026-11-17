@@ -93,7 +93,7 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
               key={cause.id}
               className={`rounded-xl p-4 border transition-all ${
                 active
-                  ? "border-[#EA3335] bg-[#FFF5F5]"
+                  ? "border-[#EA3335] bg-white"
                   : "border-[#E5E5E5] hover:border-[#CCCCCC] hover:bg-[#FAFAFA]"
               }`}
             >

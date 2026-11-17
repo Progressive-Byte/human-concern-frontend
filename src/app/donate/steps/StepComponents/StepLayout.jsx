@@ -36,6 +36,31 @@ const StepLayout = ({
 
   const showPreview = step >= 1;
 
+  const navRow = (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        {step > 1 ? (
+          <button
+            onClick={() => onPrev ? onPrev() : router.push(`${base}/${step - 1}`)}
+            className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer whitespace-nowrap"
+          >
+            {ArrowPrevIcon}
+            {resolvedPrevLabel}
+          </button>
+        ) : (
+          <div />
+        )}
+      </div>
+      <button
+        onClick={onNext}
+        className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[14px] font-semibold transition-all cursor-pointer whitespace-nowrap"
+      >
+        {resolvedNextLabel}
+        {ArrowNextIcon}
+      </button>
+    </div>
+  );
+
   return (
     <main style={donationThemeStyle} className="min-h-screen bg-[#F9F9F9] pt-[88px] pb-12 sm:pb-16 px-3 sm:px-4">
       <DonateFormHeader />
@@ -63,28 +88,7 @@ const StepLayout = ({
                 Your payment is secured with 256-bit SSL encryption
               </span>
             </div>
-            <div className="flex flex-wrap items-center justify-between mt-5 gap-3">
-              <div>
-                {step > 1 ? (
-                  <button
-                    onClick={() => onPrev ? onPrev() : router.push(`${base}/${step - 1}`)}
-                    className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 text-[#383838] text-[14px] font-medium hover:border-[#AEAEAE] transition-colors cursor-pointer whitespace-nowrap"
-                  >
-                    {ArrowPrevIcon}
-                    {resolvedPrevLabel}
-                  </button>
-                ) : (
-                  <div />
-                )}
-              </div>
-              <button
-                onClick={onNext}
-                className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[14px] font-semibold transition-all cursor-pointer whitespace-nowrap"
-              >
-                {resolvedNextLabel}
-                {ArrowNextIcon}
-              </button>
-            </div>
+            <div className="hidden lg:block mt-5">{navRow}</div>
           </div>
 
           {/* Desktop: preview floats to the right without shifting the form, and
@@ -104,6 +108,9 @@ const StepLayout = ({
             <DonationPreview currentStep={step} />
           </div>
         )}
+
+        {/* Mobile: the next/back buttons come after the summary. */}
+        <div className="lg:hidden mt-5">{navRow}</div>
 
         <p className="text-center text-[12px] text-[#AEAEAE] mt-4 px-2">
           Step {displayStep} of {totalSteps} — Your information is secure and encrypted.
