@@ -29,12 +29,12 @@ const StepProgress = ({ current }) => {
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold transition-all select-none
               ${done
-                ? "bg-[#1A1A1A] text-white"
+                ? "bg-[#F1F1F1] text-[#8C8C8C]"
                 : active
-                ? "bg-[#EA3335] text-white"
+                ? "bg-white text-[#B85C5C] border border-[#E6C7C7]"
                 : reachable
-                ? "bg-[#E5E5E5] text-[#737373] hover:bg-[#D5D5D5] cursor-pointer"
-                : "bg-white border border-[#D5D5D5] text-[#CCCCCC] cursor-not-allowed"
+                ? "bg-[#F7F7F7] text-[#B3B3B3] hover:bg-[#EFEFEF] cursor-pointer"
+                : "bg-white border border-[#ECECEC] text-[#D0D0D0] cursor-not-allowed"
               }`}
           >
             {done ? ProgressCheckIcon : i + 1}
@@ -49,7 +49,7 @@ const StepProgress = ({ current }) => {
                   {dot}
                   <span
                     className={`text-[10px] font-medium ${active ? "visible" : "invisible"} sm:visible transition-colors whitespace-nowrap
-                      ${active ? "text-[#EA3335]" : done ? "text-[#1A1A1A]" : "text-[#AEAEAE]"}`}
+                      ${active ? "text-[#B85C5C]" : done ? "text-[#9A9A9A]" : "text-[#B3B3B3]"}`}
                   >
                     {label}
                   </span>
@@ -68,7 +68,7 @@ const StepProgress = ({ current }) => {
             {i < visibleSteps.length - 1 && (
               <div
                 className={`h-[1.5px] w-6 sm:w-10 mx-1 mb-4 rounded-full transition-colors
-                  ${done ? "bg-[#1A1A1A]" : "bg-[#E5E5E5]"}`}
+                  ${done ? "bg-[#E5E5E5]" : "bg-[#F0F0F0]"}`}
               />
             )}
           </div>
