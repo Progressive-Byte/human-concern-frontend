@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getAdminCauses, getAdminDesignations, getAdminFormCauses, updateAdminFormCauses } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import WizardFooterNav from "./WizardFooterNav";
+import StepErrorSummary from "./StepErrorSummary";
 import useStepAutosave from "../hooks/useStepAutosave";
 import { getFormErrorMessage } from "@/utils/formValidationMessages";
 
@@ -254,11 +255,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {topError ? (
-        <div className="hc-animate-fade-up rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
-          {topError}
-        </div>
-      ) : null}
+      <StepErrorSummary topError={topError} />
 
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

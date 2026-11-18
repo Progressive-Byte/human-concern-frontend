@@ -18,6 +18,7 @@ import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
 import { getFormErrorMessage } from "@/utils/formValidationMessages";
 import FieldError from "./FieldError";
+import StepErrorSummary from "./StepErrorSummary";
 import RichTextEditor from "./RichTextEditor";
 import WizardFooterNav from "./WizardFooterNav";
 
@@ -602,11 +603,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {topError ? (
-        <div className="hc-animate-fade-up rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
-          {topError}
-        </div>
-      ) : null}
+      <StepErrorSummary topError={topError} errors={[fieldErrors, categoriesError]} />
 
       <section className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="mb-4 flex items-center justify-between gap-4">

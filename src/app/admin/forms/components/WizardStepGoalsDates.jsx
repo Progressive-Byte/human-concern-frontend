@@ -6,6 +6,7 @@ import { getAdminFormById, getAdminFormGoalsDates, getAdminSettingsExchangeRates
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import useStepAutosave from "../hooks/useStepAutosave";
 import FieldError from "./FieldError";
+import StepErrorSummary from "./StepErrorSummary";
 import WizardFooterNav from "./WizardFooterNav";
 import SuggestedAmountsEditor from "./goalsDates/SuggestedAmountsEditor";
 import CustomNotesEditor from "./goalsDates/CustomNotesEditor";
@@ -884,11 +885,10 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {topError ? (
-        <div className="hc-animate-fade-up rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
-          {topError}
-        </div>
-      ) : null}
+      <StepErrorSummary
+        topError={topError}
+        errors={[fieldErrors, suggestedAmountsErrors, recurringPresetsErrors, customNotesErrors]}
+      />
 
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="mb-4">

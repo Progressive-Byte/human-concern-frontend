@@ -6,6 +6,7 @@ import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
 import { getFormErrorMessage } from "@/utils/formValidationMessages";
+import StepErrorSummary from "./StepErrorSummary";
 import WizardFooterNav from "./WizardFooterNav";
 
 function normalizeMediaResponse(res) {
@@ -304,7 +305,10 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
 
     const nextVideoUrl = String(videoUrl || "").trim();
     if (!isValidUrl(nextVideoUrl)) {
-      if (!silent) toast.error("Enter a valid video link.");
+      if (!silent) {
+        setTopError("Enter a valid video link.");
+        toast.error("Enter a valid video link.");
+      }
       return { ok: false, error: "Enter a valid video link." };
     }
 
@@ -323,11 +327,17 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
         try {
           fd.append("thumbnailImage", await fetchRemoteFile(serverThumbnail.path, "thumbnail.jpg"));
         } catch {
-          if (!silent) toast.error("Add a thumbnail image.");
+          if (!silent) {
+            setTopError("Add a thumbnail image.");
+            toast.error("Add a thumbnail image.");
+          }
           return { ok: false, error: "Add a thumbnail image." };
         }
       } else {
-        if (!silent) toast.error("Add a thumbnail image.");
+        if (!silent) {
+          setTopError("Add a thumbnail image.");
+          toast.error("Add a thumbnail image.");
+        }
         return { ok: false, error: "Add a thumbnail image." };
       }
 
@@ -412,11 +422,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {topError ? (
-        <div className="hc-animate-fade-up rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
-          {topError}
-        </div>
-      ) : null}
+      <StepErrorSummary topError={topError} />
 
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div>

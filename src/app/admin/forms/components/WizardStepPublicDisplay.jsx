@@ -6,6 +6,7 @@ import { getAdminFormPublicDisplay, updateAdminFormPublicDisplay } from "@/servi
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import useStepAutosave from "../hooks/useStepAutosave";
 import { getFormErrorMessage } from "@/utils/formValidationMessages";
+import StepErrorSummary from "./StepErrorSummary";
 import WizardFooterNav from "./WizardFooterNav";
 
 const DEFAULT_DONATE_BUTTON_LABEL = "Support";
@@ -27,6 +28,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [topError, setTopError] = useState("");
 
   // Public campaign page display switches — all default ON (the admin opts out).
   const [showProgressBar, setShowProgressBar] = useState(true);
@@ -70,7 +72,9 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
         applyServerValue(readPublicDisplay(res));
       } catch (e) {
         if (!alive) return;
-        toast.error(getFormErrorMessage(e, "We couldn’t load the public display settings. Please try again."));
+        const msg = getFormErrorMessage(e, "We couldn’t load the public display settings. Please try again.");
+        setTopError(msg);
+        toast.error(msg);
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -101,7 +105,10 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: false, error: "Finish Basics first." };
     }
 
-    if (!silent) setSaving(true);
+    if (!silent) {
+      setSaving(true);
+      setTopError("");
+    }
     try {
       // Its own endpoint and its own block, so this can never touch the goals/dates config.
       const res = await updateAdminFormPublicDisplay(formId, {
@@ -116,12 +123,14 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
       // Autosave already has the exact values it sent. Re-applying the response on a silent
       // save can overwrite a newer toggle that was changed while the request was running.
       if (!silent) applyServerValue(readPublicDisplay(res));
+      setTopError("");
       if (!silent) toast.success("Public display saved");
       onSaved?.();
       if (goNext) onExit?.({ nextStep: "review" });
       return { ok: true };
     } catch (e) {
       const msg = getFormErrorMessage(e, "We couldn’t save the public display settings. Please try again.");
+      setTopError(msg);
       if (!silent) {
         toast.error(msg);
       }
@@ -153,6 +162,8 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
 
   return (
     <div className="space-y-4 md:space-y-6">
+      <StepErrorSummary topError={topError} />
+
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Public Display</h2>
