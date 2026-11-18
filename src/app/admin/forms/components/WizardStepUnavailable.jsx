@@ -127,15 +127,15 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: false, error: "Finish Basics first." };
     }
 
+    const hadErrors = Object.keys(fieldErrors).length > 0;
     const { errors, payload } = validate();
+    if (!silent && (goNext || hadErrors)) setFieldErrors(errors);
 
     /* Save Draft and autosave keep what is filled in. Only Next asks for the required fields. */
     if (goNext && Object.keys(errors).length) {
-      setFieldErrors(errors);
       if (!silent) toast.error("Check the highlighted fields below.");
       return { ok: false, error: "Check the highlighted fields below." };
     }
-    setFieldErrors({});
 
     if (!silent) setSaving(true);
     try {

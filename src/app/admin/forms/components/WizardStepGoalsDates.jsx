@@ -768,13 +768,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   }
 
   async function save({ goNext = false, silent = false } = {}) {
-    if (!silent) {
-      setTopError("");
-      setFieldErrors({});
-      setSuggestedAmountsErrors([]);
-      setRecurringPresetsErrors([]);
-      setCustomNotesErrors([]);
-    }
+    if (!silent) setTopError("");
 
     if (!campaignId) {
       if (!silent) toast.error("This form is not linked to a campaign. Go back and choose a campaign.");
@@ -798,20 +792,27 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       requireEnabledPreset: Boolean(goNext),
     });
 
-    /* Save Draft keeps whatever is filled in. Only Next asks for the required fields. */
-    if (goNext && Object.keys(errors).length) {
+    const hadErrors = Boolean(
+      Object.keys(fieldErrors).length ||
+      suggestedAmountsErrors.some((row) => row && Object.keys(row).length) ||
+      recurringPresetsErrors.some((row) => row && Object.keys(row).length) ||
+      customNotesErrors.some((row) => row && Object.keys(row).length)
+    );
+
+    // Replace the error sets with the current result, so fixing one field does not erase the
+    // errors that are still present elsewhere.
+    if (!silent && (goNext || hadErrors)) {
       setFieldErrors(errors);
       setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
       setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
       setCustomNotesErrors(Array.isArray(notesErrors) ? notesErrors : []);
+    }
+
+    /* Save Draft keeps whatever is filled in. Only Next asks for the required fields. */
+    if (goNext && Object.keys(errors).length) {
       if (!silent) toast.error("Check the highlighted fields below.");
       return { ok: false, error: "Check the highlighted fields below." };
     }
-
-    setFieldErrors({});
-    setSuggestedAmountsErrors([]);
-    setRecurringPresetsErrors([]);
-    setCustomNotesErrors([]);
 
     if (!silent) setSaving(true);
     try {

@@ -313,6 +313,16 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     }
 
     const hasAnyFile = Boolean(thumbnailFile) || sliderFiles.length > 0;
+    const hasThumbnail = Boolean(thumbnailFile) || hasServerThumbnail;
+
+    if (goNext && !hasThumbnail) {
+      const msg = "Add a thumbnail image before continuing.";
+      if (!silent) {
+        setTopError(msg);
+        toast.error(msg);
+      }
+      return { ok: false, error: msg };
+    }
 
     let body;
     if (hasAnyFile) {

@@ -463,21 +463,19 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   }
 
   async function save({ goNext = false, silent = false } = {}) {
-    if (!silent) {
-      setTopError("");
-      setFieldErrors({});
-    }
+    if (!silent) setTopError("");
 
+    const hadErrors = Object.keys(fieldErrors).length > 0;
     const { errors, payload } = validate();
+    // Replace the error set with the current result. This keeps the errors that are still
+    // present instead of wiping the whole list when one field is fixed.
+    if (!silent && (goNext || hadErrors)) setFieldErrors(errors);
 
     /* Save Draft keeps whatever is filled in. Only Next asks for the required fields. */
     if (goNext && Object.keys(errors).length) {
-      setFieldErrors(errors);
       if (!silent) toast.error("Check the highlighted fields below.");
       return { ok: false, error: "Check the highlighted fields below." };
     }
-
-    setFieldErrors({});
 
     if (!campaignId) {
       if (!silent) toast.error("This form is not linked to a campaign. Go back and choose a campaign.");
@@ -558,7 +556,9 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         if (code === "BENEFICIARY_ID_IN_USE" || rawMessage.includes("BENEFICIARY_ID_IN_USE")) {
           nextErrors["internal.beneficiaryId"] = "This beneficiary ID is already used. Choose a different one.";
         }
-        if (Object.keys(nextErrors).length) setFieldErrors(nextErrors);
+        if (Object.keys(nextErrors).length) {
+          setFieldErrors((prev) => ({ ...(prev || {}), ...nextErrors }));
+        }
 
         toast.error(msg);
       }

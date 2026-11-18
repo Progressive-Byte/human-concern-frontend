@@ -44,15 +44,6 @@ export default function StepErrorSummary({ errors, topError = "", title = "Pleas
 
   const visible = messages.slice(0, 6);
 
-  function goToFirstError() {
-    const fieldError = document.querySelector("[data-field-error='true']");
-    const target = fieldError || boxRef.current;
-    target?.scrollIntoView?.({ behavior: "smooth", block: "center" });
-
-    const field = fieldError?.parentElement?.querySelector?.("input, select, textarea, button");
-    field?.focus?.();
-  }
-
   return (
     <div
       ref={boxRef}
@@ -83,14 +74,6 @@ export default function StepErrorSummary({ errors, topError = "", title = "Pleas
             </p>
           ) : null}
         </div>
-
-        <button
-          type="button"
-          onClick={goToFirstError}
-          className="shrink-0 cursor-pointer rounded-lg border border-red-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-red-700 transition hover:bg-red-100"
-        >
-          Go to first error
-        </button>
       </div>
     </div>
   );
