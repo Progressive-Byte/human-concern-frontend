@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { distributeAmount } from "@/utils/causeSplit";
 
-const CauseAmountInput = ({ amount, sym, onChange }) => {
+const CauseAmountInput = ({ amount, sym, onChange, maxAmount = Number.POSITIVE_INFINITY }) => {
   const [text, setText] = useState(() => amount.toFixed(2));
   const lastAmount = useRef(amount);
   const [focused, setFocused] = useState(false);
@@ -29,7 +29,18 @@ const CauseAmountInput = ({ amount, sym, onChange }) => {
   };
 
   const handleBlur = () => {
+    const num = Number(text);
+    const max = Number(maxAmount);
     setFocused(false);
+
+    if (text !== "" && Number.isFinite(num) && Number.isFinite(max) && num > max + 0.005) {
+      const clamped = Math.max(0, Math.round(max * 100) / 100);
+      lastAmount.current = clamped;
+      setText(clamped.toFixed(2));
+      onChange(clamped);
+      return;
+    }
+
     lastAmount.current = amount;
     setText(amount.toFixed(2));
   };
@@ -64,6 +75,14 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
   const showSplit = selectedCauseIds.length > 1;
   const total = Number(totalAmount);
   const splitDisabled = !Number.isFinite(total) || total <= 0;
+  const allocated = selectedCauseIds.reduce(
+    (sum, id) => sum + total * Math.max(0, Number(causeSplit[id]) || 0),
+    0
+  );
+  const difference = Math.round((allocated - total) * 100) / 100;
+  const over = difference > 0.005;
+  const under = difference < -0.005;
+  const money = (value) => `${sym}${Math.abs(Number(value) || 0).toFixed(2)}`;
 
   return (
     <div className="flex flex-col gap-3">
@@ -88,6 +107,14 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
       <div className="grid grid-cols-2 gap-3">
         {causes.map((cause) => {
           const active = selectedCauseIds.includes(cause.id);
+          const othersAssigned = selectedCauseIds.reduce(
+            (sum, id) =>
+              id === cause.id
+                ? sum
+                : sum + total * Math.max(0, Number(causeSplit[id]) || 0),
+            0
+          );
+          const maxForCause = Math.max(0, Math.round((total - othersAssigned) * 100) / 100);
           return (
             <div
               key={cause.id}
@@ -127,6 +154,7 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
                   <CauseAmountInput
                     amount={allocations[cause.id] ?? 0}
                     sym={sym}
+                    maxAmount={maxForCause}
                     onChange={(amount) => onSplitChange(cause.id, amount)}
                   />
                 )
@@ -135,6 +163,21 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
           );
         })}
       </div>
+
+      {showSplit && !splitDisabled && (over || under) ? (
+        <div
+          role="alert"
+          className={`rounded-xl border px-3.5 py-2.5 text-[12px] font-medium ${
+            over
+              ? "border-red-300 bg-red-50 text-red-700"
+              : "border-amber-300 bg-amber-50 text-amber-800"
+          }`}
+        >
+          {over
+            ? `Cause amounts add up to ${money(allocated)} — ${money(difference)} more than your ${money(total)} donation. Lower a cause or increase the donation.`
+            : `You still need to assign ${money(difference)} of your ${money(total)} donation.`}
+        </div>
+      ) : null}
     </div>
   );
 };

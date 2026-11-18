@@ -169,7 +169,8 @@ export function buildSubmitBody({
   };
 
   if (isRecurring) {
-    const howToSplit = (data.splitMode ?? "repeat") === "divide" ? "divide" : "each";
+    const allowRecurringSplit = campaignMeta?.goalsDates?.allowRecurringSplit !== false;
+    const howToSplit = allowRecurringSplit && (data.splitMode ?? "repeat") === "divide" ? "divide" : "each";
     body.payment = {
       paymentMode: "split",
       // Open-ended plans commit to one installment, not the whole horizon.

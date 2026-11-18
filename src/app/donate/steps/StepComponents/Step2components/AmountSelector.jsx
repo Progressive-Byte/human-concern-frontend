@@ -59,6 +59,12 @@ const AmountSelector = ({
     return convertedAmt / rate;
   }
 
+  const adminDefaultBase = Number(suggestedAmountsData.find((a) => a?.isDefault)?.value);
+  const fallbackBase =
+    Number.isFinite(adminDefaultBase) && suggestedAmounts.includes(adminDefaultBase)
+      ? adminDefaultBase
+      : suggestedAmounts[0] ?? null;
+
   // On mount only: find which base preset matches the initial amount (reverse-convert)
   const { initialBase, isCustomInit } = useMemo(() => {
     const r = rateMap[currency] ?? 1;
@@ -66,8 +72,8 @@ const AmountSelector = ({
       ? suggestedAmounts.find(
           (b) => Math.abs(Math.round(b * r) - initialAmount) < 0.01 || Math.abs(b - initialAmount / r) < 0.01
         ) ?? null
-      : suggestedAmounts[0] ?? null;
-    return { initialBase: base, isCustomInit: !base && Number(initialAmount) > 0 };
+      : fallbackBase;
+    return { initialBase: base ?? fallbackBase, isCustomInit: !base && Number(initialAmount) > 0 };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -236,32 +242,34 @@ const AmountSelector = ({
       </div>
 
       {!locked && (
-        <div>
-          <label className="block text-[13px] font-medium text-[#383838] mb-2">Custom Amount</label>
-          <div className={`flex items-center rounded-xl border transition-colors ${
-            customAmountError || customAmount
-              ? "border-[#EA3335] bg-[#FFF5F5]"
-              : "border-[#E5E5E5] bg-white focus-within:border-[#EA3335]"
-          }`}>
-            <span className="pl-4 pr-1 shrink-0 font-medium text-[15px] text-[#737373]">{sym}</span>
-            <input
-              type="number"
-              value={customAmount}
-              onChange={handleCustomChange}
-              onBlur={handleCustomBlur}
-              placeholder={`Enter amount (min ${formatDisplay(convertedMin)})`}
-              min={convertedMin}
-              max={convertedMax}
-              className="flex-1 pr-4 py-3 text-[15px] outline-none bg-transparent text-[#383838]"
-            />
+        <>
+          <div>
+            <label className="block text-[13px] font-medium text-[#383838] mb-2">Custom Amount</label>
+            <div className={`flex items-center rounded-xl border transition-colors ${
+              customAmountError || customAmount
+                ? "border-[#EA3335] bg-[#FFF5F5]"
+                : "border-[#E5E5E5] bg-white focus-within:border-[#EA3335]"
+            }`}>
+              <span className="pl-4 pr-1 shrink-0 font-medium text-[15px] text-[#737373]">{sym}</span>
+              <input
+                type="number"
+                value={customAmount}
+                onChange={handleCustomChange}
+                onBlur={handleCustomBlur}
+                placeholder={`Enter amount (min ${formatDisplay(convertedMin)})`}
+                min={convertedMin}
+                max={convertedMax}
+                className="flex-1 pr-4 py-3 text-[15px] outline-none bg-transparent text-[#383838]"
+              />
+            </div>
+            {customAmountError && (
+              <p className="text-[12px] text-red-600 mt-1.5 px-1">{customAmountError}</p>
+            )}
           </div>
-          {customAmountError && (
-            <p className="text-[12px] text-red-600 mt-1.5 px-1">{customAmountError}</p>
-          )}
-        </div>
-      )}
 
-      {feeSlot && <div>{feeSlot}</div>}
+          {feeSlot ? <div>{feeSlot}</div> : null}
+        </>
+      )}
     </div>
   );
 };

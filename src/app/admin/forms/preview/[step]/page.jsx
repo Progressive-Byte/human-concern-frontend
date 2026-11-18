@@ -92,6 +92,7 @@ function buildCampaignDataFromAdminReview(review, formId, globalNote = []) {
     goalsDates: {
       allowOneTimeDonations: goalsDates?.allowOneTimeDonations === undefined ? true : Boolean(goalsDates.allowOneTimeDonations),
       allowRecurringDonations: goalsDates?.allowRecurringDonations === undefined ? true : Boolean(goalsDates.allowRecurringDonations),
+      allowRecurringSplit: goalsDates?.allowRecurringSplit === undefined ? true : Boolean(goalsDates.allowRecurringSplit),
       enableTipping: goalsDates?.enableTipping === undefined ? false : Boolean(goalsDates.enableTipping),
       minimumDonation: goalsDates?.minimumDonation ?? 0,
       maximumDonation: goalsDates?.maximumDonation ?? null,
@@ -187,6 +188,8 @@ const AdminFormPreviewStepPage = () => {
                   goalsDatesRaw?.allowOneTimeDonations === undefined ? campaignData.goalsDates?.allowOneTimeDonations : Boolean(goalsDatesRaw.allowOneTimeDonations),
                 allowRecurringDonations:
                   goalsDatesRaw?.allowRecurringDonations === undefined ? campaignData.goalsDates?.allowRecurringDonations : Boolean(goalsDatesRaw.allowRecurringDonations),
+                allowRecurringSplit:
+                  goalsDatesRaw?.allowRecurringSplit === undefined ? campaignData.goalsDates?.allowRecurringSplit : Boolean(goalsDatesRaw.allowRecurringSplit),
                 enableTipping:
                   goalsDatesRaw?.enableTipping === undefined ? campaignData.goalsDates?.enableTipping : Boolean(goalsDatesRaw.enableTipping),
                 minimumDonation: goalsDatesRaw?.minimumDonation ?? campaignData.goalsDates?.minimumDonation ?? 0,

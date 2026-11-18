@@ -26,11 +26,11 @@ export function useGiftAmountSchedule() {
   }, []);
 
   const {
-    suggestedAmounts, suggestedAmountsData, allowRecurring, minDonation, maxDonation,
-    recurringPresets, currenciesWithRates, campaignEndDate,
+    suggestedAmounts, suggestedAmountsData, allowRecurring, allowRecurringSplit,
+    minDonation, maxDonation, recurringPresets, currenciesWithRates, campaignEndDate,
   } = useMemo(() => {
-    const fallbackPreview = { suggestedAmounts: [], suggestedAmountsData: [], allowRecurring: false, minDonation: 0, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
-    const fallbackDefault = { suggestedAmounts: [25, 50, 100], suggestedAmountsData: [], allowRecurring: true, minDonation: 1, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
+    const fallbackPreview = { suggestedAmounts: [], suggestedAmountsData: [], allowRecurring: false, allowRecurringSplit: true, minDonation: 0, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
+    const fallbackDefault = { suggestedAmounts: [25, 50, 100], suggestedAmountsData: [], allowRecurring: true, allowRecurringSplit: true, minDonation: 1, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
     try {
       const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
       const goalsDates = meta.goalsDates ?? {};
@@ -48,6 +48,7 @@ export function useGiftAmountSchedule() {
         suggestedAmounts:    normalizedSuggested.length ? normalizedSuggested : (isPreview ? [] : [25, 50, 100]),
         suggestedAmountsData: Array.isArray(meta.suggestedAmountsData) ? meta.suggestedAmountsData : [],
         allowRecurring:      goalsDates.allowRecurringDonations ?? true,
+        allowRecurringSplit: goalsDates.allowRecurringSplit     ?? true,
         minDonation:         goalsDates.minimumDonation         ?? (isPreview ? 0 : 1),
         maxDonation:         goalsDates.maximumDonation         ?? undefined,
         recurringPresets:    (goalsDates.recurringPresets ?? [])
@@ -77,7 +78,11 @@ export function useGiftAmountSchedule() {
   //               for restoring the amount field because it would show the divided value.
   const _donorAmt   = data.donorAmount && Number.isFinite(data.donorAmount) ? data.donorAmount : null;
   const _urlAmt     = data.amount && Number.isFinite(Number(data.amount)) ? Number(data.amount) : null;
-  const initAmount  = _donorAmt ?? _urlAmt ?? suggestedAmounts[0] ?? 25;
+  const _adminDefaultAmt = Number(suggestedAmountsData.find((a) => a?.isDefault)?.value);
+  const _fallbackAmt = Number.isFinite(_adminDefaultAmt) && _adminDefaultAmt > 0
+    ? _adminDefaultAmt
+    : suggestedAmounts[0] ?? 25;
+  const initAmount  = _donorAmt ?? _urlAmt ?? _fallbackAmt;
   const sym         = CURRENCY_SYMBOLS[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
   const causeSplit = data.causeSplit ?? {};
@@ -126,7 +131,9 @@ export function useGiftAmountSchedule() {
   const [occurrences,     setOccurrences]     = useState(isRecurring ? initOccurrences : 1);
   const [remainingOccurrences, setRemainingOccurrences] = useState(isRecurring ? initRemainingOccurrences : 1);
   const [makeUpMissedDates, setMakeUpMissedDates] = useState(Boolean(data.makeUpMissedDates));
-  const [splitMode,       setSplitMode]       = useState(data.splitMode ?? "divide");
+  const [splitMode,       setSplitMode]       = useState(
+    allowRecurringSplit ? (data.splitMode ?? "divide") : "repeat"
+  );
   const [activePreset,    setActivePreset]    = useState(data.schedulePreset ?? "custom");
   const [scheduleState,   setScheduleState]   = useState({
     scheduleType:   data.scheduleType   ?? "specific_dates",
@@ -244,6 +251,7 @@ export function useGiftAmountSchedule() {
   };
 
   const handleSplitModeChange = (val) => {
+    if (!allowRecurringSplit && val !== "repeat") return;
     setSplitMode(val);
     // Switching to divide clears any per-date overrides so the new per-date
     // default (total ÷ count) applies evenly to all dates.
@@ -260,13 +268,15 @@ export function useGiftAmountSchedule() {
   };
 
   const splitModes = [
-    {
-      value:   "divide",
-      title:   "Divide total across dates",
-      example: occurrences > 1
-        ? `${sym}${Number(effectiveAmount.toFixed(2))} ÷ ${occurrences} = ${sym}${(effectiveAmount / Math.max(1, occurrences)).toFixed(2)}/date`
-        : "Select dates to see per-date amount",
-    },
+    ...(allowRecurringSplit
+      ? [{
+          value:   "divide",
+          title:   "Divide total across dates",
+          example: occurrences > 1
+            ? `${sym}${Number(effectiveAmount.toFixed(2))} ÷ ${occurrences} = ${sym}${(effectiveAmount / Math.max(1, occurrences)).toFixed(2)}/date`
+            : "Select dates to see per-date amount",
+        }]
+      : []),
     {
       value:   "repeat",
       title:   "Pay this amount each date",
@@ -282,6 +292,7 @@ export function useGiftAmountSchedule() {
     paymentType,
     isRecurring,
     allowRecurring,
+    allowRecurringSplit,
     sym,
     currencyOptions,
     suggestedAmounts,

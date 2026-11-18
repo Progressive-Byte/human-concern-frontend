@@ -23,12 +23,9 @@ import { resolveFirstInstallment } from "./StepComponents/firstPayment";
 import { apiRequest } from "@/services/api";
 
 const PAYMENT_TYPES = [
-  { value: "one-time",  label: "One-time payment",  desc: (amt, sym) => `Pay the full amount of ${sym}${amt} today` },
-  { value: "recurring", label: "Recurring payments", desc: () => "Split your donation into scheduled payments" },
+  { value: "one-time",  label: "One-time" },
+  { value: "recurring", label: "Recurring" },
 ];
-
-/* The floating heart is h-8 w-8. Its centre must match the small heart's centre. */
-const RISING_HEART_SIZE = 32;
 
 const Step1Gift = ({ campaignSlug }) => {
   const searchParams = useSearchParams();
@@ -39,12 +36,14 @@ const Step1Gift = ({ campaignSlug }) => {
 
   /* The heart floats from the Recurring option when that option is picked. */
   const recurringHeartRef = useRef(null);
+  const risingHeartFrame = useRef(null);
   const risingHeartTimer = useRef(null);
   const risingHeartCount = useRef(0);
   const [risingHeart, setRisingHeart] = useState(null);
 
   useEffect(
     () => () => {
+      if (risingHeartFrame.current) window.cancelAnimationFrame(risingHeartFrame.current);
       if (risingHeartTimer.current) window.clearTimeout(risingHeartTimer.current);
     },
     [],
@@ -56,6 +55,7 @@ const Step1Gift = ({ campaignSlug }) => {
     paymentType,
     isRecurring,
     allowRecurring,
+    allowRecurringSplit,
     sym,
     currencyOptions,
     suggestedAmounts,
@@ -290,19 +290,24 @@ const Step1Gift = ({ campaignSlug }) => {
 
     if (!startingRecurring) return;
 
-    const rect = recurringHeartRef.current?.getBoundingClientRect();
-    if (!rect) return;
+    // Wait for the selected state to render, so the heart is measured where it
+    // actually is after the recurring sections appear.
+    if (risingHeartFrame.current) window.cancelAnimationFrame(risingHeartFrame.current);
+    risingHeartFrame.current = window.requestAnimationFrame(() => {
+      const rect = recurringHeartRef.current?.getBoundingClientRect();
+      if (!rect) return;
 
-    /* A new key each time, so picking Recurring again starts the float again. */
-    risingHeartCount.current += 1;
-    setRisingHeart({
-      left: rect.left + rect.width / 2,
-      top: rect.top + rect.height / 2 - RISING_HEART_SIZE / 2,
-      key: risingHeartCount.current,
+      /* A new key each time, so picking Recurring again starts the float again. */
+      risingHeartCount.current += 1;
+      setRisingHeart({
+        left: rect.left + rect.width / 2,
+        top: rect.top + rect.height / 2,
+        key: risingHeartCount.current,
+      });
+
+      if (risingHeartTimer.current) window.clearTimeout(risingHeartTimer.current);
+      risingHeartTimer.current = window.setTimeout(() => setRisingHeart(null), 3900);
     });
-
-    if (risingHeartTimer.current) window.clearTimeout(risingHeartTimer.current);
-    risingHeartTimer.current = window.setTimeout(() => setRisingHeart(null), 3900);
   }
 
   return (
@@ -377,78 +382,81 @@ const Step1Gift = ({ campaignSlug }) => {
           onResetSplit={handleResetSplit}
         />
 
-        <div className="flex flex-col gap-3">
-          <SectionStep num={2} title="How would you like to give?" />
-          <div className="flex flex-col sm:flex-row gap-2.5">
-            {PAYMENT_TYPES.filter((t) => t.value === "one-time" || allowRecurring).map((type) => {
-              const active = paymentType === type.value;
-              const locked = isEditMode && type.value === "one-time";
-              return (
-                <button
-                  key={type.value}
-                  type="button"
-                  onClick={locked ? undefined : () => handlePaymentType(type)}
-                  className={`w-full sm:flex-1 flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-4 border text-left transition-all duration-200 ${
-                    locked
-                      ? "border-[#E5E5E5] bg-white opacity-40 cursor-not-allowed"
-                      : active
-                      ? "border-[#EA3335] bg-[#FFF5F5] cursor-pointer"
-                      : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40 cursor-pointer"
-                  }`}
-                >
-                  <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                    active ? "border-[#EA3335]" : "border-[#CCCCCC]"
-                  }`}>
-                    {active && <span className="w-2.5 h-2.5 rounded-full bg-[#EA3335]" />}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-1.5 text-[15px] font-semibold text-[#383838] leading-snug">
-                      {type.label}
-                      {type.value === "recurring" && (
-                        <span
-                          ref={recurringHeartRef}
-                          className={`inline-flex shrink-0 origin-center ${active ? "hc-heartbeat text-[#EA3335]" : "text-[#CCCCCC]"}`}
-                        >
-                          {HeartIcon}
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-[12px] text-[#737373] mt-0.5">{type.desc(effectiveAmount, sym)}</p>
-                  </div>
-                </button>
-              );
-            })}
+        {allowRecurring && (
+          <div className="flex flex-col gap-3">
+            <SectionStep num={2} title="How would you like to give?" />
+            <div className="relative flex rounded-full bg-[#F5F5F5] p-1">
+              <span
+                aria-hidden="true"
+                className={`absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-full bg-[#EA3335] transition-transform duration-[250ms] ease-[cubic-bezier(0.2,0,0,1)] ${
+                  isRecurring ? "translate-x-full" : "translate-x-0"
+                }`}
+              />
+
+              {PAYMENT_TYPES.map((type) => {
+                const active = paymentType === type.value;
+                const locked = isEditMode && type.value === "one-time";
+                return (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() => handlePaymentType(type)}
+                    disabled={locked}
+                    aria-pressed={active}
+                    className={`relative z-10 flex min-h-9 flex-1 items-center justify-center gap-2 rounded-full px-4 text-[0.875rem] font-semibold whitespace-nowrap transition-colors ${
+                      locked
+                        ? "opacity-40 cursor-not-allowed"
+                        : active
+                        ? "text-white cursor-pointer"
+                        : "text-[#383838] hover:text-[#EA3335] cursor-pointer"
+                    }`}
+                  >
+                    {type.value === "recurring" && (
+                      <span
+                        ref={recurringHeartRef}
+                        className={`inline-flex shrink-0 origin-center ${active ? "hc-heartbeat" : "text-[#8C8C8C]"}`}
+                      >
+                        {HeartIcon}
+                      </span>
+                    )}
+                    {type.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {isRecurring && (
           <>
-            <div className="flex flex-col gap-3">
-              <SectionStep num={3} title="How to split?" />
-              <div className="flex flex-col sm:flex-row gap-2.5">
-                {splitModes.map((mode) => {
-                  const active = splitMode === mode.value;
-                  return (
-                    <button
-                      key={mode.value}
-                      type="button"
-                      onClick={() => handleSplitModeChange(mode.value)}
-                      className={`w-full sm:flex-1 flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-4 border text-left transition-all duration-200 cursor-pointer min-h-[84px] ${
-                        active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
-                      }`}
-                    >
-                      <div className="min-w-0">
-                        <p className="text-[14px] font-semibold text-[#383838] leading-snug">{mode.title}</p>
-                        <p className="text-[12px] text-[#737373] mt-0.5 font-medium tabular-nums break-words">{mode.example}</p>
-                      </div>
-                    </button>
-                  );
-                })}
+            {allowRecurringSplit && (
+              <div className="flex flex-col gap-3">
+                <SectionStep num={3} title="How to split?" />
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  {splitModes.map((mode) => {
+                    const active = splitMode === mode.value;
+                    return (
+                      <button
+                        key={mode.value}
+                        type="button"
+                        onClick={() => handleSplitModeChange(mode.value)}
+                        className={`w-full sm:flex-1 flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-4 border text-left transition-all duration-200 cursor-pointer min-h-[84px] ${
+                          active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <p className="text-[14px] font-semibold text-[#383838] leading-snug">{mode.title}</p>
+                          <p className="text-[12px] text-[#737373] mt-0.5 font-medium tabular-nums break-words">{mode.example}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex flex-col gap-3">
-              <SectionStep num={4} title="Choose a schedule" />
+              <SectionStep num={allowRecurringSplit ? 4 : 3} title="Choose a schedule" />
               <RecurringSchedule
                 sym={sym}
                 effectiveAmount={defaultPerDate}

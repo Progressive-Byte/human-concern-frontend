@@ -6,17 +6,28 @@ import { createPortal } from "react-dom";
   The heart that floats off the Recurring button.
 
   It is drawn on <body>, above everything, at the heart's screen position.
-  The caller measures the heart when it is pressed; this only draws.
+  The caller passes the small heart's centre; this only draws.
 */
+const HEART_SIZE = 32;
+
+/* The site scales <html> with CSS zoom. Fixed coordinates are scaled again by
+   that zoom, so screen measurements have to be divided back out. */
+function getPageZoom() {
+  const zoom = Number.parseFloat(window.getComputedStyle(document.documentElement).zoom);
+  return Number.isFinite(zoom) && zoom > 0 ? zoom : 1;
+}
+
 export default function RisingHeart({ trigger, left, top, color }) {
   if (typeof document === "undefined") return null;
+
+  const zoom = getPageZoom();
 
   return createPortal(
     <span
       key={trigger}
       aria-hidden="true"
       className="pointer-events-none fixed z-[9999] -translate-x-1/2"
-      style={{ left, top }}
+      style={{ left: left / zoom, top: top / zoom - HEART_SIZE / 2 }}
     >
       <svg
         viewBox="0 0 24 24"
