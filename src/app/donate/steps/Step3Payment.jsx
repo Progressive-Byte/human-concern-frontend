@@ -135,7 +135,7 @@ const Step3Payment = () => {
     if (campaignMeta.goalsDates?.showGlobalNote) {
       normalizeNoteFields(campaignMeta.globalNote).forEach((f) => {
         const key = String(f.key ?? "").trim();
-        if (key && !seen.has(key)) {
+        if (key && key !== "global_cause_dropdown" && !seen.has(key)) {
           seen.add(key);
           combined.push(f);
         }

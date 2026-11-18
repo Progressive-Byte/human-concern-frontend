@@ -2,6 +2,7 @@
 
 import SettingsSectionCard from "../SettingsSectionCard";
 import CustomNotesEditor from "@/app/admin/forms/components/goalsDates/CustomNotesEditor";
+import GlobalCauseDropdownEditor from "../GlobalCauseDropdownEditor";
 
 function Field({ label, children }) {
   return (
@@ -111,6 +112,9 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
   const organization = value?.organization || {};
   const localization = value?.localization || {};
   const integrations = value?.integrations || {};
+  const regularGlobalNotes = (Array.isArray(organization.globalNote) ? organization.globalNote : []).filter(
+    (note) => note?.key !== "global_cause_dropdown"
+  );
 
   return (
     <div className="space-y-6">
@@ -278,9 +282,26 @@ const GeneralTab = ({ value, onChange, loading, saving, onSaveOrganization, onSa
         </div>
       </SettingsSectionCard>
 
+      <SettingsSectionCard
+        icon={<NoteIcon />}
+        title="Global Cause Dropdown"
+        subtitle="One dropdown shown below the cause section on every advanced donation form"
+      >
+        <GlobalCauseDropdownEditor
+          value={organization.causeDropdown || null}
+          onChange={(newValue) => onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), causeDropdown: newValue } }))}
+          disabled={loading}
+        />
+        <div className="mt-6">
+          <SaveButton onClick={onSaveOrganization} disabled={saving || loading}>
+            Save Changes
+          </SaveButton>
+        </div>
+      </SettingsSectionCard>
+
       <SettingsSectionCard icon={<NoteIcon />} title="Global Notes" subtitle="Custom fields that can be enabled on any form">
         <CustomNotesEditor
-          value={organization.globalNote || []}
+          value={regularGlobalNotes}
           onChange={(newValue) => onChange?.((prev) => ({ ...prev, organization: { ...(prev?.organization || {}), globalNote: newValue } }))}
           disabled={loading}
           addButtonClassName="border-red-600/30 bg-red-600/5 text-red-700 hover:bg-red-600/10"

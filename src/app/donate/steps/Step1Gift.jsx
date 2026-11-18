@@ -41,6 +41,25 @@ const Step1Gift = ({ campaignSlug }) => {
   const risingHeartCount = useRef(0);
   const [risingHeart, setRisingHeart] = useState(null);
 
+  const causeDropdown = useMemo(() => {
+    try {
+      const meta = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
+      const field = meta?.causeDropdown;
+      return field && field.enabled !== false && Array.isArray(field.options) ? field : null;
+    } catch {
+      return null;
+    }
+  }, []);
+  const [causeDropdownValue, setCauseDropdownValue] = useState(
+    () => data.causeDropdownValue ?? causeDropdown?.defaultValue ?? ""
+  );
+
+  useEffect(() => {
+    if (!causeDropdown) return;
+    update({ causeDropdownValue });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [causeDropdownValue, causeDropdown]);
+
   useEffect(
     () => () => {
       if (risingHeartFrame.current) window.cancelAnimationFrame(risingHeartFrame.current);
@@ -272,12 +291,18 @@ const Step1Gift = ({ campaignSlug }) => {
       return;
     }
 
+    if (causeDropdown?.required && !String(causeDropdownValue).trim()) {
+      setError(`Please choose ${causeDropdown.label || "an option"}.`);
+      return;
+    }
+
     setError("");
     const progress = computeDonationProgressFromStorage({
       ...data,
       donorAmount: effectiveAmount,
       amountTier: defaultPerDate,
       paymentType,
+      causeDropdownValue,
     });
     update({ progressPercent: progress.percent });
     handleNext(2);
@@ -381,6 +406,35 @@ const Step1Gift = ({ campaignSlug }) => {
           onSplitChange={handleSplitChange}
           onResetSplit={handleResetSplit}
         />
+
+        {causeDropdown?.options?.length ? (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold text-[#383838]">
+              {causeDropdown.label}
+              {causeDropdown.required && <span className="text-[#EA3335] ml-0.5">*</span>}
+            </label>
+            <select
+              value={causeDropdownValue}
+              onChange={(e) => {
+                const next = e.target.value;
+                setCauseDropdownValue(next);
+                update({ causeDropdownValue: next });
+                if (error) setError("");
+              }}
+              className="w-full rounded-xl border border-[#E5E5E5] bg-white px-3 py-2.5 text-[14px] text-[#383838] outline-none transition focus:border-[#EA3335] cursor-pointer"
+            >
+              <option value="">Select an option</option>
+              {causeDropdown.options.map((option, index) => (
+                <option key={option.id || index} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {causeDropdown.helpText ? (
+              <p className="text-[12px] text-[#737373]">{causeDropdown.helpText}</p>
+            ) : null}
+          </div>
+        ) : null}
 
         {allowRecurring && (
           <div className="flex flex-col gap-3">

@@ -23,9 +23,14 @@ export function normalizeSuggestedData(raw) {
     .filter((x) => Number.isFinite(x.value) && x.value > 0);
 }
 
-export function buildCampaignData(campaign, globalNote = []) {
+export function buildCampaignData(campaign, globalNote = [], causeDropdown = null) {
   const c = campaign && typeof campaign === "object" ? campaign : {};
   const gd = c.goalsDates && typeof c.goalsDates === "object" ? c.goalsDates : {};
+  const notes = Array.isArray(globalNote) ? globalNote : [];
+  const causeField =
+    causeDropdown && typeof causeDropdown === "object"
+      ? causeDropdown
+      : notes.find((note) => note?.key === "global_cause_dropdown") || null;
 
   return {
     id:                  c.id,
@@ -37,7 +42,8 @@ export function buildCampaignData(campaign, globalNote = []) {
     addOns:              c.addOns             ?? [],
     currenciesWithRates: c.currenciesWithRates ?? [],
     display:              c.display ?? {},
-    globalNote,
+    globalNote:           notes,
+    causeDropdown:        causeField,
     goalsDates: {
       allowOneTimeDonations:   gd.allowOneTimeDonations   ?? true,
       allowRecurringDonations: gd.allowRecurringDonations ?? true,

@@ -38,7 +38,7 @@ function normalizeSuggestedNumbers(value) {
   });
 }
 
-function buildCampaignDataFromAdminReview(review, formId, globalNote = []) {
+function buildCampaignDataFromAdminReview(review, formId, globalNote = [], causeDropdown = null) {
   const form = review?.form && typeof review.form === "object" ? review.form : {};
   const basics = form?.basics && typeof form.basics === "object" ? form.basics : {};
   const goalsDates = form?.goalsDates && typeof form.goalsDates === "object" ? form.goalsDates : {};
@@ -88,6 +88,7 @@ function buildCampaignDataFromAdminReview(review, formId, globalNote = []) {
     addOns,
     sectionsCompleted,
     globalNote,
+    causeDropdown,
     display: form?.publicDisplay && typeof form.publicDisplay === "object" ? form.publicDisplay : {},
     goalsDates: {
       allowOneTimeDonations: goalsDates?.allowOneTimeDonations === undefined ? true : Boolean(goalsDates.allowOneTimeDonations),
@@ -174,7 +175,8 @@ const AdminFormPreviewStepPage = () => {
         const goalsDatesRaw = normalizeGoalsDatesResponse(goalsRes);
         const generalSettings = normalizeGeneralSettingsResponse(generalSettingsRes);
         const globalNote = generalSettings?.organization?.globalNote ?? [];
-        const campaignData = buildCampaignDataFromAdminReview(review, resolvedFormId, globalNote);
+        const causeDropdown = generalSettings?.organization?.causeDropdown ?? null;
+        const campaignData = buildCampaignDataFromAdminReview(review, resolvedFormId, globalNote, causeDropdown);
 
         const goalsDatesCompleted = Boolean(campaignData?.sectionsCompleted?.goalsDates);
         const overrideSuggested = goalsDatesCompleted ? normalizeSuggestedNumbers(goalsDatesRaw?.suggestedAmounts) : [];

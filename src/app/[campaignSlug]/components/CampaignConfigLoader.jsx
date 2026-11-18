@@ -47,8 +47,9 @@ const CampaignConfigLoader = ({ campaignSlug, children }) => {
 
         const campaign = campaignRes?.data ?? null;
         const globalNote = settingsRes?.data?.globalNote ?? [];
+        const causeDropdown = settingsRes?.data?.causeDropdown ?? null;
         if (campaign) {
-          sessionStorage.setItem("campaignData", JSON.stringify(buildCampaignData(campaign, globalNote)));
+          sessionStorage.setItem("campaignData", JSON.stringify(buildCampaignData(campaign, globalNote, causeDropdown)));
         }
       } catch (e) {
         // A form that exists but is not published (or an unknown slug) shows the configured

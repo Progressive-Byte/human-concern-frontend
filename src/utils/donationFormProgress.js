@@ -43,12 +43,21 @@ function requiredNoteFields(config) {
   }
   if (gd.showGlobalNote) {
     for (const f of Array.isArray(config?.globalNote) ? config.globalNote : []) {
-      if (!f || typeof f !== "object" || seen.has(text(f.key))) continue;
+      if (!f || typeof f !== "object" || text(f.key) === "global_cause_dropdown" || seen.has(text(f.key))) continue;
       fields.push(f);
       seen.add(text(f.key));
     }
   }
   return fields.filter((f) => f.required);
+}
+
+function causeDropdownItem(config) {
+  const field = config?.causeDropdown;
+  if (!field || field.enabled === false || field.required !== true) return null;
+  return {
+    key: "causeDropdown",
+    isValid: (d) => Boolean(text(d.causeDropdownValue)),
+  };
 }
 
 // The schedule is only work for a donor who picked "recurring". Counting the slot for
@@ -84,6 +93,9 @@ export function buildRequiredItems(config) {
 
   const schedule = scheduleItem(config);
   if (schedule) items.push(schedule);
+
+  const causeDropdown = causeDropdownItem(config);
+  if (causeDropdown) items.push(causeDropdown);
 
   for (const field of requiredNoteFields(config)) {
     items.push({

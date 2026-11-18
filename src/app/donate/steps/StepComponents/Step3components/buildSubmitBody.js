@@ -77,12 +77,16 @@ export function buildApiScheduleConfig({ data, amountTier, scheduleType, schedul
 function buildNoteAnswers({ data, campaignMeta }) {
   const customNotes = normalizeNoteFields(campaignMeta.goalsDates?.customNotes);
   const globalNote = campaignMeta.goalsDates?.showGlobalNote
-    ? normalizeNoteFields(campaignMeta.globalNote)
+    ? normalizeNoteFields(campaignMeta.globalNote).filter((f) => f.key !== "global_cause_dropdown")
     : [];
+  const causeDropdown =
+    campaignMeta.causeDropdown && campaignMeta.causeDropdown.enabled !== false
+      ? [campaignMeta.causeDropdown]
+      : [];
 
   const combined = [...customNotes];
   const seen = new Set(combined.map((f) => String(f.key ?? "").trim()).filter(Boolean));
-  globalNote.forEach((f) => {
+  [...globalNote, ...causeDropdown].forEach((f) => {
     const key = String(f.key ?? "").trim();
     if (key && !seen.has(key)) {
       seen.add(key);
@@ -91,6 +95,7 @@ function buildNoteAnswers({ data, campaignMeta }) {
   });
 
   const formKeys = new Set(customNotes.map((f) => String(f.key ?? "").trim()).filter(Boolean));
+  const causeKey = String(campaignMeta.causeDropdown?.key ?? "").trim();
   const answers = data.customNoteValues ?? {};
   const formValues = {};
   const globalValues = {};
@@ -100,7 +105,9 @@ function buildNoteAnswers({ data, campaignMeta }) {
     if (!key) continue;
 
     let value;
-    if (f.type === "checkbox") {
+    if (key === causeKey) {
+      value = String(data.causeDropdownValue ?? "").trim();
+    } else if (f.type === "checkbox") {
       value = !!answers[f.key];
     } else {
       const raw = answers[f.key] ?? "";

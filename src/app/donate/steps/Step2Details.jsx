@@ -53,7 +53,9 @@ const Step2Details = () => {
     [campaignMeta]
   );
   const showGlobalNote = Boolean(campaignMeta.goalsDates?.showGlobalNote);
-  const [globalNoteFields] = useState(() => normalizeNoteFields(campaignMeta.globalNote));
+  const [globalNoteFields] = useState(() =>
+    normalizeNoteFields(campaignMeta.globalNote).filter((f) => f.key !== "global_cause_dropdown")
+  );
 
   const customNoteFields = useMemo(() => {
     const combined = [...customNotes];

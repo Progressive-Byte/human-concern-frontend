@@ -21,6 +21,7 @@ const DonationWidget = ({ campaign }) => {
   const router = useRouter();
 
   const [globalNote, setGlobalNote] = useState([]);
+  const [causeDropdown, setCauseDropdown] = useState(null);
   const [publicSettingsLoading, setPublicSettingsLoading] = useState(false);
 
   useEffect(() => {
@@ -30,9 +31,11 @@ const DonationWidget = ({ campaign }) => {
         const res = await apiRequest("payment/settings", { method: "GET" });
         const data = res?.data || {};
         setGlobalNote(data?.globalNote || []);
+        setCauseDropdown(data?.causeDropdown || null);
       } catch (e) {
         console.error("Failed to fetch public settings", e);
         setGlobalNote([]);
+        setCauseDropdown(null);
       } finally {
         setPublicSettingsLoading(false);
       }
@@ -123,7 +126,7 @@ const DonationWidget = ({ campaign }) => {
     sessionStorage.removeItem("hc_donation");
     sessionStorage.removeItem("hc_donation_done");
     sessionStorage.removeItem("hc_schedule_edit");
-    sessionStorage.setItem("campaignData", JSON.stringify(buildCampaignData(campaign, globalNote)));
+    sessionStorage.setItem("campaignData", JSON.stringify(buildCampaignData(campaign, globalNote, causeDropdown)));
 
     const params = new URLSearchParams({ amount: String(finalAmount), currency });
 
