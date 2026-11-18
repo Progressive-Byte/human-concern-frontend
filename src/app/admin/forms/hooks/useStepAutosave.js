@@ -35,6 +35,9 @@ export default function useStepAutosave({
 
   const baselineRef = useRef(null);
   const timerRef = useRef(null);
+  const inFlightRef = useRef(null);
+  const queuedRef = useRef(false);
+  const runSaveRef = useRef(null);
   const persistRef = useRef(persist);
   const depsRef = useRef(deps);
   persistRef.current = persist;
@@ -52,29 +55,66 @@ export default function useStepAutosave({
   }, [ready, formId]);
 
   const runSave = useCallback(async () => {
-    const next = serialize(depsRef.current);
-    if (next === baselineRef.current) return { ok: true };
-    if (typeof persistRef.current !== "function") return { ok: false, error: "Nothing to save." };
+    // Only one save runs at a time. A second request asks the running save to pick up the
+    // newest state when it finishes, instead of sending two overlapping snapshots.
+    if (inFlightRef.current) {
+      queuedRef.current = true;
+      return inFlightRef.current;
+    }
 
-    guardRef.current?.markSaving?.();
-    try {
-      const result = await persistRef.current();
-      if (result && result.ok === false) {
-        throw new Error(result.error || "We couldn’t save your changes. Please try again.");
+    if (typeof persistRef.current !== "function") {
+      return { ok: false, error: "Nothing to save." };
+    }
+
+    const run = (async () => {
+      guardRef.current?.markSaving?.();
+      try {
+        while (true) {
+          queuedRef.current = false;
+          const requestSnapshot = serialize(depsRef.current);
+
+          if (requestSnapshot === baselineRef.current) {
+            guardRef.current?.markClean?.();
+            return { ok: true };
+          }
+
+          const result = await persistRef.current();
+          if (result && result.ok === false) {
+            throw new Error(result.error || "We couldn’t save your changes. Please try again.");
+          }
+
+          // Only the values that were actually sent count as saved. If the admin changed
+          // something while the request was running, keep dirty and save the newer state.
+          baselineRef.current = requestSnapshot;
+          const currentSnapshot = serialize(depsRef.current);
+          if (currentSnapshot === requestSnapshot && !queuedRef.current) {
+            guardRef.current?.markClean?.();
+            return { ok: true };
+          }
+        }
+      } catch (err) {
+        const message = err?.message || "We couldn’t save your changes. Please try again.";
+        guardRef.current?.markError?.(message);
+        return { ok: false, error: message };
       }
-      // Most steps re-read the form after saving and set state from the server's copy, which
-      // changes `deps`. Let that render land, then re-baseline from the *current* values —
-      // otherwise the hook reads the refresh as a fresh edit and saves on a loop.
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      baselineRef.current = serialize(depsRef.current);
-      guardRef.current?.markClean?.();
-      return { ok: true };
-    } catch (err) {
-      const message = err?.message || "We couldn’t save your changes. Please try again.";
-      guardRef.current?.markError?.(message);
-      return { ok: false, error: message };
+    })();
+
+    inFlightRef.current = run;
+    try {
+      return await run;
+    } finally {
+      inFlightRef.current = null;
+      if (queuedRef.current) {
+        queuedRef.current = false;
+        if (serialize(depsRef.current) !== baselineRef.current) {
+          setTimeout(() => {
+            void runSaveRef.current?.();
+          }, 0);
+        }
+      }
     }
   }, []);
+  runSaveRef.current = runSave;
 
   // Let the unsaved-changes dialog force an immediate save.
   useEffect(() => {

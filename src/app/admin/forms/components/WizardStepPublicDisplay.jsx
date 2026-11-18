@@ -113,8 +113,9 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
         donateButtonLabel: String(donateButtonLabel || "").trim(),
         marketingConsentMode,
       });
-      // Reflect exactly what the server stored, so autosave and Save agree.
-      applyServerValue(readPublicDisplay(res));
+      // Autosave already has the exact values it sent. Re-applying the response on a silent
+      // save can overwrite a newer toggle that was changed while the request was running.
+      if (!silent) applyServerValue(readPublicDisplay(res));
       if (!silent) toast.success("Public display saved");
       onSaved?.();
       if (goNext) onExit?.({ nextStep: "review" });

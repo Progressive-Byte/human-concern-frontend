@@ -139,8 +139,8 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
     if (!silent) setSaving(true);
     try {
       const res = await updateAdminFormUnavailablePage(formId, payload);
-      // Reflect exactly what the server stored, so Save Draft and autosave agree.
-      applyServerValue(normalizeUnavailableResponse(res));
+      // Autosave already has the values it sent; only a manual save needs the server copy.
+      if (!silent) applyServerValue(normalizeUnavailableResponse(res));
       if (!silent) toast.success("Unavailable page saved");
       onSaved?.();
       if (goNext) onExit?.({ nextStep: "public-display" });

@@ -530,7 +530,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       } else {
         await updateAdminFormBasics(formId, payload);
       }
-      await refreshBasics(formId);
+      if (!silent) await refreshBasics(formId);
       onSaved?.(formId);
       if (!silent) toast.success("Basics saved");
       return { ok: true, formId };
