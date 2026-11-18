@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getAdminFormReview, publishAdminForm, unpublishAdminForm } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { getCurrencyLabel, normalizeSupportedCurrencyCodes } from "@/utils/currencies";
+import { getFormErrorMessage, humanizeFormError } from "@/utils/formValidationMessages";
 
 function normalizeReviewResponse(res) {
   return res?.data?.data || res?.data || {};
@@ -66,7 +67,7 @@ function SummaryCard({ label, onEdit, children, errors }) {
       {errorList.length ? (
         <div className="mt-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-700">
           {errorList.map((e, idx) => (
-            <div key={`${idx}-${String(e)}`}>{String(e)}</div>
+            <div key={`${idx}-${String(e)}`}>{humanizeFormError(String(e))}</div>
           ))}
         </div>
       ) : null}
@@ -119,7 +120,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
       } catch (e) {
         if (!alive) return;
         setReview(null);
-        setTopError(e?.message || "Failed to load review.");
+        setTopError(getFormErrorMessage(e, "We couldn’t load the review. Please try again."));
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -135,15 +136,15 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
     setTopError("");
 
     if (!campaignId) {
-      toast.error("Missing campaignId");
+      toast.error("This form is not linked to a campaign. Go back and choose a campaign.");
       return;
     }
     if (!formId) {
-      toast.error("Missing formId");
+      toast.error("Finish Basics first to create the form.");
       return;
     }
     if (!canPublish) {
-      toast.error("Complete required sections to publish");
+      toast.error("Finish the sections marked below before publishing.");
       return;
     }
 
@@ -154,7 +155,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
       onSaved?.();
       onExit?.({ nextStep: "finish" });
     } catch (e) {
-      const msg = e?.message || "Failed to publish.";
+      const msg = getFormErrorMessage(e, "We couldn’t publish this form. Please try again.");
       setTopError(msg);
       toast.error(msg);
     } finally {
@@ -166,7 +167,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
     setTopError("");
 
     if (!formId) {
-      toast.error("Missing formId");
+      toast.error("Finish Basics first to create the form.");
       return;
     }
 
@@ -185,7 +186,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
       onSaved?.();
       onExit?.({ nextStep: "finish" });
     } catch (e) {
-      const msg = e?.message || "Failed to move to draft.";
+      const msg = getFormErrorMessage(e, "We couldn’t move this form to Draft. Please try again.");
       setTopError(msg);
       toast.error(msg);
     } finally {
@@ -196,7 +197,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
   if (!formId) {
     return (
       <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
-        Missing formId. Please complete Basics first to create the draft form.
+        Finish Basics first to create the form.
         <div className="mt-4">
           <button
             type="button"
@@ -236,7 +237,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
           </div>
         ) : !data ? (
           <div className="mt-5 rounded-xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
-            Unable to load review. Please try again.
+            We couldn’t load the review. Please try again.
           </div>
         ) : (
           <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -361,7 +362,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
 
       {data && !canPublish ? (
         <div className="rounded-xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
-          Complete required sections to publish.
+          Finish the sections marked below before publishing.
         </div>
       ) : null}
 

@@ -5,6 +5,7 @@ import { getAdminFormMedia, updateAdminFormMedia } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
+import { getFormErrorMessage } from "@/utils/formValidationMessages";
 import WizardFooterNav from "./WizardFooterNav";
 
 function normalizeMediaResponse(res) {
@@ -35,7 +36,7 @@ function resolveAssetUrl(path) {
 async function fetchRemoteFile(path, fileName) {
   const url = resolveAssetUrl(path);
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to load existing image");
+  if (!res.ok) throw new Error("We couldn’t load the existing image.");
   const blob = await res.blob();
   return new File([blob], fileName, { type: blob.type || undefined });
 }
@@ -179,7 +180,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
         setVideoUrl(video);
       } catch (e) {
         if (!alive) return;
-        setTopError(e?.message || "Failed to load media.");
+        setTopError(getFormErrorMessage(e, "We couldn’t load the media. Please try again."));
         setServerThumbnail(null);
         setServerSliderImages([]);
       } finally {
@@ -212,14 +213,14 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     
     const typeValidation = isValidImageType(file);
     if (!typeValidation.valid) {
-      toast.error("Invalid file type. Please upload JPG, PNG, or WebP images.");
+      toast.error("Choose a JPG, PNG, or WebP image.");
       if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
       return;
     }
 
     const sizeValidation = isValidFileSize(file, 1);
     if (!sizeValidation.valid) {
-      toast.error(`File size too large. Maximum file size is 1 MB. Your file is ${sizeValidation.fileSizeMB} MB.`);
+      toast.error(`Image is too large. The maximum is 1 MB. Your file is ${sizeValidation.fileSizeMB} MB.`);
       if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
       return;
     }
@@ -236,7 +237,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     for (const file of files) {
       const validation = isValidImageType(file);
       if (!validation.valid) {
-        toast.error("Invalid file type. Please upload JPG, PNG, or WebP images.");
+        toast.error("Choose a JPG, PNG, or WebP image.");
         if (sliderInputRef.current) sliderInputRef.current.value = "";
         return;
       }
@@ -244,7 +245,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
 
     const remaining = Math.max(0, 10 - serverSliderImages.length - sliderFiles.length);
     if (remaining <= 0) {
-      toast.error("You can select up to 10 slider images");
+      toast.error("Choose up to 10 slider images.");
       if (sliderInputRef.current) sliderInputRef.current.value = "";
       return;
     }
@@ -293,18 +294,18 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     if (!silent) setTopError("");
 
     if (!campaignId) {
-      if (!silent) toast.error("Missing campaignId");
-      return { ok: false, error: "Missing campaignId" };
+      if (!silent) toast.error("This form is not linked to a campaign. Go back and choose a campaign.");
+      return { ok: false, error: "This form is not linked to a campaign." };
     }
     if (!formId) {
-      if (!silent) toast.error("Complete Basics first");
-      return { ok: false, error: "Complete Basics first" };
+      if (!silent) toast.error("Finish Basics first.");
+      return { ok: false, error: "Finish Basics first." };
     }
 
     const nextVideoUrl = String(videoUrl || "").trim();
     if (!isValidUrl(nextVideoUrl)) {
-      if (!silent) toast.error("Video URL must be a valid URL");
-      return { ok: false, error: "Video URL must be a valid URL" };
+      if (!silent) toast.error("Enter a valid video link.");
+      return { ok: false, error: "Enter a valid video link." };
     }
 
     const hasAnyFile = Boolean(thumbnailFile) || sliderFiles.length > 0;
@@ -322,12 +323,12 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
         try {
           fd.append("thumbnailImage", await fetchRemoteFile(serverThumbnail.path, "thumbnail.jpg"));
         } catch {
-          if (!silent) toast.error("Thumbnail image is required");
-          return { ok: false, error: "Thumbnail image is required" };
+          if (!silent) toast.error("Add a thumbnail image.");
+          return { ok: false, error: "Add a thumbnail image." };
         }
       } else {
-        if (!silent) toast.error("Thumbnail image is required");
-        return { ok: false, error: "Thumbnail image is required" };
+        if (!silent) toast.error("Add a thumbnail image.");
+        return { ok: false, error: "Add a thumbnail image." };
       }
 
       // Keep the already-saved slider images the admin didn't remove; upload only the new files.
@@ -381,9 +382,9 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
       }
       return { ok: true };
     } catch (e) {
-      const msg = e?.message || "Failed to save media.";
+      const msg = getFormErrorMessage(e, "We couldn’t save the media. Please try again.");
       if (!silent) {
-        setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
+        setTopError(msg);
         toast.error(msg);
       }
       return { ok: false, error: msg };
@@ -395,7 +396,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
   if (!formId) {
     return (
       <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
-        Missing formId. Please complete Basics first to create the draft form.
+        Finish Basics first to create the form.
         <div className="mt-4">
           <button
             type="button"
@@ -552,7 +553,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
                 className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
-              <div className="mt-1 text-[12px] text-[#6B7280]">Must be a valid URL</div>
+              <div className="mt-1 text-[12px] text-[#6B7280]">Enter a valid video link.</div>
             </div>
           </div>
         </div>

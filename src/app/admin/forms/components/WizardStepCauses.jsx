@@ -5,6 +5,7 @@ import { getAdminCauses, getAdminDesignations, getAdminFormCauses, updateAdminFo
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import WizardFooterNav from "./WizardFooterNav";
 import useStepAutosave from "../hooks/useStepAutosave";
+import { getFormErrorMessage } from "@/utils/formValidationMessages";
 
 function normalizeItemsResponse(res) {
   const items = res?.data?.items || res?.data?.data?.items || res?.items || [];
@@ -140,7 +141,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
         setSelectedCauseIds([]);
         setAllDesignations([]);
         setSelectedDesignationIds([]);
-        setTopError(e?.message || "Failed to load causes.");
+        setTopError(getFormErrorMessage(e, "We couldn’t load the causes. Please try again."));
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -181,12 +182,12 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
     if (!silent) setTopError("");
 
     if (!campaignId) {
-      if (!silent) toast.error("Missing campaignId");
-      return { ok: false, error: "Missing campaignId" };
+      if (!silent) toast.error("This form is not linked to a campaign. Go back and choose a campaign.");
+      return { ok: false, error: "This form is not linked to a campaign." };
     }
     if (!formId) {
-      if (!silent) toast.error("Complete Basics first");
-      return { ok: false, error: "Complete Basics first" };
+      if (!silent) toast.error("Finish Basics first.");
+      return { ok: false, error: "Finish Basics first." };
     }
 
     const enabledIdSet = new Set(
@@ -223,9 +224,9 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
       }
       return { ok: true };
     } catch (e) {
-      const msg = e?.message || "Failed to save causes.";
+      const msg = getFormErrorMessage(e, "We couldn’t save the causes. Please try again.");
       if (!silent) {
-        setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
+        setTopError(msg);
         toast.error(msg);
       }
       return { ok: false, error: msg };
@@ -237,7 +238,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
   if (!formId) {
     return (
       <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
-        Missing formId. Please complete Basics first to create the draft form.
+        Finish Basics first to create the form.
         <div className="mt-4">
           <button
             type="button"

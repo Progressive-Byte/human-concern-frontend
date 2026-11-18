@@ -16,6 +16,7 @@ const SPECIAL_TYPES = [
 ];
 import useStepAutosave from "../hooks/useStepAutosave";
 import { siteUrl } from "@/utils/constants";
+import { getFormErrorMessage } from "@/utils/formValidationMessages";
 import FieldError from "./FieldError";
 import RichTextEditor from "./RichTextEditor";
 import WizardFooterNav from "./WizardFooterNav";
@@ -251,7 +252,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       } catch (e) {
         if (!alive) return;
         setCategories([]);
-        setCategoriesError(e?.message || "Failed to load categories.");
+        setCategoriesError(getFormErrorMessage(e, "We couldn’t load the categories. Please try again."));
       } finally {
         if (!alive) return;
         setCategoriesLoading(false);
@@ -321,7 +322,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         setListed(pub?.listed !== false);
       } catch (e) {
         if (!alive) return;
-        setTopError(e?.message || "Failed to load basics.");
+        setTopError(getFormErrorMessage(e, "We couldn’t load this form. Please try again."));
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -358,18 +359,18 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       listed: Boolean(listed),
     };
 
-    if (!internal.campaignId) errors["internal.campaignId"] = "Missing generated id";
-    else if (internal.campaignId.length > 32) errors["internal.campaignId"] = "Max 32 characters";
-    else if (!isInternalCampaignId(internal.campaignId)) errors["internal.campaignId"] = "Invalid format";
+    if (!internal.campaignId) errors["internal.campaignId"] = "The form ID was not generated. Refresh the page and try again.";
+    else if (internal.campaignId.length > 32) errors["internal.campaignId"] = "Use 32 characters or fewer.";
+    else if (!isInternalCampaignId(internal.campaignId)) errors["internal.campaignId"] = "Use only numbers and dashes, like 1-767.";
 
-    if (!internal.shortDescription) errors["internal.shortDescription"] = "Required";
-    else if (internal.shortDescription.length > 200) errors["internal.shortDescription"] = "Max 200 characters";
+    if (!internal.shortDescription) errors["internal.shortDescription"] = "Enter a short description.";
+    else if (internal.shortDescription.length > 200) errors["internal.shortDescription"] = "Use 200 characters or fewer.";
 
-    if (!pub.displayName) errors["public.displayName"] = "Required";
-    else if (pub.displayName.length < 3) errors["public.displayName"] = "Min 3 characters";
-    else if (pub.displayName.length > 80) errors["public.displayName"] = "Max 80 characters";
+    if (!pub.displayName) errors["public.displayName"] = "Enter a display name.";
+    else if (pub.displayName.length < 3) errors["public.displayName"] = "Use at least 3 characters.";
+    else if (pub.displayName.length > 80) errors["public.displayName"] = "Use 80 characters or fewer.";
 
-    if (pub.description && plainTextLength(pub.description) > 500) errors["public.description"] = "Max 500 characters";
+    if (pub.description && plainTextLength(pub.description) > 500) errors["public.description"] = "Use 500 characters or fewer.";
 
     // Collaboration is stored as the name/image pair, so "switched on with nothing entered" isn't
     // representable server-side: the payload would carry neither key, and the post-save refresh
@@ -380,15 +381,15 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       && !pub.collaborationOrganizationImage
       && !collaborationImageFile
     ) {
-      errors["public.collaborationOrganizationName"] = "Add an organisation name or logo";
+      errors["public.collaborationOrganizationName"] = "Add an organization name or logo.";
     }
 
-    if (!["normal", "ramadan", "qurbani"].includes(pub.campaignType)) errors["public.campaignType"] = "Choose a campaign type";
+    if (!["normal", "ramadan", "qurbani"].includes(pub.campaignType)) errors["public.campaignType"] = "Choose a campaign type.";
 
     const uniqueCats = Array.from(new Set(pub.categoryIds.map((x) => String(x).trim()).filter(Boolean)));
-    if (uniqueCats.length < 1) errors["public.categoryIds"] = "Add at least 1 category";
-    if (uniqueCats.length > 10) errors["public.categoryIds"] = "Max 10 categories";
-    if (uniqueCats.some((id) => !isMongoId(id))) errors["public.categoryIds"] = "Each category must be a Mongo ObjectId (24 hex chars)";
+    if (uniqueCats.length < 1) errors["public.categoryIds"] = "Choose at least one category.";
+    if (uniqueCats.length > 10) errors["public.categoryIds"] = "Choose no more than 10 categories.";
+    if (uniqueCats.some((id) => !isMongoId(id))) errors["public.categoryIds"] = "One selected category is invalid. Remove it and choose again.";
 
     const payload = {
       internal,
@@ -453,7 +454,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       const current = Array.isArray(prev) ? prev.map((x) => String(x).trim()).filter(Boolean) : [];
       if (current.includes(key)) return current.filter((x) => x !== key);
       if (current.length >= 10) {
-        toast.error("Max 10 categories");
+        toast.error("Choose no more than 10 categories.");
         return current;
       }
       return [...current, key];
@@ -471,15 +472,15 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     /* Save Draft keeps whatever is filled in. Only Next asks for the required fields. */
     if (goNext && Object.keys(errors).length) {
       setFieldErrors(errors);
-      if (!silent) toast.error("Fix the highlighted fields");
-      return { ok: false, error: "Fix the highlighted fields" };
+      if (!silent) toast.error("Check the highlighted fields below.");
+      return { ok: false, error: "Check the highlighted fields below." };
     }
 
     setFieldErrors({});
 
     if (!campaignId) {
-      if (!silent) toast.error("Missing campaignId");
-      return { ok: false, error: "Missing campaignId" };
+      if (!silent) toast.error("This form is not linked to a campaign. Go back and choose a campaign.");
+      return { ok: false, error: "This form is not linked to a campaign." };
     }
 
     if (!silent) setSaving(true);
@@ -534,14 +535,19 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       if (!silent) toast.success("Basics saved");
       return { ok: true, formId };
     } catch (e) {
-      const msg = e?.message || "Failed to save basics.";
+      const msg = getFormErrorMessage(e, "We couldn’t save the basics. Please try again.");
       if (!silent) {
         setTopError(msg);
 
         const nextErrors = {};
-        if (String(msg).includes("FUND_CODE_IN_USE")) nextErrors["internal.fundCode"] = "Cause code already in use";
-        if (String(msg).includes("BENEFICIARY_ID_IN_USE")) nextErrors["internal.beneficiaryId"] = "Beneficiary id already in use";
-        if (String(msg).includes("FORM_NOT_EDITABLE")) setTopError("Form can’t be edited (not draft).");
+        const rawMessage = String(e?.message || "");
+        const code = String(e?.code || "");
+        if (code === "FUND_CODE_IN_USE" || rawMessage.includes("FUND_CODE_IN_USE")) {
+          nextErrors["internal.fundCode"] = "This cause code is already used. Choose a different one.";
+        }
+        if (code === "BENEFICIARY_ID_IN_USE" || rawMessage.includes("BENEFICIARY_ID_IN_USE")) {
+          nextErrors["internal.beneficiaryId"] = "This beneficiary ID is already used. Choose a different one.";
+        }
         if (Object.keys(nextErrors).length) setFieldErrors(nextErrors);
 
         toast.error(msg);

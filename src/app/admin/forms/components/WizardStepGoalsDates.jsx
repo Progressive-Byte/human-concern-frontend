@@ -11,6 +11,7 @@ import SuggestedAmountsEditor from "./goalsDates/SuggestedAmountsEditor";
 import CustomNotesEditor from "./goalsDates/CustomNotesEditor";
 import RecurringPresetsEditor from "./goalsDates/RecurringPresetsEditor";
 import { getSupportedCurrencyOptionsForCodes, normalizeSupportedCurrencyCodes, SUPPORTED_FORM_CURRENCY_OPTIONS } from "@/utils/currencies";
+import { getFormErrorMessage } from "@/utils/formValidationMessages";
 
 function normalizeGoalsDatesResponse(res) {
   return res?.data?.data || res?.data?.item || res?.data?.goalsDates || res?.data || {};
@@ -374,7 +375,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         setPaymentMethods(filterPaymentMethodsToOptions(d?.paymentMethods, enabledMethods));
       } catch (e) {
         if (!alive) return;
-        setTopError(e?.message || "Failed to load goals & dates.");
+        setTopError(getFormErrorMessage(e, "We couldn’t load this step. Please try again."));
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -402,17 +403,17 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     const min = String(minimumDonation ?? "").trim();
     const max = String(maximumDonation ?? "").trim();
 
-    if (!nextCurrencies.length) errors.currencies = "Select at least 1 currency";
+    if (!nextCurrencies.length) errors.currencies = "Choose at least one currency.";
 
-    if (!nextStartAt) errors.startAt = "Required";
-    else if (Number.isNaN(Date.parse(nextStartAt))) errors.startAt = "Invalid date";
+    if (!nextStartAt) errors.startAt = "Choose a start date.";
+    else if (Number.isNaN(Date.parse(nextStartAt))) errors.startAt = "Enter a valid date.";
 
     if (nextEndAt) {
-      if (Number.isNaN(Date.parse(nextEndAt))) errors.endAt = "Invalid date";
+      if (Number.isNaN(Date.parse(nextEndAt))) errors.endAt = "Enter a valid date.";
       else if (!errors.startAt) {
         const s = new Date(Date.parse(nextStartAt));
         const e = new Date(Date.parse(nextEndAt));
-        if (!(s.getTime() < e.getTime())) errors.endAt = "End date must be after start date";
+        if (!(s.getTime() < e.getTime())) errors.endAt = "End date must be after the start date.";
       }
     }
 
@@ -420,30 +421,30 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       if (!raw) return null;
       const n = Number(raw);
       if (!Number.isFinite(n)) {
-        errors[fieldKey] = "Must be a number";
+        errors[fieldKey] = "Enter a number.";
         return null;
       }
       if (!(n > 0)) {
-        errors[fieldKey] = "Must be greater than 0";
+        errors[fieldKey] = "Enter a number greater than 0.";
         return null;
       }
       return n;
     }
 
     const goalN = validatePositiveNumber("goalAmount", goal);
-    if (!min) errors.minimumDonation = "Required";
+    if (!min) errors.minimumDonation = "Enter a minimum donation.";
     const minN = validatePositiveNumber("minimumDonation", min);
     const maxN = validatePositiveNumber("maximumDonation", max);
 
     if (minN !== null && maxN !== null && minN > maxN) {
-      errors.maximumDonation = "Maximum must be greater than or equal to minimum";
+      errors.maximumDonation = "Maximum donation must be greater than or equal to the minimum.";
     }
 
     const normalizedSuggested = [];
     const oneTimeEnabled = Boolean(allowOneTimeDonations);
     const recurringEnabled = Boolean(allowRecurringDonations);
     if (!oneTimeEnabled && !recurringEnabled) {
-      const msg = "Enable one-time or recurring donations";
+      const msg = "Turn on one-time or recurring donations.";
       errors.allowOneTimeDonations = msg;
       errors.allowRecurringDonations = msg;
     }
@@ -463,13 +464,13 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           return;
         }
         const n = Number(rawValue);
-        if (!rawValue) rowErr.value = "Required";
-        else if (!Number.isFinite(n)) rowErr.value = "Must be a number";
-        else if (!(n > 0)) rowErr.value = "Must be greater than 0";
+        if (!rawValue) rowErr.value = "Enter an amount.";
+        else if (!Number.isFinite(n)) rowErr.value = "Enter a number.";
+        else if (!(n > 0)) rowErr.value = "Enter a number greater than 0.";
 
         const key = Number.isFinite(n) ? String(n) : rawValue;
         if (!rowErr.value) {
-          if (seenValues.has(key)) rowErr.value = "Must be unique";
+          if (seenValues.has(key)) rowErr.value = "This amount is already used.";
           else seenValues.add(key);
         }
 
@@ -491,7 +492,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       }
 
       if (suggErrors.some((e) => e && Object.keys(e).length)) {
-        errors.suggestedAmounts = "Fix suggested amounts";
+        errors.suggestedAmounts = "Check the suggested amounts below.";
       }
     }
 
@@ -506,9 +507,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         const scheduleType = String(preset.scheduleType || "").trim();
         const sortOrderRaw = String(preset.sortOrder ?? "").trim();
         const sortOrderNum = sortOrderRaw ? Number(sortOrderRaw) : (idx + 1) * 10;
-        if (!name) perr.name = "Required";
-        if (sortOrderRaw && !Number.isFinite(sortOrderNum)) perr.sortOrder = "Must be a number";
-        if (scheduleType !== "date_range" && scheduleType !== "specific_dates") perr.scheduleType = "Invalid";
+        if (!name) perr.name = "Enter a preset name.";
+        if (sortOrderRaw && !Number.isFinite(sortOrderNum)) perr.sortOrder = "Enter a number.";
+        if (scheduleType !== "date_range" && scheduleType !== "specific_dates") perr.scheduleType = "Choose a valid schedule type.";
 
         const cfg = preset.scheduleConfig && typeof preset.scheduleConfig === "object" ? preset.scheduleConfig : {};
         const cfgErrors = {};
@@ -522,54 +523,54 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           const daysRaw = Array.isArray(cfg.daysOfWeek) ? cfg.daysOfWeek : [];
           const daysOfWeek = Array.from(new Set(daysRaw.map((d) => Number(d)).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))).sort((a, b) => a - b);
 
-          if (enabled && !startDate) cfgErrors.startDate = "Required";
+          if (enabled && !startDate) cfgErrors.startDate = "Choose a start date.";
           if (enabled && startDate && endDate) {
             const sT = Date.parse(startDate);
             const eT = Date.parse(endDate);
-            if (Number.isNaN(sT)) cfgErrors.startDate = "Invalid date";
-            if (Number.isNaN(eT)) cfgErrors.endDate = "Invalid date";
-            if (!cfgErrors.startDate && !cfgErrors.endDate && !(sT < eT)) cfgErrors.endDate = "End must be after start";
+            if (Number.isNaN(sT)) cfgErrors.startDate = "Enter a valid date.";
+            if (Number.isNaN(eT)) cfgErrors.endDate = "Enter a valid date.";
+            if (!cfgErrors.startDate && !cfgErrors.endDate && !(sT < eT)) cfgErrors.endDate = "End date must be after the start date.";
           } else if (enabled && endDate && Number.isNaN(Date.parse(endDate))) {
-            cfgErrors.endDate = "Invalid date";
+            cfgErrors.endDate = "Enter a valid date.";
           }
 
           if (enabled && startDate && !cfgErrors.startDate) {
             const sT = Date.parse(startDate);
             if (!Number.isNaN(sT)) {
-              if (campaignStartMs !== null && sT < campaignStartMs) cfgErrors.startDate = "Must be on or after campaign start date";
-              else if (campaignEndMs !== null && sT > campaignEndMs) cfgErrors.startDate = "Must be on or before campaign end date";
+              if (campaignStartMs !== null && sT < campaignStartMs) cfgErrors.startDate = "Choose a date on or after the campaign start.";
+              else if (campaignEndMs !== null && sT > campaignEndMs) cfgErrors.startDate = "Choose a date on or before the campaign end.";
             }
           }
           if (enabled && endDate && !cfgErrors.endDate) {
             const eT = Date.parse(endDate);
             if (!Number.isNaN(eT)) {
-              if (campaignStartMs !== null && eT < campaignStartMs) cfgErrors.endDate = "Must be on or after campaign start date";
-              else if (campaignEndMs !== null && eT > campaignEndMs) cfgErrors.endDate = "Must be on or before campaign end date";
+              if (campaignStartMs !== null && eT < campaignStartMs) cfgErrors.endDate = "Choose a date on or after the campaign start.";
+              else if (campaignEndMs !== null && eT > campaignEndMs) cfgErrors.endDate = "Choose a date on or before the campaign end.";
             }
           }
-          if (enabled && !frequency) cfgErrors.frequency = "Required";
+          if (enabled && !frequency) cfgErrors.frequency = "Choose a frequency.";
           const freqOk = frequency === "daily" || frequency === "weekly" || frequency === "monthly" || frequency === "yearly" || frequency === "custom";
-          if (frequency && !freqOk) cfgErrors.frequency = "Invalid";
-          if (enabled && frequency === "weekly" && !daysOfWeek.length) cfgErrors.daysOfWeek = "Select at least one day";
+          if (frequency && !freqOk) cfgErrors.frequency = "Choose a valid frequency.";
+          if (enabled && frequency === "weekly" && !daysOfWeek.length) cfgErrors.daysOfWeek = "Choose at least one weekday.";
 
           let intervalValue = undefined;
           if (frequency === "custom") {
             const n = Number(intervalRaw);
-            if (!intervalRaw) cfgErrors.intervalValue = "Required";
-            else if (!Number.isFinite(n) || !Number.isInteger(n)) cfgErrors.intervalValue = "Must be an integer";
-            else if (n < 2) cfgErrors.intervalValue = "Min 2";
+            if (!intervalRaw) cfgErrors.intervalValue = "Enter the interval.";
+            else if (!Number.isFinite(n) || !Number.isInteger(n)) cfgErrors.intervalValue = "Enter a whole number.";
+            else if (n < 2) cfgErrors.intervalValue = "Use 2 or more.";
             else intervalValue = n;
           } else if (intervalRaw) {
             const n = Number(intervalRaw);
-            if (!Number.isFinite(n) || !Number.isInteger(n)) cfgErrors.intervalValue = "Must be an integer";
-            else if (n < 2) cfgErrors.intervalValue = "Min 2";
+            if (!Number.isFinite(n) || !Number.isInteger(n)) cfgErrors.intervalValue = "Enter a whole number.";
+            else if (n < 2) cfgErrors.intervalValue = "Use 2 or more.";
             else intervalValue = n;
           }
 
           const startIso = toIsoDateString(startDate);
           const endIso = toIsoDateString(endDate);
-          if (enabled && startDate && !startIso) cfgErrors.startDate = "Invalid date";
-          if (enabled && endDate && !endIso) cfgErrors.endDate = "Invalid date";
+          if (enabled && startDate && !startIso) cfgErrors.startDate = "Enter a valid date.";
+          if (enabled && endDate && !endIso) cfgErrors.endDate = "Enter a valid date.";
 
           cfgOut = {
             startDate: startIso || startDate,
@@ -592,14 +593,14 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             })
             .filter(Boolean);
           const unique = Array.from(new Set(normalizedDates));
-          if (enabled && unique.length === 0) cfgErrors.dates = "Add at least one date";
+          if (enabled && unique.length === 0) cfgErrors.dates = "Add at least one date.";
           else if (enabled) {
             const outOfRange = unique.some((d) => {
               const t = Date.parse(d);
               if (Number.isNaN(t)) return false;
               return (campaignStartMs !== null && t < campaignStartMs) || (campaignEndMs !== null && t > campaignEndMs);
             });
-            if (outOfRange) cfgErrors.dates = "All dates must fall within the campaign start and end dates";
+            if (outOfRange) cfgErrors.dates = "All dates must be inside the campaign dates.";
           }
           cfgOut = { dates: unique };
         }
@@ -621,9 +622,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       });
 
       if (presetsErrors.some((e) => e && Object.keys(e).length)) {
-        errors.recurringPresets = "Fix recurring presets";
+        errors.recurringPresets = "Check the recurring presets below.";
       } else if (requireEnabledPreset && !normalizedPresets.some((p) => p.enabled !== false)) {
-        errors.recurringPresets = "Add at least one enabled preset when recurring donations are on.";
+        errors.recurringPresets = "Turn on at least one recurring preset, or turn off monthly donations.";
       }
     }
 
@@ -648,8 +649,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         return;
       }
 
-      if (!allowedTypes.has(type)) rowErr.type = "Invalid";
-      if (!label) rowErr.label = "Required";
+      if (!allowedTypes.has(type)) rowErr.type = "Choose a valid answer type.";
+      if (!label) rowErr.label = "Enter a question.";
 
       const out = {
         ...(n.id ? { id: n.id } : {}),
@@ -680,10 +681,10 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           const oLabel = String(o.label || "").trim();
           const oValue = String(o.value || "").trim();
           const oErr = {};
-          if (!oLabel) oErr.label = "Required";
-          if (!oValue) oErr.value = "Required";
+          if (!oLabel) oErr.label = "Enter a choice label.";
+          if (!oValue) oErr.value = "Enter a choice value.";
           if (oValue) {
-            if (valueSet.has(oValue)) oErr.value = "Must be unique";
+            if (valueSet.has(oValue)) oErr.value = "This choice value is already used.";
             else valueSet.add(oValue);
           }
           optErrs[oIdx] = oErr;
@@ -692,7 +693,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         });
 
         if (normalizedOptions.length < 2) {
-          rowErr.optionsMessage = "Add at least 2 options";
+          rowErr.optionsMessage = "Add at least two choices.";
         }
         if (optErrs.some((e) => e && Object.keys(e).length)) {
           rowErr.options = optErrs;
@@ -707,7 +708,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     });
 
     if (notesErrors.some((e) => e && Object.keys(e).length)) {
-      errors.customNotes = "Fix custom notes";
+      errors.customNotes = "Check the custom questions below.";
     }
 
     const normalizedPaymentMethods = filterPaymentMethodsToOptions(paymentMethods, paymentMethodOptions);
@@ -748,12 +749,12 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     }
 
     if (!campaignId) {
-      if (!silent) toast.error("Missing campaignId");
-      return { ok: false, error: "Missing campaignId" };
+      if (!silent) toast.error("This form is not linked to a campaign. Go back and choose a campaign.");
+      return { ok: false, error: "This form is not linked to a campaign." };
     }
     if (!formId) {
-      if (!silent) toast.error("Complete Basics first");
-      return { ok: false, error: "Complete Basics first" };
+      if (!silent) toast.error("Finish Basics first.");
+      return { ok: false, error: "Finish Basics first." };
     }
 
     /*
@@ -775,8 +776,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
       setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
       setCustomNotesErrors(Array.isArray(notesErrors) ? notesErrors : []);
-      if (!silent) toast.error("Fix the highlighted fields");
-      return { ok: false, error: "Fix the highlighted fields" };
+      if (!silent) toast.error("Check the highlighted fields below.");
+      return { ok: false, error: "Check the highlighted fields below." };
     }
 
     setFieldErrors({});
@@ -817,7 +818,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       }
       return { ok: true };
     } catch (e) {
-      const msg = e?.message || "Failed to save goals & dates.";
+      const msg = getFormErrorMessage(e, "We couldn’t save this step. Please try again.");
       if (!silent) {
         setTopError(msg);
         toast.error(msg);
@@ -833,7 +834,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   if (!formId) {
     return (
       <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
-        Missing formId. Please complete Basics first to create the draft form.
+        Finish Basics first to create the form.
         <div className="mt-4">
           <button
             type="button"

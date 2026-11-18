@@ -41,7 +41,7 @@ const FormEditorGuardProvider = ({ children }) => {
 
   const markSaving = useCallback(() => setSaveState("saving"), []);
   const markError = useCallback((message) => {
-    setSaveError(String(message || "Could not save your changes."));
+    setSaveError(String(message || "We couldn’t save your changes. Please try again."));
     setSaveState("error");
   }, []);
 
@@ -123,7 +123,7 @@ const FormEditorGuardProvider = ({ children }) => {
       if (flush) {
         const result = await flush();
         if (!result || result.ok !== true) {
-          throw new Error((result && result.error) || "Could not save your changes.");
+          throw new Error((result && result.error) || "We couldn’t save your changes. Please try again.");
         }
       }
       dirtyRef.current = false;
@@ -131,7 +131,7 @@ const FormEditorGuardProvider = ({ children }) => {
       setDialog({ open: false, go: null, saving: false, error: "" });
       if (go) go();
     } catch (err) {
-      setDialog((prev) => ({ ...prev, saving: false, error: err?.message || "Could not save your changes." }));
+      setDialog((prev) => ({ ...prev, saving: false, error: err?.message || "We couldn’t save your changes. Please try again." }));
     }
   }
 

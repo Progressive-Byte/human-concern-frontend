@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getAdminFormUnavailablePage, updateAdminFormUnavailablePage } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import useStepAutosave from "../hooks/useStepAutosave";
+import { getFormErrorMessage } from "@/utils/formValidationMessages";
 import FieldError from "./FieldError";
 import WizardFooterNav from "./WizardFooterNav";
 
@@ -64,7 +65,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
         applyServerValue(normalizeUnavailableResponse(res));
       } catch (e) {
         if (!alive) return;
-        setTopError(e?.message || "Failed to load the unavailable page.");
+        setTopError(getFormErrorMessage(e, "We couldn’t load this page. Please try again."));
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -95,11 +96,11 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
     ];
     for (const [key, label, url] of buttons) {
       if (Boolean(label) !== Boolean(url)) {
-        errors[key] = "Button label and URL are required together";
+        errors[key] = "Add both a label and a link, or leave both empty.";
         continue;
       }
       if (url && !isValidButtonUrl(url)) {
-        errors[`${key}.url`] = "Enter an http(s) link or a path starting with /";
+        errors[`${key}.url`] = "Enter a full link or a path starting with /.";
       }
     }
 
@@ -117,12 +118,12 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
     if (!silent) setTopError("");
 
     if (!campaignId) {
-      if (!silent) toast.error("Missing campaignId");
-      return { ok: false, error: "Missing campaignId" };
+      if (!silent) toast.error("This form is not linked to a campaign. Go back and choose a campaign.");
+      return { ok: false, error: "This form is not linked to a campaign." };
     }
     if (!formId) {
-      if (!silent) toast.error("Complete Basics first");
-      return { ok: false, error: "Complete Basics first" };
+      if (!silent) toast.error("Finish Basics first.");
+      return { ok: false, error: "Finish Basics first." };
     }
 
     const { errors, payload } = validate();
@@ -130,8 +131,8 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
     /* Save Draft and autosave keep what is filled in. Only Next asks for the required fields. */
     if (goNext && Object.keys(errors).length) {
       setFieldErrors(errors);
-      if (!silent) toast.error("Fix the highlighted fields");
-      return { ok: false, error: "Fix the highlighted fields" };
+      if (!silent) toast.error("Check the highlighted fields below.");
+      return { ok: false, error: "Check the highlighted fields below." };
     }
     setFieldErrors({});
 
@@ -145,9 +146,9 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
       if (goNext) onExit?.({ nextStep: "public-display" });
       return { ok: true };
     } catch (e) {
-      const msg = e?.message || "Failed to save the unavailable page.";
+      const msg = getFormErrorMessage(e, "We couldn’t save this page. Please try again.");
       if (!silent) {
-        setTopError(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
+        setTopError(msg);
         toast.error(msg);
       }
       return { ok: false, error: msg };
@@ -159,7 +160,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
   if (!formId) {
     return (
       <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
-        Missing formId. Please complete Basics first to create the draft form.
+        Finish Basics first to create the form.
         <div className="mt-4">
           <button
             type="button"
@@ -272,7 +273,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
           <div className="text-[12px] text-[#6B7280]">
-            URLs must be an http(s) link or a path starting with <span className="font-semibold">/</span>.
+            Use a full link or a path starting with <span className="font-semibold">/</span>.
             Leave a button fully empty to hide it.
           </div>
         </div>

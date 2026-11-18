@@ -60,7 +60,7 @@ export default function useStepAutosave({
     try {
       const result = await persistRef.current();
       if (result && result.ok === false) {
-        throw new Error(result.error || "Could not save your changes.");
+        throw new Error(result.error || "We couldn’t save your changes. Please try again.");
       }
       // Most steps re-read the form after saving and set state from the server's copy, which
       // changes `deps`. Let that render land, then re-baseline from the *current* values —
@@ -70,7 +70,7 @@ export default function useStepAutosave({
       guardRef.current?.markClean?.();
       return { ok: true };
     } catch (err) {
-      const message = err?.message || "Could not save your changes.";
+      const message = err?.message || "We couldn’t save your changes. Please try again.";
       guardRef.current?.markError?.(message);
       return { ok: false, error: message };
     }

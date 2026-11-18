@@ -219,7 +219,7 @@ const WizardContent = () => {
     return (
       <div className="min-w-0 p-4 md:p-6">
         <div className="rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
-          Missing campaignId. Go back and select a campaign first.
+          This form is not linked to a campaign. Go back and choose a campaign.
           <div className="mt-4">
             <button
               type="button"

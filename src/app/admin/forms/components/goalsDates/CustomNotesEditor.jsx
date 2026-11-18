@@ -203,7 +203,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <div className="text-[13px] font-semibold text-[#111827]">Choices</div>
-                          <div className="mt-1 text-[12px] text-[#6B7280]">At least 2. The stored value must be unique.</div>
+                          <div className="mt-1 text-[12px] text-[#6B7280]">Add at least two choices. Each choice value must be different.</div>
                         </div>
                         <button
                           type="button"

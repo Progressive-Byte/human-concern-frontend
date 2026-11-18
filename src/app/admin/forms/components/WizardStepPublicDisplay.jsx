@@ -5,6 +5,7 @@ import Toggle from "@/components/ui/Toggle";
 import { getAdminFormPublicDisplay, updateAdminFormPublicDisplay } from "@/services/admin";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import useStepAutosave from "../hooks/useStepAutosave";
+import { getFormErrorMessage } from "@/utils/formValidationMessages";
 import WizardFooterNav from "./WizardFooterNav";
 
 const DEFAULT_DONATE_BUTTON_LABEL = "Support";
@@ -69,7 +70,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
         applyServerValue(readPublicDisplay(res));
       } catch (e) {
         if (!alive) return;
-        toast.error(e?.message || "Failed to load public display settings.");
+        toast.error(getFormErrorMessage(e, "We couldn’t load the public display settings. Please try again."));
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -92,12 +93,12 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
 
   async function save({ goNext = false, silent = false } = {}) {
     if (!campaignId) {
-      if (!silent) toast.error("Missing campaignId");
-      return { ok: false, error: "Missing campaignId" };
+      if (!silent) toast.error("This form is not linked to a campaign. Go back and choose a campaign.");
+      return { ok: false, error: "This form is not linked to a campaign." };
     }
     if (!formId) {
-      if (!silent) toast.error("Complete Basics first");
-      return { ok: false, error: "Complete Basics first" };
+      if (!silent) toast.error("Finish Basics first.");
+      return { ok: false, error: "Finish Basics first." };
     }
 
     if (!silent) setSaving(true);
@@ -119,9 +120,9 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
       if (goNext) onExit?.({ nextStep: "review" });
       return { ok: true };
     } catch (e) {
-      const msg = e?.message || "Failed to save public display settings.";
+      const msg = getFormErrorMessage(e, "We couldn’t save the public display settings. Please try again.");
       if (!silent) {
-        toast.error(String(msg).includes("FORM_NOT_EDITABLE") ? "Form can’t be edited (not draft)." : msg);
+        toast.error(msg);
       }
       return { ok: false, error: msg };
     } finally {
@@ -132,7 +133,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
   if (!formId) {
     return (
       <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
-        Missing formId. Please complete Basics first to create the draft form.
+        Finish Basics first to create the form.
         <div className="mt-4">
           <button
             type="button"

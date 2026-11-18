@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState } from "react";
 import { useFormEditorGuard } from "./FormEditorGuardProvider";
+import { humanizeFormError } from "@/utils/formValidationMessages";
 
 const WizardFormStatusContext = createContext("");
 
@@ -191,7 +192,7 @@ const FormWizardShell = ({
 
             {saveError ? (
               <div className="rounded-xl border border-solid border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-600">
-                <span className="font-semibold">Save failed:</span> {saveError}
+                <span className="font-semibold">Save failed:</span> {humanizeFormError(saveError)}
               </div>
             ) : null}
 
