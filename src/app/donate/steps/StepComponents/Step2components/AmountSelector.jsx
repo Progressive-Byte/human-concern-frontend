@@ -182,7 +182,7 @@ const AmountSelector = ({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           {locked ? (
             // Locked: the chosen amount sits inline here — compact, not a big dead tile.
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
@@ -199,7 +199,7 @@ const AmountSelector = ({
           <button
             type="button"
             onClick={() => setLocked((prev) => !prev)}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors cursor-pointer select-none whitespace-nowrap ${
+            className={`inline-flex self-start items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors cursor-pointer select-none whitespace-nowrap sm:self-auto ${
               locked
                 ? "border-[#E5E7EB] bg-white text-[#383838] hover:border-[#EA3335]/50 hover:text-[#EA3335]"
                 : "border-[#EA3335]/40 bg-[#FFF5F5] text-[#EA3335] hover:bg-[#FFEBEB]"

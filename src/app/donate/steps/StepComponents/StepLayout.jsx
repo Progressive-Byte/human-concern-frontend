@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { useBranding } from "@/context/BrandingContext";
 import StepProgress from "./StepProgress";
 import DonateFormHeader from "./DonateFormHeader";
 import DonationPreview from "./DonationPreview";
+import { getCurrencySymbol } from "@/utils/money";
 import { ArrowNextIcon, ArrowPrevIcon, CircleCheckIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
 const STEP_LABELS = [
@@ -27,6 +29,7 @@ const StepLayout = ({
   const router = useRouter();
   const { data } = useDonation();
   const { donationThemeStyle } = useBranding();
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const base = data.campaign ? `/${data.campaign}` : "/donate";
   const totalSteps = 3;
   const displayStep = step;
@@ -35,6 +38,23 @@ const StepLayout = ({
   const resolvedPrevLabel = prevLabel ?? STEP_LABELS[step - 2] ?? "Back";
 
   const showPreview = step >= 1;
+  const sym = getCurrencySymbol(data.currency ?? "USD");
+  const rawTotal =
+    Number(data.grandTotal) > 0
+      ? Number(data.grandTotal)
+      : data.paymentType === "recurring" && data.splitMode !== "divide" && Number(data.perDateTotal) > 0
+        ? Number(data.perDateTotal)
+        : Number(data.donorAmount ?? 0);
+  const totalAmount = Number.isFinite(rawTotal) ? rawTotal : 0;
+
+  useEffect(() => {
+    if (!summaryOpen) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [summaryOpen]);
 
   const navRow = (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -53,7 +73,7 @@ const StepLayout = ({
       </div>
       <button
         onClick={onNext}
-        className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[14px] font-semibold transition-all cursor-pointer whitespace-nowrap"
+        className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#1A1A1A] px-5 py-2.5 text-[14px] font-semibold text-white transition-all hover:bg-[#333333] active:scale-95 cursor-pointer whitespace-nowrap sm:flex-none sm:px-6"
       >
         {resolvedNextLabel}
         {ArrowNextIcon}
@@ -102,17 +122,66 @@ const StepLayout = ({
           )}
         </div>
 
-        {/* Mobile: preview below form in normal flow */}
+        {/* Mobile: step count and the summary trigger share one row above the primary action. */}
         {showPreview && (
-          <div className="lg:hidden mt-5">
-            <DonationPreview currentStep={step} />
+          <div className="lg:hidden mt-5 flex items-center justify-between gap-3">
+            <span className="whitespace-nowrap text-[12px] text-[#AEAEAE]">
+              Step {displayStep} of {totalSteps}
+            </span>
+            <div className="flex min-w-0 items-center gap-3">
+              {totalAmount > 0 ? (
+                <span className="whitespace-nowrap text-[12px] text-[#737373]">
+                  Total <span className="font-semibold text-[#383838]">{sym}{totalAmount.toFixed(2)}</span>
+                </span>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setSummaryOpen(true)}
+                aria-haspopup="dialog"
+                className="inline-flex shrink-0 cursor-pointer items-center gap-1 text-[12px] font-semibold text-[#737373] transition-colors hover:text-[#EA3335]"
+              >
+                View summary
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Mobile: the next/back buttons come after the summary. */}
-        <div className="lg:hidden mt-5">{navRow}</div>
+        {/* Mobile: the next/back buttons come after the summary button. */}
+        <div className="lg:hidden mt-3">{navRow}</div>
 
-        <p className="text-center text-[12px] text-[#AEAEAE] mt-4 px-2">
+        {showPreview && summaryOpen ? (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <button
+              type="button"
+              aria-label="Close donation summary"
+              onClick={() => setSummaryOpen(false)}
+              className="absolute inset-0 bg-[#111827]/40 backdrop-blur-[2px]"
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Donation summary"
+              className="absolute inset-x-0 bottom-0 max-h-[82dvh] overflow-y-auto rounded-t-3xl border-t border-[#E5E5E5] bg-white pt-2 shadow-2xl"
+              style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+            >
+              <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-[#E5E5E5]" />
+              <div className="flex items-center justify-between px-4 pb-1">
+                <p className="text-[13px] font-semibold text-[#383838]">Donation summary</p>
+                <button
+                  type="button"
+                  onClick={() => setSummaryOpen(false)}
+                  className="rounded-lg px-2 py-1 text-[12px] font-semibold text-[#737373] transition-colors hover:bg-[#F5F5F5] hover:text-[#383838] cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+              <DonationPreview currentStep={step} showHeading={false} />
+            </div>
+          </div>
+        ) : null}
+
+        <p className="mt-4 hidden px-2 text-center text-[12px] text-[#AEAEAE] lg:block">
           Step {displayStep} of {totalSteps} — Your information is secure and encrypted.
         </p>
       </div>

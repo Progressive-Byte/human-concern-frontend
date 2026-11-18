@@ -104,7 +104,7 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
           </span>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {causes.map((cause) => {
           const active = selectedCauseIds.includes(cause.id);
           const othersAssigned = selectedCauseIds.reduce(

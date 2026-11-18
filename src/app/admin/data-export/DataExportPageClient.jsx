@@ -449,6 +449,7 @@ const DataExportPageClient = () => {
                             setRowSelection((prev) => ({ ...prev, [entity.key]: ids }))
                           }
                           placeholder={entity.key === "campaigns" ? "All campaigns" : "All forms"}
+                          allOptionLabel={entity.key === "campaigns" ? "All campaigns" : "All forms"}
                         />
                         <p className="mt-1.5 text-[11px] text-[#6B7280]">
                           Leave empty to export every row.

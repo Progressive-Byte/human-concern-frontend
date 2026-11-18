@@ -10,7 +10,14 @@ function FilterIcon() {
   );
 }
 
-const MultiSelectFilter = ({ options = [], value = [], onChange, disabled = false, placeholder = "All" }) => {
+const MultiSelectFilter = ({
+  options = [],
+  value = [],
+  onChange,
+  disabled = false,
+  placeholder = "All",
+  allOptionLabel = "",
+}) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const rootRef = useRef(null);
@@ -67,6 +74,17 @@ const MultiSelectFilter = ({ options = [], value = [], onChange, disabled = fals
               />
             </div>
             <div className="max-h-60 overflow-y-auto py-1">
+              {allOptionLabel ? (
+                <label className="flex cursor-pointer items-center gap-2 border-b border-[#F3F4F6] px-3 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB]">
+                  <input
+                    type="checkbox"
+                    checked={value.length === 0}
+                    onChange={() => onChange([])}
+                  />
+                  <span className="truncate">{allOptionLabel}</span>
+                </label>
+              ) : null}
+
               {filtered.length === 0 ? (
                 <p className="px-3 py-2 text-[12px] text-[#6B7280]">No matches</p>
               ) : (

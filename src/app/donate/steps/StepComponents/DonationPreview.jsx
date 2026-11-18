@@ -10,7 +10,7 @@ import { computeFirstPayment, resolveFirstInstallment } from "./firstPayment";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
-const DonationPreview = ({ currentStep }) => {
+const DonationPreview = ({ currentStep, showHeading = true }) => {
   const pathname = usePathname();
   const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data } = useDonation();
@@ -122,7 +122,9 @@ const DonationPreview = ({ currentStep }) => {
   return (
     <div className="lg:sticky lg:top-[172px] self-start w-full lg:w-[272px] shrink-0">
       <div className="bg-white rounded-2xl p-5">
-        <p className="text-[13px] font-semibold text-[#383838] mb-3">Donation Summary</p>
+        {showHeading ? (
+          <p className="text-[13px] font-semibold text-[#383838] mb-3">Donation Summary</p>
+        ) : null}
 
         <div className="flex flex-col">
 
