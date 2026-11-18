@@ -328,7 +328,7 @@ function dayOfWeekFromInput(value) {
   return Number.isNaN(d.getTime()) ? null : d.getUTCDay();
 }
 
-function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate, campaignEndDate }) {
+function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate, campaignEndDate, showFrequencyControls = true }) {
   const v = value && typeof value === "object" ? value : {};
   const startDate = toDateInputValue(v.startDate);
   const endDate = toDateInputValue(v.endDate);
@@ -344,9 +344,9 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
     onChange?.({ ...(v || {}), ...(patch || {}) });
   }
 
-  const showInterval = String(frequency) === "custom";
+  const showInterval = showFrequencyControls && String(frequency) === "custom";
   const days = Array.isArray(v.daysOfWeek) ? v.daysOfWeek : [];
-  const showWeekDays = String(frequency) === "weekly";
+  const showWeekDays = showFrequencyControls && String(frequency) === "weekly";
 
   function toggleDay(day) {
     // A preset runs on exactly one weekday; clicking a day replaces the previous one.
@@ -425,38 +425,40 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
         <div className="text-[11px] text-[#6B7280]">{campaignWindowLabel(campaignStartDate, campaignEndDate)}</div>
       ) : null}
 
-      <div className={showInterval ? "" : "md:col-span-2"}>
-        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Frequency</div>
-        <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5">
-          <select
-            value={frequency}
-            onChange={(e) => {
-              const next = e.target.value;
-              if (next === "custom") {
-                setField({ frequency: "custom" });
-              } else if (next === "weekly") {
-                const wd = dayOfWeekFromInput(startDate);
-                setField({
-                  frequency: "weekly",
-                  intervalValue: "",
-                  ...(days.length || wd === null ? {} : { daysOfWeek: [wd] }),
-                });
-              } else {
-                setField({ frequency: next, intervalValue: "" });
-              }
-            }}
-            disabled={disabled}
-            className="w-full bg-transparent text-[13px] text-[#111827] outline-none disabled:opacity-60"
-          >
-            {FREQ_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+      {showFrequencyControls ? (
+        <div className={showInterval ? "" : "md:col-span-2"}>
+          <div className="mb-2 text-[13px] font-semibold text-[#111827]">Frequency</div>
+          <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5">
+            <select
+              value={frequency}
+              onChange={(e) => {
+                const next = e.target.value;
+                if (next === "custom") {
+                  setField({ frequency: "custom" });
+                } else if (next === "weekly") {
+                  const wd = dayOfWeekFromInput(startDate);
+                  setField({
+                    frequency: "weekly",
+                    intervalValue: "",
+                    ...(days.length || wd === null ? {} : { daysOfWeek: [wd] }),
+                  });
+                } else {
+                  setField({ frequency: next, intervalValue: "" });
+                }
+              }}
+              disabled={disabled}
+              className="w-full bg-transparent text-[13px] text-[#111827] outline-none disabled:opacity-60"
+            >
+              {FREQ_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <FieldError message={errors?.frequency} />
         </div>
-        <FieldError message={errors?.frequency} />
-      </div>
+      ) : null}
 
       {showInterval ? (
         <div>
@@ -502,7 +504,7 @@ function DateRangeEditor({ value, onChange, disabled, errors, campaignStartDate,
         </div>
       ) : null}
 
-      {recurringFrequencyHint({ frequency, interval: intervalValue, daysOfWeek: days }) ? (
+      {showFrequencyControls && recurringFrequencyHint({ frequency, interval: intervalValue, daysOfWeek: days }) ? (
         <div className="text-[11px] text-[#6B7280]">
           {recurringFrequencyHint({ frequency, interval: intervalValue, daysOfWeek: days })}
         </div>
@@ -784,6 +786,7 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
               errors={cardErrors.scheduleConfig}
               campaignStartDate={campaignStartDate}
               campaignEndDate={campaignEndDate}
+              showFrequencyControls={v.uiMode !== "quick"}
             />
           ) : (
             <SpecificDatesEditor
@@ -845,6 +848,14 @@ const RecurringPresetsEditor = ({
   const formEnd = parseDateInput(campaignEndDate);
   const afterFormEnd = (date) => Boolean(formEnd && date > formEnd);
 
+  function hasQuickPreset(type) {
+    return presets.some(
+      (p) =>
+        p?.uiMode === "quick" &&
+        String(p?.quickType || p?.scheduleConfig?.frequency || "").trim() === type
+    );
+  }
+
   useEffect(() => {
     if (!quickNotice) return undefined;
     const t = setTimeout(() => setQuickNotice(null), 4000);
@@ -875,6 +886,11 @@ const RecurringPresetsEditor = ({
   }
 
   function addQuick(frequency, extra = {}) {
+    if (hasQuickPreset(frequency)) {
+      setQuickNotice({ kind: "error", text: "That preset is already added. Remove it first, or add a Custom preset." });
+      return;
+    }
+
     const start = quickStartDate(frequency, { ...extra, campaignStartDate });
     if (afterFormEnd(start)) {
       setQuickNotice({ kind: "error", text: "That start date is after the form end date." });
@@ -899,6 +915,7 @@ const RecurringPresetsEditor = ({
       allowMissedMakeUp: false,
       sortOrder: String((presets.length + 1) * 10),
       scheduleType: "date_range",
+      uiMode: "quick",
       scheduleConfig: {
         startDate: start.toISOString(),
         ...(end ? { endDate: end.toISOString() } : {}),
@@ -915,6 +932,7 @@ const RecurringPresetsEditor = ({
       allowMissedMakeUp: false,
       sortOrder: String((presets.length + 1) * 10),
       scheduleType: "date_range",
+      uiMode: "custom",
       scheduleConfig: {},
     });
   }

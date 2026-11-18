@@ -155,6 +155,30 @@ export function apiRequest(endpoint, options = {}) {
   return makeRequest(endpoint, options, "token");
 }
 
+const formMutationQueues = new Map();
+
+/** One write at a time per form, so a manual save and an autosave cannot overtake each other. */
+function queueFormMutation(formId, run) {
+  const key = String(formId);
+  const previous = formMutationQueues.get(key) || Promise.resolve();
+  const next = previous.catch(() => {}).then(run);
+  const tail = next.catch(() => {});
+
+  formMutationQueues.set(key, tail);
+  tail.finally(() => {
+    if (formMutationQueues.get(key) === tail) formMutationQueues.delete(key);
+  });
+
+  return next;
+}
+
 export function adminApiRequest(endpoint, options = {}) {
+  const method = String(options.method || "GET").toUpperCase();
+  const formMatch = String(endpoint).match(/^\/admin\/forms\/([^/?#]+)(?:[/?#]|$)/);
+
+  if (formMatch && method !== "GET" && method !== "HEAD") {
+    return queueFormMutation(formMatch[1], () => makeRequest(endpoint, options, "adminToken"));
+  }
+
   return makeRequest(endpoint, options, "adminToken");
 }

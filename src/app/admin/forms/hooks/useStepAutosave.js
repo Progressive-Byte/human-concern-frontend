@@ -130,10 +130,22 @@ export default function useStepAutosave({
     guardRef.current?.markDirty?.();
   }, [active, ready, snapshot]);
 
+  // Save shortly after the admin stops changing values. This mainly makes switches persist even
+  // if the admin never focuses out of them, while still debouncing normal typing.
+  useEffect(() => {
+    if (!active || !ready) return undefined;
+    if (snapshot === baselineRef.current) return undefined;
+
+    const id = setTimeout(() => {
+      void runSave();
+    }, 700);
+
+    return () => clearTimeout(id);
+  }, [active, ready, snapshot, runSave]);
+
   /**
-   * Save on intent, not on a short idle timer — leaving a field, or a slow safety net. Pausing
-   * to think therefore fires nothing, and because `silent` keeps `saving` (and the inputs'
-   * `disabled`) untouched, a save never interrupts typing.
+   * Save on intent as well as after the short settle timer above. `silent` keeps `saving` (and
+   * the inputs' `disabled`) untouched, so a background save never interrupts typing.
    */
   useEffect(() => {
     if (!active || !ready) return undefined;

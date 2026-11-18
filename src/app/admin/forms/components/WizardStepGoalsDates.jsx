@@ -134,18 +134,45 @@ function enforceSingleDefaultPreset(items) {
   });
 }
 
-function normalizeRecurringPresetsState(value) {
+function inferRecurringPresetQuickType(preset) {
+  const name = String(preset?.name || "").trim();
+  const frequency = String(preset?.scheduleConfig?.frequency || "").trim();
+  // Quick presets keep their generated names and a concrete frequency. Anything else is treated
+  // as a custom preset so its schedule controls stay editable.
+  if (
+    ["daily", "weekly", "monthly", "yearly"].includes(frequency) &&
+    (name === "Daily" || name === "Annually" || /^Weekly – /.test(name) || /^Monthly – /.test(name))
+  ) {
+    return frequency;
+  }
+  return "";
+}
+
+function inferRecurringPresetUiMode(preset) {
+  if (preset?.uiMode === "quick" || preset?.uiMode === "custom") return preset.uiMode;
+  return inferRecurringPresetQuickType(preset) ? "quick" : "custom";
+}
+
+function normalizeRecurringPresetsState(value, existing = []) {
   if (!Array.isArray(value)) return [];
-  const list = value.map((p) => ({
-    id: p?.id,
-    name: String(p?.name ?? ""),
-    enabled: p?.enabled === undefined ? true : Boolean(p.enabled),
-    sortOrder: p?.sortOrder === null || p?.sortOrder === undefined ? "" : String(p.sortOrder),
-    isDefault: Boolean(p?.isDefault),
-    allowMissedMakeUp: Boolean(p?.allowMissedMakeUp),
-    scheduleType: String(p?.scheduleType || "date_range"),
-    scheduleConfig: p?.scheduleConfig && typeof p.scheduleConfig === "object" ? p.scheduleConfig : {},
-  }));
+  const priorList = Array.isArray(existing) ? existing : [];
+  const list = value.map((p, idx) => {
+    const prior =
+      priorList.find((item) => p?.id && item?.id && String(item.id) === String(p.id)) ||
+      priorList[idx];
+    return {
+      id: p?.id,
+      name: String(p?.name ?? ""),
+      enabled: p?.enabled === undefined ? true : Boolean(p.enabled),
+      sortOrder: p?.sortOrder === null || p?.sortOrder === undefined ? "" : String(p.sortOrder),
+      isDefault: Boolean(p?.isDefault),
+      allowMissedMakeUp: Boolean(p?.allowMissedMakeUp),
+      scheduleType: String(p?.scheduleType || "date_range"),
+      scheduleConfig: p?.scheduleConfig && typeof p.scheduleConfig === "object" ? p.scheduleConfig : {},
+      uiMode: prior?.uiMode || inferRecurringPresetUiMode(p),
+      quickType: prior?.quickType || inferRecurringPresetQuickType(p),
+    };
+  });
   return enforceSingleDefaultPreset(list);
 }
 
@@ -808,7 +835,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           setAllowOneTimeDonations(d?.allowOneTimeDonations === undefined ? true : Boolean(d?.allowOneTimeDonations));
           setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
           setAllowFlexibleRecurringSchedule(d?.allowFlexibleRecurringSchedule === undefined ? true : Boolean(d?.allowFlexibleRecurringSchedule));
-          setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
+          setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets, recurringPresets));
           setPaymentMethods(filterPaymentMethodsToOptions(d?.paymentMethods, paymentMethodOptions));
         } catch {}
       }

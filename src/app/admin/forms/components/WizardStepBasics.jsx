@@ -483,6 +483,15 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       return { ok: false, error: "This form is not linked to a campaign." };
     }
 
+    const hasCollaborationDetails = Boolean(
+      String(collaborationOrganizationName || "").trim() ||
+      String(collaborationOrganizationImage || "").trim() ||
+      collaborationImageFile
+    );
+    // Collaboration is stored only as the name/logo pair. When the admin has just switched it on
+    // and has not entered either yet, keep the local switch instead of re-reading it as off.
+    const keepLocalCollaboration = collaborating && !hasCollaborationDetails;
+
     if (!silent) setSaving(true);
     try {
       const refreshBasics = async (id) => {
@@ -516,7 +525,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
           const fd = buildBasicsFormData(payload);
           await updateAdminFormBasics(String(createdId), fd);
         }
-        if (createdId) {
+        if (createdId && !keepLocalCollaboration) {
           await refreshBasics(String(createdId));
         }
         onSaved?.(createdId || null);
@@ -530,7 +539,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       } else {
         await updateAdminFormBasics(formId, payload);
       }
-      if (!silent) await refreshBasics(formId);
+      if (!silent && !keepLocalCollaboration) await refreshBasics(formId);
       onSaved?.(formId);
       if (!silent) toast.success("Basics saved");
       return { ok: true, formId };
@@ -774,6 +783,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 </div>
                 <Toggle
                   enabled={collaborating}
+                  disabled={saving}
                   onChange={(next) => {
                     setCollaborating(Boolean(next));
                     if (!next) {
@@ -1008,7 +1018,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                   <div className="text-[13px] font-semibold text-[#111827]">Featured</div>
                   <div className="mt-1 text-[12px] text-[#6B7280]">Mark this form as featured (optional).</div>
                 </div>
-                <Toggle enabled={featured} onChange={setFeatured} />
+                <Toggle enabled={featured} onChange={setFeatured} disabled={saving} />
               </div>
             </div>
 
@@ -1021,7 +1031,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                     only by direct link — the page stays live and can still take donations.
                   </div>
                 </div>
-                <Toggle enabled={listed} onChange={setListed} />
+                <Toggle enabled={listed} onChange={setListed} disabled={saving} />
               </div>
             </div>
 
