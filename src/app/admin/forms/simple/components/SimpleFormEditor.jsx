@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useFormEditorGuard } from "@/app/admin/forms/components/FormEditorGuardProvider";
-import { getAdminAddOns } from "@/services/admin";
+import { getAdminAddOns, getAdminSettingsExchangeRates } from "@/services/admin";
+import { getSupportedCurrencyOptionsForCodes, normalizeSupportedCurrencyCodes } from "@/utils/currencies";
 import PresetListEditor from "./PresetListEditor";
 import PurposePicker from "./PurposePicker";
 import SimpleFormControls from "./SimpleFormControls";
@@ -11,8 +12,14 @@ import CustomNotesEditor from "../../components/goalsDates/CustomNotesEditor";
 const MAX_LABEL_LENGTH = 80;
 const MAX_FEE_PERCENT = 20;
 
-/* The currencies an admin can offer. The first ticked one is the base for every amount. */
-const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "CAD", "AUD", "CHF", "SEK", "NOK", "DKK"];
+/* The same rule as the advanced form: USD plus every currency with a saved exchange rate. */
+function currencyOptionsFromRates(rates = []) {
+  const codes = normalizeSupportedCurrencyCodes([
+    "USD",
+    ...(Array.isArray(rates) ? rates : []).map((item) => item?.currency),
+  ]);
+  return getSupportedCurrencyOptionsForCodes(codes).map((item) => item.code);
+}
 
 /* Keeps typed input numeric: digits with at most one dot and two decimals. */
 function toDecimalInput(raw) {
@@ -60,6 +67,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
 
   const [displayName, setDisplayName] = useState("");
   const [currencies, setCurrencies] = useState(["USD"]);
+  const [currencyOptions, setCurrencyOptions] = useState(["USD"]);
   const [feePercent, setFeePercent] = useState("");
   const [feeMinPercent, setFeeMinPercent] = useState("");
   const [feeMaxPercent, setFeeMaxPercent] = useState("");
@@ -85,11 +93,10 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
   useEffect(() => {
     if (!initial) return;
     setDisplayName(String(initial.displayName || ""));
-    setCurrencies(
-      Array.isArray(initial.currency) && initial.currency.length
-        ? initial.currency.map((code) => String(code).toUpperCase())
-        : ["USD"]
+    const storedCurrencies = normalizeSupportedCurrencyCodes(
+      Array.isArray(initial.currency) && initial.currency.length ? initial.currency : ["USD"]
     );
+    setCurrencies(storedCurrencies.length ? storedCurrencies : ["USD"]);
     setFeePercent(initial.feePercent === null || initial.feePercent === undefined ? "" : String(initial.feePercent));
     setFeeMinPercent(initial.feeMinPercent === null || initial.feeMinPercent === undefined ? "" : String(initial.feeMinPercent));
     setFeeMaxPercent(initial.feeMaxPercent === null || initial.feeMaxPercent === undefined ? "" : String(initial.feeMaxPercent));
@@ -124,6 +131,34 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
     setCustomNotes(Array.isArray(initial.customNotes) ? initial.customNotes : []);
     setIsDirty(false);
   }, [initial]);
+
+  /* Only currencies with a saved rate can actually be converted, so the rest are not offered. */
+  useEffect(() => {
+    let alive = true;
+
+    getAdminSettingsExchangeRates()
+      .then((res) => {
+        if (!alive) return;
+        const rates = Array.isArray(res?.data?.exchangeRates) ? res.data.exchangeRates : [];
+        const options = currencyOptionsFromRates(rates);
+        setCurrencyOptions(options.length ? options : ["USD"]);
+      })
+      .catch(() => {
+        if (alive) setCurrencyOptions(["USD"]);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  /* Drop a stored currency that has no rate, and keep at least one ticked. */
+  useEffect(() => {
+    setCurrencies((prev) => {
+      const allowed = prev.filter((code) => currencyOptions.includes(code));
+      return allowed.length ? allowed : [currencyOptions[0] || "USD"];
+    });
+  }, [currencyOptions]);
 
   /* The picker lists the platform's own add-ons, so a price is never typed on a form. */
   useEffect(() => {
@@ -409,7 +444,7 @@ const SimpleFormEditor = ({ initial, busy, hasDraft, publishedAt, message, onSub
           entered in the base currency and converted for the others using your saved rates.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          {CURRENCY_OPTIONS.map((code) => {
+          {currencyOptions.map((code) => {
             const checked = currencies.includes(code);
             return (
               <label
