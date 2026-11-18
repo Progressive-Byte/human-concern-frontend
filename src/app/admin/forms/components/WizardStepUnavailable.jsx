@@ -31,7 +31,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [topError, setTopError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [showValidation, setShowValidation] = useState(false);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -127,9 +127,9 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
       return { ok: false, error: "Finish Basics first." };
     }
 
-    const hadErrors = Object.keys(fieldErrors).length > 0;
+    const hadErrors = Object.keys(shownErrors).length > 0;
     const { errors, payload } = validate();
-    if (!silent && (goNext || hadErrors)) setFieldErrors(errors);
+    if (!silent && (goNext || hadErrors)) setShowValidation(true);
 
     /* Save Draft and autosave keep what is filled in. Only Next asks for the required fields. */
     if (goNext && Object.keys(errors).length) {
@@ -158,6 +158,8 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
     }
   }
 
+  const shownErrors = showValidation ? validate().errors : {};
+
   if (!formId) {
     return (
       <div className="hc-animate-fade-up rounded-2xl border border-solid border-red-500/30 bg-red-500/10 p-5 text-sm text-red-600">
@@ -180,7 +182,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <StepErrorSummary topError={topError} errors={fieldErrors} />
+      <StepErrorSummary topError={topError} errors={shownErrors} />
 
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div>
@@ -202,7 +204,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
               disabled={saving}
               className={inputClass}
             />
-            <FieldError message={fieldErrors.title} />
+            <FieldError message={shownErrors.title} />
           </div>
 
           <div>
@@ -215,7 +217,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
               disabled={saving}
               className="min-h-30 w-full resize-none rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
             />
-            <FieldError message={fieldErrors.description} />
+            <FieldError message={shownErrors.description} />
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -229,7 +231,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
                 disabled={saving}
                 className={inputClass}
               />
-              <FieldError message={fieldErrors.primaryButton} />
+              <FieldError message={shownErrors.primaryButton} />
             </div>
             <div>
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">Primary Button URL</div>
@@ -241,7 +243,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
                 disabled={saving}
                 className={inputClass}
               />
-              <FieldError message={fieldErrors["primaryButton.url"]} />
+              <FieldError message={shownErrors["primaryButton.url"]} />
             </div>
 
             <div>
@@ -254,7 +256,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
                 disabled={saving}
                 className={inputClass}
               />
-              <FieldError message={fieldErrors.secondaryButton} />
+              <FieldError message={shownErrors.secondaryButton} />
             </div>
             <div>
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">Secondary Button URL</div>
@@ -266,7 +268,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
                 disabled={saving}
                 className={inputClass}
               />
-              <FieldError message={fieldErrors["secondaryButton.url"]} />
+              <FieldError message={shownErrors["secondaryButton.url"]} />
             </div>
           </div>
           <div className="text-[12px] text-[#6B7280]">

@@ -302,10 +302,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const [saving, setSaving] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   const [topError, setTopError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [suggestedAmountsErrors, setSuggestedAmountsErrors] = useState([]);
-  const [recurringPresetsErrors, setRecurringPresetsErrors] = useState([]);
-  const [customNotesErrors, setCustomNotesErrors] = useState([]);
+  const [showValidation, setShowValidation] = useState(false);
+  const [requirePresetOnDisplay, setRequirePresetOnDisplay] = useState(false);
 
   const [currencies, setCurrencies] = useState(["USD"]);
   const [currencyOptions, setCurrencyOptions] = useState(SUPPORTED_FORM_CURRENCY_OPTIONS);
@@ -793,19 +791,17 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     });
 
     const hadErrors = Boolean(
-      Object.keys(fieldErrors).length ||
-      suggestedAmountsErrors.some((row) => row && Object.keys(row).length) ||
-      recurringPresetsErrors.some((row) => row && Object.keys(row).length) ||
-      customNotesErrors.some((row) => row && Object.keys(row).length)
+      Object.keys(shownFieldErrors).length ||
+      shownSuggestedErrors.some((row) => row && Object.keys(row).length) ||
+      shownRecurringPresetsErrors.some((row) => row && Object.keys(row).length) ||
+      shownCustomNotesErrors.some((row) => row && Object.keys(row).length)
     );
 
-    // Replace the error sets with the current result, so fixing one field does not erase the
-    // errors that are still present elsewhere.
+    // Once validation has been shown, keep showing its live result. Fixing one field removes
+    // only that field's error; the remaining errors stay visible.
     if (!silent && (goNext || hadErrors)) {
-      setFieldErrors(errors);
-      setSuggestedAmountsErrors(Array.isArray(suggErrors) ? suggErrors : []);
-      setRecurringPresetsErrors(Array.isArray(presetsErrors) ? presetsErrors : []);
-      setCustomNotesErrors(Array.isArray(notesErrors) ? notesErrors : []);
+      setShowValidation(true);
+      setRequirePresetOnDisplay(Boolean(goNext));
     }
 
     /* Save Draft keeps whatever is filled in. Only Next asks for the required fields. */
@@ -881,6 +877,14 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
 
   const disabled = saving;
   const availableCurrencyCodes = currencyOptions.map((item) => item.code);
+  const liveValidation = showValidation
+    ? validate({ requireEnabledPreset: requirePresetOnDisplay })
+    : null;
+  const shownFieldErrors = liveValidation ? liveValidation.errors : {};
+  const shownSuggestedErrors = liveValidation ? liveValidation.suggErrors : [];
+  const shownRecurringPresetsErrors = liveValidation ? liveValidation.presetsErrors : [];
+  const shownCustomNotesErrors = liveValidation ? liveValidation.notesErrors : [];
+
   const selectedCurrencies = availableCurrencyCodes.length ? normalizeSelectedCurrencies(currencies, availableCurrencyCodes) : [];
   const primaryCurrency = selectedCurrencies[0] || "";
 
@@ -888,7 +892,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
     <div className="space-y-4 md:space-y-6">
       <StepErrorSummary
         topError={topError}
-        errors={[fieldErrors, suggestedAmountsErrors, recurringPresetsErrors, customNotesErrors]}
+        errors={[shownFieldErrors, shownSuggestedErrors, shownRecurringPresetsErrors, shownCustomNotesErrors]}
       />
 
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
@@ -931,7 +935,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
                 <div className="text-[13px] text-[#6B7280]">No exchange-rate currencies available. Add or sync currencies in admin settings first.</div>
               )}
             </div>
-            <FieldError message={fieldErrors.currencies} />
+            <FieldError message={shownFieldErrors.currencies} />
           </div>
 
           <div>
@@ -944,7 +948,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
-            <FieldError message={fieldErrors.goalAmount} />
+            <FieldError message={shownFieldErrors.goalAmount} />
           </div>
 
           <div>
@@ -958,7 +962,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
-            <FieldError message={fieldErrors.startAt} />
+            <FieldError message={shownFieldErrors.startAt} />
           </div>
 
           <div>
@@ -970,7 +974,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
-            <FieldError message={fieldErrors.endAt} />
+            <FieldError message={shownFieldErrors.endAt} />
           </div>
         </div>
       </section>
@@ -991,7 +995,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
-            <FieldError message={fieldErrors.minimumDonation} />
+            <FieldError message={shownFieldErrors.minimumDonation} />
           </div>
 
           <div>
@@ -1004,7 +1008,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={disabled}
             />
-            <FieldError message={fieldErrors.maximumDonation} />
+            <FieldError message={shownFieldErrors.maximumDonation} />
           </div>
         </div>
 
@@ -1017,7 +1021,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
               </div>
               <Toggle enabled={allowOneTimeDonations} onChange={disabled ? () => {} : setAllowOneTimeDonations} />
             </div>
-            <FieldError message={fieldErrors.allowOneTimeDonations} />
+            <FieldError message={shownFieldErrors.allowOneTimeDonations} />
           </div>
 
           <div className="px-3.5 py-3">
@@ -1057,10 +1061,10 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         value={suggestedAmounts}
         onChange={setSuggestedAmounts}
         disabled={disabled || !allowOneTimeDonations}
-        errors={suggestedAmountsErrors}
+        errors={shownSuggestedErrors}
       />
 
-      <CustomNotesEditor value={customNotes} onChange={setCustomNotes} disabled={disabled} errors={customNotesErrors} />
+      <CustomNotesEditor value={customNotes} onChange={setCustomNotes} disabled={disabled} errors={shownCustomNotesErrors} />
 
       <RecurringPresetsEditor
         allowRecurringDonations={allowRecurringDonations}
@@ -1070,9 +1074,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         value={recurringPresets}
         onChange={setRecurringPresets}
         disabled={disabled}
-        errors={recurringPresetsErrors}
-        allowError={fieldErrors.allowRecurringDonations}
-        sectionError={fieldErrors.recurringPresets}
+        errors={shownRecurringPresetsErrors}
+        allowError={shownFieldErrors.allowRecurringDonations}
+        sectionError={shownFieldErrors.recurringPresets}
         campaignStartDate={startAt}
         campaignEndDate={endAt}
       />

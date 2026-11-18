@@ -97,6 +97,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   const [saving, setSaving] = useState(false);
   const [topError, setTopError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+  const [showValidation, setShowValidation] = useState(false);
 
   const [internalCampaignId, setInternalCampaignId] = useState("");
   const [fundCause, setFundCause] = useState("");
@@ -465,11 +466,11 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   async function save({ goNext = false, silent = false } = {}) {
     if (!silent) setTopError("");
 
-    const hadErrors = Object.keys(fieldErrors).length > 0;
+    const hadErrors = Object.keys(shownErrors).length > 0;
     const { errors, payload } = validate();
-    // Replace the error set with the current result. This keeps the errors that are still
-    // present instead of wiping the whole list when one field is fixed.
-    if (!silent && (goNext || hadErrors)) setFieldErrors(errors);
+    // Show the live validation result after the first failed attempt. Fixing one field removes
+    // only that field's error; every remaining error stays visible.
+    if (!silent && (goNext || hadErrors)) setShowValidation(true);
 
     /* Save Draft keeps whatever is filled in. Only Next asks for the required fields. */
     if (goNext && Object.keys(errors).length) {
@@ -528,6 +529,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
           await refreshBasics(String(createdId));
         }
         onSaved?.(createdId || null);
+        setFieldErrors({});
         if (!silent) toast.success("Basics saved");
         return { ok: true, formId: createdId || null };
       }
@@ -540,6 +542,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
       }
       if (!silent && !keepLocalCollaboration) await refreshBasics(formId);
       onSaved?.(formId);
+      setFieldErrors({});
       if (!silent) toast.success("Basics saved");
       return { ok: true, formId };
     } catch (e) {
@@ -576,6 +579,9 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
     onExit?.({ nextStep: "goals-dates", formId: nextFormId || undefined });
   }
 
+  const liveErrors = showValidation ? validate().errors : {};
+  const shownErrors = { ...liveErrors, ...fieldErrors };
+
   if (loading) {
     return (
       <div className="space-y-4 md:space-y-6">
@@ -603,7 +609,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <StepErrorSummary topError={topError} errors={[fieldErrors, categoriesError]} />
+      <StepErrorSummary topError={topError} errors={[shownErrors, categoriesError]} />
 
       <section className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="mb-4 flex items-center justify-between gap-4">
@@ -624,7 +630,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               readOnly
               disabled={saving}
             />
-            <FieldError message={fieldErrors["internal.campaignId"]} />
+            <FieldError message={shownErrors["internal.campaignId"]} />
           </div>
 
           {isInternalFieldVisible("fundCause") ? (
@@ -639,7 +645,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
-              <FieldError message={fieldErrors["internal.fundCause"]} />
+              <FieldError message={shownErrors["internal.fundCause"]} />
             </div>
           ) : null}
 
@@ -655,7 +661,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
-              <FieldError message={fieldErrors["internal.fundCode"]} />
+              <FieldError message={shownErrors["internal.fundCode"]} />
             </div>
           ) : null}
 
@@ -671,7 +677,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
-              <FieldError message={fieldErrors["internal.beneficiaryId"]} />
+              <FieldError message={shownErrors["internal.beneficiaryId"]} />
             </div>
           ) : null}
 
@@ -687,7 +693,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                 className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
               />
-              <FieldError message={fieldErrors["internal.locationId"]} />
+              <FieldError message={shownErrors["internal.locationId"]} />
             </div>
           ) : null}
 
@@ -703,7 +709,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               disabled={saving}
             />
             <div className="mt-1 text-[12px] text-[#6B7280]">{Math.min(200, String(shortDescription || "").length)}/200 characters</div>
-            <FieldError message={fieldErrors["internal.shortDescription"]} />
+            <FieldError message={shownErrors["internal.shortDescription"]} />
           </div>
         </div>
       </section>
@@ -726,7 +732,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
               disabled={saving}
             />
-            <FieldError message={fieldErrors["public.displayName"]} />
+            <FieldError message={shownErrors["public.displayName"]} />
 
             {similarForms.length > 0 ? (
               <div className="mt-3 rounded-xl border border-solid border-[#FDE68A] bg-[#FFFBEB] px-4 py-3">
@@ -769,7 +775,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
               <div className="mt-1 text-[12px] text-[#6B7280]">
                 {Math.min(500, plainTextLength(description))}/500 characters
               </div>
-              <FieldError message={fieldErrors["public.description"]} />
+              <FieldError message={shownErrors["public.description"]} />
             </div>
 
             <div className="mt-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
@@ -805,7 +811,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                       className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                       disabled={saving}
                     />
-                    <FieldError message={fieldErrors["public.collaborationOrganizationName"]} />
+                    <FieldError message={shownErrors["public.collaborationOrganizationName"]} />
                   </div>
 
                   <div>
@@ -921,7 +927,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                   </div>
                 </div>
               ) : null}
-              <FieldError message={fieldErrors["public.campaignType"]} />
+              <FieldError message={shownErrors["public.campaignType"]} />
             </div>
 
             <div>
@@ -1006,7 +1012,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
                   ))}
                 </div>
               ) : null}
-              <FieldError message={fieldErrors["public.categoryIds"]} />
+              <FieldError message={shownErrors["public.categoryIds"]} />
             </div>
 
             <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">

@@ -229,6 +229,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
     setThumbnailFile(file);
     setThumbnailPreviewUrl(URL.createObjectURL(file));
     setRemovedServerThumbnail(false);
+    setTopError("");
   }
 
   function onSliderChange(e) {
@@ -393,6 +394,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
       setRemovedServerThumbnail(false);
 
       if (typeof d?.videoUrl === "string") setVideoUrl(d.videoUrl);
+      setTopError("");
 
       if (!silent) toast.success("Media saved");
       onSaved?.();
@@ -564,7 +566,10 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">Video URL (Optional)</div>
               <input
                 value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
+                onChange={(e) => {
+                  setVideoUrl(e.target.value);
+                  setTopError("");
+                }}
                 placeholder="https://youtube.com/watch?v=..."
                 className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30"
                 disabled={saving}
