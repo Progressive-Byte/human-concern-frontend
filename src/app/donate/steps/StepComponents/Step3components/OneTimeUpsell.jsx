@@ -32,13 +32,35 @@ const OneTimeUpsell = ({ amount = 0, currency = "USD", onSwitch }) => {
           onClick={() => setKeptOneTime(true)}
           disabled={keptOneTime}
           aria-pressed={keptOneTime}
-          className={`flex-1 rounded-full px-4 py-2.5 text-[13px] font-semibold transition-colors ${
+          className={`flex-1 rounded-full px-4 py-2.5 text-[13px] font-semibold transition-colors inline-flex items-center justify-center gap-1.5 ${
             keptOneTime
-              ? "border border-[#E5E5E5] bg-[#F3F4F6] text-[#8C8C8C] cursor-default"
+              ? "border border-[#EA3335] bg-[#FFF5F5] text-[#383838] cursor-default"
               : "border border-[#E5E5E5] bg-white text-[#383838] hover:border-[#AEAEAE] active:scale-95 cursor-pointer"
           }`}
         >
-          {keptOneTime ? "One-time selected" : "Keep one-time"}
+          {keptOneTime ? (
+            <>
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#EA3335] text-white">
+                <svg
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5"
+                  fill="none"
+                >
+                  <path
+                    d="M5 10.5l3 3 7-7"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              One-time selected
+            </>
+          ) : (
+            "Keep one-time"
+          )}
         </button>
       </div>
     </div>
