@@ -622,6 +622,7 @@ function SpecificDatesEditor({ value, onChange, disabled, errors, campaignStartD
 function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors, campaignStartDate, campaignEndDate, open, onToggle, innerRef }) {
   const v = value && typeof value === "object" ? value : {};
   const scheduleType = String(v.scheduleType || "date_range");
+  const isQuickPreset = v.uiMode === "quick";
   const config = v.scheduleConfig && typeof v.scheduleConfig === "object" ? v.scheduleConfig : {};
   const cardErrors = errors && typeof errors === "object" ? errors : {};
   const endDateKey = String(config.endDate || "").slice(0, 10);
@@ -741,19 +742,21 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
                 <span className={Boolean(v.isDefault) ? "font-semibold" : "text-[#6B7280]"}>Use as default</span>
               </label>
             </div>
-            <div className="md:flex-1">
-              <div className="mb-2 text-[13px] font-semibold text-[#111827]">Schedule Type</div>
-              <ScheduleTypeSwitch
-                value={scheduleType}
-                onChange={(nextType) => {
-                  const next = String(nextType || "date_range");
-                  if (next === scheduleType) return;
-                  setField({ scheduleType: next, scheduleConfig: {} });
-                }}
-                disabled={disabled}
-              />
-              <FieldError message={cardErrors.scheduleType} />
-            </div>
+            {!isQuickPreset ? (
+              <div className="md:flex-1">
+                <div className="mb-2 text-[13px] font-semibold text-[#111827]">Schedule Type</div>
+                <ScheduleTypeSwitch
+                  value={scheduleType}
+                  onChange={(nextType) => {
+                    const next = String(nextType || "date_range");
+                    if (next === scheduleType) return;
+                    setField({ scheduleType: next, scheduleConfig: {} });
+                  }}
+                  disabled={disabled}
+                />
+                <FieldError message={cardErrors.scheduleType} />
+              </div>
+            ) : null}
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
@@ -786,7 +789,7 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
               errors={cardErrors.scheduleConfig}
               campaignStartDate={campaignStartDate}
               campaignEndDate={campaignEndDate}
-              showFrequencyControls={v.uiMode !== "quick"}
+              showFrequencyControls={!isQuickPreset}
             />
           ) : (
             <SpecificDatesEditor
@@ -916,6 +919,7 @@ const RecurringPresetsEditor = ({
       sortOrder: String((presets.length + 1) * 10),
       scheduleType: "date_range",
       uiMode: "quick",
+      quickType: frequency,
       scheduleConfig: {
         startDate: start.toISOString(),
         ...(end ? { endDate: end.toISOString() } : {}),
@@ -1001,33 +1005,43 @@ const RecurringPresetsEditor = ({
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
               <PresetTile
                 label="Daily"
-                hint="Every day"
+                hint={hasQuickPreset("daily") ? "Already added" : "Every day"}
                 icon="daily"
                 onClick={() => { setQuickNotice(null); addQuick("daily"); }}
-                disabled={disabled || maxPresetsReached || afterFormEnd(quickStartDate("daily", { campaignStartDate }))}
+                disabled={
+                  disabled ||
+                  maxPresetsReached ||
+                  hasQuickPreset("daily") ||
+                  afterFormEnd(quickStartDate("daily", { campaignStartDate }))
+                }
               />
               <PresetTile
                 label="Weekly"
-                hint="Pick a weekday"
+                hint={hasQuickPreset("weekly") ? "Already added" : "Pick a weekday"}
                 icon="weekly"
                 active={pendingAdd === "weekly"}
                 onClick={() => { setQuickNotice(null); setPendingAdd((p) => (p === "weekly" ? null : "weekly")); }}
-                disabled={disabled || maxPresetsReached}
+                disabled={disabled || maxPresetsReached || hasQuickPreset("weekly")}
               />
               <PresetTile
                 label="Monthly"
-                hint="Pick a month"
+                hint={hasQuickPreset("monthly") ? "Already added" : "Pick a month"}
                 icon="monthly"
                 active={pendingAdd === "monthly"}
                 onClick={() => { setQuickNotice(null); setPendingAdd((p) => (p === "monthly" ? null : "monthly")); }}
-                disabled={disabled || maxPresetsReached}
+                disabled={disabled || maxPresetsReached || hasQuickPreset("monthly")}
               />
               <PresetTile
                 label="Annually"
-                hint="Once a year"
+                hint={hasQuickPreset("yearly") ? "Already added" : "Once a year"}
                 icon="annually"
                 onClick={() => { setQuickNotice(null); addQuick("yearly"); }}
-                disabled={disabled || maxPresetsReached || afterFormEnd(quickStartDate("yearly", { campaignStartDate }))}
+                disabled={
+                  disabled ||
+                  maxPresetsReached ||
+                  hasQuickPreset("yearly") ||
+                  afterFormEnd(quickStartDate("yearly", { campaignStartDate }))
+                }
               />
               <PresetTile
                 label="Custom"
