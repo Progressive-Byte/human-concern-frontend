@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useAdminBranding } from "@/app/admin/components/AdminBrandingProvider";
@@ -308,10 +309,13 @@ function NavIcon({ name, className = "" }) {
   );
 }
 
-const AdminSidebar = ({ onNavigate }) => {
+const AdminSidebar = ({ onNavigate, collapsible = false }) => {
   const pathname = usePathname();
   const { admin, logout } = useAdminAuth();
   const { brandLogoUrl, organizationName } = useAdminBranding();
+  const [collapsed, setCollapsed] = useState(false);
+  const navRef = useRef(null);
+  const [hasMoreBelow, setHasMoreBelow] = useState(false);
 
   const isActive = (href) => (href ? (href === "/admin" ? pathname === href : pathname?.startsWith(href)) : false);
 
@@ -319,34 +323,95 @@ const AdminSidebar = ({ onNavigate }) => {
 
   const visibleNavItems = navItems.filter((item) => hasPermission(item.permission));
 
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return undefined;
+
+    const update = () => {
+      setHasMoreBelow(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    };
+
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    window.addEventListener("resize", update);
+
+    return () => {
+      el.removeEventListener("scroll", update);
+      observer.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, [collapsed, visibleNavItems.length]);
+
   return (
     // Static, non-branded chrome: the sidebar deliberately uses fixed colors rather
     // than the Settings > Branding primary, so changing the brand never recolors it.
-    <aside className="flex h-full w-65 shrink-0 flex-col bg-[#171717] text-white">
-      <div className="flex items-center gap-3 border-b border-white/10 px-4 py-5">
-        <div className="flex items-center justify-center rounded-full bg-white/10">
+    <aside
+      className={`relative flex h-full shrink-0 flex-col bg-[#171717] text-white transition-[width] duration-200 ${
+        collapsed ? "w-20" : "w-65"
+      }`}
+    >
+      <div
+        className={`flex items-center border-b border-white/10 py-5 ${
+          collapsed ? "justify-center px-3" : "gap-3 px-4"
+        }`}
+      >
+        <div
+          title={collapsed ? organizationName : undefined}
+          className="flex items-center justify-center rounded-full bg-white/10"
+        >
           <Image src={brandLogoUrl || "/icons/hcu-icon-light.png"} alt="Human Concern USA" width={30} height={30} />
         </div>
-        <div className="min-w-0 leading-tight">
-          <div className="truncate text-[15px] font-semibold">{organizationName}</div>
-          <div className="text-[12px] text-white/60">Admin Panel</div>
-        </div>
+        {!collapsed ? (
+          <div className="min-w-0 flex-1 leading-tight">
+            <div className="truncate text-[15px] font-semibold">{organizationName}</div>
+            <div className="text-[12px] text-white/60">Admin Panel</div>
+          </div>
+        ) : null}
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {visibleNavItems.map((item) => {
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={() => setCollapsed((prev) => !prev)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
+          className="absolute -right-3 top-6 z-20 inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#171717] shadow-sm transition-colors hover:bg-[#F9FAFB] hover:text-[#EA3335] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA3335]/40"
+        >
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none">
+            <path
+              d={collapsed ? "M9 6l6 6-6 6" : "M15 6l-6 6 6 6"}
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      ) : null}
+
+      <div className="relative min-h-0 flex-1">
+        <nav
+          ref={navRef}
+          className="h-full space-y-1 overflow-y-auto px-3 py-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {visibleNavItems.map((item) => {
           const active = isActive(item.href);
-          const base =
-            "flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 text-[14px] font-medium transition-colors";
+          const base = `flex cursor-pointer items-center rounded-2xl py-3 text-[14px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
+            collapsed ? "justify-center px-3" : "gap-3 px-3"
+          }`;
 
           if (!item.href || item.disabled) {
             return (
               <div
                 key={item.label}
+                title={collapsed ? item.label : undefined}
                 className={`${base} cursor-not-allowed text-white/40`}
               >
                 <NavIcon name={item.icon} className="text-white/35" />
-                <span>{item.label}</span>
+                {!collapsed ? <span>{item.label}</span> : null}
               </div>
             );
           }
@@ -356,22 +421,42 @@ const AdminSidebar = ({ onNavigate }) => {
               key={item.href}
               href={item.href}
               onClick={() => onNavigate?.()}
+              title={collapsed ? item.label : undefined}
+              aria-label={item.label}
+              aria-current={active ? "page" : undefined}
               className={`${base} ${
                 active ? "bg-white/10 text-white ring-1 ring-inset ring-white/15" : "text-white/70 hover:bg-white/5 hover:text-white"
               }`}
             >
               <NavIcon name={item.icon} className={active ? "text-white" : "text-white/60"} />
-              <span>{item.label}</span>
+              {!collapsed ? <span>{item.label}</span> : null}
             </Link>
           );
-        })}
-      </nav>
+          })}
+        </nav>
+
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 bottom-0 flex h-14 items-end justify-center bg-gradient-to-t from-[#171717] via-[#171717]/80 to-transparent pb-1 transition-opacity duration-200 ${
+            hasMoreBelow ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-white/60">
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        </div>
+      </div>
 
       <div className="border-t border-white/10 px-3 py-4">
         <button
           type="button"
           onClick={logout}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 text-[14px] font-medium text-white/70 hover:bg-white/5 hover:text-white"
+          title={collapsed ? "Sign Out" : undefined}
+          className={`flex w-full cursor-pointer items-center rounded-2xl py-3 text-[14px] font-medium text-white/70 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
+            collapsed ? "justify-center px-3" : "gap-3 px-3"
+          }`}
         >
           <span className="inline-flex h-5 w-5 items-center justify-center text-white/60">
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
@@ -396,7 +481,7 @@ const AdminSidebar = ({ onNavigate }) => {
               />
             </svg>
           </span>
-          <span>Sign Out</span>
+          {!collapsed ? <span>Sign Out</span> : null}
         </button>
       </div>
     </aside>

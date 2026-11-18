@@ -19,7 +19,7 @@ const AdminLayout = ({ children }) => {
             <TableOverflowWatcher />
             <div className="flex h-full">
               <div className="hidden h-full lg:block">
-                <AdminSidebar />
+                <AdminSidebar collapsible />
               </div>
 
               {sidebarOpen && (
