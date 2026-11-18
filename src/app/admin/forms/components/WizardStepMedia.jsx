@@ -410,7 +410,7 @@ const WizardStepMedia = ({ campaignId, formId, onExit, onSaved }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {topError ? (
         <div className="hc-animate-fade-up rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
           {topError}

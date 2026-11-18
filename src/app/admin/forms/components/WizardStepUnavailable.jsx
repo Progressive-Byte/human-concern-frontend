@@ -177,7 +177,7 @@ const WizardStepUnavailable = ({ campaignId, formId, onExit, onSaved }) => {
     "w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {topError ? (
         <div className="hc-animate-fade-up rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
           {topError}

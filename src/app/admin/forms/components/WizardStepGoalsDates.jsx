@@ -239,7 +239,7 @@ function toIsoDateString(value) {
 
 function Skeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="h-6 w-1/3 animate-pulse rounded-lg bg-[#F3F4F6]" />
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -853,7 +853,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const primaryCurrency = selectedCurrencies[0] || "";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {topError ? (
         <div className="hc-animate-fade-up rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
           {topError}

@@ -4,7 +4,7 @@ import WizardFooterNav from "./WizardFooterNav";
 
 const WizardStepPlaceholder = ({ title, description, saving = false, onBack, onNext, nextLabel = "Next" }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
         <div className="mb-2 text-[16px] font-semibold text-[#111827]">{title}</div>
         <div className="text-[13px] text-[#6B7280]">{description}</div>
