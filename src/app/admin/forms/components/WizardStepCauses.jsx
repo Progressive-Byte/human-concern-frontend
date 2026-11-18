@@ -57,7 +57,7 @@ function normalizeSelectedDesignationIds(res) {
 
 function SkeletonGrid() {
   return (
-    <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 4 }).map((_, idx) => (
         <div key={idx} className="animate-pulse rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-4">
           <div className="flex items-center justify-between">
@@ -259,7 +259,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Allowed Donation Causes</h2>
@@ -274,9 +274,9 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
         {loading ? (
           <SkeletonGrid />
         ) : causes.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-[#6B7280]">No causes available.</div>
+          <div className="py-8 text-center text-[13px] text-[#6B7280]">No causes available.</div>
         ) : (
-          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
             {causes.map((cause) => {
               const id = String(cause?._id || cause?.id || "").trim();
               const selected = id ? selectedCauseIds.includes(id) : false;
@@ -292,12 +292,12 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
                   type="button"
                   onClick={() => toggleCauseId(cause)}
                   disabled={!selectable || saving}
-                  className={`hc-hover-lift relative w-full text-left rounded-2xl border p-4 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600/40 focus-visible:ring-offset-2 ${
+                  className={`hc-hover-lift relative w-full text-left rounded-xl border p-3.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600/40 focus-visible:ring-offset-2 ${
                     selected ? "border-red-600/40 bg-red-600/5" : "border-[#E5E7EB] bg-[#F9FAFB] hover:bg-white"
                   } ${!selectable || saving ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center justify-center h-9 w-9 rounded-xl bg-white border border-[#E5E7EB]">
+                    <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-white border border-[#E5E7EB]">
                       <span className="text-[18px] leading-none">{emoji}</span>
                     </div>
 
@@ -342,7 +342,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
 
       </section>
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Designations</h2>
@@ -359,9 +359,9 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
         {loading ? (
           <SkeletonGrid />
         ) : designations.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-[#6B7280]">No designations available.</div>
+          <div className="py-8 text-center text-[13px] text-[#6B7280]">No designations available.</div>
         ) : (
-          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
             {designations.map((designation) => {
               const id = String(designation?._id || designation?.id || "").trim();
               const selected = id ? selectedDesignationIdSet.has(id) : false;
@@ -374,7 +374,7 @@ const WizardStepCauses = ({ campaignId, formId, onExit, onSaved }) => {
                   type="button"
                   onClick={() => toggleDesignationId(designation)}
                   disabled={!id || saving}
-                  className={`hc-hover-lift relative w-full text-left rounded-2xl border p-4 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600/40 focus-visible:ring-offset-2 ${
+                  className={`hc-hover-lift relative w-full text-left rounded-xl border p-3.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600/40 focus-visible:ring-offset-2 ${
                     selected ? "border-red-600/40 bg-red-600/5" : "border-[#E5E7EB] bg-[#F9FAFB] hover:bg-white"
                   } ${!id || saving ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
                 >

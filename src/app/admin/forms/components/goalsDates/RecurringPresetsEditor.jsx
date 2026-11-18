@@ -303,7 +303,7 @@ function DateField({ label, value, placeholder = "Select date", onClick, disable
             onClick={onClear}
             aria-label={`Clear ${label}`}
             title="Clear date"
-            className="inline-flex h-[42px] w-10 shrink-0 items-center justify-center rounded-xl border border-solid border-[#E5E7EB] bg-white text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827]"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-solid border-[#E5E7EB] bg-white text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -726,7 +726,7 @@ function PresetCard({ value, onChange, onRemove, onSetDefault, disabled, errors,
             </div>
             <div className="md:flex-1">
               <div className="mb-2 text-[13px] font-semibold text-[#111827]">Default</div>
-              <label className="flex h-[42px] items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+              <label className="flex h-10 items-center gap-2 rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
                 <input
                   type="radio"
                   name="recurringPresetDefault"
@@ -920,7 +920,7 @@ const RecurringPresetsEditor = ({
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
       <div className="mb-4">
         <h3 className="text-[14px] font-semibold text-[#111827]">Recurring Donations</h3>
         <p className="mt-1 text-[13px] text-[#6B7280]">Configure preset recurring schedules shown to donors</p>

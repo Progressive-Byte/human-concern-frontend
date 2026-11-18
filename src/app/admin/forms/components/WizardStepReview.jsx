@@ -218,14 +218,14 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Review Campaign</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">Review all details before publishing your form</p>
         </div>
 
         {loading ? (
-          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
             {Array.from({ length: 4 }).map((_, idx) => (
               <div key={idx} className="animate-pulse rounded-2xl border border-[#E5E7EB] bg-white p-4">
                 <div className="h-3 w-32 rounded bg-[#E5E7EB]" />
@@ -239,7 +239,7 @@ const WizardStepReview = ({ campaignId, formId, isRamadanForm, onExit, onSaved }
             Unable to load review. Please try again.
           </div>
         ) : (
-          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
             <SummaryCard
               label="Basics"
               onEdit={() => onExit?.({ nextStep: "basics" })}

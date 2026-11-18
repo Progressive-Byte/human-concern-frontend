@@ -563,7 +563,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
   if (loading) {
     return (
       <div className="space-y-4 md:space-y-6">
-        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
           <div className="h-6 w-1/3 animate-pulse rounded-lg bg-[#F3F4F6]" />
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
@@ -572,7 +572,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
             <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
           </div>
         </div>
-        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
           <div className="h-6 w-1/3 animate-pulse rounded-lg bg-[#F3F4F6]" />
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
@@ -593,7 +593,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>
             <h2 className="text-[16px] font-semibold text-[#111827]">Internal Basics</h2>
@@ -696,7 +696,7 @@ const WizardStepBasics = ({ campaignId, initialFormId = "", onExit, onSaved }) =
         </div>
       </section>
 
-      <section className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="mb-4">
           <h2 className="text-[16px] font-semibold text-[#111827]">Public Basics</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">Public facing information for this form.</p>

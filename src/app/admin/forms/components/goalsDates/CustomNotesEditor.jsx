@@ -33,7 +33,7 @@ function ChevronIcon({ open }) {
 
 function CheckField({ label, checked, onChange, disabled }) {
   return (
-    <label className="flex h-[42px] items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
+    <label className="flex h-10 items-center gap-2 rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
       <input
         type="checkbox"
         checked={Boolean(checked)}
@@ -48,7 +48,7 @@ function CheckField({ label, checked, onChange, disabled }) {
 }
 
 const INPUT_CLASS =
-  "w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60";
+  "w-full rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60";
 
 const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonClassName = "", title = "Custom Notes" }) => {
   const notes = Array.isArray(value) ? value : [];
@@ -98,8 +98,8 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
-      <div className="mb-4">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
+      <div className="mb-3">
         <h3 className="text-[14px] font-semibold text-[#111827]">{title}</h3>
         <p className="mt-1 text-[13px] text-[#6B7280]">
           Extra questions asked at checkout. Give it a label, pick an answer type, and you&apos;re done.
@@ -129,11 +129,11 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
               const isAdvancedOpen = advancedOpen[advancedKey] !== undefined ? advancedOpen[advancedKey] : hasAdvancedValue;
 
               return (
-                <div key={n.id || idx} className="rounded-2xl border border-[#F3F4F6] bg-white p-4 transition hover:bg-[#F9FAFB]">
+                <div key={n.id || idx} className="rounded-xl border border-[#F3F4F6] bg-white p-3 transition hover:bg-[#F9FAFB]">
                   <div className="flex items-start justify-between gap-3">
-                    <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-3">
+                    <div className="grid w-full grid-cols-1 gap-2 md:grid-cols-3">
                       <div className="md:col-span-2">
-                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Question</div>
+                        <div className="mb-1 text-[13px] font-semibold text-[#111827]">Question</div>
                         <input
                           value={String(n.label ?? "")}
                           onChange={(e) => setNote(idx, { label: e.target.value })}
@@ -145,8 +145,8 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                       </div>
 
                       <div className="md:col-span-1">
-                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Answer type</div>
-                        <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5">
+                        <div className="mb-1 text-[13px] font-semibold text-[#111827]">Answer type</div>
+                        <div className="rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 py-2">
                           <select
                             value={type}
                             onChange={(e) => setNote(idx, { type: e.target.value })}
@@ -164,7 +164,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                       </div>
 
                       <div className="md:col-span-2">
-                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Helper text (optional)</div>
+                        <div className="mb-1 text-[13px] font-semibold text-[#111827]">Helper text (optional)</div>
                         <input
                           value={String(n.helpText ?? "")}
                           onChange={(e) => setNote(idx, { helpText: e.target.value })}
@@ -176,7 +176,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                       </div>
 
                       <div className="md:col-span-1">
-                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Required</div>
+                        <div className="mb-1 text-[13px] font-semibold text-[#111827]">Required</div>
                         <CheckField
                           label="Donor must fill this in"
                           checked={Boolean(n.required)}
@@ -199,7 +199,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                   </div>
 
                   {showOptions ? (
-                    <div className="mt-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+                    <div className="mt-3 rounded-xl border border-solid border-[#E5E7EB] bg-white p-3">
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <div className="text-[13px] font-semibold text-[#111827]">Choices</div>
@@ -220,9 +220,9 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                           const o = opt || {};
                           const oErr = (optionsErrors && typeof optionsErrors === "object" ? optionsErrors[optIdx] : null) || {};
                           return (
-                            <div key={o.id || optIdx} className="grid grid-cols-1 gap-3 md:grid-cols-5">
+                            <div key={o.id || optIdx} className="grid grid-cols-1 gap-2 md:grid-cols-5">
                               <div className="md:col-span-2">
-                                <div className="mb-2 text-[12px] font-semibold text-[#111827]">Label</div>
+                                <div className="mb-1 text-[13px] font-semibold text-[#111827]">Label</div>
                                 <input
                                   value={String(o.label ?? "")}
                                   onChange={(e) => setOption(idx, optIdx, { label: e.target.value })}
@@ -234,7 +234,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                               </div>
 
                               <div className="md:col-span-2">
-                                <div className="mb-2 text-[12px] font-semibold text-[#111827]">Value</div>
+                                <div className="mb-1 text-[13px] font-semibold text-[#111827]">Value</div>
                                 <input
                                   value={String(o.value ?? "")}
                                   onChange={(e) => setOption(idx, optIdx, { value: e.target.value })}
@@ -246,12 +246,12 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                               </div>
 
                               <div className="md:col-span-1">
-                                <div className="mb-2 text-[12px] font-semibold text-[#111827]">Remove</div>
+                                <div className="mb-1 text-[13px] font-semibold text-[#111827]">Remove</div>
                                 <button
                                   type="button"
                                   onClick={() => removeOption(idx, optIdx)}
                                   disabled={disabled}
-                                  className="inline-flex h-[42px] w-full items-center justify-center rounded-xl border border-[#E5E7EB] bg-white text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827] disabled:opacity-60"
+                                  className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827] disabled:opacity-60"
                                 >
                                   <TrashIcon />
                                 </button>
@@ -279,7 +279,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
                       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
                         {showPlaceholder ? (
                           <div className="md:col-span-2">
-                            <div className="mb-2 text-[13px] font-semibold text-[#111827]">Placeholder (optional)</div>
+                            <div className="mb-1 text-[13px] font-semibold text-[#111827]">Placeholder (optional)</div>
                             <input
                               value={String(n.placeholder ?? "")}
                               onChange={(e) => setNote(idx, { placeholder: e.target.value })}
@@ -293,9 +293,9 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
 
                         {showDefaultString ? (
                           <div className={showPlaceholder ? "md:col-span-1" : "md:col-span-3"}>
-                            <div className="mb-2 text-[13px] font-semibold text-[#111827]">Pre-filled answer (optional)</div>
+                            <div className="mb-1 text-[13px] font-semibold text-[#111827]">Pre-filled answer (optional)</div>
                             {type === "select" || type === "radio" ? (
-                              <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5">
+                              <div className="rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 py-2">
                                 <select
                                   value={String(n.defaultValue ?? "")}
                                   onChange={(e) => setNote(idx, { defaultValue: e.target.value })}
@@ -329,7 +329,7 @@ const CustomNotesEditor = ({ value = [], onChange, disabled, errors, addButtonCl
 
                         {showDefaultBoolean ? (
                           <div className="md:col-span-3">
-                            <div className="mb-2 text-[13px] font-semibold text-[#111827]">Pre-filled answer</div>
+                            <div className="mb-1 text-[13px] font-semibold text-[#111827]">Pre-filled answer</div>
                             <CheckField
                               label={Boolean(n.defaultValue) ? "Checked by default" : "Unchecked by default"}
                               checked={Boolean(n.defaultValue)}

@@ -151,7 +151,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Public Display</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
@@ -160,8 +160,8 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
           </p>
         </div>
 
-        <div className="mt-5 space-y-3">
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+        <div className="mt-4 divide-y divide-[#F3F4F6] overflow-hidden rounded-xl border border-[#E5E7EB] bg-white">
+          <div className="px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Show Progress Bar</div>
@@ -171,7 +171,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+          <div className="px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Show Days Left</div>
@@ -181,7 +181,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+          <div className="px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Show Amount Raised</div>
@@ -191,7 +191,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+          <div className="px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Show Target Amount</div>
@@ -201,7 +201,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+          <div className="px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Show Donor Count</div>
@@ -214,20 +214,20 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
           </div>
 
           {!showAmountRaised ? (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-800">
+            <div className="bg-amber-50 px-3.5 py-3 text-[12px] text-amber-800">
               The progress bar is hidden on the public page while <strong>Show Amount Raised</strong> is off — a
               percentage bar would still reveal roughly how much has been raised.
             </div>
           ) : null}
 
-          <div className="rounded-xl border border-solid border-[#E5E7EB] bg-[#FAFAFA] px-4 py-3 text-[12px] text-[#6B7280]">
+          <div className="bg-[#FAFAFA] px-3.5 py-3 text-[12px] text-[#6B7280]">
             Leave the goal empty for an open-ended form — then no progress bar, target or remaining amount is
             shown anywhere.
           </div>
         </div>
       </section>
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Donate Button</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
@@ -235,7 +235,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
           </p>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-4">
           <div className="mb-2 text-[13px] font-semibold text-[#111827]">Button text</div>
           <input
             value={donateButtonLabel}
@@ -252,7 +252,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       </section>
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div>
           <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Marketing Opt-in</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">
@@ -260,7 +260,7 @@ const WizardStepPublicDisplay = ({ campaignId, formId, onExit, onSaved }) => {
           </p>
         </div>
 
-        <div className="mt-5 max-w-md">
+        <div className="mt-4 max-w-md">
           <div className="mb-2 text-[13px] font-semibold text-[#111827]">Default state</div>
           <select
             value={marketingConsentMode}

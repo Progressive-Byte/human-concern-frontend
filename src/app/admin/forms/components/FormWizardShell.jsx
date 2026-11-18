@@ -115,14 +115,14 @@ const FormWizardShell = ({
         <header className="hc-animate-fade-up flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-[20px] font-semibold leading-tight text-[#111827] sm:text-[24px]">{title}</h1>
+              <h1 className="truncate text-[24px] font-semibold leading-tight text-[#111827]">{title}</h1>
               {statusMeta ? (
                 <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusMeta.className}`}>
                   {statusMeta.label}
                 </span>
               ) : null}
             </div>
-            <p className="mt-1 text-[12px] leading-snug text-[#6B7280] sm:text-[13px]">
+            <p className="mt-1 text-[14px] leading-snug text-[#6B7280]">
               {statusKey === "published"
                 ? "Published forms are read-only here. Move the form to Draft to edit."
                 : statusKey === "archived"

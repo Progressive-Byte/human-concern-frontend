@@ -40,83 +40,86 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
   }
 
   return (
-    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
-      <div className="mb-4">
+    <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
+      <div className="mb-3">
         <h3 className="text-[14px] font-semibold text-[#111827]">Suggested Amounts</h3>
         <p className="mt-1 text-[13px] text-[#6B7280]">Preset donation amounts shown to donors</p>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {items.length ? (
-          <div className="space-y-2">
+          <>
+            <div className="hidden gap-2 px-3 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] sm:grid sm:grid-cols-[120px_minmax(0,1fr)_110px_36px]">
+              <span>Amount{currencyLabel ? ` (${currencyLabel})` : ""}</span>
+              <span>Description</span>
+              <span>Default</span>
+              <span />
+            </div>
+
             {items.map((it, idx) => {
               const row = it || {};
               const rowErrors = (errors && typeof errors === "object" ? errors[idx] : null) || {};
               return (
-                <div key={row.id || idx} className="rounded-2xl border border-[#F3F4F6] bg-white p-4 transition hover:bg-[#F9FAFB]">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-4">
-                      <div className="md:col-span-1">
-                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">
-                          Amount{currencyLabel ? ` (${currencyLabel})` : ""}
-                        </div>
-                        <input
-                          value={String(row.value ?? "")}
-                          onChange={(e) => setItem(idx, { value: e.target.value })}
-                          inputMode="decimal"
-                          placeholder="25"
-                          disabled={disabled}
-                          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
-                        />
-                        <FieldError message={rowErrors.value} />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Description (optional)</div>
-                        <input
-                          value={String(row.description ?? "")}
-                          onChange={(e) => setItem(idx, { description: e.target.value })}
-                          maxLength={120}
-                          placeholder="Small (optional)"
-                          disabled={disabled}
-                          className="w-full rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 py-2.5 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
-                        />
-                        <FieldError message={rowErrors.description} />
-                      </div>
-
-                      <div className="md:col-span-1">
-                        <div className="mb-2 text-[13px] font-semibold text-[#111827]">Default</div>
-                        <label className="flex h-[42px] items-center gap-2 rounded-xl border border-solid border-[#E5E7EB] bg-white px-3 text-[13px] text-[#111827]">
-                          <input
-                            type="radio"
-                            name="suggestedAmountDefault"
-                            checked={Boolean(row.isDefault)}
-                            onChange={() => setDefault(idx)}
-                            disabled={disabled}
-                            className="h-4 w-4"
-                            style={{ accentColor: "var(--admin-accent-600, #111827)" }}
-                          />
-                          <span className={Boolean(row.isDefault) ? "font-semibold" : "text-[#6B7280]"}>Use as default</span>
-                        </label>
-                      </div>
+                <div
+                  key={row.id || idx}
+                  className="flex items-start gap-2 rounded-xl border border-[#F3F4F6] bg-white p-2.5 transition hover:bg-[#F9FAFB]"
+                >
+                  <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 sm:grid-cols-[120px_minmax(0,1fr)_110px]">
+                    <div>
+                      <input
+                        value={String(row.value ?? "")}
+                        onChange={(e) => setItem(idx, { value: e.target.value })}
+                        inputMode="decimal"
+                        placeholder={currencyLabel ? `Amount (${currencyLabel})` : "Amount"}
+                        aria-label={`Amount ${idx + 1}`}
+                        disabled={disabled}
+                        className="w-full rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+                      />
+                      <FieldError message={rowErrors.value} />
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => removeRow(idx)}
-                      disabled={disabled}
-                      aria-label="Remove suggested amount"
-                      className="mt-7 inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#E5E7EB] bg-white text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827] disabled:opacity-60"
-                    >
-                      <TrashIcon />
-                    </button>
+                    <div>
+                      <input
+                        value={String(row.description ?? "")}
+                        onChange={(e) => setItem(idx, { description: e.target.value })}
+                        maxLength={120}
+                        placeholder="Description (optional)"
+                        aria-label={`Description ${idx + 1}`}
+                        disabled={disabled}
+                        className="w-full rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] outline-none transition focus:border-[#111827]/30 disabled:opacity-60"
+                      />
+                      <FieldError message={rowErrors.description} />
+                    </div>
+
+                    <label className="flex h-10 items-center gap-2 rounded-lg border border-solid border-[#E5E7EB] bg-white px-2.5 text-[13px] text-[#111827]">
+                      <input
+                        type="radio"
+                        name="suggestedAmountDefault"
+                        checked={Boolean(row.isDefault)}
+                        onChange={() => setDefault(idx)}
+                        disabled={disabled}
+                        className="h-4 w-4"
+                        style={{ accentColor: "var(--admin-accent-600, #111827)" }}
+                      />
+                      <span className={Boolean(row.isDefault) ? "font-semibold" : "text-[#6B7280]"}>Default</span>
+                    </label>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removeRow(idx)}
+                    disabled={disabled}
+                    aria-label="Remove suggested amount"
+                    className="grid size-9 shrink-0 place-items-center rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] transition hover:bg-[#F9FAFB] hover:text-[#111827] disabled:opacity-60"
+                  >
+                    <TrashIcon />
+                  </button>
                 </div>
               );
             })}
-          </div>
+          </>
         ) : (
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 text-[13px] text-[#6B7280]">
+          <div className="rounded-xl border border-solid border-[#E5E7EB] bg-white p-3 text-[13px] text-[#6B7280]">
             No suggested amounts added.
           </div>
         )}
@@ -126,7 +129,7 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
             type="button"
             onClick={addRow}
             disabled={disabled}
-            className="cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+            className="cursor-pointer rounded-lg border border-solid border-[#E5E7EB] bg-white px-3 py-1.5 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-60"
           >
             Add Amount
           </button>
@@ -135,4 +138,5 @@ const SuggestedAmountsEditor = ({ currencyLabel = "", value = [], onChange, disa
     </section>
   );
 }
+
 export default SuggestedAmountsEditor;

@@ -223,7 +223,7 @@ const WizardStepObjectives = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-[18px] font-semibold leading-tight text-[#111827]">Campaign Objectives</h2>

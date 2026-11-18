@@ -240,7 +240,7 @@ function toIsoDateString(value) {
 function Skeleton() {
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="h-6 w-1/3 animate-pulse rounded-lg bg-[#F3F4F6]" />
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
@@ -250,7 +250,7 @@ function Skeleton() {
         </div>
       </div>
 
-      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <div className="hc-animate-fade-up rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="h-5 w-1/4 animate-pulse rounded-lg bg-[#F3F4F6]" />
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="h-10 animate-pulse rounded-xl bg-[#F3F4F6]" />
@@ -860,7 +860,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       ) : null}
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="mb-4">
           <h2 className="text-[16px] font-semibold text-[#111827]">Fundraising Goals & Timeline</h2>
           <p className="mt-1 text-[13px] text-[#6B7280]">Set the target amount and campaign duration</p>
@@ -944,7 +944,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         </div>
       </section>
 
-      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-5">
+      <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4 md:p-5">
         <div className="text-[14px] font-semibold text-[#111827]">Donation Settings</div>
 
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -977,8 +977,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           </div>
         </div>
 
-        <div className="mt-4 space-y-3">
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+        <div className="mt-4 divide-y divide-[#F3F4F6] overflow-hidden rounded-xl border border-[#E5E7EB] bg-white">
+          <div className="px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Allow One-Time Donations</div>
@@ -989,7 +989,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             <FieldError message={fieldErrors.allowOneTimeDonations} />
           </div>
 
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+          <div className="px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Enable Tipping</div>
@@ -999,7 +999,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+          <div className="px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Allow Anonymous Donations</div>
@@ -1009,7 +1009,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+          <div className="px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-semibold text-[#111827]">Show Global Notes</div>
