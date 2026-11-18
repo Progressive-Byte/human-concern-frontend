@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { computeDonationProgress } from "@/utils/donationFormProgress";
 
 // The form config is written to sessionStorage (by CampaignConfigLoader and the admin
 // preview) before the steps render. Reading it through useSyncExternalStore lets the
@@ -31,8 +32,8 @@ const DonateFormHeader = ({ maxWidth = "max-w-[700px]" }) => {
   try { config = JSON.parse(rawConfig || "{}"); } catch { config = {}; }
 
   const formName = data.campaignTitle || config.name || "";
-  // The percent is saved when the donor clicks Continue, so typing does not move the bar.
-  const percent = data.progressPercent ?? 0;
+  // Read the current field values, so the bar moves while the donor types/selects.
+  const percent = computeDonationProgress(data, config).percent;
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-[#EBEBEB] bg-white/95 backdrop-blur">

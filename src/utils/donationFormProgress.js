@@ -107,8 +107,8 @@ export function computeDonationProgress(data, config) {
   return { completed, total, percent: Math.round((completed / total) * 100) };
 }
 
-// Same calculation, with the campaign config read from sessionStorage. Called only when
-// the donor clicks Continue, so the header bar does not move on every keystroke.
+// Same calculation, with the campaign config read from sessionStorage. Used by the step
+// validation/continue handlers; the header computes the same value live from context data.
 export function computeDonationProgressFromStorage(data) {
   let config = {};
   if (typeof window !== "undefined") {
