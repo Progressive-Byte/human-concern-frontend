@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useWizardFormStatus } from "./FormWizardShell";
 
 function MoreIcon() {
   return (
@@ -26,9 +27,16 @@ const WizardFooterNav = ({
   previewLabel = "Preview Donation Form",
 }) => {
   const [moreOpen, setMoreOpen] = useState(false);
+  const formStatus = useWizardFormStatus();
+  const saveBlockedReason =
+    formStatus === "published"
+      ? "This form is published. Move it to Draft to save a draft."
+      : formStatus === "archived"
+        ? "This form is archived. Restore it before saving a draft."
+        : "";
   const canPreview = Boolean(String(previewHref || "").trim());
   const previewIsDisabled = Boolean(previewDisabled ?? saving) || !canPreview;
-  const saveIsDisabled = Boolean(saveDisabled || saving);
+  const saveIsDisabled = Boolean(saveDisabled || saving || saveBlockedReason);
 
   return (
     <div className="sticky bottom-0 z-30 -mx-3 border-t border-[#E5E7EB] bg-white/95 px-3 py-2 backdrop-blur sm:-mx-4 sm:px-4 md:-mx-6 md:px-6 lg:mx-0 lg:rounded-2xl lg:border lg:px-4 lg:py-3">
@@ -47,6 +55,7 @@ const WizardFooterNav = ({
             type="button"
             onClick={onSave}
             disabled={saveIsDisabled}
+            title={saveBlockedReason || undefined}
             className="hidden cursor-pointer rounded-xl border border-solid border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50 sm:inline-flex"
           >
             {saving ? "Saving..." : "Save Draft"}
@@ -89,6 +98,7 @@ const WizardFooterNav = ({
                   onSave?.();
                 }}
                 disabled={saveIsDisabled}
+                title={saveBlockedReason || undefined}
                 className="w-full cursor-pointer rounded-lg px-3 py-2 text-left text-[13px] font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save Draft"}

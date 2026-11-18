@@ -1,7 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { useFormEditorGuard } from "./FormEditorGuardProvider";
+
+const WizardFormStatusContext = createContext("");
+
+export function useWizardFormStatus() {
+  return useContext(WizardFormStatusContext);
+}
 
 const STATUS_STYLES = {
   saving: { label: "Saving...", className: "bg-[#F3F4F6] text-[#6B7280]" },
@@ -21,7 +27,7 @@ function SaveStatusChip({ state }) {
   if (!entry) return null;
 
   return (
-    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[12px] font-semibold ${entry.className}`}>
+    <span className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-semibold ${entry.className}`}>
       {entry.label}
     </span>
   );
@@ -189,7 +195,9 @@ const FormWizardShell = ({
               </div>
             ) : null}
 
-            {children}
+            <WizardFormStatusContext.Provider value={statusKey}>
+              {children}
+            </WizardFormStatusContext.Provider>
           </div>
         </div>
       </div>
