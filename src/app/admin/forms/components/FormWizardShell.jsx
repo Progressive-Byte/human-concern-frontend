@@ -58,7 +58,7 @@ function StepRow({ index, label, active, completed, clickable, onSelect }) {
           active
             ? "bg-red-600 text-white"
             : completed
-            ? "bg-emerald-50 text-emerald-700"
+            ? "bg-emerald-50 hc-admin-accent-text"
             : "bg-[#F3F4F6] text-[#9CA3AF]"
         }`}
       >
@@ -111,7 +111,7 @@ const FormWizardShell = ({
 
   return (
     <div className="min-w-0 p-3 sm:p-4 md:p-6">
-      <div className="mx-auto w-full max-w-[1240px] space-y-4 md:space-y-6">
+      <div className="w-full space-y-4 md:space-y-6">
         <header className="hc-animate-fade-up flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
