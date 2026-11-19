@@ -3,14 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { distributeAmount } from "@/utils/causeSplit";
 
-const CauseAmountInput = ({ amount, sym, onChange, maxAmount = Number.POSITIVE_INFINITY }) => {
+const CauseAmountInput = ({ amount, sym, onChange }) => {
   const [text, setText] = useState(() => amount.toFixed(2));
   const lastAmount = useRef(amount);
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
-    // While the donor is typing, don't overwrite their text with the clamped/rounded
-    // value — the corrected amount is applied on blur.
+    // While the donor is typing, don't overwrite their text with the rounded value.
     if (focused) return;
     if (amount === lastAmount.current) return;
     lastAmount.current = amount;
@@ -22,27 +21,26 @@ const CauseAmountInput = ({ amount, sym, onChange, maxAmount = Number.POSITIVE_I
     const val = e.target.value;
     setText(val);
     const num = Number(val);
-    if (val !== "" && Number.isFinite(num)) {
-      lastAmount.current = num;
-      onChange(num);
+    if (val !== "" && Number.isFinite(num) && num >= 0) {
+      const rounded = Math.round(num * 100) / 100;
+      lastAmount.current = rounded;
+      onChange(rounded);
     }
   };
 
   const handleBlur = () => {
-    const num = Number(text);
-    const max = Number(maxAmount);
     setFocused(false);
+    const num = Number(text);
 
-    if (text !== "" && Number.isFinite(num) && Number.isFinite(max) && num > max + 0.005) {
-      const clamped = Math.max(0, Math.round(max * 100) / 100);
-      lastAmount.current = clamped;
-      setText(clamped.toFixed(2));
-      onChange(clamped);
+    if (text === "" || !Number.isFinite(num) || num < 0) {
+      lastAmount.current = amount;
+      setText(amount.toFixed(2));
       return;
     }
 
-    lastAmount.current = amount;
-    setText(amount.toFixed(2));
+    const rounded = Math.round(num * 100) / 100;
+    lastAmount.current = rounded;
+    setText(rounded.toFixed(2));
   };
 
   return (
@@ -107,14 +105,6 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {causes.map((cause) => {
           const active = selectedCauseIds.includes(cause.id);
-          const othersAssigned = selectedCauseIds.reduce(
-            (sum, id) =>
-              id === cause.id
-                ? sum
-                : sum + total * Math.max(0, Number(causeSplit[id]) || 0),
-            0
-          );
-          const maxForCause = Math.max(0, Math.round((total - othersAssigned) * 100) / 100);
           return (
             <div
               key={cause.id}
@@ -154,7 +144,6 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
                   <CauseAmountInput
                     amount={allocations[cause.id] ?? 0}
                     sym={sym}
-                    maxAmount={maxForCause}
                     onChange={(amount) => onSplitChange(cause.id, amount)}
                   />
                 )
@@ -163,6 +152,12 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
           );
         })}
       </div>
+
+      {showSplit && !splitDisabled ? (
+        <p className="text-[11px] leading-snug text-[#8C8C8C]">
+          Editing one cause adjusts the causes you have not edited. All amounts must add up to {money(total)}.
+        </p>
+      ) : null}
 
       {showSplit && !splitDisabled && (over || under) ? (
         <div

@@ -33,6 +33,8 @@ const Step1Gift = ({ campaignSlug }) => {
   const { primaryColor, donationPrimaryColor } = useBranding();
   const { handleNext } = useStepNavigation();
   const [error, setError] = useState("");
+  /* Causes the donor changed by hand; their amounts must not be auto-adjusted. */
+  const [manualSplitIds, setManualSplitIds] = useState([]);
 
   /* The heart floats from the Recurring option when that option is picked. */
   const recurringHeartRef = useRef(null);
@@ -238,26 +240,30 @@ const Step1Gift = ({ campaignSlug }) => {
         : [...(data.causes ?? []), cause.label],
       causeSplit: fitSplit({ causeIds: nextIds }),
     });
+    setManualSplitIds([]);
     setError("");
   };
 
   const handleSplitChange = (causeId, amount) => {
     if (effectiveAmount <= 0) return;
-    // Only the edited cause moves — every other cause is left exactly as it is. Step 1
-    // blocks advancing if the amounts no longer add up to the donation.
-    const { causeSplit: nextSplit } = applyManualAmount({
+    // The edited cause is kept, untouched causes absorb the remainder, and causes the
+    // donor already edited stay fixed. Step 1 still blocks an over/under split.
+    const { causeSplit: nextSplit, manualIds: nextManualIds } = applyManualAmount({
       causeIds: selectedCauseIds,
       causeSplit,
       editedId: causeId,
       amount,
       total: effectiveAmount,
+      manualIds: manualSplitIds,
     });
     update({ causeSplit: nextSplit });
+    setManualSplitIds(nextManualIds);
     setError("");
   };
 
   const handleResetSplit = () => {
     update({ causeSplit: fitSplit({ causeIds: selectedCauseIds }) });
+    setManualSplitIds([]);
     setError("");
   };
 
