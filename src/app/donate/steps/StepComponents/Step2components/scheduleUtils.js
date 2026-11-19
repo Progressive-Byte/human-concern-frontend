@@ -107,17 +107,6 @@ export function earliestPeriodStartFor(freq, minDateStr) {
   return String(minDateStr ?? "");
 }
 
-export function resolveFreq(newStart, newEnd, currentFreq) {
-  // Monthly/yearly select whole periods, so a short range is not a reason to downgrade.
-  if (isPeriodFreq(currentFreq)) return currentFreq;
-  if (!newStart || !newEnd) return currentFreq;
-  const days = Math.floor((new Date(newEnd) - new Date(newStart)) / 86400000) + 1;
-  if (days <= 0) return currentFreq;
-  const opt = FREQ_OPTIONS.find((o) => o.value === currentFreq);
-  if (opt && days < opt.minDays) return "daily";
-  return currentFreq;
-}
-
 export function buildConfig(type, dates, start, end, freq, amounts, interval, daysOfWeek) {
   if (type === "specific_dates") {
     const sorted = [...dates].sort();

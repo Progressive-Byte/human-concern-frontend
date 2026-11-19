@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import countOccurrences, { generateDatesInRange } from "../countOccurrences";
-import { buildConfig, resolveFreq, isPeriodFreq, periodStartFor, earliestPeriodStartFor } from "./scheduleUtils";
+import { buildConfig, isPeriodFreq, periodStartFor, earliestPeriodStartFor } from "./scheduleUtils";
 import { earliestAllowedDateStr } from "@/utils/scheduleDateLimits";
 import SpecificDatesSection from "./SpecificDatesSection";
 import DateRangeSection from "./DateRangeSection";
@@ -449,8 +449,7 @@ const RecurringSchedule = ({
 
   const handleRangeStart = (val) => {
     setRangeStart(val);
-    const nextFreq = resolveFreq(val, rangeEnd, rangeFreq);
-    if (nextFreq !== rangeFreq) setRangeFreq(nextFreq);
+    const nextFreq = rangeFreq;
     let days = effectiveWeekDays;
     if (nextFreq === "weekly" && !weekDays.length) {
       days = weekdayOf(val) === null ? [] : [weekdayOf(val)];
@@ -471,11 +470,9 @@ const RecurringSchedule = ({
     // Defensive clamp: the end can never precede the start for period frequencies.
     const clamped = isPeriodFreq(rangeFreq) && rangeStart && val && val < rangeStart ? rangeStart : val;
     setRangeEnd(clamped);
-    const nextFreq = resolveFreq(rangeStart, clamped, rangeFreq);
-    if (nextFreq !== rangeFreq) setRangeFreq(nextFreq);
     const next = Object.fromEntries(Object.entries(dateAmounts).filter(([d]) => d <= clamped));
     setDateAmounts(next);
-    notify(scheduleType, selectedDates, rangeStart, clamped, nextFreq, next, customInterval);
+    notify(scheduleType, selectedDates, rangeStart, clamped, rangeFreq, next, customInterval);
   };
 
   const handleRangeFreq = (val) => {

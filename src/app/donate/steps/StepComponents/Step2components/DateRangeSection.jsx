@@ -22,17 +22,9 @@ const DateRangeSection = ({
     return diff > 0 ? diff : 0;
   }, [rangeStart, rangeEnd]);
 
-  // Monthly/yearly pick whole periods, so the day-count guard never disables them.
-  const freqDisabled = useMemo(
-    () =>
-      Object.fromEntries(
-        FREQ_OPTIONS.map(({ value, minDays }) => [
-          value,
-          isPeriodFreq(value) ? false : rangeDays > 0 && rangeDays < minDays,
-        ])
-      ),
-    [rangeDays]
-  );
+  const activeOption = FREQ_OPTIONS.find((option) => option.value === rangeFreq);
+  const activeMinDays = activeOption?.minDays ?? 1;
+  const rangeTooShort = !isPeriodFreq(rangeFreq) && activeMinDays > 1 && rangeDays < activeMinDays;
 
   const showPeriodPicker = isPeriodFreq(rangeFreq);
 
@@ -59,20 +51,16 @@ const DateRangeSection = ({
           <>
             <div className="flex flex-wrap gap-2">
               {FREQ_OPTIONS.map(({ value, label, minDays }) => {
-                const disabled = freqDisabled[value];
-                const active   = rangeFreq === value;
+                const active = rangeFreq === value;
                 return (
                   <button
                     key={value}
                     type="button"
-                    disabled={disabled}
                     onClick={() => onRangeFreq(value)}
-                    title={disabled ? `Requires at least ${minDays} day${minDays !== 1 ? "s" : ""} range` : undefined}
+                    title={minDays > 1 ? `Needs at least ${minDays} days` : undefined}
                     className={`px-4 py-2 rounded-xl border text-[12px] font-medium transition-all ${
                       active
                         ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
-                        : disabled
-                        ? "border-[#E5E5E5] bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed"
                         : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40 cursor-pointer"
                     }`}
                   >
@@ -81,9 +69,11 @@ const DateRangeSection = ({
                 );
               })}
             </div>
-            {rangeDays > 0 && freqDisabled[rangeFreq] && (
+            {rangeTooShort && (
               <p className="text-[11px] text-red-600 mt-1.5 px-0.5">
-                {`${FREQ_OPTIONS.find((o) => o.value === rangeFreq)?.label} requires at least ${FREQ_OPTIONS.find((o) => o.value === rangeFreq)?.minDays} days — switched to Daily.`}
+                {rangeDays > 0
+                  ? `${activeOption?.label} needs at least ${activeMinDays} days — this range is ${rangeDays} day${rangeDays !== 1 ? "s" : ""}. Extend the end date.`
+                  : `${activeOption?.label} needs a start and end date at least ${activeMinDays} days apart.`}
               </p>
             )}
 
