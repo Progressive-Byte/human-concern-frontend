@@ -815,6 +815,8 @@ const RecurringPresetsEditor = ({
   onChangeAllowRecurringSplit,
   allowFlexibleRecurringSchedule = true,
   onChangeAllowFlexibleRecurringSchedule,
+  allowCustomRecurringSchedule = true,
+  onChangeAllowCustomRecurringSchedule,
   value = [],
   onChange,
   disabled,
@@ -956,50 +958,67 @@ const RecurringPresetsEditor = ({
         </div>
       ) : null}
 
-      <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <div className="text-[13px] font-semibold text-[#111827]">Allow Recurring Donations</div>
-            <div className="mt-1 text-[12px] text-[#6B7280]">Let donors set up weekly, monthly, or custom schedules</div>
+      <div className={`grid gap-4 ${allowRecurringDonations ? "md:grid-cols-2 lg:grid-cols-3" : ""}`}>
+        <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-[13px] font-semibold text-[#111827]">Allow Recurring Donations</div>
+              <div className="mt-1 text-[12px] text-[#6B7280]">Let donors set up weekly, monthly, or custom schedules</div>
+            </div>
+            <Toggle enabled={Boolean(allowRecurringDonations)} onChange={disabled ? () => {} : onChangeAllowRecurringDonations} />
           </div>
-          <Toggle enabled={Boolean(allowRecurringDonations)} onChange={disabled ? () => {} : onChangeAllowRecurringDonations} />
+          <FieldError message={allowError} />
         </div>
-        <FieldError message={allowError} />
+
+        {allowRecurringDonations ? (
+          <>
+            <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-[13px] font-semibold text-[#111827]">Let Donors Divide the Total</div>
+                  <div className="mt-1 text-[12px] text-[#6B7280]">
+                    When off, donors can only pay the same amount on each scheduled date.
+                  </div>
+                </div>
+                <Toggle
+                  enabled={Boolean(allowRecurringSplit)}
+                  onChange={disabled ? () => {} : onChangeAllowRecurringSplit}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-[13px] font-semibold text-[#111827]">Enable Flexible Recurring Schedule</div>
+                  <div className="mt-1 text-[12px] text-[#6B7280]">
+                    Let donors change, skip, or edit payments after the schedule is created.
+                  </div>
+                </div>
+                <Toggle
+                  enabled={Boolean(allowFlexibleRecurringSchedule)}
+                  onChange={disabled ? () => {} : onChangeAllowFlexibleRecurringSchedule}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-[13px] font-semibold text-[#111827]">Show Custom Recurring Option</div>
+                  <div className="mt-1 text-[12px] text-[#6B7280]">
+                    Let donors build their own recurring schedule instead of choosing a preset.
+                  </div>
+                </div>
+                <Toggle
+                  enabled={Boolean(allowCustomRecurringSchedule)}
+                  onChange={disabled ? () => {} : onChangeAllowCustomRecurringSchedule}
+                />
+              </div>
+            </div>
+          </>
+        ) : null}
       </div>
-
-      {allowRecurringDonations ? (
-        <>
-          <div className="mt-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-[13px] font-semibold text-[#111827]">Let Donors Divide the Total</div>
-                <div className="mt-1 text-[12px] text-[#6B7280]">
-                  When off, donors can only pay the same amount on each scheduled date.
-                </div>
-              </div>
-              <Toggle
-                enabled={Boolean(allowRecurringSplit)}
-                onChange={disabled ? () => {} : onChangeAllowRecurringSplit}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-solid border-[#E5E7EB] bg-white p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-[13px] font-semibold text-[#111827]">Enable Flexible Recurring Schedule</div>
-                <div className="mt-1 text-[12px] text-[#6B7280]">
-                  Let donors change, skip, or edit payments after the schedule is created.
-                </div>
-              </div>
-              <Toggle
-                enabled={Boolean(allowFlexibleRecurringSchedule)}
-                onChange={disabled ? () => {} : onChangeAllowFlexibleRecurringSchedule}
-              />
-            </div>
-          </div>
-        </>
-      ) : null}
 
       {allowRecurringDonations ? (
         <div className="mt-4 space-y-4">

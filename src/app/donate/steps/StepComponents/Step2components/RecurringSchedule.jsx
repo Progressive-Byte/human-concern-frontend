@@ -147,6 +147,7 @@ const RecurringSchedule = ({
   initialActivePreset,
   defaultPresetId = null,
   initialMakeUpMissedDates = false,
+  showCustomOption = true,
   apiPresets = [],
   causeSplit,
   causeLabelById,
@@ -172,7 +173,16 @@ const RecurringSchedule = ({
     }),
     [apiPresets, minDateStr, todayKey]
   );
-  const [activePreset,   setActivePreset]   = useState(initialActivePreset ?? "custom");
+  const fallbackPresetId = showCustomOption
+    ? "custom"
+    : (defaultPresetId && visibleApiPresets.some((p) => p.id === defaultPresetId)
+        ? defaultPresetId
+        : (visibleApiPresets[0]?.id ?? "custom"));
+  const [activePreset,   setActivePreset]   = useState(
+    initialActivePreset && (initialActivePreset !== "custom" || showCustomOption)
+      ? initialActivePreset
+      : fallbackPresetId
+  );
   const [makeUpMissedDates, setMakeUpMissedDates] = useState(Boolean(initialMakeUpMissedDates));
   const [scheduleType,   setScheduleType]   = useState(initialScheduleType ?? "specific_dates");
   const [selectedDates,  setSelectedDates]  = useState(() =>
@@ -354,10 +364,18 @@ const RecurringSchedule = ({
   };
 
   // A saved selection can point at a preset that is now hidden (expired without make-up).
-  // Fall back to Custom instead of leaving the donor on an invisible preset.
+  // Fall back to the first visible preset, or to Custom when that option is enabled.
   useEffect(() => {
-    if (!activePreset || activePreset === "custom") return;
     if (visibleApiPresets.some((p) => p.id === activePreset)) return;
+    if (showCustomOption && activePreset === "custom") return;
+
+    if (!showCustomOption && visibleApiPresets.length) {
+      handlePreset(visibleApiPresets[0].id);
+      return;
+    }
+
+    if (!showCustomOption) return;
+
     setActivePreset("custom");
     setMakeUpMissedDates(false);
     setScheduleType("specific_dates");
@@ -366,7 +384,7 @@ const RecurringSchedule = ({
     setWeekDays([]);
     notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, "custom");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activePreset, visibleApiPresets]);
+  }, [activePreset, visibleApiPresets, showCustomOption]);
 
   // Pre-select the admin-configured default preset once, unless the donor already has a
   // selection to restore (a stored choice, including "custom", always wins). Reusing
@@ -531,7 +549,10 @@ const RecurringSchedule = ({
       {/* Preset pills */}
       {hasPresets && (
         <div className="flex flex-wrap gap-2">
-          {[...visibleApiPresets, { id: "custom", name: "Custom" }].map((p) => {
+          {[
+            ...visibleApiPresets,
+            ...(showCustomOption ? [{ id: "custom", name: "Custom" }] : []),
+          ].map((p) => {
             const active = activePreset === p.id;
             return (
               <button

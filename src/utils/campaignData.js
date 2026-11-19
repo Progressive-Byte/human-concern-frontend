@@ -48,6 +48,7 @@ export function buildCampaignData(campaign, globalNote = [], causeDropdown = nul
       allowOneTimeDonations:   gd.allowOneTimeDonations   ?? true,
       allowRecurringDonations: gd.allowRecurringDonations ?? true,
       allowRecurringSplit:     gd.allowRecurringSplit     ?? true,
+      allowCustomRecurringSchedule: gd.allowCustomRecurringSchedule ?? true,
       enableTipping:           gd.enableTipping           ?? false,
       minimumDonation:         gd.minimumDonation         ?? 0,
       maximumDonation:         gd.maximumDonation         ?? null,

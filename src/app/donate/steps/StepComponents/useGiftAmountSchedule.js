@@ -26,11 +26,11 @@ export function useGiftAmountSchedule() {
   }, []);
 
   const {
-    suggestedAmounts, suggestedAmountsData, allowRecurring, allowRecurringSplit,
+    suggestedAmounts, suggestedAmountsData, allowRecurring, allowRecurringSplit, allowCustomRecurringSchedule,
     minDonation, maxDonation, recurringPresets, currenciesWithRates, campaignEndDate,
   } = useMemo(() => {
-    const fallbackPreview = { suggestedAmounts: [], suggestedAmountsData: [], allowRecurring: false, allowRecurringSplit: true, minDonation: 0, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
-    const fallbackDefault = { suggestedAmounts: [25, 50, 100], suggestedAmountsData: [], allowRecurring: true, allowRecurringSplit: true, minDonation: 1, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
+    const fallbackPreview = { suggestedAmounts: [], suggestedAmountsData: [], allowRecurring: false, allowRecurringSplit: true, allowCustomRecurringSchedule: true, minDonation: 0, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
+    const fallbackDefault = { suggestedAmounts: [25, 50, 100], suggestedAmountsData: [], allowRecurring: true, allowRecurringSplit: true, allowCustomRecurringSchedule: true, minDonation: 1, maxDonation: undefined, recurringPresets: [], currenciesWithRates: [] };
     try {
       const meta       = JSON.parse(sessionStorage.getItem("campaignData") || "{}");
       const goalsDates = meta.goalsDates ?? {};
@@ -49,6 +49,7 @@ export function useGiftAmountSchedule() {
         suggestedAmountsData: Array.isArray(meta.suggestedAmountsData) ? meta.suggestedAmountsData : [],
         allowRecurring:      goalsDates.allowRecurringDonations ?? true,
         allowRecurringSplit: goalsDates.allowRecurringSplit     ?? true,
+        allowCustomRecurringSchedule: goalsDates.allowCustomRecurringSchedule ?? true,
         minDonation:         goalsDates.minimumDonation         ?? (isPreview ? 0 : 1),
         maxDonation:         goalsDates.maximumDonation         ?? undefined,
         recurringPresets:    (goalsDates.recurringPresets ?? [])
@@ -293,6 +294,7 @@ export function useGiftAmountSchedule() {
     isRecurring,
     allowRecurring,
     allowRecurringSplit,
+    allowCustomRecurringSchedule,
     sym,
     currencyOptions,
     suggestedAmounts,

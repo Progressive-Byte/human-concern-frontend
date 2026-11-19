@@ -77,6 +77,7 @@ const Step1Gift = ({ campaignSlug }) => {
     isRecurring,
     allowRecurring,
     allowRecurringSplit,
+    allowCustomRecurringSchedule,
     sym,
     currencyOptions,
     suggestedAmounts,
@@ -530,6 +531,7 @@ const Step1Gift = ({ campaignSlug }) => {
                 apiPresets={recurringPresets}
                 causeSplit={causeSplit}
                 causeLabelById={causeLabelById}
+                showCustomOption={allowCustomRecurringSchedule}
                 campaignEndDate={isEditMode ? null : campaignEndDate}
                 onChange={handleScheduleChange}
               />

@@ -320,6 +320,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
   const [allowRecurringDonations, setAllowRecurringDonations] = useState(false);
   const [allowRecurringSplit, setAllowRecurringSplit] = useState(true);
   const [allowFlexibleRecurringSchedule, setAllowFlexibleRecurringSchedule] = useState(true);
+  const [allowCustomRecurringSchedule, setAllowCustomRecurringSchedule] = useState(true);
   const [recurringPresets, setRecurringPresets] = useState([]);
   const [enableTipping, setEnableTipping] = useState(false);
   const [allowAnonymousDonations, setAllowAnonymousDonations] = useState(false);
@@ -344,6 +345,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       allowRecurringDonations,
       allowRecurringSplit,
       allowFlexibleRecurringSchedule,
+      allowCustomRecurringSchedule,
       enableTipping,
       allowAnonymousDonations,
       showGlobalNote,
@@ -396,6 +398,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
         setAllowRecurringSplit(d?.allowRecurringSplit === undefined ? true : Boolean(d?.allowRecurringSplit));
         setAllowFlexibleRecurringSchedule(d?.allowFlexibleRecurringSchedule === undefined ? true : Boolean(d?.allowFlexibleRecurringSchedule));
+        setAllowCustomRecurringSchedule(d?.allowCustomRecurringSchedule === undefined ? true : Boolean(d?.allowCustomRecurringSchedule));
         setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets));
         setEnableTipping(Boolean(d?.enableTipping));
         setAllowAnonymousDonations(Boolean(d?.allowAnonymousDonations));
@@ -760,6 +763,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
       allowRecurringDonations: Boolean(recurringEnabled),
       allowRecurringSplit: Boolean(allowRecurringSplit),
       allowFlexibleRecurringSchedule: Boolean(allowFlexibleRecurringSchedule),
+      allowCustomRecurringSchedule: Boolean(allowCustomRecurringSchedule),
       recurringPresets: recurringEnabled ? normalizedPresets : undefined,
       enableTipping: Boolean(enableTipping),
       allowAnonymousDonations: Boolean(allowAnonymousDonations),
@@ -838,6 +842,7 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           setAllowRecurringDonations(Boolean(d?.allowRecurringDonations));
           setAllowRecurringSplit(d?.allowRecurringSplit === undefined ? true : Boolean(d?.allowRecurringSplit));
           setAllowFlexibleRecurringSchedule(d?.allowFlexibleRecurringSchedule === undefined ? true : Boolean(d?.allowFlexibleRecurringSchedule));
+          setAllowCustomRecurringSchedule(d?.allowCustomRecurringSchedule === undefined ? true : Boolean(d?.allowCustomRecurringSchedule));
           setRecurringPresets(normalizeRecurringPresetsState(d?.recurringPresets, recurringPresets));
           setPaymentMethods(filterPaymentMethodsToOptions(d?.paymentMethods, paymentMethodOptions));
         } catch {}
@@ -1017,10 +1022,10 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
           </div>
         </div>
 
-        <div className="mt-4 divide-y divide-[#F3F4F6] overflow-hidden rounded-xl border border-[#E5E7EB] bg-white">
-          <div className="px-3.5 py-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-xl border border-[#E5E7EB] bg-white px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <div className="text-[13px] font-semibold text-[#111827]">Allow One-Time Donations</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Let donors make a single payment</div>
               </div>
@@ -1029,9 +1034,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             <FieldError message={shownFieldErrors.allowOneTimeDonations} />
           </div>
 
-          <div className="px-3.5 py-3">
+          <div className="rounded-xl border border-[#E5E7EB] bg-white px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <div className="text-[13px] font-semibold text-[#111827]">Enable Tipping</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Allow donors to add a platform tip</div>
               </div>
@@ -1039,9 +1044,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="px-3.5 py-3">
+          <div className="rounded-xl border border-[#E5E7EB] bg-white px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <div className="text-[13px] font-semibold text-[#111827]">Allow Anonymous Donations</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Let donors hide their name on the public donation feed</div>
               </div>
@@ -1049,9 +1054,9 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
             </div>
           </div>
 
-          <div className="px-3.5 py-3">
+          <div className="rounded-xl border border-[#E5E7EB] bg-white px-3.5 py-3">
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <div className="text-[13px] font-semibold text-[#111827]">Show Global Notes</div>
                 <div className="mt-1 text-[12px] text-[#6B7280]">Display the global custom notes configured in settings</div>
               </div>
@@ -1078,6 +1083,8 @@ const WizardStepGoalsDates = ({ campaignId, formId, onExit, onSaved }) => {
         onChangeAllowRecurringSplit={setAllowRecurringSplit}
         allowFlexibleRecurringSchedule={allowFlexibleRecurringSchedule}
         onChangeAllowFlexibleRecurringSchedule={setAllowFlexibleRecurringSchedule}
+        allowCustomRecurringSchedule={allowCustomRecurringSchedule}
+        onChangeAllowCustomRecurringSchedule={setAllowCustomRecurringSchedule}
         value={recurringPresets}
         onChange={setRecurringPresets}
         disabled={disabled}
