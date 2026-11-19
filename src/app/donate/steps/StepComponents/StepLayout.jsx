@@ -108,13 +108,13 @@ const StepLayout = ({
                 Your payment is secured with 256-bit SSL encryption
               </span>
             </div>
-            <div className="hidden lg:block mt-5">{navRow}</div>
+            <div className="hidden min-[1440px]:block mt-5">{navRow}</div>
           </div>
 
           {/* Desktop: preview floats to the right without shifting the form, and
               stays pinned in view (within the form's height) while scrolling. */}
           {showPreview && (
-            <div className="hidden lg:block absolute inset-y-0 left-[calc(100%+20px)] w-[272px]">
+            <div className="hidden min-[1440px]:block absolute inset-y-0 left-[calc(100%+20px)] w-[272px]">
               <div className="sticky top-[110px]">
                 <DonationPreview currentStep={step} />
               </div>
@@ -124,7 +124,7 @@ const StepLayout = ({
 
         {/* Mobile: step count and the summary trigger share one row above the primary action. */}
         {showPreview && (
-          <div className="lg:hidden mt-5 flex items-center justify-between gap-3">
+          <div className="min-[1440px]:hidden mt-5 flex items-center justify-between gap-3">
             <span className="whitespace-nowrap text-[12px] text-[#AEAEAE]">
               Step {displayStep} of {totalSteps}
             </span>
@@ -148,10 +148,10 @@ const StepLayout = ({
         )}
 
         {/* Mobile: the next/back buttons come after the summary button. */}
-        <div className="lg:hidden mt-3">{navRow}</div>
+        <div className="min-[1440px]:hidden mt-3">{navRow}</div>
 
         {showPreview && summaryOpen ? (
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 z-50 min-[1440px]:hidden">
             <button
               type="button"
               aria-label="Close donation summary"
@@ -181,7 +181,7 @@ const StepLayout = ({
           </div>
         ) : null}
 
-        <p className="mt-4 hidden px-2 text-center text-[12px] text-[#AEAEAE] lg:block">
+        <p className="mt-4 hidden px-2 text-center text-[12px] text-[#AEAEAE] min-[1440px]:block">
           Step {displayStep} of {totalSteps} — Your information is secure and encrypted.
         </p>
       </div>
