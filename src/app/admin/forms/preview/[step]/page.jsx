@@ -112,6 +112,14 @@ const STEPS = [Step1Gift, Step2Details, Step3Payment];
 const CAMPAIGN_BASE = "admin/forms/preview";
 const STORAGE_FORM_KEY = "hc_admin_preview_form_id";
 
+function PreviewFrame({ children }) {
+  return (
+    <div className="fixed inset-0 z-[300] overflow-y-auto overscroll-contain bg-white">
+      {children}
+    </div>
+  );
+}
+
 const AdminFormPreviewStepPage = () => {
   const { step } = useParams();
   const searchParams = useSearchParams();
@@ -227,24 +235,36 @@ const AdminFormPreviewStepPage = () => {
 
   if (!StepComponent) {
     return (
-      <div className="p-4 text-sm text-[#6B7280]">
-        Invalid step.
-      </div>
+      <PreviewFrame>
+        <div className="p-4 text-sm text-[#6B7280]">
+          Invalid step.
+        </div>
+      </PreviewFrame>
     );
   }
 
   if (loading) {
-    return <div className="p-4 text-sm text-[#6B7280]">Loading preview…</div>;
+    return (
+      <PreviewFrame>
+        <div className="p-4 text-sm text-[#6B7280]">Loading preview…</div>
+      </PreviewFrame>
+    );
   }
 
   if (error) {
     return (
-      <div className="p-4 text-sm text-red-600">
-        {error}
-      </div>
+      <PreviewFrame>
+        <div className="p-4 text-sm text-red-600">
+          {error}
+        </div>
+      </PreviewFrame>
     );
   }
 
-  return index === 0 ? <StepComponent campaignSlug={CAMPAIGN_BASE} /> : <StepComponent />;
+  return (
+    <PreviewFrame>
+      {index === 0 ? <StepComponent campaignSlug={CAMPAIGN_BASE} /> : <StepComponent />}
+    </PreviewFrame>
+  );
 }
 export default AdminFormPreviewStepPage;

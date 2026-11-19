@@ -61,6 +61,18 @@ export function validateSchedule({ scheduleType, scheduleConfig, campaignEndDate
   } else {
     if (!cfg.startDate) return "Please set a start date for your schedule.";
     if (!cfg.endDate)   return "Please set an end date for your schedule.";
+
+    if (String(cfg.frequency || "daily") === "weekly") {
+      const startKey = toDayKey(cfg.startDate);
+      const endKey = toDayKey(cfg.endDate);
+      const days = Math.floor(
+        (new Date(`${endKey}T00:00:00.000Z`) - new Date(`${startKey}T00:00:00.000Z`)) / 86400000
+      ) + 1;
+      if (days > 0 && days < 7) {
+        return "Weekly recurring needs at least 7 days. Extend the end date.";
+      }
+    }
+
     dueDates = generateDatesInRange(
       toDayKey(cfg.startDate),
       toDayKey(cfg.endDate),
