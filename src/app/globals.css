@@ -638,13 +638,16 @@
   }
 
 
+  /*
+    Do not use transform (or will-change: transform) here. These cards wrap tables
+    and row actions, and a transformed ancestor turns every fixed-position modal
+    inside them into an absolutely-positioned modal inside the card.
+  */
   .hc-hover-lift {
-    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
-    will-change: transform;
+    transition: box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
   }
 
   .hc-hover-lift:hover {
-    transform: translateY(-2px);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
     border-color: #d1d5db;
   }
@@ -656,7 +659,7 @@
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
     }
   }
 
