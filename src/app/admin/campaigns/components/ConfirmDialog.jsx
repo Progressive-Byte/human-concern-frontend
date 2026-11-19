@@ -1,5 +1,7 @@
 "use client";
 
+import { createPortal } from "react-dom";
+
 const ConfirmDialog = ({
   open,
   title = "Confirm",
@@ -10,9 +12,9 @@ const ConfirmDialog = ({
   onConfirm,
   onClose,
 }) => {
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center px-4">
       <button
         type="button"
@@ -43,7 +45,8 @@ const ConfirmDialog = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 export default ConfirmDialog;

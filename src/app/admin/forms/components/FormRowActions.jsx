@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import RowActionsPanel from "@/app/admin/components/RowActionsPanel";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
@@ -251,7 +252,7 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
         onConfirm={() => runAction(confirmAction)}
       />
 
-      {embedOpen ? (
+      {embedOpen && typeof document !== "undefined" ? createPortal(
         <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
           <button
             type="button"
@@ -292,7 +293,8 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </div>
   );
