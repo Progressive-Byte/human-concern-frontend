@@ -5,13 +5,13 @@
 export const home = 'https://human-concern-frontend.vercel.app';
 
 // export const siteUrl = 'http://localhost:3001';
-export const siteUrl = 'https://donation.api.progressivebyte.com';
+export const siteUrl = 'https://donation-api.progressivebyte.com';
 
 // The HCUSA public site, where the donation popup is drawn. Local dev runs on port 3011.
 // export const hcusaSiteUrl = 'http://localhost:3011';
 export const hcusaSiteUrl = 'https://hcusa.progressivebyte.com';
 
-export const apiBase = `https://donation.api.progressivebyte.com/api/v1/`;
+export const apiBase = `https://donation-api.progressivebyte.com/api/v1/`;
 
 // Public-website language: remembered in a cookie (no locale-prefixed URLs).
 export const LOCALE_COOKIE = "NEXT_LOCALE";

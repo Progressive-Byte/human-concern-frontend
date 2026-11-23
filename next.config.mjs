@@ -23,12 +23,12 @@ const nextConfig = (phase) => ({
       {
         source: "/api/v1/:path*",
         // destination: "http://localhost:3001/api/v1/:path*",
-        destination: "https://donation.api.progressivebyte.com/api/v1/:path*",
+        destination: "https://donation-api.progressivebyte.com/api/v1/:path*",
       },
       {
         source: "/uploads/:path*",
         // destination: "http://localhost:3001/uploads/:path*",
-        destination: "https://donation.api.progressivebyte.com/uploads/:path*",
+        destination: "https://donation-api.progressivebyte.com/uploads/:path*",
       },
     ];
   },
@@ -45,13 +45,13 @@ const nextConfig = (phase) => ({
       },
       {
         protocol: "https",
-        hostname: "donation.api.progressivebyte.com",
+        hostname: "donation-api.progressivebyte.com",
       },
       // Where the uploads are served from now. Without this entry Next refuses to optimise the
       // card images, and they come out blank even though the address itself works.
       {
         protocol: "https",
-        hostname: "donation.api.progressivebyte.com",
+        hostname: "donation-api.progressivebyte.com",
       },
     ],
   },
