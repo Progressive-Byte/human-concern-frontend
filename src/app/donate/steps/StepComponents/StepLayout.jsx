@@ -123,28 +123,23 @@ const StepLayout = ({
           )}
         </div>
 
-        {/* Mobile: step count and the summary trigger share one row above the primary action. */}
+        {/* Mobile: the running total leads this row in the brand red, with the summary trigger
+            beside it. The "Step 1 of 3" text was removed — the progress dots already show the
+            step, and the figure the donor cares about is what they are about to give. */}
         {showPreview && (
           <div className="min-[1440px]:hidden mt-5 flex items-center justify-between gap-3">
-            <span className="whitespace-nowrap text-[12px] text-[#AEAEAE]">
-              Step {displayStep} of {totalSteps}
+            <span className="min-w-0 truncate text-[24px] font-bold leading-none text-[#EA3335]">
+              {totalAmount > 0 ? `${sym}${totalAmount.toFixed(2)}` : ""}
             </span>
-            <div className="flex min-w-0 items-center gap-3">
-              {totalAmount > 0 ? (
-                <span className="whitespace-nowrap text-[12px] text-[#737373]">
-                  Total <span className="font-semibold text-[#383838]">{sym}{totalAmount.toFixed(2)}</span>
-                </span>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => setSummaryOpen(true)}
-                aria-haspopup="dialog"
-                className="inline-flex shrink-0 cursor-pointer items-center gap-1 text-[12px] font-semibold text-[#737373] transition-colors hover:text-[#EA3335]"
-              >
-                View summary
-                <span aria-hidden="true">›</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setSummaryOpen(true)}
+              aria-haspopup="dialog"
+              className="inline-flex shrink-0 cursor-pointer items-center gap-1 text-[12px] font-semibold text-[#737373] transition-colors hover:text-[#EA3335]"
+            >
+              View summary
+              <span aria-hidden="true">›</span>
+            </button>
           </div>
         )}
 

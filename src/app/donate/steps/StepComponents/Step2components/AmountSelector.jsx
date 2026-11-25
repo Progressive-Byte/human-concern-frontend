@@ -249,7 +249,11 @@ const AmountSelector = ({
           </button>
         </div>
         {!locked && (
-          <div className="grid grid-cols-2 gap-3">
+          /*
+            Phone: one amount per row, full width — amount on the left, the admin's description
+            on the right. Desktop keeps the original two-up grid of centred tiles.
+          */
+          <div className="flex flex-col gap-2 sm:grid sm:grid-cols-2 sm:gap-3">
             {suggestedAmounts.map((base) => {
               const displayAmt = toPresetAmount(base);
               const active     = selectedBase === base && !customAmount;
@@ -259,17 +263,20 @@ const AmountSelector = ({
                   key={base}
                   type="button"
                   onClick={() => handleTileClick(base)}
-                  className={`flex flex-col items-center justify-center rounded-2xl px-3 py-4 border transition-all duration-200 ${
+                  title={desc || undefined}
+                  className={`flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 border text-left transition-all duration-200 sm:flex-col sm:justify-center sm:px-3 sm:py-4 sm:text-center ${
                     active
                       ? "border-[#EA3335] bg-white cursor-pointer"
                       : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40 cursor-pointer"
                   }`}
                 >
-                  <span className={`text-[19px] font-bold leading-none whitespace-nowrap ${active ? "text-[#EA3335]" : "text-[#383838]"}`}>
+                  <span className={`shrink-0 text-[17px] sm:text-[19px] font-bold leading-none whitespace-nowrap tabular-nums ${active ? "text-[#EA3335]" : "text-[#383838]"}`}>
                     {sym}{formatDisplay(displayAmt)}
                   </span>
                   {desc && (
-                    <span className="mt-2 text-center text-[12px] leading-snug text-[#737373]">{desc}</span>
+                    <span className="min-w-0 text-right text-[12px] leading-snug text-[#737373] sm:mt-2 sm:text-center">
+                      {desc}
+                    </span>
                   )}
                 </button>
               );
