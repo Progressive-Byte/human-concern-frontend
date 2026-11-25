@@ -39,6 +39,7 @@ export async function generateMetadata() {
       icon: [{ url: icon }],
       shortcut: icon,
     },
+    robots: { index: false, follow: false, nocache: true },
   };
 }
 
