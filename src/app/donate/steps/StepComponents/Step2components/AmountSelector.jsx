@@ -30,6 +30,7 @@ const AmountSelector = ({
   onAmountChange,
   overrideTotal,
   feeSlot = null,              // platform fee slider, shown with the amount controls
+  startUnlocked = false,       // open=1 links: nothing pre-selected, donor must pick
 }) => {
   // Build rate map from campaign data
   const rateMap = useMemo(() => {
@@ -65,8 +66,10 @@ const AmountSelector = ({
       ? adminDefaultBase
       : suggestedAmounts[0] ?? null;
 
-  // On mount only: find which base preset matches the initial amount (reverse-convert)
+  // On mount only: find which base preset matches the initial amount (reverse-convert).
+  // An open=1 link has no amount at all, so nothing is selected and no fallback is shown.
   const { initialBase, isCustomInit } = useMemo(() => {
+    if (startUnlocked && !Number(initialAmount)) return { initialBase: null, isCustomInit: false };
     const r = rateMap[currency] ?? 1;
     const base = initialAmount
       ? suggestedAmounts.find(
@@ -77,7 +80,9 @@ const AmountSelector = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [selectedBase, setSelectedBase]           = useState(initialBase ?? suggestedAmounts[0] ?? null);
+  const [selectedBase, setSelectedBase]           = useState(
+    startUnlocked && !initialBase ? null : (initialBase ?? suggestedAmounts[0] ?? null)
+  );
   const [customAmount, setCustomAmount]           = useState(isCustomInit ? String(Math.round(Number(initialAmount) * 100) / 100) : "");
   const [customAmountError, setCustomAmountError] = useState("");
 
@@ -111,7 +116,8 @@ const AmountSelector = ({
   }, [initialAmount]);
   // Amount starts locked to the pre-selected value; the donor must explicitly
   // click "Change amount" to modify it, mirroring Step1Info's field lock pattern.
-  const [locked, setLocked] = useState(true);
+  // An open=1 link starts unlocked with nothing picked, so the donor must choose.
+  const [locked, setLocked] = useState(!startUnlocked);
 
   const occ = Math.max(1, Number(occurrences) || 1);
   // "Pay this amount each date" holds a per-payment value; "Divide total" holds the total.
@@ -218,7 +224,7 @@ const AmountSelector = ({
             // Locked: the chosen amount sits inline here — compact, not a big dead tile.
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
               <span className="text-[22px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
-                {sym}{formatDisplay(effectiveAmount)}
+                {effectiveAmount > 0 ? `${sym}${formatDisplay(effectiveAmount)}` : "Choose an amount"}
               </span>
               {currentDescription && (
                 <span className="text-[12px] leading-snug text-[#737373]">{currentDescription}</span>

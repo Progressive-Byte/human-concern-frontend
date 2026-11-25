@@ -104,7 +104,14 @@ const Step1Gift = ({ campaignSlug }) => {
     defaultPerDate,
     makeUpMissedDates,
     causeLabelById,
-  } = useGiftAmountSchedule({ urlAmount: searchParams.get("amount") });
+    linkPreset,
+    forceOpenAmount,
+  } = useGiftAmountSchedule({
+    urlAmount: searchParams.get("amount"),
+    urlPaymentType: searchParams.get("paymentType"),
+    urlPreset: searchParams.get("preset"),
+    urlOpen: searchParams.get("open"),
+  });
 
   const {
     campaignAddOns,
@@ -383,6 +390,7 @@ const Step1Gift = ({ campaignSlug }) => {
             initialAmount={initAmount}
             onAmountChange={handleAmountChange}
             overrideTotal={perDateTotal}
+            startUnlocked={forceOpenAmount}
             feeSlot={
               enableTipping ? (
                 <TippingSection
@@ -526,6 +534,7 @@ const Step1Gift = ({ campaignSlug }) => {
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}
+                presetToApply={linkPreset}
                 initialMakeUpMissedDates={data.makeUpMissedDates}
                 defaultPresetId={defaultPresetId}
                 apiPresets={recurringPresets}

@@ -15,10 +15,21 @@ const CURRENCY_SYMBOLS = {
 // Amount, currency and schedule state for the "Your gift" step. Lifted out of the
 // screen so Step1Gift stays readable. The old Step 2 logic is kept the same.
 //
-// urlAmount is the ?amount= the campaign page's Donate button links with. It is passed in
-// rather than read from window.location, because on a client-side navigation window.location
-// still holds the previous URL when this provider mounts.
-export function useGiftAmountSchedule({ urlAmount: urlAmountParam } = {}) {
+// The three link params come from the admin's "Copy Form URL" dialog, so an admin can
+// share a link that opens on a chosen amount, payment type or recurring preset:
+//   amount       the amount to pre-select
+//   paymentType  "one-time" | "recurring"
+//   preset       id of one of this form's recurring presets
+//   open=1       no amount pre-selected, selector unlocked, donor must choose
+//
+// They are passed in, not read from window.location, because on a client-side
+// navigation window.location still holds the previous URL when this hook first runs.
+export function useGiftAmountSchedule({
+  urlAmount,
+  urlPaymentType,
+  urlPreset,
+  urlOpen,
+} = {}) {
   const pathname = usePathname();
   const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data, update } = useDonation();
@@ -75,15 +86,34 @@ export function useGiftAmountSchedule({ urlAmount: urlAmountParam } = {}) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowRecurring]);
 
-  const paymentType = data.paymentType ?? "one-time";
+  /*
+    A link may carry paymentType/preset. They only count when the form actually allows
+    recurring donations — an admin mistake must not block a donor, so we fall back to
+    the donor's own choice instead of erroring.
+  */
+  const linkPaymentType = String(urlPaymentType || "").trim().toLowerCase();
+  const wantsRecurringLink = allowRecurring && linkPaymentType === "recurring";
+
+  /*
+    The payment type is local state, seeded from the link so it is right on the very first
+    render. Everything below (occurrence counts, per-date splits) depends on it, so applying
+    the link in an effect afterwards would build the schedule for the wrong payment type.
+    A donor's own click always wins after that.
+  */
+  const [paymentType, setPaymentType] = useState(() => {
+    if (wantsRecurringLink) return "recurring";
+    if (linkPaymentType === "one-time") return "one-time";
+    return data.paymentType ?? "one-time";
+  });
   const isRecurring = paymentType === "recurring";
 
   /*
-    The ?amount= the donor picked on the campaign page. It outranks both the remembered
-    donorAmount and the admin's default preset: it is an explicit choice made for this visit.
+    Link params outrank everything the session remembers, because they are the admin's
+    explicit choice for this link. `open=1` clears the amount so nothing looks picked.
   */
-  const _linkAmt = Number(urlAmountParam);
+  const _linkAmt = Number(urlAmount);
   const _hasLinkAmt = Number.isFinite(_linkAmt) && _linkAmt > 0;
+  const _forceOpen = String(urlOpen ?? "") === "1" || String(urlOpen ?? "").toLowerCase() === "true";
 
   // donorAmount = the UI-facing total the user chose (restored on back-navigation).
   // amountTier  = the derived per-date amount (e.g. $50÷4 = $12.5) — NOT suitable
@@ -94,7 +124,9 @@ export function useGiftAmountSchedule({ urlAmount: urlAmountParam } = {}) {
   const _fallbackAmt = Number.isFinite(_adminDefaultAmt) && _adminDefaultAmt > 0
     ? _adminDefaultAmt
     : suggestedAmounts[0] ?? 25;
-  const initAmount  = _hasLinkAmt ? _linkAmt : (_donorAmt ?? _urlAmt ?? _fallbackAmt);
+
+  // open=1 means "let the donor choose": no amount at all, and the selector starts unlocked.
+  const initAmount  = _forceOpen ? 0 : (_hasLinkAmt ? _linkAmt : (_donorAmt ?? _urlAmt ?? _fallbackAmt));
   const sym         = CURRENCY_SYMBOLS[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
   const causeSplit = data.causeSplit ?? {};
@@ -219,9 +251,11 @@ export function useGiftAmountSchedule({ urlAmount: urlAmountParam } = {}) {
     return out;
   }, [resolvedAmountCents]);
 
-  // Sync local state to context in real-time
+  // Sync local state to context in real-time. paymentType is included because Step 3 and the
+  // summary read it from the context, and the link may have seeded it without a click.
   useEffect(() => {
     update({
+      paymentType,
       donorAmount:      effectiveAmount,
       amountTier:       defaultPerDate,
       splitMode:        isRecurring ? splitMode : undefined,
@@ -238,7 +272,7 @@ export function useGiftAmountSchedule({ urlAmount: urlAmountParam } = {}) {
       resolvedScheduleAmounts: isRecurring ? resolvedAmountDollars : undefined,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveAmount, defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset, makeUpMissedDates]);
+  }, [paymentType, effectiveAmount, defaultPerDate, isRecurring, splitMode, scheduleState, occurrences, perDateTotal, activePreset, makeUpMissedDates]);
 
   const handleAmountChange = (amount, hasError) => {
     setEffectiveAmount(amount);
@@ -276,6 +310,7 @@ export function useGiftAmountSchedule({ urlAmount: urlAmountParam } = {}) {
   };
 
   const handlePaymentTypeChange = (value) => {
+    setPaymentType(value);
     update({ paymentType: value });
   };
 
@@ -306,6 +341,9 @@ export function useGiftAmountSchedule({ urlAmount: urlAmountParam } = {}) {
     allowRecurring,
     allowRecurringSplit,
     allowCustomRecurringSchedule,
+    // Link-driven value Step1Gift passes to the schedule picker.
+    linkPreset: String(urlPreset || "").trim(),
+    forceOpenAmount: _forceOpen,
     sym,
     currencyOptions,
     suggestedAmounts,

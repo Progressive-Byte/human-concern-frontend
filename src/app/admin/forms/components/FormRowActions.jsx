@@ -5,9 +5,10 @@ import { createPortal } from "react-dom";
 import RowActionsPanel from "@/app/admin/components/RowActionsPanel";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/app/admin/campaigns/components/ConfirmDialog";
+import FormUrlDialog from "./FormUrlDialog";
 import { useToast } from "@/app/admin/campaigns/components/ToastProvider";
 import { archiveAdminForm, publishAdminForm, restoreAdminForm, unpublishAdminForm } from "@/services/admin";
-import { hcusaSiteUrl, home } from "@/utils/constants";
+import { hcusaSiteUrl } from "@/utils/constants";
 
 function buildMenu(status, formKind) {
   const s = String(status || "").toLowerCase();
@@ -44,6 +45,7 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
   const [open, setOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState("");
   const [embedOpen, setEmbedOpen] = useState(false);
+  const [urlDialogOpen, setUrlDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const id = item?.id || item?.formId || item?._id;
@@ -55,7 +57,8 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
   /**
    * Public link for this specific donation form.
    *
-   * A complex form lives on this platform's own site: {home}/{slug}/1.
+   * A complex form lives on this platform's own site: {home}/{slug}/1 — and opens the
+   * link-options dialog, so an admin can pin the amount, the payment type or a recurring preset.
    * A simple form is drawn by the HCUSA site, on its standalone page: {hcusaSiteUrl}/donate/form.
    * `siteUrl` is the API and would be wrong for both.
    */
@@ -66,10 +69,13 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
       return;
     }
 
-    const url =
-      formKind === "simple"
-        ? `${hcusaSiteUrl}/donate/form?slug=${encodeURIComponent(slug)}`
-        : `${home}/${encodeURIComponent(slug)}/1`;
+    // Only a complex form understands the link options.
+    if (formKind !== "simple") {
+      setUrlDialogOpen(true);
+      return;
+    }
+
+    const url = `${hcusaSiteUrl}/donate/form?slug=${encodeURIComponent(slug)}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success("Form URL copied");
@@ -250,6 +256,12 @@ const FormRowActions = ({ item, onRefresh, campaignIdFilter = "" }) => {
         loading={loading}
         onClose={() => setConfirmAction("")}
         onConfirm={() => runAction(confirmAction)}
+      />
+
+      <FormUrlDialog
+        open={urlDialogOpen}
+        item={item}
+        onClose={() => setUrlDialogOpen(false)}
       />
 
       {embedOpen && typeof document !== "undefined" ? createPortal(
