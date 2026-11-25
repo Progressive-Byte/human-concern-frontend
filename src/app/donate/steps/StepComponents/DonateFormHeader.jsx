@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
 import { computeDonationProgress } from "@/utils/donationFormProgress";
+import { CircleCheckIcon } from "@/components/common/SvgIcon";
 
 // The form config is written to sessionStorage (by CampaignConfigLoader and the admin
 // preview) before the steps render. Reading it through useSyncExternalStore lets the
@@ -38,13 +39,27 @@ const DonateFormHeader = ({ maxWidth = "max-w-[700px]" }) => {
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-[#EBEBEB] bg-white/95 backdrop-blur">
       <div className={`mx-auto ${maxWidth} px-3 sm:px-4 py-2 sm:py-3`}>
-        <div className="mb-1.5 flex items-center justify-between gap-3 sm:mb-2">
-          <p className="truncate text-[15px] font-bold text-[#383838] sm:text-[20px]">
-            {formName || "Donation"}
-          </p>
-          <span className="shrink-0 text-[11px] font-semibold text-[#737373] sm:text-[12px]">
-            {percent}% complete
-          </span>
+        <div className="mb-1.5 flex items-start justify-between gap-3 sm:mb-2">
+          <div className="min-w-0">
+            <p className="truncate text-[15px] font-bold text-[#383838] sm:text-[20px]">
+              {formName || "Donation"}
+            </p>
+            {/* The completion figure sits under the name, where it reads as a subtitle rather
+                than as an unrelated chip pinned to the right edge. */}
+            <p className="mt-0.5 text-[11px] font-semibold text-[#737373] sm:text-[12px]">
+              {percent}% complete
+            </p>
+          </div>
+
+          {/* Zakat eligibility lives here now, on the row the percentage used to occupy. */}
+          {data.zakatEligible && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#38383833] bg-[#F7FFED] px-2 py-1 sm:px-2.5">
+              <span className="shrink-0 text-[13px] leading-none">{CircleCheckIcon}</span>
+              <span className="whitespace-nowrap text-[10px] font-medium text-[#383838] sm:text-[11px]">
+                Zakat Eligible
+              </span>
+            </span>
+          )}
         </div>
         <div
           className="h-[4px] w-full overflow-hidden rounded-full bg-[#E5E5E5] sm:h-[6px]"

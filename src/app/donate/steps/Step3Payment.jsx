@@ -342,8 +342,6 @@ const Step3Payment = () => {
   return (
     <StepLayout
       step={3}
-      title="Payment"
-      subtitle="Review your donation and choose how to pay"
       onNext={handleStartPayment}
       onPrev={() => handlePrev(2)}
       prevLabel="Back"

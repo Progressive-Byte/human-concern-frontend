@@ -8,7 +8,7 @@ import StepProgress from "./StepProgress";
 import DonateFormHeader from "./DonateFormHeader";
 import DonationPreview from "./DonationPreview";
 import { getCurrencySymbol } from "@/utils/money";
-import { ArrowNextIcon, ArrowPrevIcon, CircleCheckIcon, NoticeIcon } from "@/components/common/SvgIcon";
+import { ArrowNextIcon, ArrowPrevIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
 const STEP_LABELS = [
   "Your gift",
@@ -18,8 +18,6 @@ const STEP_LABELS = [
 
 const StepLayout = ({
   step,
-  title,
-  subtitle = "Share some necessary personal information for security",
   children,
   onNext,
   onPrev,
@@ -97,14 +95,12 @@ const StepLayout = ({
         {/* relative so the absolute preview is anchored here */}
         <div className="relative">
           <div className="relative bg-white rounded-2xl p-5 sm:p-6 md:p-8">
-            {data.zakatEligible && (
-              <div className="absolute top-3 right-3 sm:top-5 sm:right-5 md:top-7 md:right-7 flex items-center gap-1 bg-[#F7FFED] border border-[#38383833] rounded-full px-2 sm:px-2.5 py-1 whitespace-nowrap">
-                <span className="text-[13px] leading-none shrink-0">{CircleCheckIcon}</span>
-                <span className="text-[10px] sm:text-[11px] font-medium text-[#383838]">Zakat Eligible</span>
-              </div>
-            )}
-            <h2 className="text-xl sm:text-[24px] font-bold text-[#383838] mb-1 pr-24 sm:pr-0 leading-tight">{title}</h2>
-            <p className="text-sm text-[#8C8C8C] font-normal mb-5 sm:mb-6">{subtitle}</p>
+            {/*
+              The step title, its subtitle and the Zakat badge used to repeat here what the sticky
+              header already says — the step is named by the progress dots and the form name is at
+              the top. The badge now lives in the header. `title`/`subtitle` are kept as props so
+              callers stay explicit about which step they are, and are used for the desktop label.
+            */}
             {children}
 
             <div className="mt-6 sm:mt-8 flex items-start sm:items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-3 sm:px-4 py-2.5 sm:py-3">

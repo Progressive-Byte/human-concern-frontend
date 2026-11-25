@@ -352,8 +352,6 @@ const Step1Gift = ({ campaignSlug }) => {
   return (
     <StepLayout
       step={1}
-      title="Your gift"
-      subtitle="Choose your cause, how often you give, the amount, and any extra gifts"
       onNext={validateAndNext}
       nextLabel="Continue"
     >
@@ -413,46 +411,6 @@ const Step1Gift = ({ campaignSlug }) => {
           />
         </div>
 
-        <CauseSelector
-          causes={causes}
-          selectedCauseIds={selectedCauseIds}
-          toggleCause={toggleCause}
-          causeSplit={causeSplit}
-          totalAmount={effectiveAmount}
-          sym={sym}
-          onSplitChange={handleSplitChange}
-          onResetSplit={handleResetSplit}
-        />
-
-        {causeDropdown?.options?.length ? (
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[13px] font-semibold text-[#383838]">
-              {causeDropdown.label}
-              {causeDropdown.required && <span className="text-[#EA3335] ml-0.5">*</span>}
-            </label>
-            <select
-              value={causeDropdownValue}
-              onChange={(e) => {
-                const next = e.target.value;
-                setCauseDropdownValue(next);
-                update({ causeDropdownValue: next });
-                if (error) setError("");
-              }}
-              className="w-full rounded-xl border border-[#E5E5E5] bg-white px-3 py-2.5 text-[14px] text-[#383838] outline-none transition focus:border-[#EA3335] cursor-pointer"
-            >
-              <option value="">Select an option</option>
-              {causeDropdown.options.map((option, index) => (
-                <option key={option.id || index} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            {causeDropdown.helpText ? (
-              <p className="text-[12px] text-[#737373]">{causeDropdown.helpText}</p>
-            ) : null}
-          </div>
-        ) : null}
-
         {allowRecurring && (
           <div className="flex flex-col gap-3">
             <SectionStep title="How would you like to give?" />
@@ -498,6 +456,46 @@ const Step1Gift = ({ campaignSlug }) => {
           </div>
         )}
 
+        <CauseSelector
+          causes={causes}
+          selectedCauseIds={selectedCauseIds}
+          toggleCause={toggleCause}
+          causeSplit={causeSplit}
+          totalAmount={effectiveAmount}
+          sym={sym}
+          onSplitChange={handleSplitChange}
+          onResetSplit={handleResetSplit}
+        />
+
+        {causeDropdown?.options?.length ? (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold text-[#383838]">
+              {causeDropdown.label}
+              {causeDropdown.required && <span className="text-[#EA3335] ml-0.5">*</span>}
+            </label>
+            <select
+              value={causeDropdownValue}
+              onChange={(e) => {
+                const next = e.target.value;
+                setCauseDropdownValue(next);
+                update({ causeDropdownValue: next });
+                if (error) setError("");
+              }}
+              className="w-full rounded-xl border border-[#E5E5E5] bg-white px-3 py-2.5 text-[14px] text-[#383838] outline-none transition focus:border-[#EA3335] cursor-pointer"
+            >
+              <option value="">Select an option</option>
+              {causeDropdown.options.map((option, index) => (
+                <option key={option.id || index} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {causeDropdown.helpText ? (
+              <p className="text-[12px] text-[#737373]">{causeDropdown.helpText}</p>
+            ) : null}
+          </div>
+        ) : null}
+
         {isRecurring && (
           <>
             {allowRecurringSplit && (
@@ -512,7 +510,7 @@ const Step1Gift = ({ campaignSlug }) => {
                         type="button"
                         onClick={() => handleSplitModeChange(mode.value)}
                         className={`w-full sm:flex-1 flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-4 border text-left transition-all duration-200 cursor-pointer min-h-[84px] ${
-                          active ? "border-[#EA3335] bg-[#FFF5F5]" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
+                          active ? "border-[#EA3335] bg-white" : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40"
                         }`}
                       >
                         <div className="min-w-0">

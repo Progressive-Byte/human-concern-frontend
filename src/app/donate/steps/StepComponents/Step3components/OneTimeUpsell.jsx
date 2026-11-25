@@ -34,7 +34,7 @@ const OneTimeUpsell = ({ amount = 0, currency = "USD", onSwitch }) => {
           aria-pressed={keptOneTime}
           className={`flex-1 rounded-full px-4 py-2.5 text-[13px] font-semibold transition-colors inline-flex items-center justify-center gap-1.5 ${
             keptOneTime
-              ? "border border-[#EA3335] bg-[#FFF5F5] text-[#383838] cursor-default"
+              ? "border border-[#EA3335] bg-white text-[#383838] cursor-default"
               : "border border-[#E5E5E5] bg-white text-[#383838] hover:border-[#AEAEAE] active:scale-95 cursor-pointer"
           }`}
         >

@@ -1,12 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import DateAmountRow from "./DateAmountRow";
+
+// How many rows are drawn before the list collapses. A yearly daily plan is 364 dates; rendering
+// all of them buries the page and shows 364 identical "$0.02 — set by the plan" lines.
+const COLLAPSE_AFTER = 6;
 
 const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange, minDateStr, causeSplit, causeLabelById, resolvedAmounts = null, readOnly = false }) => {
   const cutoff = minDateStr ?? new Date().toISOString().split("T")[0];
 
   const futureDates = activeDates.filter((d) => d >= cutoff);
   const pastDates   = activeDates.filter((d) => d < cutoff);
+
+  const [expanded, setExpanded] = useState(false);
+
+  /*
+    A locked plan charges every date the same, so listing them one by one adds nothing: the header
+    already says how many dates there are and the footer already gives the total. Show a short
+    sample and let the donor expand when they want the detail.
+
+    An editable plan is different — each row can be changed, so the donor may genuinely need them.
+  */
+  const collapsible = readOnly && activeDates.length > COLLAPSE_AFTER;
+  const visibleDates = collapsible && !expanded ? activeDates.slice(0, COLLAPSE_AFTER) : activeDates;
 
   // Prefer the amount the schedule will actually be charged (which carries the last-installment
   // remainder) so what the donor reads matches what is submitted.
@@ -42,7 +59,7 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
         className="flex flex-col gap-1.5 max-h-none sm:max-h-[230px] overflow-visible sm:overflow-y-scroll px-3 pb-1"
         style={{ scrollbarWidth: "thin", scrollbarColor: "#D1D5DB #F3F4F6" }}
       >
-        {activeDates.map((d) => (
+        {visibleDates.map((d) => (
           <DateAmountRow
             key={d}
             d={d}
@@ -57,6 +74,18 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
             causeLabelById={causeLabelById}
           />
         ))}
+
+        {collapsible && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-1 mb-1 w-full cursor-pointer rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-[12px] font-semibold text-[#737373] transition-colors hover:border-[#EA3335]/40 hover:text-[#EA3335]"
+          >
+            {expanded
+              ? "Show fewer dates"
+              : `Show all ${activeDates.length} dates`}
+          </button>
+        )}
       </div>
 
       <div className="flex items-center justify-between px-3 py-2.5 border-t border-[#E5E5E5] bg-white">

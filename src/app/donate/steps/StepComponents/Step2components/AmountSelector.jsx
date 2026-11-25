@@ -261,7 +261,7 @@ const AmountSelector = ({
                   onClick={() => handleTileClick(base)}
                   className={`flex flex-col items-center justify-center rounded-2xl px-3 py-4 border transition-all duration-200 ${
                     active
-                      ? "border-[#EA3335] bg-[#FFF5F5] cursor-pointer"
+                      ? "border-[#EA3335] bg-white cursor-pointer"
                       : "border-[#E5E5E5] bg-white hover:border-[#EA3335]/40 cursor-pointer"
                   }`}
                 >
@@ -284,7 +284,7 @@ const AmountSelector = ({
             <label className="block text-[13px] font-medium text-[#383838] mb-2">Custom Amount</label>
             <div className={`flex items-center rounded-xl border transition-colors ${
               customAmountError || customAmount
-                ? "border-[#EA3335] bg-[#FFF5F5]"
+                ? "border-[#EA3335] bg-white"
                 : "border-[#E5E5E5] bg-white focus-within:border-[#EA3335]"
             }`}>
               <span className="pl-4 pr-1 shrink-0 font-medium text-[15px] text-[#737373]">{sym}</span>

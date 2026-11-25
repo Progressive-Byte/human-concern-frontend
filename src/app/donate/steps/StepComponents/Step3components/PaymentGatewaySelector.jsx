@@ -277,7 +277,7 @@ const PaymentGatewaySelector = ({
 
   return (
     <div className="pt-1">
-      <p className="text-[17px] font-bold leading-snug text-[#1A1A1A] mb-3">Payment Method</p>
+      <p className="text-[15px] sm:text-[17px] font-bold leading-snug text-[#1A1A1A] mb-3">Payment Method</p>
 
       {!hasAny ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-solid border-[#E5E5E5] bg-[#FAFAFA] px-5 py-8 text-center">

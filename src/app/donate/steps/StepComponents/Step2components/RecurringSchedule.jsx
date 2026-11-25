@@ -556,9 +556,11 @@ const RecurringSchedule = ({
   return (
     <div className="flex flex-col gap-4">
 
-      {/* Preset pills */}
+      {/* Preset pills. A two-column grid on a phone instead of a wrapping row: wrapping left
+          ragged widths and a lone "Custom" pill on its own line, which looked like a mistake.
+          Equal tiles read as one set and are easier to hit with a thumb. */}
       {hasPresets && (
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           {[
             ...visibleApiPresets,
             ...(showCustomOption ? [{ id: "custom", name: "Custom" }] : []),
@@ -569,13 +571,15 @@ const RecurringSchedule = ({
                 key={p.id}
                 type="button"
                 onClick={() => handlePreset(p.id)}
-                className={`px-3.5 py-2 rounded-full border text-[12px] font-medium transition-all cursor-pointer ${
+                aria-pressed={active}
+                title={p.name}
+                className={`flex w-full sm:w-auto items-center justify-center rounded-full border px-3 py-2.5 sm:py-2 text-[12px] font-medium transition-all cursor-pointer ${
                   active
-                    ? "border-[#EA3335] bg-[#EA3335] text-white"
+                    ? "border-[#EA3335] bg-white text-[#EA3335]"
                     : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/50 hover:text-[#383838]"
                 }`}
               >
-                {p.name}
+                <span className="truncate">{p.name}</span>
               </button>
             );
           })}
@@ -650,7 +654,7 @@ const RecurringSchedule = ({
                     onClick={() => handleScheduleType(opt.value)}
                     className={`flex-1 px-4 py-2.5 rounded-xl border text-[13px] font-medium transition-all cursor-pointer ${
                       scheduleType === opt.value
-                        ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
+                        ? "border-[#EA3335] bg-white text-[#EA3335]"
                         : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40"
                     }`}
                   >

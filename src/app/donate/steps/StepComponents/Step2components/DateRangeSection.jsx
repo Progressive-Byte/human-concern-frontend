@@ -60,7 +60,7 @@ const DateRangeSection = ({
                     title={minDays > 1 ? `Needs at least ${minDays} days` : undefined}
                     className={`px-4 py-2 rounded-xl border text-[12px] font-medium transition-all ${
                       active
-                        ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
+                        ? "border-[#EA3335] bg-white text-[#EA3335]"
                         : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40 cursor-pointer"
                     }`}
                   >
@@ -116,7 +116,7 @@ const DateRangeSection = ({
                         }}
                         className={`px-3 py-1.5 rounded-lg border text-[12px] font-medium transition-all cursor-pointer ${
                           active
-                            ? "border-[#EA3335] bg-[#FFF5F5] text-[#EA3335]"
+                            ? "border-[#EA3335] bg-white text-[#EA3335]"
                             : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/40"
                         }`}
                       >

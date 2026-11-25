@@ -277,8 +277,6 @@ const Step2Details = () => {
   return (
     <StepLayout
       step={2}
-      title="Your details"
-      subtitle="Tell us who you are and how to reach you"
       onNext={validateAndNext}
       onPrev={() => handlePrev(1)}
       prevLabel="Back"

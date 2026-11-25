@@ -144,14 +144,14 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
   }, [update, setError]);
 
   return (
-    <div className="border border-solid border-[#E5E7EB] rounded-2xl">
+    <div className="border border-solid border-[#E5E7EB] rounded-2xl overflow-hidden">
       <button
         type="button"
         onClick={() => setAddressExpanded((v) => !v)}
         className="w-full flex items-center justify-between px-4 py-3 bg-[#F9F9F9] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-2">
-          <p className="text-[17px] font-bold leading-snug text-[#1A1A1A]">Address Information</p>
+          <p className="text-[15px] sm:text-[17px] font-bold leading-snug text-[#1A1A1A]">Address Information</p>
           {!addressExpanded && data.addressLine1?.trim() && (
             <span className="text-[11px] text-[#737373] bg-white border border-[#E5E5E5] rounded-full px-2 py-0.5">
               {data.city ? `${data.city}, ${data.country}` : data.country}
