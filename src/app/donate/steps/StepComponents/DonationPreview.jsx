@@ -123,7 +123,7 @@ const DonationPreview = ({ currentStep, showHeading = true }) => {
     <div className="lg:sticky lg:top-[172px] self-start w-full lg:w-[272px] shrink-0">
       <div className="bg-white rounded-2xl p-5">
         {showHeading ? (
-          <p className="text-[13px] font-semibold text-[#383838] mb-3">Donation Summary</p>
+          <p className="text-[17px] font-bold leading-snug text-[#1A1A1A] mb-3">Donation Summary</p>
         ) : null}
 
         <div className="flex flex-col">

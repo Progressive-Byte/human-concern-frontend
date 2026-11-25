@@ -31,7 +31,7 @@ const PersonalInfoSection = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-[13px] font-semibold text-[#383838]">Personal Information</p>
+        <p className="text-[17px] font-bold leading-snug text-[#1A1A1A]">Personal Information</p>
         {isAuthenticated && (
           <button
             type="button"
