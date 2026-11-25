@@ -225,7 +225,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
                       <input
                         readOnly
                         value={data.province}
-                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[16px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-2.5 sm:py-3 text-[13px] sm:text-[16px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
                       />
                       <button
                         type="button"
@@ -258,7 +258,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
                       <input
                         readOnly
                         value={data.city}
-                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[16px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-2.5 sm:py-3 text-[13px] sm:text-[16px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
                       />
                       <button
                         type="button"

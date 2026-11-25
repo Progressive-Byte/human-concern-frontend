@@ -56,7 +56,7 @@ const CauseAmountInput = ({ amount, sym, onChange }) => {
         onChange={handleChange}
         onBlur={handleBlur}
         onFocus={(e) => { setFocused(true); e.target.select(); }}
-        className="w-full min-w-0 py-1 pr-2.5 text-[16px] font-medium text-[#383838] outline-none bg-transparent"
+        className="w-full min-w-0 py-1 pr-2.5 text-[13px] sm:text-[16px] font-medium text-[#383838] outline-none bg-transparent"
       />
     </div>
   );

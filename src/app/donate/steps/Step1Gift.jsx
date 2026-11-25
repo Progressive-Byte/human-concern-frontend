@@ -481,7 +481,7 @@ const Step1Gift = ({ campaignSlug }) => {
                 update({ causeDropdownValue: next });
                 if (error) setError("");
               }}
-              className="w-full rounded-xl border border-[#E5E5E5] bg-white px-3 py-2.5 text-[14px] text-[#383838] outline-none transition focus:border-[#EA3335] cursor-pointer"
+              className="w-full cursor-pointer rounded-xl border border-[#E5E5E5] bg-white px-3 py-2 text-[14px] text-[#383838] outline-none transition focus:border-[#EA3335] sm:py-2.5"
             >
               <option value="">Select an option</option>
               {causeDropdown.options.map((option, index) => (

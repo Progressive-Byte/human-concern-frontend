@@ -83,7 +83,7 @@ const CustomDropdown = ({
   const isCompact = variant === "compact";
 
   const triggerCls = isForm
-    ? `w-full flex items-center justify-between gap-2 px-4 text-[14px] border rounded-xl bg-white transition-colors focus:outline-none ${triggerHeight || "py-3"} ${
+    ? `w-full flex items-center justify-between gap-2 px-4 text-[14px] border rounded-xl bg-white transition-colors focus:outline-none ${triggerHeight || "py-2.5 sm:py-3"} ${
         disabled
           ? "border-[#E0E0E0] bg-[#F5F5F5] text-[#888888] cursor-default"
           : "border-[#CCCCCC] text-[#383838] hover:border-[#383838] cursor-pointer"

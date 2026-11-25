@@ -161,7 +161,7 @@ const TippingSection = ({
           placeholder="Enter custom amount"
           onChange={handleCustomChange}
           onBlur={handleCustomBlur}
-          className={`w-full pl-8 pr-10 py-2.5 rounded-xl border text-[16px] outline-none transition-colors ${
+          className={`w-full pl-8 pr-10 py-2.5 rounded-xl border text-[13px] sm:text-[16px] outline-none transition-colors ${
             customTipParsed !== null
               ? "border-[#EA3335] bg-white text-[#383838]"
               : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335]"

@@ -54,7 +54,7 @@ const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled =
             placeholder={String(fallbackAmount)}
             min={0}
             onChange={(e) => onChange(d, e.target.value)}
-            className={`w-full pl-7 pr-3 py-2 text-[16px] border rounded-xl outline-none transition-colors bg-white ${
+            className={`w-full pl-7 pr-3 py-2 text-[13px] sm:text-[16px] border rounded-xl outline-none transition-colors bg-white ${
               isOverridden
                 ? "border-[#EA3335] text-[#383838]"
                 : "border-[#E5E5E5] text-[#383838] focus:border-[#EA3335]"

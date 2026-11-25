@@ -128,9 +128,13 @@ const StepLayout = ({
             step, and the figure the donor cares about is what they are about to give. */}
         {showPreview && (
           <div className="min-[1440px]:hidden mt-5 flex items-center justify-between gap-3">
-            <span className="min-w-0 truncate text-[24px] font-bold leading-none text-[#EA3335]">
-              {totalAmount > 0 ? `${sym}${totalAmount.toFixed(2)}` : ""}
-            </span>
+            <div className="flex min-w-0 flex-col">
+              {/* The red figure alone left it unclear what it counted. The label names it. */}
+              <span className="text-[11px] font-medium leading-none text-[#AEAEAE]">Total</span>
+              <span className="mt-1 min-w-0 truncate text-[24px] font-bold leading-none text-[#EA3335]">
+                {totalAmount > 0 ? `${sym}${totalAmount.toFixed(2)}` : ""}
+              </span>
+            </div>
             <button
               type="button"
               onClick={() => setSummaryOpen(true)}

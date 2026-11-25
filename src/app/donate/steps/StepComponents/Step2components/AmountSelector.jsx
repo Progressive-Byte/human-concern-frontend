@@ -303,7 +303,7 @@ const AmountSelector = ({
                 placeholder={`Enter amount (min ${formatDisplay(convertedMin)})`}
                 min={convertedMin}
                 max={convertedMax}
-                className="flex-1 pr-4 py-3 text-[16px] outline-none bg-transparent text-[#383838]"
+                className="flex-1 pr-4 py-2.5 sm:py-3 text-[13px] sm:text-[16px] outline-none bg-transparent text-[#383838]"
               />
             </div>
             {customAmountError && (
