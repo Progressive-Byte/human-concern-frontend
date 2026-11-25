@@ -361,7 +361,7 @@ const Step1Gift = ({ campaignSlug }) => {
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
-            <SectionStep num={1} title="Donation Amount & Cause" />
+            <SectionStep title="Donation Amount & Cause" />
             <select
               value={data.currency ?? "USD"}
               onChange={(e) => update({ currency: e.target.value })}
@@ -453,7 +453,7 @@ const Step1Gift = ({ campaignSlug }) => {
 
         {allowRecurring && (
           <div className="flex flex-col gap-3">
-            <SectionStep num={2} title="How would you like to give?" />
+            <SectionStep title="How would you like to give?" />
             <div className="relative flex rounded-full bg-[#F5F5F5] p-1">
               <span
                 aria-hidden="true"
@@ -500,7 +500,7 @@ const Step1Gift = ({ campaignSlug }) => {
           <>
             {allowRecurringSplit && (
               <div className="flex flex-col gap-3">
-                <SectionStep num={3} title="How to split?" />
+                <SectionStep title="How to split?" />
                 <div className="flex flex-col sm:flex-row gap-2.5">
                   {splitModes.map((mode) => {
                     const active = splitMode === mode.value;
@@ -525,7 +525,7 @@ const Step1Gift = ({ campaignSlug }) => {
             )}
 
             <div className="flex flex-col gap-3">
-              <SectionStep num={allowRecurringSplit ? 4 : 3} title="Choose a schedule" />
+              <SectionStep title="Choose a schedule" />
               <RecurringSchedule
                 sym={sym}
                 effectiveAmount={defaultPerDate}
@@ -550,7 +550,7 @@ const Step1Gift = ({ campaignSlug }) => {
 
         {campaignAddOns.length > 0 && (
           <div className="flex flex-col gap-3">
-            <SectionStep num={5} title="Add-ons / special giving" />
+            <SectionStep title="Add-ons / special giving" />
             <p className="text-[12px] text-[#737373] -mt-1">
               These are additional gifts. Each one is added on top of your donation and sent to its own fund.
             </p>
