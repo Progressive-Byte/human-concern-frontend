@@ -142,11 +142,25 @@ export function buildSubmitBody({
   const scheduleConfig = data.scheduleConfig ?? {};
   const utm            = buildUtmPayload(data);
   const firstTouch     = readFirstTouch();
+  /*
+    The query parameters this visit arrived with. Stored on the donation so a report can tie a
+    gift back to the link that produced it. Only sent when at least one is set.
+  */
+  const linkParams = (() => {
+    const src = data.linkParams && typeof data.linkParams === "object" ? data.linkParams : {};
+    const out = {};
+    for (const key of ["amount", "currency", "paymentType", "cause"]) {
+      const value = String(src[key] ?? "").trim();
+      if (value) out[key] = value;
+    }
+    return Object.keys(out).length ? out : null;
+  })();
 
   const body = {
     formId: data.campaignId,
     ...(utm && { utm }),
     ...(firstTouch && { firstTouch }),
+    ...(linkParams && { linkParams }),
     info: {
       ...(data.organization && { organization: data.organization }),
       firstName:    data.firstName    ?? "",

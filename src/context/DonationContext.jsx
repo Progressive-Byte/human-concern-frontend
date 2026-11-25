@@ -60,6 +60,8 @@ const initialState = {
   utm_campaign: "",
   utm_term: "",
   utm_content: "",
+  // The query parameters this visit arrived with, kept for attribution on the donation.
+  linkParams: { amount: "", currency: "", paymentType: "", cause: "" },
 };
 
 function hashIntentFields(state) {
@@ -99,6 +101,18 @@ export function DonationProvider({ children }) {
       }
       const urlCurrency = String(params.get("currency") || "").trim().toUpperCase();
       if (urlCurrency) parsed.currency = urlCurrency;
+
+      /*
+        Link settings, recorded on the donation. These are the parameters that pre-selected
+        something on this visit, so a report can later say which link produced a gift. Unknown
+        values are recorded too — the point is to know what the donor was sent, not to judge it.
+      */
+      parsed.linkParams = {
+        amount:  String(params.get("amount") || "").trim(),
+        currency: String(params.get("currency") || "").trim(),
+        paymentType: String(params.get("paymentType") || "").trim(),
+        cause:   String(params.get("cause") || "").trim(),
+      };
 
       const existingKey = loadIdempotencyKey(IDEM_SESSION_KEY);
       if (existingKey && !parsed.idempotencyKey) parsed.idempotencyKey = existingKey;
