@@ -38,31 +38,34 @@ const DonateFormHeader = ({ maxWidth = "max-w-[700px]" }) => {
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-[#EBEBEB] bg-white/95 backdrop-blur">
-      <div className={`mx-auto ${maxWidth} px-3 sm:px-4 py-2 sm:py-3`}>
-        <div className="mb-1.5 flex items-start justify-between gap-3 sm:mb-2">
-          <div className="min-w-0">
-            <p className="truncate text-[15px] font-bold text-[#383838] sm:text-[20px]">
+      <div className={`mx-auto ${maxWidth} px-3 sm:px-4 py-2`}>
+        <div className="mb-1 flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[15px] font-bold leading-tight text-[#383838] sm:text-[17px]">
               {formName || "Donation"}
             </p>
-            {/* The completion figure sits under the name, where it reads as a subtitle rather
-                than as an unrelated chip pinned to the right edge. */}
-            <p className="mt-0.5 text-[11px] font-semibold text-[#737373] sm:text-[12px]">
+            <p className="mt-0.5 text-[11px] font-semibold leading-none text-[#737373]">
               {percent}% complete
             </p>
           </div>
-
-          {/* Zakat eligibility lives here now, on the row the percentage used to occupy. */}
+          {/* Zakat eligibility sits on the right, level with the name. */}
           {data.zakatEligible && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#38383833] bg-[#F7FFED] px-2 py-1 sm:px-2.5">
-              <span className="shrink-0 text-[13px] leading-none">{CircleCheckIcon}</span>
-              <span className="whitespace-nowrap text-[10px] font-medium text-[#383838] sm:text-[11px]">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#38383833] bg-[#F7FFED] px-2 py-0.5 sm:px-2.5 sm:py-1">
+              {/* The icon ships as a fixed 20px SVG, so it must be sized explicitly — at the
+                  mobile text size it otherwise dwarfs the label. Text sizes stay as they were. */}
+              <span className="shrink-0 leading-none [&>svg]:h-3.5 [&>svg]:w-3.5 sm:[&>svg]:h-4 sm:[&>svg]:w-4">
+                {CircleCheckIcon}
+              </span>
+              <span className="whitespace-nowrap text-[10px] font-medium leading-none text-[#383838] sm:text-[11px]">
                 Zakat Eligible
               </span>
             </span>
           )}
         </div>
+
+        {/* The bar stays a thin track at every width — the figure lives above it, not inside it. */}
         <div
-          className="h-[4px] w-full overflow-hidden rounded-full bg-[#E5E5E5] sm:h-[6px]"
+          className="h-[4px] w-full overflow-hidden rounded-full bg-[#E5E5E5] sm:h-[5px]"
           role="progressbar"
           aria-valuenow={percent}
           aria-valuemin={0}

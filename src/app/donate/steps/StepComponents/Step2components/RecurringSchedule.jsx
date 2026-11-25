@@ -7,6 +7,7 @@ import { earliestAllowedDateStr } from "@/utils/scheduleDateLimits";
 import SpecificDatesSection from "./SpecificDatesSection";
 import DateRangeSection from "./DateRangeSection";
 import PerDateAmountTable from "./PerDateAmountTable";
+import CustomDropdown from "@/components/common/CustomDropdown";
 
 const weekdayOf = (dateStr) => {
   if (!dateStr) return null;
@@ -207,6 +208,15 @@ const RecurringSchedule = ({
   }, [rangeFreq, weekDays, rangeStart]);
 
   const hasPresets       = visibleApiPresets.length > 0;
+
+  // The dropdown's option list: every usable preset, plus Custom when the form allows it.
+  const presetOptions = useMemo(
+    () => [
+      ...visibleApiPresets.map((p) => ({ value: p.id, label: p.name })),
+      ...(showCustomOption ? [{ value: "custom", label: "Custom" }] : []),
+    ],
+    [visibleApiPresets, showCustomOption]
+  );
   const isCustom         = activePreset === "custom";
   const activeApiPreset  = visibleApiPresets.find((p) => p.id === activePreset);
   const activeIsOpenEnded = isOpenEndedPreset(activeApiPreset);
@@ -556,34 +566,21 @@ const RecurringSchedule = ({
   return (
     <div className="flex flex-col gap-4">
 
-      {/* Preset pills. A two-column grid on a phone instead of a wrapping row: wrapping left
-          ragged widths and a lone "Custom" pill on its own line, which looked like a mistake.
-          Equal tiles read as one set and are easier to hit with a thumb. */}
+      {/*
+        Single select instead of a wall of pills. The set is short but repetitive, and every pill
+        cost a line of height for a choice the donor makes once. The dropdown shows only the
+        schedule in use and opens the rest on demand — the same control the country picker uses.
+      */}
       {hasPresets && (
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-          {[
-            ...visibleApiPresets,
-            ...(showCustomOption ? [{ id: "custom", name: "Custom" }] : []),
-          ].map((p) => {
-            const active = activePreset === p.id;
-            return (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => handlePreset(p.id)}
-                aria-pressed={active}
-                title={p.name}
-                className={`flex w-full sm:w-auto items-center justify-center rounded-full border px-3 py-2.5 sm:py-2 text-[12px] font-medium transition-all cursor-pointer ${
-                  active
-                    ? "border-[#EA3335] bg-white text-[#EA3335]"
-                    : "border-[#E5E5E5] bg-white text-[#737373] hover:border-[#EA3335]/50 hover:text-[#383838]"
-                }`}
-              >
-                <span className="truncate">{p.name}</span>
-              </button>
-            );
-          })}
-        </div>
+        <CustomDropdown
+          variant="form"
+          options={presetOptions}
+          value={activePreset}
+          onChange={(next) => handlePreset(next)}
+          placeholder="Choose a schedule"
+          label="Schedules"
+          maxHeight="260px"
+        />
       )}
 
       {/* Make up for missed dates — only when the active preset allows it and has passed dates */}

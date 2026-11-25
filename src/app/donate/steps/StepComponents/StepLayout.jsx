@@ -82,7 +82,7 @@ const StepLayout = ({
   return (
     <main
       style={donationThemeStyle}
-      className="min-h-screen min-h-[100dvh] bg-[#F9F9F9] pt-[74px] sm:pt-[88px] pb-12 sm:pb-16 px-3 sm:px-4"
+      className="min-h-screen min-h-[100dvh] bg-[#F9F9F9] pt-[72px] sm:pt-[78px] pb-12 sm:pb-16 px-3 sm:px-4"
     >
       <DonateFormHeader />
 

@@ -310,7 +310,7 @@ const Step3Payment = () => {
 
   if (phase === "pay") {
     return (
-      <main className="min-h-screen min-h-[100dvh] bg-[#F9F9F9] pt-[74px] sm:pt-[88px] pb-16 px-3 sm:px-4">
+      <main className="min-h-screen min-h-[100dvh] bg-[#F9F9F9] pt-[72px] sm:pt-[78px] pb-16 px-3 sm:px-4">
         <DonateFormHeader maxWidth="max-w-5xl" />
         <div className="max-w-5xl mx-auto">
           <div className="mb-4 sm:mb-8">
