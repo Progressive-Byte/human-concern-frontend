@@ -205,6 +205,7 @@ const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo,
   const primaryColor = String(branding?.primaryColor || "");
   const accentColor = String(branding?.accentColor || "");
   const donationPrimaryColor = String(branding?.donationPrimaryColor || "");
+  const progressBarColor = String(branding?.progressBarColor || "");
   const customCss = String(branding?.customCss || "");
 
   return (
@@ -290,6 +291,27 @@ const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo,
                 })
               }
             />
+          </div>
+
+          <div className="mt-4">
+            <ColorPickerField
+              label="Header progress bar color"
+              value={progressBarColor}
+              disabled={loading}
+              onChange={(next) =>
+                onChange?.((prev) => {
+                  const p = prev || {};
+                  if (p?.branding && typeof p.branding === "object") {
+                    return { ...p, branding: { ...p.branding, progressBarColor: next } };
+                  }
+                  return { ...p, progressBarColor: next };
+                })
+              }
+            />
+            <p className="mt-1.5 text-[12px] text-[#6B7280]">
+              The fill of the sticky bar at the top of every donation step. Leave empty to use the
+              donation form primary color.
+            </p>
           </div>
         </div>
 

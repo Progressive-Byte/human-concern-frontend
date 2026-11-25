@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { useBranding } from "@/context/BrandingContext";
 import { computeDonationProgress } from "@/utils/donationFormProgress";
 import { CircleCheckIcon } from "@/components/common/SvgIcon";
 
@@ -19,6 +20,7 @@ const getServerConfigSnapshot = () => null;
 // information is filled in. Read-only — it never blocks navigation.
 const DonateFormHeader = ({ maxWidth = "max-w-[700px]" }) => {
   const { data } = useDonation();
+  const { resolvedProgressBarColor } = useBranding();
   const pathname = usePathname();
   const rawConfig = useSyncExternalStore(subscribe, getConfigSnapshot, getServerConfigSnapshot);
 
@@ -73,8 +75,8 @@ const DonateFormHeader = ({ maxWidth = "max-w-[700px]" }) => {
           aria-label="Form completion"
         >
           <div
-            className="h-full rounded-full bg-[#EA3335] transition-[width] duration-500 ease-out"
-            style={{ width: `${percent}%` }}
+            className="h-full rounded-full transition-[width] duration-500 ease-out"
+            style={{ width: `${percent}%`, backgroundColor: resolvedProgressBarColor }}
           />
         </div>
       </div>

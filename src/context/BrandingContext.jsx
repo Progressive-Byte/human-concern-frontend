@@ -10,6 +10,7 @@ const BrandingContext = createContext({
   primaryColor: DEFAULT_PRIMARY,
   accentColor: DEFAULT_ACCENT,
   donationPrimaryColor: "",
+  progressBarColor: "",
   donationThemeStyle: {},
   googleMapsApiKey: null,
 });
@@ -85,6 +86,7 @@ export function BrandingProvider({ children }) {
     primaryColor: DEFAULT_PRIMARY,
     accentColor: DEFAULT_ACCENT,
     donationPrimaryColor: "",
+    progressBarColor: "",
     logoPath: "",
     // null = still loading, '' = loaded but not configured, string = the key.
     googleMapsApiKey: null,
@@ -112,6 +114,7 @@ export function BrandingProvider({ children }) {
         primaryColor: normalizeHex(branding?.primaryColor, DEFAULT_PRIMARY),
         accentColor: normalizeHex(branding?.accentColor, DEFAULT_ACCENT),
         donationPrimaryColor: normalizeHex(branding?.donationPrimaryColor, ""),
+        progressBarColor: normalizeHex(branding?.progressBarColor, ""),
         logoPath: branding?.logo?.path ? String(branding.logo.path) : "",
         googleMapsApiKey: String(integrations?.googleMapsApiKey || ""),
       });
@@ -130,9 +133,22 @@ export function BrandingProvider({ children }) {
     () => buildPrimaryStyle(brandingState.donationPrimaryColor || brandingState.primaryColor),
     [brandingState.donationPrimaryColor, brandingState.primaryColor]
   );
+
+  /*
+    The donation form's header bar fill. Falls back to the donation colour, then the primary one,
+    so a site that never sets it still gets a sensible bar.
+  */
+  const resolvedProgressBarColor = useMemo(
+    () => normalizeHex(
+      brandingState.progressBarColor || brandingState.donationPrimaryColor || brandingState.primaryColor,
+      DEFAULT_PRIMARY
+    ),
+    [brandingState.progressBarColor, brandingState.donationPrimaryColor, brandingState.primaryColor]
+  );
+
   const value = useMemo(
-    () => ({ ...brandingState, donationThemeStyle }),
-    [brandingState, donationThemeStyle]
+    () => ({ ...brandingState, resolvedProgressBarColor, donationThemeStyle }),
+    [brandingState, resolvedProgressBarColor, donationThemeStyle]
   );
 
   return (
