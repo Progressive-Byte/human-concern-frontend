@@ -1,6 +1,6 @@
 import { distributeAmount } from "@/utils/causeSplit";
 
-const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled = false, causeSplit, causeLabelById, resolved = null }) => {
+const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled = false, readOnly = false, causeSplit, causeLabelById, resolved = null }) => {
   const isOverridden  = override !== "";
   // The resolved amount already carries the last-installment remainder, so it is what the donor
   // will actually be charged — show it instead of the plain per-date default.
@@ -9,6 +9,11 @@ const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled =
   const showCauseSplit = causeSplit && Object.keys(causeSplit).length > 1;
   const causeBreakdown = showCauseSplit ? distributeAmount(displayAmount, causeSplit) : [];
 
+  /*
+    Two different reasons a row cannot be edited, and they must not look the same:
+    a date already gone (no amount is ever charged for it) and a locked open-ended plan
+    (every date IS charged, the donor just cannot set the amount per date).
+  */
   if (disabled) {
     return (
       <div className="flex items-center gap-2 opacity-40">
@@ -17,6 +22,20 @@ const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled =
           Past date
         </div>
         <span className="text-[12px] font-semibold w-14 text-right shrink-0 tabular-nums text-[#AEAEAE]">—</span>
+      </div>
+    );
+  }
+
+  if (readOnly) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-[11px] text-[#737373] w-[88px] shrink-0 font-medium tabular-nums">{d}</span>
+        <div className="flex-1 flex items-center justify-between px-3 py-2 bg-[#F5F5F5] border border-[#E5E5E5] rounded-xl">
+          <span className="text-[11px] text-[#AEAEAE]">Set by the plan</span>
+          <span className="text-[13px] font-semibold text-[#383838] tabular-nums">
+            {sym}{displayAmount.toLocaleString()}
+          </span>
+        </div>
       </div>
     );
   }
@@ -35,7 +54,7 @@ const DateAmountRow = ({ d, override, effectiveAmount, sym, onChange, disabled =
             placeholder={String(fallbackAmount)}
             min={0}
             onChange={(e) => onChange(d, e.target.value)}
-            className={`w-full pl-7 pr-3 py-2 text-[13px] border rounded-xl outline-none transition-colors bg-white ${
+            className={`w-full pl-7 pr-3 py-2 text-[16px] border rounded-xl outline-none transition-colors bg-white ${
               isOverridden
                 ? "border-[#EA3335] text-[#383838]"
                 : "border-[#E5E5E5] text-[#383838] focus:border-[#EA3335]"

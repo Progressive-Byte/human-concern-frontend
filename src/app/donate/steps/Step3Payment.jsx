@@ -310,11 +310,15 @@ const Step3Payment = () => {
 
   if (phase === "pay") {
     return (
-      <main className="min-h-screen bg-[#F9F9F9] pt-[88px] pb-16 px-4">
+      <main className="min-h-screen min-h-[100dvh] bg-[#F9F9F9] pt-[74px] sm:pt-[88px] pb-16 px-3 sm:px-4">
         <DonateFormHeader maxWidth="max-w-5xl" />
         <div className="max-w-5xl mx-auto">
-          <StepProgress current={3} />
-          <div className="flex flex-col lg:flex-row items-start gap-5">
+          <div className="mb-4 sm:mb-8">
+            <StepProgress current={3} />
+          </div>
+          {/* Mobile: the summary sits above the card form, so the donor sees the total and
+              every fee before entering payment details. Desktop keeps the side column. */}
+          <div className="flex flex-col-reverse lg:flex-row items-start gap-5">
             <div className="flex-1 min-w-0 w-full">
               <PaymentPanel />
             </div>

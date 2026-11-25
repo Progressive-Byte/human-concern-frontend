@@ -39,7 +39,7 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
       </div>
 
       <div
-        className="flex flex-col gap-1.5 max-h-[230px] overflow-y-scroll px-3 pb-1"
+        className="flex flex-col gap-1.5 max-h-none sm:max-h-[230px] overflow-visible sm:overflow-y-scroll px-3 pb-1"
         style={{ scrollbarWidth: "thin", scrollbarColor: "#D1D5DB #F3F4F6" }}
       >
         {activeDates.map((d) => (
@@ -51,7 +51,8 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
             resolved={resolvedAmounts ? resolvedAmounts[d] : undefined}
             sym={sym}
             onChange={onChange}
-            disabled={readOnly || d < cutoff}
+            readOnly={readOnly}
+            disabled={d < cutoff}
             causeSplit={causeSplit}
             causeLabelById={causeLabelById}
           />

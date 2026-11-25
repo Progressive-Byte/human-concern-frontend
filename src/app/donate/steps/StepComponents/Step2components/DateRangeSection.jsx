@@ -87,7 +87,7 @@ const DateRangeSection = ({
                   max={15}
                   value={customInterval}
                   onChange={(e) => onCustomInterval(e.target.value)}
-                  className="w-20 px-3 py-2 rounded-lg border border-[#E5E5E5] text-[14px] text-[#383838] text-center outline-none focus:border-[#EA3335] bg-white"
+                  className="w-20 px-3 py-2 rounded-lg border border-[#E5E5E5] text-[16px] text-[#383838] text-center outline-none focus:border-[#EA3335] bg-white"
                 />
                 <span className="text-[13px] font-medium text-[#383838]">
                   day{customInterval !== 1 ? "s" : ""}

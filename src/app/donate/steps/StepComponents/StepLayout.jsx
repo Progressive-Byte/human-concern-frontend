@@ -82,23 +82,28 @@ const StepLayout = ({
   );
 
   return (
-    <main style={donationThemeStyle} className="min-h-screen bg-[#F9F9F9] pt-[88px] pb-12 sm:pb-16 px-3 sm:px-4">
+    <main
+      style={donationThemeStyle}
+      className="min-h-screen min-h-[100dvh] bg-[#F9F9F9] pt-[74px] sm:pt-[88px] pb-12 sm:pb-16 px-3 sm:px-4"
+    >
       <DonateFormHeader />
 
       {/* Form column always centered at max-w-[700px] */}
       <div className="mx-auto max-w-[700px]">
-        <StepProgress current={step} />
+        <div className="mb-4 sm:mb-8">
+          <StepProgress current={step} />
+        </div>
 
         {/* relative so the absolute preview is anchored here */}
         <div className="relative">
           <div className="relative bg-white rounded-2xl p-5 sm:p-6 md:p-8">
             {data.zakatEligible && (
-              <div className="absolute top-4 right-4 sm:top-5 sm:right-5 md:top-7 md:right-7 flex items-center gap-1 bg-[#F7FFED] border border-[#38383833] rounded-full px-2.5 py-1 whitespace-nowrap">
+              <div className="absolute top-3 right-3 sm:top-5 sm:right-5 md:top-7 md:right-7 flex items-center gap-1 bg-[#F7FFED] border border-[#38383833] rounded-full px-2 sm:px-2.5 py-1 whitespace-nowrap">
                 <span className="text-[13px] leading-none shrink-0">{CircleCheckIcon}</span>
-                <span className="text-[11px] font-medium text-[#383838]">Zakat Eligible</span>
+                <span className="text-[10px] sm:text-[11px] font-medium text-[#383838]">Zakat Eligible</span>
               </div>
             )}
-            <h2 className="text-xl sm:text-[24px] font-bold text-[#383838] mb-1 pr-28 sm:pr-0 leading-tight">{title}</h2>
+            <h2 className="text-xl sm:text-[24px] font-bold text-[#383838] mb-1 pr-24 sm:pr-0 leading-tight">{title}</h2>
             <p className="text-sm text-[#8C8C8C] font-normal mb-5 sm:mb-6">{subtitle}</p>
             {children}
 
@@ -147,8 +152,14 @@ const StepLayout = ({
           </div>
         )}
 
-        {/* Mobile: the next/back buttons come after the summary button. */}
-        <div className="min-[1440px]:hidden mt-3">{navRow}</div>
+        {/* Mobile: the next/back buttons come after the summary button and stay reachable
+            while the step scrolls. Nothing moves in the DOM — it only stops scrolling away. */}
+        <div
+          className="min-[1440px]:hidden sticky bottom-0 z-30 -mx-3 sm:-mx-4 mt-3 border-t border-[#EBEBEB] bg-white/95 px-3 sm:px-4 pt-3 backdrop-blur"
+          style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+        >
+          {navRow}
+        </div>
 
         {showPreview && summaryOpen ? (
           <div className="fixed inset-0 z-50 min-[1440px]:hidden">

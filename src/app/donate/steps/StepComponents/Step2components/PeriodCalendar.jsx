@@ -42,7 +42,7 @@ const PeriodCalendar = ({
     "w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#F5F5F5] text-[#737373] text-[18px] leading-none transition-colors cursor-pointer";
 
   const cellBase =
-    "py-2 rounded-lg text-[12px] font-medium transition-all";
+    "py-2.5 sm:py-2 rounded-lg text-[13px] sm:text-[12px] font-medium transition-all";
 
   if (isYearly) {
     return (

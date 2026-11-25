@@ -19,7 +19,7 @@ const StepProgress = ({ current }) => {
   const visibleSteps = STEPS.map((label, i) => ({ label, step: i + 1 }));
 
   return (
-    <div className="flex items-center justify-center mb-8">
+    <div className="flex items-center justify-center mb-0">
       {visibleSteps.map(({ label, step }, i) => {
         const done = step < current;
         const active = step === current;
@@ -27,7 +27,7 @@ const StepProgress = ({ current }) => {
 
         const dot = (
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold transition-all select-none
+            className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[11px] sm:text-[13px] font-semibold transition-all select-none
               ${done
                 ? "bg-[#F1F1F1] text-[#8C8C8C]"
                 : active
@@ -67,7 +67,7 @@ const StepProgress = ({ current }) => {
             </div>
             {i < visibleSteps.length - 1 && (
               <div
-                className={`h-[1.5px] w-6 sm:w-10 mx-1 mb-4 rounded-full transition-colors
+                className={`h-[1.5px] w-4 sm:w-10 mx-1 mb-3 sm:mb-4 rounded-full transition-colors
                   ${done ? "bg-[#E5E5E5]" : "bg-[#F0F0F0]"}`}
               />
             )}

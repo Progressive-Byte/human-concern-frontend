@@ -360,20 +360,22 @@ const Step1Gift = ({ campaignSlug }) => {
       <div className="flex flex-col gap-6">
 
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-start justify-between gap-2">
             <SectionStep title="Donation Amount & Cause" />
             <select
               value={data.currency ?? "USD"}
               onChange={(e) => update({ currency: e.target.value })}
               disabled={isEditMode}
-              className={`rounded-lg border px-2.5 py-1.5 text-[12px] font-medium outline-none transition-colors ${
+              aria-label="Currency"
+              className={`shrink-0 rounded-lg border px-2 sm:px-2.5 py-1.5 text-[12px] font-medium outline-none transition-colors ${
                 isEditMode
                   ? "border-[#E5E5E5] bg-[#F9FAFB] text-[#9CA3AF] cursor-not-allowed"
                   : "border-[#E5E5E5] bg-white text-[#383838] focus:border-[#EA3335] cursor-pointer"
               }`}
             >
+              {/* The currency code alone. The symbol is already shown on the amount. */}
               {currencyOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>{opt.value}</option>
               ))}
             </select>
           </div>

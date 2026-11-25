@@ -213,7 +213,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-[13px] font-medium text-[#111827]">
                     Province or State<span className="text-[#EA3335] ml-0.5">*</span>
@@ -223,7 +223,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
                       <input
                         readOnly
                         value={data.province}
-                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[16px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
                       />
                       <button
                         type="button"
@@ -256,7 +256,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
                       <input
                         readOnly
                         value={data.city}
-                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[15px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
+                        className="w-full border border-solid border-[#E5E7EB] rounded-xl px-4 py-3 text-[16px] text-[#383838] bg-[#F3F4F6] cursor-default focus:outline-none pr-16"
                       />
                       <button
                         type="button"

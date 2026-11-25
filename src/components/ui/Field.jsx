@@ -27,7 +27,7 @@ const Field = ({
         onBlur={onBlur}
         readOnly={readOnly}
         placeholder={placeholder}
-        className={`w-full border border-solid rounded-xl px-4 py-3 text-[15px] focus:outline-none transition-colors ${
+        className={`w-full border border-solid rounded-xl px-4 py-3 text-[16px] focus:outline-none transition-colors ${
           readOnly
             ? "border-[#E5E7EB] bg-[#F3F4F6] text-[#9CA3AF] cursor-default"
             : error

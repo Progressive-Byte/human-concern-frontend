@@ -219,10 +219,10 @@ const AmountSelector = ({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-3 flex items-start justify-between gap-3">
           {locked ? (
             // Locked: the chosen amount sits inline here — compact, not a big dead tile.
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-[22px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
                 {effectiveAmount > 0 ? `${sym}${formatDisplay(effectiveAmount)}` : "Choose an amount"}
               </span>
@@ -236,7 +236,7 @@ const AmountSelector = ({
           <button
             type="button"
             onClick={() => setLocked((prev) => !prev)}
-            className={`inline-flex self-start items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors cursor-pointer select-none whitespace-nowrap sm:self-auto ${
+            className={`inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border px-2.5 sm:px-3 py-1.5 text-[12px] font-semibold transition-colors cursor-pointer select-none whitespace-nowrap ${
               locked
                 ? "border-[#E5E7EB] bg-white text-[#383838] hover:border-[#EA3335]/50 hover:text-[#EA3335]"
                 : "border-[#EA3335]/40 bg-[#FFF5F5] text-[#EA3335] hover:bg-[#FFEBEB]"
@@ -296,7 +296,7 @@ const AmountSelector = ({
                 placeholder={`Enter amount (min ${formatDisplay(convertedMin)})`}
                 min={convertedMin}
                 max={convertedMax}
-                className="flex-1 pr-4 py-3 text-[15px] outline-none bg-transparent text-[#383838]"
+                className="flex-1 pr-4 py-3 text-[16px] outline-none bg-transparent text-[#383838]"
               />
             </div>
             {customAmountError && (

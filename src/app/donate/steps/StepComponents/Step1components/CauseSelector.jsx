@@ -48,7 +48,7 @@ const CauseAmountInput = ({ amount, sym, onChange }) => {
       onClick={(e) => e.stopPropagation()}
       className="mt-2 flex items-center rounded-lg border border-[#E5E5E5] bg-white overflow-hidden focus-within:border-[#EA3335]"
     >
-      <span className="pl-2.5 pr-1 text-[12px] text-[#8C8C8C]">{sym}</span>
+      <span className="pl-2.5 pr-1 text-[13px] text-[#8C8C8C]">{sym}</span>
       <input
         type="number"
         min={0}
@@ -56,7 +56,7 @@ const CauseAmountInput = ({ amount, sym, onChange }) => {
         onChange={handleChange}
         onBlur={handleBlur}
         onFocus={(e) => { setFocused(true); e.target.select(); }}
-        className="w-full min-w-0 py-1.5 pr-2.5 text-[13px] font-semibold text-[#383838] outline-none bg-transparent"
+        className="w-full min-w-0 py-1 pr-2.5 text-[16px] font-medium text-[#383838] outline-none bg-transparent"
       />
     </div>
   );
@@ -102,13 +102,13 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
           </span>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
         {causes.map((cause) => {
           const active = selectedCauseIds.includes(cause.id);
           return (
             <div
               key={cause.id}
-              className={`rounded-xl p-4 border transition-all ${
+              className={`rounded-xl p-3 sm:p-4 border transition-all ${
                 active
                   ? "border-[#EA3335] bg-white"
                   : "border-[#E5E5E5] hover:border-[#CCCCCC] hover:bg-[#FAFAFA]"
@@ -117,18 +117,18 @@ const CauseSelector = ({ causes, selectedCauseIds, toggleCause, causeSplit, tota
               <button
                 type="button"
                 onClick={() => toggleCause(cause)}
-                className="w-full flex flex-col items-start gap-2 text-left cursor-pointer"
+                className="w-full flex items-start gap-2.5 text-left cursor-pointer"
               >
                 {cause.emoji && (
-                  <span className="text-[28px] leading-none">{cause.emoji}</span>
+                  <span className="shrink-0 text-[22px] leading-none">{cause.emoji}</span>
                 )}
-                <div>
+                <div className="min-w-0">
                   <p className="text-[14px] font-semibold text-[#383838]">{cause.label}</p>
                   {cause.desc && (
                     <p className="text-[12px] text-[#8C8C8C] mt-0.5">{cause.desc}</p>
                   )}
                   {cause.zakatEligible && (
-                    <span className="inline-block mt-2 text-[11px] font-medium text-[#8C8C8C] bg-white rounded-full px-1.5 py-0.5">
+                    <span className="inline-block mt-1 text-[10px] font-medium text-[#8C8C8C] bg-[#F5F5F5] rounded-full px-1.5 py-0.5">
                       Zakat Eligible
                     </span>
                   )}

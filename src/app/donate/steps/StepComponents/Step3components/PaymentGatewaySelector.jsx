@@ -28,21 +28,21 @@ const MethodTile = ({ label, sublabel, logo, alt, isSelected, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`flex items-center justify-between gap-3 px-5 py-4 rounded-2xl border transition-all duration-200 text-left cursor-pointer ${
+    className={`flex w-full items-center justify-between gap-3 px-4 py-3.5 sm:px-5 sm:py-4 rounded-2xl border transition-all duration-200 text-left cursor-pointer ${
       isSelected
         ? "border-[#383838] bg-white shadow-sm"
         : "border-[#E5E5E5] bg-white hover:border-[#AEAEAE]"
     }`}
   >
     <div className="min-w-0">
-      <span className="text-[14px] font-medium text-[#383838]">{label}</span>
+      <span className="block text-[14px] font-medium leading-snug text-[#383838]">{label}</span>
       {sublabel && (
-        <span className="ml-1.5 text-[13px] text-[#737373]">· {sublabel}</span>
+        <span className="mt-0.5 block text-[12px] text-[#737373]">{sublabel}</span>
       )}
     </div>
     <div className="relative flex h-[24px] w-[60px] shrink-0 items-center justify-end">
       {typeof logo === "string" ? (
-        <Image src={logo} alt={alt} fill className="object-contain" />
+        <Image src={logo} alt={alt} fill className="object-contain object-right" />
       ) : (
         logo
       )}
@@ -294,7 +294,9 @@ const PaymentGatewaySelector = ({
       ) : (
         // Orchestration: 1 tile per provider type — donors pick method category only.
         // The orchestrator internally selects the best specific gateway configuration.
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+        // One tile per row on a phone: at 341px a two-up tile leaves no room for the label
+        // next to a 60px card graphic, so the text wrapped and collided with it.
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {providerList.map((row) => {
             const isSelected = selectedProvider === row.provider;
             return (
