@@ -15,20 +15,19 @@ const CURRENCY_SYMBOLS = {
 // Amount, currency and schedule state for the "Your gift" step. Lifted out of the
 // screen so Step1Gift stays readable. The old Step 2 logic is kept the same.
 //
-// The three link params come from the admin's "Copy Form URL" dialog, so an admin can
-// share a link that opens on a chosen amount, payment type or recurring preset:
-//   amount       the amount to pre-select
-//   paymentType  "one-time" | "recurring"
-//   preset       id of one of this form's recurring presets
-//   open=1       no amount pre-selected, selector unlocked, donor must choose
+// The query string may carry settings. They behave like UTM parameters: anything that
+// matches a real option is selected, anything that does not is ignored but left in the
+// URL. Unknown values never block the form.
+//   amount        a preset amount, or any number within the form's limits
+//   currency      a currency the form accepts
+//   paymentType   "one-time" | "recurring"
+//   cause         a cause name on this form
 //
 // They are passed in, not read from window.location, because on a client-side
 // navigation window.location still holds the previous URL when this hook first runs.
 export function useGiftAmountSchedule({
   urlAmount,
   urlPaymentType,
-  urlPreset,
-  urlOpen,
 } = {}) {
   const pathname = usePathname();
   const isPreview = pathname.startsWith("/admin/forms/preview");
@@ -108,12 +107,12 @@ export function useGiftAmountSchedule({
   const isRecurring = paymentType === "recurring";
 
   /*
-    Link params outrank everything the session remembers, because they are the admin's
-    explicit choice for this link. `open=1` clears the amount so nothing looks picked.
+    Query parameters outrank everything the session remembers: they are an explicit instruction
+    for this visit. A value that is missing or unusable simply falls through to the defaults, so
+    a donor can never be blocked by a bad link.
   */
   const _linkAmt = Number(urlAmount);
   const _hasLinkAmt = Number.isFinite(_linkAmt) && _linkAmt > 0;
-  const _forceOpen = String(urlOpen ?? "") === "1" || String(urlOpen ?? "").toLowerCase() === "true";
 
   // donorAmount = the UI-facing total the user chose (restored on back-navigation).
   // amountTier  = the derived per-date amount (e.g. $50÷4 = $12.5) — NOT suitable
@@ -125,8 +124,7 @@ export function useGiftAmountSchedule({
     ? _adminDefaultAmt
     : suggestedAmounts[0] ?? 25;
 
-  // open=1 means "let the donor choose": no amount at all, and the selector starts unlocked.
-  const initAmount  = _forceOpen ? 0 : (_hasLinkAmt ? _linkAmt : (_donorAmt ?? _urlAmt ?? _fallbackAmt));
+  const initAmount  = _hasLinkAmt ? _linkAmt : (_donorAmt ?? _urlAmt ?? _fallbackAmt);
   const sym         = CURRENCY_SYMBOLS[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
   const causeSplit = data.causeSplit ?? {};
@@ -341,9 +339,6 @@ export function useGiftAmountSchedule({
     allowRecurring,
     allowRecurringSplit,
     allowCustomRecurringSchedule,
-    // Link-driven value Step1Gift passes to the schedule picker.
-    linkPreset: String(urlPreset || "").trim(),
-    forceOpenAmount: _forceOpen,
     sym,
     currencyOptions,
     suggestedAmounts,

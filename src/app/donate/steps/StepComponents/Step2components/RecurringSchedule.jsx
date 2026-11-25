@@ -146,7 +146,6 @@ const RecurringSchedule = ({
   initialScheduleType,
   initialConfig,
   initialActivePreset,
-  presetToApply = "",          // a "Copy Form URL" link's ?preset= — applied once, like a click
   defaultPresetId = null,
   initialMakeUpMissedDates = false,
   showCustomOption = true,
@@ -397,22 +396,10 @@ const RecurringSchedule = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePreset, visibleApiPresets, showCustomOption]);
 
-  // A link may name an exact preset. It goes through handlePreset, so the schedule config is
-  // built the same way a donor's click would build it — only the pill alone would leave the
-  // form on the default schedule.
-  useEffect(() => {
-    const wanted = String(presetToApply || "").trim();
-    if (!wanted || wanted === "custom") return;
-    if (!visibleApiPresets.some((p) => p.id === wanted)) return;
-    handlePreset(wanted);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // Pre-select the admin-configured default preset once, unless the donor already has a
   // selection to restore (a stored choice, including "custom", always wins). Reusing
   // handlePreset means the default goes through the exact same mapping as a click.
   useEffect(() => {
-    if (presetToApply) return;
     if (initialActivePreset) return;
     if (!defaultPresetId) return;
     if (!visibleApiPresets.some((p) => p.id === defaultPresetId)) return;

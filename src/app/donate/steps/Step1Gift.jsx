@@ -104,13 +104,9 @@ const Step1Gift = ({ campaignSlug }) => {
     defaultPerDate,
     makeUpMissedDates,
     causeLabelById,
-    linkPreset,
-    forceOpenAmount,
   } = useGiftAmountSchedule({
     urlAmount: searchParams.get("amount"),
     urlPaymentType: searchParams.get("paymentType"),
-    urlPreset: searchParams.get("preset"),
-    urlOpen: searchParams.get("open"),
   });
 
   const {
@@ -235,6 +231,35 @@ const Step1Gift = ({ campaignSlug }) => {
 
   const selectedCauseIds = data.causeIds ?? [];
   const causeSplit       = data.causeSplit ?? {};
+
+  /*
+    A URL may name a cause, the same way a UTM tag carries a value. Matching is by name because
+    that is what an integrator can read off the admin panel and type by hand.
+
+    It behaves like a UTM parameter: an unmatched name changes nothing at all — the parameter
+    stays in the address bar, the form simply ignores it. It also runs once, so a donor who then
+    ticks or unticks causes is never overridden.
+  */
+  const appliedCauseParamRef = useRef("");
+  useEffect(() => {
+    const wanted = String(searchParams.get("cause") ?? "").trim().toLowerCase();
+    if (!wanted) return;
+    if (appliedCauseParamRef.current === wanted) return;
+    if (causes.length === 0) return;          // config not loaded yet
+    appliedCauseParamRef.current = wanted;
+
+    const matches = causes.filter((c) => String(c.label ?? "").trim().toLowerCase() === wanted);
+    if (matches.length === 0) return;         // no match: leave the form as it is
+
+    const nextIds = matches.map((c) => c.id);
+    update({
+      causeIds: nextIds,
+      causes: matches.map((c) => c.label),
+      causeSplit: fitSplit({ causeIds: nextIds }),
+    });
+    setManualSplitIds([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [causes, searchParams]);
 
   const toggleCause = (cause) => {
     const isSelected = selectedCauseIds.includes(cause.id);
@@ -390,7 +415,6 @@ const Step1Gift = ({ campaignSlug }) => {
             initialAmount={initAmount}
             onAmountChange={handleAmountChange}
             overrideTotal={perDateTotal}
-            startUnlocked={forceOpenAmount}
             feeSlot={
               enableTipping ? (
                 <TippingSection
@@ -534,7 +558,6 @@ const Step1Gift = ({ campaignSlug }) => {
                 initialScheduleType={data.scheduleType}
                 initialConfig={data.scheduleConfig}
                 initialActivePreset={data.schedulePreset}
-                presetToApply={linkPreset}
                 initialMakeUpMissedDates={data.makeUpMissedDates}
                 defaultPresetId={defaultPresetId}
                 apiPresets={recurringPresets}
