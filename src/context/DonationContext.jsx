@@ -77,7 +77,29 @@ export function DonationProvider({ children }) {
     if (typeof window === "undefined") return initialState;
     try {
       const saved = sessionStorage.getItem(STORAGE_KEY);
-      const parsed = saved ? { ...initialState, ...JSON.parse(saved) } : initialState;
+      const parsed = saved ? { ...initialState, ...JSON.parse(saved) } : { ...initialState };
+
+      /*
+        The campaign page's Donate button links here with ?amount=&currency= — the amount the
+        donor actually picked. Seed it before the first render, otherwise useGiftAmountSchedule
+        captures the admin default in useState and the URL value is ignored for the whole flow.
+      */
+      const params = new URLSearchParams(window.location.search);
+      const urlAmount = Number(params.get("amount"));
+      const hasUrlAmount = Boolean(params.get("amount")) && Number.isFinite(urlAmount) && urlAmount > 0;
+      if (hasUrlAmount) {
+        parsed.amount = urlAmount;
+        /*
+          The URL's amount is the donor's choice for THIS click, so it must beat anything a
+          previous visit left behind — an old donorAmount in sessionStorage otherwise wins inside
+          useGiftAmountSchedule and the donor is charged an amount they did not pick.
+        */
+        parsed.donorAmount = null;
+        parsed.amountTier = null;
+      }
+      const urlCurrency = String(params.get("currency") || "").trim().toUpperCase();
+      if (urlCurrency) parsed.currency = urlCurrency;
+
       const existingKey = loadIdempotencyKey(IDEM_SESSION_KEY);
       if (existingKey && !parsed.idempotencyKey) parsed.idempotencyKey = existingKey;
       if (!parsed.idempotencyKey) {

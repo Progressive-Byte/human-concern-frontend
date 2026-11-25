@@ -14,7 +14,11 @@ const CURRENCY_SYMBOLS = {
 
 // Amount, currency and schedule state for the "Your gift" step. Lifted out of the
 // screen so Step1Gift stays readable. The old Step 2 logic is kept the same.
-export function useGiftAmountSchedule() {
+//
+// urlAmount is the ?amount= the campaign page's Donate button links with. It is passed in
+// rather than read from window.location, because on a client-side navigation window.location
+// still holds the previous URL when this provider mounts.
+export function useGiftAmountSchedule({ urlAmount: urlAmountParam } = {}) {
   const pathname = usePathname();
   const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data, update } = useDonation();
@@ -74,6 +78,13 @@ export function useGiftAmountSchedule() {
   const paymentType = data.paymentType ?? "one-time";
   const isRecurring = paymentType === "recurring";
 
+  /*
+    The ?amount= the donor picked on the campaign page. It outranks both the remembered
+    donorAmount and the admin's default preset: it is an explicit choice made for this visit.
+  */
+  const _linkAmt = Number(urlAmountParam);
+  const _hasLinkAmt = Number.isFinite(_linkAmt) && _linkAmt > 0;
+
   // donorAmount = the UI-facing total the user chose (restored on back-navigation).
   // amountTier  = the derived per-date amount (e.g. $50÷4 = $12.5) — NOT suitable
   //               for restoring the amount field because it would show the divided value.
@@ -83,7 +94,7 @@ export function useGiftAmountSchedule() {
   const _fallbackAmt = Number.isFinite(_adminDefaultAmt) && _adminDefaultAmt > 0
     ? _adminDefaultAmt
     : suggestedAmounts[0] ?? 25;
-  const initAmount  = _donorAmt ?? _urlAmt ?? _fallbackAmt;
+  const initAmount  = _hasLinkAmt ? _linkAmt : (_donorAmt ?? _urlAmt ?? _fallbackAmt);
   const sym         = CURRENCY_SYMBOLS[data.currency ?? "USD"] ?? (data.currency ?? "$");
 
   const causeSplit = data.causeSplit ?? {};

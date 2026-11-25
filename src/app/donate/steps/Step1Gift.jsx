@@ -104,7 +104,7 @@ const Step1Gift = ({ campaignSlug }) => {
     defaultPerDate,
     makeUpMissedDates,
     causeLabelById,
-  } = useGiftAmountSchedule();
+  } = useGiftAmountSchedule({ urlAmount: searchParams.get("amount") });
 
   const {
     campaignAddOns,

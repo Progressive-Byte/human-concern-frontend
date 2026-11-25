@@ -80,6 +80,35 @@ const AmountSelector = ({
   const [selectedBase, setSelectedBase]           = useState(initialBase ?? suggestedAmounts[0] ?? null);
   const [customAmount, setCustomAmount]           = useState(isCustomInit ? String(Math.round(Number(initialAmount) * 100) / 100) : "");
   const [customAmountError, setCustomAmountError] = useState("");
+
+  /*
+    `initialAmount` can arrive after the first render: on a client-side navigation the provider
+    mounts before the router exposes the new query string, so the donor's ?amount= lands a tick
+    later. Without this the tiles keep showing the admin default and the donor's pick is lost.
+    Only adopt it while the donor has not chosen anything themselves.
+  */
+  const donorTouchedAmount = useRef(false);
+  const adoptedInitialRef  = useRef(Number(initialAmount) || 0);
+  useEffect(() => {
+    const next = Number(initialAmount) || 0;
+    if (!next || next === adoptedInitialRef.current) return;
+    adoptedInitialRef.current = next;
+    if (donorTouchedAmount.current) return;
+
+    const r = rateMap[currency] ?? 1;
+    const matched = suggestedAmounts.find(
+      (b) => Math.abs(Math.round(b * r) - next) < 0.01 || Math.abs(b - next / r) < 0.01
+    );
+    if (matched !== undefined) {
+      setSelectedBase(matched);
+      setCustomAmount("");
+    } else {
+      setSelectedBase(null);
+      setCustomAmount(String(Math.round(next * 100) / 100));
+    }
+    setCustomAmountError("");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialAmount]);
   // Amount starts locked to the pre-selected value; the donor must explicitly
   // click "Change amount" to modify it, mirroring Step1Info's field lock pattern.
   const [locked, setLocked] = useState(true);
@@ -118,6 +147,7 @@ const AmountSelector = ({
   const displayTotal  = (overrideTotal !== null && overrideTotal !== undefined) ? overrideTotal : uniformTotal;
 
   const handleTileClick = (base) => {
+    donorTouchedAmount.current = true;
     setSelectedBase(base);
     setCustomAmount("");
     setCustomAmountError("");
@@ -139,6 +169,7 @@ const AmountSelector = ({
   }, [currency]);
 
   const handleCustomChange = (e) => {
+    donorTouchedAmount.current = true;
     const val = e.target.value;
     setCustomAmount(val);
     setSelectedBase(null);
