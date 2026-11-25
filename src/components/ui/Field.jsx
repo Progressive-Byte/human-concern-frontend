@@ -14,7 +14,7 @@ const Field = ({
   return (
     <div>
       {label ? (
-        <label className="text-[13px] font-medium text-[#111827] mb-1.5 block">
+        <label className="text-[12px] sm:text-[13px] font-medium text-[#111827] mb-1 block sm:mb-1.5">
           {label}
           {required && <span className="text-[#EA3335] ml-0.5">*</span>}
         </label>
@@ -27,7 +27,7 @@ const Field = ({
         onBlur={onBlur}
         readOnly={readOnly}
         placeholder={placeholder}
-        className={`w-full border border-solid rounded-xl px-4 py-2.5 sm:py-3 text-[13px] sm:text-[16px] focus:outline-none transition-colors ${
+        className={`w-full border border-solid rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-[13px] sm:text-[16px] focus:outline-none transition-colors ${
           readOnly
             ? "border-[#E5E7EB] bg-[#F3F4F6] text-[#9CA3AF] cursor-default"
             : error

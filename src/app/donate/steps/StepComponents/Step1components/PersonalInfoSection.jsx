@@ -29,7 +29,7 @@ const PersonalInfoSection = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3 sm:gap-4">
       <div className="flex items-center justify-between">
         <p className="text-[15px] sm:text-[17px] font-bold leading-snug text-[#1A1A1A]">Personal Information</p>
         {isAuthenticated && (
@@ -62,7 +62,7 @@ const PersonalInfoSection = ({
         <MarketingConsent />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-4">
         <Field label="First Name" required placeholder="John" {...personalField("firstName")} />
         <Field label="Last Name"  required placeholder="Doe"  {...personalField("lastName")}  />
       </div>

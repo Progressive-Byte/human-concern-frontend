@@ -81,8 +81,8 @@ const PhoneField = ({ value, onChange, readOnly, label = "Phone (Optional)" }) =
 
   return (
     <div>
-      <label className="text-[13px] font-medium text-[#111827] mb-1.5 block">{label}</label>
-      <div className={`flex items-stretch rounded-xl border transition-colors ${
+      <label className="text-[12px] sm:text-[13px] font-medium text-[#111827] mb-1 block sm:mb-1.5">{label}</label>
+      <div className={`flex items-stretch rounded-lg sm:rounded-xl border transition-colors ${
         readOnly ? "border-[#E5E7EB] bg-[#F3F4F6]" : "border-solid border-[#E5E7EB] focus-within:border-[#EA3335]/60"
       }`}>
         <CustomDropdown
@@ -117,7 +117,7 @@ const PhoneField = ({ value, onChange, readOnly, label = "Phone (Optional)" }) =
           onChange={readOnly ? undefined : handleNumberChange}
           readOnly={readOnly}
           placeholder="1-800-583-5841"
-          className={`flex-1 min-w-0 px-4 py-3 text-[15px] outline-none bg-transparent ${
+          className={`flex-1 min-w-0 px-3 sm:px-4 py-2 sm:py-3 text-[13px] sm:text-[15px] outline-none bg-transparent ${
             readOnly ? "text-[#9CA3AF] cursor-default" : "text-[#383838]"
           }`}
         />

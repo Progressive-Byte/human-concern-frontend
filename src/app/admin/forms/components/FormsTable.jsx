@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { formatCurrency } from "@/utils/helpers";
 import StatusPill from "./StatusPill";
 import FormsPagination from "./FormsPagination";
@@ -69,6 +70,24 @@ function computeCompletionPercent(item) {
 
 const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevPage, onNextPage, onRefresh }) => {
   const rows = Array.isArray(items) ? items : [];
+  const router = useRouter();
+
+  /*
+    Opening the form from its name is what an admin reaches for first. It goes to the same editor
+    the row's Edit action uses: the simple editor for a simple form, the wizard otherwise.
+  */
+  function openForm(item) {
+    const id = item?.id || item?.formId || item?._id;
+    if (!id) return;
+    const cid = String(item?.campaignId || item?.campaign?._id || item?.campaign?.id || campaignIdFilter || "").trim();
+    if (!cid) return;
+
+    if (getFormKind(item) === "simple") {
+      router.push(`/admin/forms/simple/new?campaignId=${encodeURIComponent(cid)}&formId=${encodeURIComponent(String(id))}`);
+      return;
+    }
+    router.push(`/admin/forms/new?step=basics&campaignId=${encodeURIComponent(cid)}&formId=${encodeURIComponent(String(id))}`);
+  }
 
   return (
     <section className="hc-animate-fade-up hc-hover-lift rounded-2xl border border-solid border-[#E5E7EB] bg-white">
@@ -118,7 +137,14 @@ const FormsTable = ({ items, loading, pagination, campaignIdFilter = "", onPrevP
                     className="border-t border-[#F3F4F6] transition-colors duration-200 hover:bg-[#F9FAFB]"
                   >
                     <td className="px-5 py-4 align-top">
-                      <div className="font-medium">{safeDisplayName(item)}</div>
+                      <button
+                        type="button"
+                        onClick={() => openForm(item)}
+                        title="Open this form"
+                        className="cursor-pointer text-left font-medium text-[#111827] underline-offset-2 transition-colors hover:text-[#DC2626] hover:underline"
+                      >
+                        {safeDisplayName(item)}
+                      </button>
                       <div className="mt-1 text-[12px] text-[#6B7280]">
                         {formKind === "simple"
                           ? "Amounts and purposes"
