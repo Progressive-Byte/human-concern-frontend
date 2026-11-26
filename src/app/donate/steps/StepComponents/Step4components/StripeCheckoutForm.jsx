@@ -290,7 +290,18 @@ const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
       onExpire={handleChallengeExpire}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <PaymentElement options={{ layout: "tabs" }} />
+        {/*
+          "Card" layout, not "tabs": tabs render one tab per method, and Link is a method.
+          Link also draws the "Optional — save my information" block with its own email and
+          phone fields, which is why the card form looked cluttered. `wallets` is off too.
+        */}
+        <PaymentElement
+          options={{
+            layout: "accordion",
+            paymentMethodOrder: ["card"],
+            wallets: { link: "never" },
+          }}
+        />
 
         {challengeExpired && (
           <p className="text-[13px] text-[#B45309] bg-[#FFF8E1] border border-[#FFE082] rounded-xl px-4 py-3">

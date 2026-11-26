@@ -308,6 +308,23 @@ const Step3Payment = () => {
 
   const base = data.campaign ? `/${data.campaign}` : "/donate";
 
+  /*
+    The pay screen keeps its own two-column shell, but the summary now behaves like every other
+    step: on a phone it is a sheet behind "View summary", not a block above the card form. The
+    total and the trigger sit in the same sticky row the wizard uses.
+  */
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const payTotal = Number(firstPaymentAmount || grandTotal || 0);
+
+  useEffect(() => {
+    if (!summaryOpen) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [summaryOpen]);
+
   if (phase === "pay") {
     return (
       <main className="min-h-screen min-h-[100dvh] bg-[#F9F9F9] pt-[72px] sm:pt-[78px] pb-16 px-3 sm:px-4">
@@ -316,14 +333,67 @@ const Step3Payment = () => {
           <div className="mb-4 sm:mb-8">
             <StepProgress current={3} />
           </div>
-          {/* Mobile: the summary sits above the card form, so the donor sees the total and
-              every fee before entering payment details. Desktop keeps the side column. */}
-          <div className="flex flex-col-reverse lg:flex-row items-start gap-5">
+
+          <div className="flex flex-col lg:flex-row items-start gap-5">
             <div className="flex-1 min-w-0 w-full">
               <PaymentPanel />
             </div>
-            <DonationPreview currentStep={3} />
+
+            {/* Desktop keeps the summary as a side column. */}
+            <div className="hidden lg:block">
+              <DonationPreview currentStep={3} />
+            </div>
           </div>
+
+          {/* Phone: the running total and the summary trigger, exactly as on steps 1 and 2. */}
+          <div className="mt-5 flex items-center justify-between gap-3 lg:hidden">
+            <div className="flex min-w-0 flex-col">
+              <span className="text-[11px] font-medium leading-none text-[#AEAEAE]">Total</span>
+              <span className="mt-1 min-w-0 truncate text-[24px] font-bold leading-none text-[#EA3335]">
+                {payTotal > 0 ? `${sym}${payTotal.toFixed(2)}` : ""}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSummaryOpen(true)}
+              aria-haspopup="dialog"
+              className="inline-flex shrink-0 cursor-pointer items-center gap-1 text-[12px] font-semibold text-[#737373] transition-colors hover:text-[#EA3335]"
+            >
+              View summary
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+
+          {summaryOpen ? (
+            <div className="fixed inset-0 z-50 lg:hidden">
+              <button
+                type="button"
+                aria-label="Close donation summary"
+                onClick={() => setSummaryOpen(false)}
+                className="absolute inset-0 bg-[#111827]/40 backdrop-blur-[2px]"
+              />
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-label="Donation summary"
+                className="absolute inset-x-0 bottom-0 max-h-[82dvh] overflow-y-auto rounded-t-3xl border-t border-[#E5E5E5] bg-white pt-2 shadow-2xl"
+                style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+              >
+                <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-[#E5E5E5]" />
+                <div className="flex items-center justify-between px-4 pb-1">
+                  <p className="text-[13px] font-semibold text-[#383838]">Donation summary</p>
+                  <button
+                    type="button"
+                    onClick={() => setSummaryOpen(false)}
+                    className="cursor-pointer rounded-lg px-2 py-1 text-[12px] font-semibold text-[#737373] transition-colors hover:bg-[#F5F5F5] hover:text-[#383838]"
+                  >
+                    Close
+                  </button>
+                </div>
+                <DonationPreview currentStep={3} showHeading={false} />
+              </div>
+            </div>
+          ) : null}
         </div>
       </main>
     );

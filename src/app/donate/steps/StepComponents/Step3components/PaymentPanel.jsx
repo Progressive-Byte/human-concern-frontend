@@ -26,7 +26,7 @@ const MIN_SWAP_BANNER_DURATION_MS = 2500;
 // moved here without the page chrome.
 const PaymentPanel = () => {
   const { data }        = useDonation();
-  const { primaryColor } = useBranding();
+  const { resolvedProgressBarColor } = useBranding();
   const pathname        = usePathname();
   const router          = useRouter();
 
@@ -238,7 +238,12 @@ const PaymentPanel = () => {
   const appearance = {
     theme: "stripe",
     variables: {
-      colorPrimary: primaryColor,
+      /*
+        The donation flow uses its own accent (donationPrimaryColor when set), not the site
+        primary — Stripe's controls were picking up the site colour and clashing with the
+        rest of the form.
+      */
+      colorPrimary: resolvedProgressBarColor,
       colorBackground: "#ffffff",
       borderRadius: "12px",
       fontSizeBase: "14px",
