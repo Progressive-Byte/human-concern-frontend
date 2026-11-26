@@ -103,8 +103,12 @@ const StepLayout = ({
             */}
             {children}
 
-            <div className="mt-6 sm:mt-8 flex items-start sm:items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-3 sm:px-4 py-2.5 sm:py-3">
-              <span className="shrink-0 mt-0.5 sm:mt-0">{NoticeIcon}</span>
+            {/*
+              Phone: the note moves into the sticky action bar, so it stays on screen while the
+              donor scrolls. Desktop keeps it inline, where the page is short enough to see it.
+            */}
+            <div className="mt-6 hidden sm:mt-8 sm:flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
+              <span className="shrink-0">{NoticeIcon}</span>
               <span className="text-[12px] text-[#AEAEAE] leading-snug">
                 Your payment is secured with 256-bit SSL encryption
               </span>
@@ -150,9 +154,14 @@ const StepLayout = ({
         {/* Mobile: the next/back buttons come after the summary button and stay reachable
             while the step scrolls. Nothing moves in the DOM — it only stops scrolling away. */}
         <div
-          className="min-[1440px]:hidden sticky bottom-0 z-30 -mx-3 sm:-mx-4 mt-3 border-t border-[#EBEBEB] bg-white/95 px-3 sm:px-4 pt-3 backdrop-blur"
+          className="min-[1440px]:hidden sticky bottom-0 z-30 -mx-3 sm:-mx-4 mt-3 border-t border-[#EBEBEB] bg-white/95 px-3 sm:px-4 pt-2.5 backdrop-blur"
           style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
         >
+          {/* Always visible on a phone: the reassurance the donor needs at the moment of paying. */}
+          <p className="mb-2 flex items-center justify-center gap-1.5 text-[11px] leading-none text-[#AEAEAE] sm:hidden">
+            <span className="shrink-0">{NoticeIcon}</span>
+            Your payment is secured with 256-bit SSL encryption
+          </p>
           {navRow}
         </div>
 

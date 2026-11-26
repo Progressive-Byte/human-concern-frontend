@@ -57,41 +57,59 @@ const PersonalInfoSection = ({
         </p>
       )}
 
-      <div className="flex flex-col gap-2">
-        <Field label="Email" required type="email" placeholder="you@example.com" {...personalField("email")} />
-        <MarketingConsent />
-      </div>
+      {/*
+        All the typed fields first, in the order a donor reads them, then the optional
+        tick-boxes grouped in one panel. Before this they were interleaved — a checkbox
+        between Email and First Name, then more further down — which read as clutter.
+        The marketing opt-in stays directly under Email, where it has always been.
+      */}
+      <Field label="Email" required type="email" placeholder="you@example.com" {...personalField("email")} />
+
+      <MarketingConsent />
 
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-4">
         <Field label="First Name" required placeholder="John" {...personalField("firstName")} />
         <Field label="Last Name"  required placeholder="Doe"  {...personalField("lastName")}  />
       </div>
 
-      <label className="flex items-center gap-2.5 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={showOrganization}
-          onChange={(e) => handleOrganizationToggle(e.target.checked)}
-          className="h-4 w-4 shrink-0 rounded border-[#CCCCCC] accent-[#EA3335] focus:ring-[#EA3335]"
-        />
-        <span className="text-[13px] text-[#383838]">I am giving on behalf of a company/organization</span>
-      </label>
-
-      {showOrganization && (
-        <Field label="Organization" placeholder="xyz ltd" {...personalField("organization")} />
-      )}
-
-      <label className="flex items-center gap-2.5 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={Boolean(data.anonymous)}
-          onChange={(e) => update({ anonymous: e.target.checked })}
-          className="h-4 w-4 shrink-0 rounded border-[#CCCCCC] accent-[#EA3335] focus:ring-[#EA3335]"
-        />
-        <span className="text-[13px] text-[#383838]">Give anonymously</span>
-      </label>
-
       <PhoneField {...personalField("phone")} />
+
+      {/*
+        The optional tick-boxes form one panel. The Organization field opens inside that panel,
+        directly under the box that revealed it — outside, it read as an unrelated field
+        floating below a group it did not appear to belong to.
+      */}
+      <div className="flex flex-col divide-y divide-[#F0F0F0] rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-3">
+        <div className="py-3">
+          <label className="flex cursor-pointer select-none items-start gap-2.5">
+            <input
+              type="checkbox"
+              checked={showOrganization}
+              onChange={(e) => handleOrganizationToggle(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#CCCCCC] accent-[#EA3335] focus:ring-[#EA3335]"
+            />
+            <span className="text-[13px] leading-snug text-[#383838]">
+              I am giving on behalf of a company/organization
+            </span>
+          </label>
+
+          {showOrganization && (
+            <div className="mt-3 pl-[26px]">
+              <Field label="Organization" placeholder="xyz ltd" {...personalField("organization")} />
+            </div>
+          )}
+        </div>
+
+        <label className="flex cursor-pointer select-none items-start gap-2.5 py-3">
+          <input
+            type="checkbox"
+            checked={Boolean(data.anonymous)}
+            onChange={(e) => update({ anonymous: e.target.checked })}
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#CCCCCC] accent-[#EA3335] focus:ring-[#EA3335]"
+          />
+          <span className="text-[13px] leading-snug text-[#383838]">Give anonymously</span>
+        </label>
+      </div>
     </div>
   );
 };

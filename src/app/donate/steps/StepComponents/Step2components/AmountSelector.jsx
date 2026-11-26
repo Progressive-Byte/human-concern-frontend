@@ -138,10 +138,9 @@ const AmountSelector = ({
     ? Number(customAmount)
     : toPresetAmount(selectedBase ?? 0);
 
-  // Admin description for a preset. A typed custom amount has no preset, so it has none.
+  // Admin description for a preset, shown on the tiles inside the picker.
   const descriptionFor = (base) =>
     suggestedAmountsData.find((a) => Number(a?.value) === Number(base))?.description ?? "";
-  const currentDescription = selectedBase !== null && !customAmount ? descriptionFor(selectedBase) : "";
 
   const uniformTotal  = effectiveAmount * occurrences;
   const displayTotal  = (overrideTotal !== null && overrideTotal !== undefined) ? overrideTotal : uniformTotal;
@@ -213,28 +212,25 @@ const AmountSelector = ({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="mb-3 flex items-start justify-between gap-3">
+        {/*
+          Locked: the chosen amount and the Change action on one boxed row, so the figure is not
+          left floating in empty space. The box is mobile only; desktop keeps the plain row.
+        */}
+        <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-3 py-2.5 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
           {locked ? (
-            // Locked: the chosen amount sits inline here — compact, not a big dead tile.
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="text-[22px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
-                {sym}{formatDisplay(effectiveAmount)}
-              </span>
-              {/* Hidden on a phone to keep the locked amount compact; shown from sm up. */}
-              {currentDescription && (
-                <span className="hidden text-[12px] leading-snug text-[#737373] sm:block">{currentDescription}</span>
-              )}
-            </div>
+            <span className="min-w-0 truncate text-[22px] font-bold leading-none text-[#EA3335]">
+              {sym}{formatDisplay(effectiveAmount)}
+            </span>
           ) : recurringLabel ? (
             <label className="block text-[13px] font-medium text-[#383838]">{recurringLabel}</label>
           ) : <span />}
           <button
             type="button"
             onClick={() => setLocked((prev) => !prev)}
-            className={`inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border px-2.5 sm:px-3 py-1.5 text-[12px] font-semibold transition-colors cursor-pointer select-none whitespace-nowrap ${
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 sm:px-3 py-1.5 text-[12px] font-semibold transition-colors cursor-pointer select-none whitespace-nowrap ${
               locked
                 ? "border-[#E5E7EB] bg-white text-[#383838] hover:border-[#EA3335]/50 hover:text-[#EA3335]"
-                : "border-[#EA3335]/40 bg-[#FFF5F5] text-[#EA3335] hover:bg-[#FFEBEB]"
+                : "border-[#055A46]/40 bg-[#F0F5F4] text-[#055A46] hover:bg-[#DCE8E5]"
             }`}
           >
             {locked ? (

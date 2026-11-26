@@ -572,19 +572,25 @@ const Step1Gift = ({ campaignSlug }) => {
         )}
 
         {campaignAddOns.length > 0 && (
-          <div className="flex flex-col gap-3">
-            <SectionStep title="Add-ons / special giving" />
-            <p className="text-[12px] text-[#737373] -mt-1">
-              These are additional gifts. Each one is added on top of your donation and sent to its own fund.
-            </p>
-            <AddOnsList
-              campaignAddOns={campaignAddOns}
-              sym={sym}
-              addOnEnabled={addOnEnabled}
-              setAddOnEnabled={setAddOnEnabled}
-              addOnInputs={addOnInputs}
-              updateAddOnInput={updateAddOnInput}
-            />
+          /* Same boxed treatment as the Address block: a grey header naming the section,
+             then the rows. Keeps the two optional sections in the form looking alike. */
+          <div className="overflow-hidden rounded-2xl border border-solid border-[#E5E7EB]">
+            <div className="border-b border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
+              <SectionStep title="Add-ons / special giving" />
+              <p className="mt-1 text-[12px] leading-snug text-[#737373]">
+                Extra gifts, added on top of your donation. Each goes to its own fund.
+              </p>
+            </div>
+            <div className="px-4 py-3">
+              <AddOnsList
+                campaignAddOns={campaignAddOns}
+                sym={sym}
+                addOnEnabled={addOnEnabled}
+                setAddOnEnabled={setAddOnEnabled}
+                addOnInputs={addOnInputs}
+                updateAddOnInput={updateAddOnInput}
+              />
+            </div>
           </div>
         )}
 

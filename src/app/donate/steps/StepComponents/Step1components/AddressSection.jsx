@@ -144,11 +144,18 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
   }, [update, setError]);
 
   return (
-    <div className="border border-solid border-[#E5E7EB] rounded-2xl overflow-hidden">
+    /*
+      No `overflow-hidden` here: the country/state/city dropdowns open as absolutely positioned
+      panels and were being clipped to the box, so a long list was cut off inside it. The header
+      rounds itself instead, which keeps the corners clean without trapping the panels.
+    */
+    <div className="border border-solid border-[#E5E7EB] rounded-2xl">
       <button
         type="button"
         onClick={() => setAddressExpanded((v) => !v)}
-        className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-[#F9F9F9] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+        className={`w-full flex items-center justify-between gap-3 px-4 py-3 bg-[#F9F9F9] hover:bg-[#F3F4F6] transition-colors cursor-pointer ${
+          addressExpanded ? "rounded-t-2xl" : "rounded-2xl"
+        }`}
       >
         <div className="flex min-w-0 items-center gap-2">
           <p className="shrink-0 text-[15px] sm:text-[17px] font-bold leading-snug text-[#1A1A1A]">Address Information</p>
@@ -170,6 +177,7 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
               <label className="text-[13px] font-medium text-[#111827]">
                 Address Line 1<span className="text-[#EA3335] ml-0.5">*</span>
               </label>
+              {/* The toggle only makes sense when there is a search to switch away from. */}
               {!noKey && (
                 <button
                   type="button"
@@ -180,18 +188,34 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
                 </button>
               )}
             </div>
-            <GooglePlacesInput
-              value={data.addressLine1 ?? ""}
-              onChange={(e) => { update({ addressLine1: e.target.value }); setError(""); }}
-              onPlaceSelect={handlePlaceSelect}
-              placeholder="Start typing your address…"
-              apiKey={googleMapsApiKey || ""}
-            />
-            <p className="text-[11px] text-[#AEAEAE]">
-              {noKey
-                ? "Enter your full address below."
-                : "Select from suggestions to auto-fill country, state and city — or type manually."}
-            </p>
+
+            {/*
+              Two modes, decided by whether a Google Maps key is configured:
+              with a key, a search box that fills the rest of the address;
+              without one, a plain field and the full set of manual dropdowns below.
+            */}
+            {noKey ? (
+              <Field
+                label=""
+                required
+                placeholder="Street address"
+                {...addressField("addressLine1")}
+              />
+            ) : (
+              <GooglePlacesInput
+                value={data.addressLine1 ?? ""}
+                onChange={(e) => { update({ addressLine1: e.target.value }); setError(""); }}
+                onPlaceSelect={handlePlaceSelect}
+                placeholder="Start typing your address…"
+                apiKey={googleMapsApiKey || ""}
+              />
+            )}
+
+            {!noKey && (
+              <p className="text-[11px] text-[#AEAEAE]">
+                Select from suggestions to auto-fill country, state and city — or type manually.
+              </p>
+            )}
           </div>
 
           {/* Search mode hides these: picking a suggestion fills them behind the scenes. */}
