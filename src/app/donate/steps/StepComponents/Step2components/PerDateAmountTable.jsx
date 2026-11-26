@@ -3,9 +3,11 @@
 import { useState } from "react";
 import DateAmountRow from "./DateAmountRow";
 
-// How many rows are drawn before the list collapses. A yearly daily plan is 364 dates; rendering
-// all of them buries the page and shows 364 identical "$0.02 — set by the plan" lines.
+// How many rows are shown before the list needs a tap. A yearly daily plan is 364 dates;
+// rendering all of them at once turned the page into a 24,000px scroll.
 const COLLAPSE_AFTER = 6;
+// Every tap adds this many rows, so the page grows in steps the donor controls.
+const PAGE_SIZE = 12;
 
 const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, onChange, minDateStr, causeSplit, causeLabelById, resolvedAmounts = null, readOnly = false }) => {
   const cutoff = minDateStr ?? new Date().toISOString().split("T")[0];
@@ -13,17 +15,19 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
   const futureDates = activeDates.filter((d) => d >= cutoff);
   const pastDates   = activeDates.filter((d) => d < cutoff);
 
-  const [expanded, setExpanded] = useState(false);
+  const [shown, setShown] = useState(COLLAPSE_AFTER);
 
   /*
-    A locked plan charges every date the same, so listing them one by one adds nothing: the header
+    A locked plan charges every date the same, so listing all of them adds nothing: the header
     already says how many dates there are and the footer already gives the total. Show a short
-    sample and let the donor expand when they want the detail.
+    sample and reveal more in pages, so a 364-date plan never becomes a 364-row page.
 
-    An editable plan is different — each row can be changed, so the donor may genuinely need them.
+    An editable plan is different — each row can be changed, so every row is drawn.
   */
   const collapsible = readOnly && activeDates.length > COLLAPSE_AFTER;
-  const visibleDates = collapsible && !expanded ? activeDates.slice(0, COLLAPSE_AFTER) : activeDates;
+  const visibleDates = collapsible ? activeDates.slice(0, shown) : activeDates;
+  const hasMore = collapsible && shown < activeDates.length;
+  const nextStep = Math.min(PAGE_SIZE, activeDates.length - shown);
 
   // Prefer the amount the schedule will actually be charged (which carries the last-installment
   // remainder) so what the donor reads matches what is submitted.
@@ -76,15 +80,26 @@ const PerDateAmountTable = ({ activeDates, dateAmounts, effectiveAmount, sym, on
         ))}
 
         {collapsible && (
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="mt-1 mb-1 w-full cursor-pointer rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-[12px] font-semibold text-[#737373] transition-colors hover:border-[#EA3335]/40 hover:text-[#EA3335]"
-          >
-            {expanded
-              ? "Show fewer dates"
-              : `Show all ${activeDates.length} dates`}
-          </button>
+          <div className="mt-1 mb-1 flex flex-col gap-1.5">
+            {hasMore && (
+              <button
+                type="button"
+                onClick={() => setShown((v) => Math.min(activeDates.length, v + PAGE_SIZE))}
+                className="w-full cursor-pointer rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-[12px] font-semibold text-[#737373] transition-colors hover:border-[#EA3335]/40 hover:text-[#EA3335]"
+              >
+                Show {nextStep} more ({activeDates.length - shown} left)
+              </button>
+            )}
+            {shown > COLLAPSE_AFTER && (
+              <button
+                type="button"
+                onClick={() => setShown(COLLAPSE_AFTER)}
+                className="w-full cursor-pointer rounded-lg px-3 py-1.5 text-[12px] font-medium text-[#AEAEAE] transition-colors hover:text-[#737373]"
+              >
+                Show fewer dates
+              </button>
+            )}
+          </div>
         )}
       </div>
 
