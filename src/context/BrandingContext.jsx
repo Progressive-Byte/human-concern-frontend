@@ -11,6 +11,7 @@ const BrandingContext = createContext({
   accentColor: DEFAULT_ACCENT,
   donationPrimaryColor: "",
   progressBarColor: "",
+  resolvedProgressBarColor: DEFAULT_PRIMARY,
   donationThemeStyle: {},
   googleMapsApiKey: null,
 });

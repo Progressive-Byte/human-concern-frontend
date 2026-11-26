@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { NoticeIcon } from "@/components/common/SvgIcon";
 import { apiRequest } from "@/services/api";
 import UnifiedChallengeDispatcher, {
   loadUnifiedChallengeFromSession,
@@ -27,7 +29,7 @@ function readSessionChallengeIds() {
   }
 }
 
-const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, currency, isRecurring }) => {
+const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, currency, isRecurring, actionSlot }) => {
   const stripe   = useStripe();
   const elements = useElements();
   const router   = useRouter();
@@ -282,6 +284,32 @@ const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
     clearUnifiedChallengeSession();
   }, []);
 
+  const payButton = (
+    <button
+      type="submit"
+      /* Set explicitly so the button still submits the form when it is portalled out of it. */
+      form="stripe-checkout-form"
+      disabled={!stripe || loading || challengeExpired}
+      className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[15px] font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+    >
+      {loading ? (
+        <>
+          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span>{isRecurring ? "Setting up…" : "Processing…"}</span>
+        </>
+      ) : isRecurring ? (
+        firstPaymentAmount != null
+          ? `Authorise split payments — first payment ${sym}${Number(firstPaymentAmount).toFixed(2)}${firstPaymentDate ? ` on ${firstPaymentDate}` : ""}`
+          : `Authorise Split Payments (${sym}${(grandTotal ?? 0).toFixed(2)})`
+      ) : (
+        `Pay ${sym}${(grandTotal ?? 0).toFixed(2)}`
+      )}
+    </button>
+  );
+
   return (
     <UnifiedChallengeDispatcher
       challenge={data.unifiedChallenge ?? null}
@@ -289,7 +317,7 @@ const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
       onDispatch={handleChallengeDispatch}
       onExpire={handleChallengeExpire}
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form id="stripe-checkout-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/*
           "Card" layout, not "tabs": tabs render one tab per method, and Link is a method.
           Link also draws the "Optional — save my information" block with its own email and
@@ -315,27 +343,33 @@ const StripeCheckoutForm = ({ grandTotal, firstPaymentAmount, firstPaymentDate, 
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={!stripe || loading || challengeExpired}
-          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 text-white text-[15px] font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-        >
-          {loading ? (
-            <>
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              <span>{isRecurring ? "Setting up…" : "Processing…"}</span>
-            </>
-          ) : isRecurring ? (
-            firstPaymentAmount != null
-              ? `Authorise split payments — first payment ${sym}${Number(firstPaymentAmount).toFixed(2)}${firstPaymentDate ? ` on ${firstPaymentDate}` : ""}`
-              : `Authorise Split Payments (${sym}${(grandTotal ?? 0).toFixed(2)})`
-          ) : (
-            `Pay ${sym}${(grandTotal ?? 0).toFixed(2)}`
-          )}
-        </button>
+        {/*
+          Desktop: the button and the "secured" note close the card, in normal flow.
+          Phone: the same bar is portalled into the slot the page places *after* the total row,
+          so the order matches every other step — summary row on top, action bar sticking last.
+        */}
+        <div className="hidden lg:block">
+          <div className="mt-6 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
+            <span className="shrink-0">{NoticeIcon}</span>
+            <span className="text-[12px] leading-snug text-[#AEAEAE]">
+              Your payment is secured with 256-bit SSL encryption
+            </span>
+          </div>
+          <div className="mt-5">{payButton}</div>
+        </div>
+
+        {actionSlot
+          ? createPortal(
+              <div className="lg:hidden">
+                <p className="mb-2 flex items-center justify-center gap-1.5 text-[11px] leading-none text-[#AEAEAE]">
+                  <span className="shrink-0">{NoticeIcon}</span>
+                  Your payment is secured with 256-bit SSL encryption
+                </p>
+                {payButton}
+              </div>,
+              actionSlot
+            )
+          : null}
       </form>
     </UnifiedChallengeDispatcher>
   );

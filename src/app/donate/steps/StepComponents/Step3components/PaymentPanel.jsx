@@ -24,7 +24,7 @@ const MIN_SWAP_BANNER_DURATION_MS = 2500;
 
 // The payment form half of Step 3. This is the old Step 4 confirmation logic,
 // moved here without the page chrome.
-const PaymentPanel = () => {
+const PaymentPanel = ({ actionSlot }) => {
   const { data }        = useDonation();
   const { resolvedProgressBarColor } = useBranding();
   const pathname        = usePathname();
@@ -380,6 +380,7 @@ const PaymentPanel = () => {
                 firstPaymentDate={data.firstPaymentDate}
                 currency={data.currency}
                 isRecurring={isRecurring}
+                actionSlot={actionSlot}
               />
             </Elements>
           ) : (
@@ -408,10 +409,16 @@ const PaymentPanel = () => {
         </div>
       )}
 
-      <div className="mt-6 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
-        {NoticeIcon}
-        <span className="text-[12px] text-[#AEAEAE]">Your payment is secured with 256-bit SSL encryption</span>
-      </div>
+      {/*
+        The "secured" note moved into the checkout form's action bar, where it sits above the pay
+        button like every other step. Rendering it here too duplicated it below the button.
+      */}
+      {!isStripe && (
+        <div className="mt-6 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
+          {NoticeIcon}
+          <span className="text-[12px] text-[#AEAEAE]">Your payment is secured with 256-bit SSL encryption</span>
+        </div>
+      )}
     </div>
   );
 };

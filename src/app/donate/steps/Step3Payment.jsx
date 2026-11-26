@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useDonation } from "@/context/DonationContext";
+import { useBranding } from "@/context/BrandingContext";
 import { useStepNavigation } from "@/hooks/useStepNavigation";
 import { apiRequest } from "@/services/api";
 import { submitScheduleEditForm } from "@/services/donationService";
@@ -28,6 +29,7 @@ const Step3Payment = () => {
   const router = useRouter();
   const isPreview = pathname.startsWith("/admin/forms/preview");
   const { data, update } = useDonation();
+  const { donationThemeStyle } = useBranding();
   const { handlePrev } = useStepNavigation();
 
   const isEditMode = useMemo(() => {
@@ -314,6 +316,9 @@ const Step3Payment = () => {
     total and the trigger sit in the same sticky row the wizard uses.
   */
   const [summaryOpen, setSummaryOpen] = useState(false);
+  /* The card form portals its pay button into this slot, so on a phone the bar sits last —
+     under the total row — the same order every other step uses. */
+  const [payBarSlot, setPayBarSlot] = useState(null);
   const payTotal = Number(firstPaymentAmount || grandTotal || 0);
 
   useEffect(() => {
@@ -327,7 +332,10 @@ const Step3Payment = () => {
 
   if (phase === "pay") {
     return (
-      <main className="min-h-screen min-h-[100dvh] bg-[#F9F9F9] pt-[72px] sm:pt-[78px] pb-16 px-3 sm:px-4">
+      <main
+        style={donationThemeStyle}
+        className="min-h-screen min-h-[100dvh] bg-[#F9F9F9] pt-[72px] sm:pt-[78px] pb-0 lg:pb-16 px-3 sm:px-4"
+      >
         <DonateFormHeader maxWidth="max-w-5xl" />
         <div className="max-w-5xl mx-auto">
           <div className="mb-4 sm:mb-8">
@@ -336,7 +344,7 @@ const Step3Payment = () => {
 
           <div className="flex flex-col lg:flex-row items-start gap-5">
             <div className="flex-1 min-w-0 w-full">
-              <PaymentPanel />
+              <PaymentPanel actionSlot={payBarSlot} />
             </div>
 
             {/* Desktop keeps the summary as a side column. */}
@@ -363,6 +371,14 @@ const Step3Payment = () => {
               <span aria-hidden="true">›</span>
             </button>
           </div>
+
+          {/* The pay button lands here — under the total row, sticking to the bottom edge,
+              which is the order every other step uses. */}
+          <div
+            ref={setPayBarSlot}
+            className="lg:hidden sticky bottom-0 z-30 -mx-3 sm:-mx-4 mt-3 border-t border-[#EBEBEB] bg-white/95 px-3 sm:px-4 pt-2.5 backdrop-blur"
+            style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+          />
 
           {summaryOpen ? (
             <div className="fixed inset-0 z-50 lg:hidden">
