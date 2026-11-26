@@ -20,7 +20,7 @@ const getServerConfigSnapshot = () => null;
 // information is filled in. Read-only — it never blocks navigation.
 const DonateFormHeader = ({ maxWidth = "max-w-[700px]" }) => {
   const { data } = useDonation();
-  const { resolvedProgressBarColor } = useBranding();
+  const { resolvedProgressBarColor, showProgressBar } = useBranding();
   const pathname = usePathname();
   const rawConfig = useSyncExternalStore(subscribe, getConfigSnapshot, getServerConfigSnapshot);
 
@@ -65,20 +65,26 @@ const DonateFormHeader = ({ maxWidth = "max-w-[700px]" }) => {
           )}
         </div>
 
-        {/* The bar stays a thin track at every width — the figure lives above it, not inside it. */}
-        <div
-          className="h-[4px] w-full overflow-hidden rounded-full bg-[#E5E5E5] sm:h-[5px]"
-          role="progressbar"
-          aria-valuenow={percent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Form completion"
-        >
+        {/*
+          The track can be switched off in Settings → Branding. The name and the "N% complete"
+          line stay either way — they are what tells the donor where they are; only the thin
+          coloured bar is optional.
+        */}
+        {showProgressBar && (
           <div
-            className="h-full rounded-full transition-[width] duration-500 ease-out"
-            style={{ width: `${percent}%`, backgroundColor: resolvedProgressBarColor }}
-          />
-        </div>
+            className="h-[4px] w-full overflow-hidden rounded-full bg-[#E5E5E5] sm:h-[5px]"
+            role="progressbar"
+            aria-valuenow={percent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Form completion"
+          >
+            <div
+              className="h-full rounded-full transition-[width] duration-500 ease-out"
+              style={{ width: `${percent}%`, backgroundColor: resolvedProgressBarColor }}
+            />
+          </div>
+        )}
       </div>
     </header>
   );

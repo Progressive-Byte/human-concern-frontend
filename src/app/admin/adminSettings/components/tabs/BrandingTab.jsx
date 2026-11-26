@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { siteUrl } from "@/utils/constants";
 import SettingsSectionCard from "../SettingsSectionCard";
+import Toggle from "@/components/ui/Toggle";
 
 function BrandingIcon() {
   return (
@@ -206,6 +207,7 @@ const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo,
   const accentColor = String(branding?.accentColor || "");
   const donationPrimaryColor = String(branding?.donationPrimaryColor || "");
   const progressBarColor = String(branding?.progressBarColor || "");
+  const showProgressBar = branding?.showProgressBar !== false;
   const customCss = String(branding?.customCss || "");
 
   return (
@@ -312,6 +314,34 @@ const BrandingTab = ({ value, onChange, loading, saving, logoBusy, onUploadLogo,
               The fill of the sticky bar at the top of every donation step. Leave empty to use the
               donation form primary color.
             </p>
+
+            {/*
+              Hiding the track is independent of its colour: the form name and "N% complete" text
+              stay, so the donor still knows where they are. Kept here beside the colour so both
+              header-progress controls live together.
+            */}
+            <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-[#E5E7EB] px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-[13px] font-medium text-[#383838]">Show header progress bar</p>
+                <p className="mt-0.5 text-[12px] text-[#6B7280]">
+                  Turn off to hide the bar on the donation form. The form name and the percentage
+                  text stay visible.
+                </p>
+              </div>
+              <Toggle
+                enabled={showProgressBar}
+                disabled={loading}
+                onChange={(next) =>
+                  onChange?.((prev) => {
+                    const p = prev || {};
+                    if (p?.branding && typeof p.branding === "object") {
+                      return { ...p, branding: { ...p.branding, showProgressBar: next } };
+                    }
+                    return { ...p, showProgressBar: next };
+                  })
+                }
+              />
+            </div>
           </div>
         </div>
 

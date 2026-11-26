@@ -12,6 +12,7 @@ const BrandingContext = createContext({
   donationPrimaryColor: "",
   progressBarColor: "",
   resolvedProgressBarColor: DEFAULT_PRIMARY,
+  showProgressBar: true,
   donationThemeStyle: {},
   googleMapsApiKey: null,
 });
@@ -88,6 +89,8 @@ export function BrandingProvider({ children }) {
     accentColor: DEFAULT_ACCENT,
     donationPrimaryColor: "",
     progressBarColor: "",
+    // true until Settings says otherwise, so the bar a site already has never disappears silently.
+    showProgressBar: true,
     logoPath: "",
     // null = still loading, '' = loaded but not configured, string = the key.
     googleMapsApiKey: null,
@@ -116,6 +119,7 @@ export function BrandingProvider({ children }) {
         accentColor: normalizeHex(branding?.accentColor, DEFAULT_ACCENT),
         donationPrimaryColor: normalizeHex(branding?.donationPrimaryColor, ""),
         progressBarColor: normalizeHex(branding?.progressBarColor, ""),
+        showProgressBar: branding?.showProgressBar !== false,
         logoPath: branding?.logo?.path ? String(branding.logo.path) : "",
         googleMapsApiKey: String(integrations?.googleMapsApiKey || ""),
       });
