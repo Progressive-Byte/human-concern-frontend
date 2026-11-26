@@ -383,6 +383,12 @@ const Step1Gift = ({ campaignSlug }) => {
     >
       <div className="flex flex-col gap-6">
 
+        {/*
+          The amount and the one-time/recurring switch are one decision, so they sit in a single
+          group with a tight gap. Before this they were two siblings under the outer 24px gap,
+          which left a visible void now that the heading above the switch is gone.
+        */}
+        <div className="flex flex-col gap-2.5">
         <div className="flex flex-col gap-3">
           <div className="flex items-start justify-between gap-2">
             <SectionStep title="Amount" />
@@ -437,8 +443,12 @@ const Step1Gift = ({ campaignSlug }) => {
         </div>
 
         {allowRecurring && (
-          <div className="flex flex-col gap-3">
-            <SectionStep title="How would you like to give?" />
+          <div className="flex flex-col">
+            {/*
+              The "How would you like to give?" heading was removed. The toggle names its own two
+              options, so it explains itself — the heading only added a line of height above a
+              control that already reads clearly.
+            */}
             <div className="relative flex rounded-full bg-[#F5F5F5] p-1">
               <span
                 aria-hidden="true"
@@ -480,6 +490,7 @@ const Step1Gift = ({ campaignSlug }) => {
             </div>
           </div>
         )}
+        </div>
 
         <CauseSelector
           causes={causes}

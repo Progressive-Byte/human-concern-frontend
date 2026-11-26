@@ -216,7 +216,14 @@ const AmountSelector = ({
           Locked: the chosen amount and the Change action on one boxed row, so the figure is not
           left floating in empty space. The box is mobile only; desktop keeps the plain row.
         */}
-        <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-3 py-2.5 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+        {/*
+          `mb-3` only while unlocked: it separates this row from the amount tiles below it. In the
+          locked state nothing follows inside this block, so the margin just added a void under the
+          box that stacked with the gap of the section below.
+        */}
+        <div className={`flex items-center justify-between gap-3 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-3 py-2.5 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 ${
+          locked ? "" : "mb-3"
+        }`}>
           {locked ? (
             <span className="min-w-0 truncate text-[22px] font-bold leading-none text-[#EA3335]">
               {sym}{formatDisplay(effectiveAmount)}
