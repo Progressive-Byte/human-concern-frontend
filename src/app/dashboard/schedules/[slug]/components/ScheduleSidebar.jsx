@@ -27,15 +27,15 @@ async function openScheduleEditSession(scheduleId, router) {
   const rawConfig = editableSchedule.scheduleConfig || {};
   const dates = Array.isArray(rawConfig.dates) ? rawConfig.dates : [];
 
-  // The backend bakes add-ons + tip into the first installment date.
-  // Strip them out so context holds only the base per-installment amounts.
+  /*
+    The API already returns BASE amounts here — it strips the tip and add-ons from every row
+    before building `editableSchedule`. Subtracting them again would eat into the donor's real
+    per-payment amount. `addonsTotal` is still needed below for the rest of the edit context.
+  */
   const addonsTotal = addons.reduce((sum, a) => sum + Number(a.amount || 0), 0);
-  const tipAmt = Number(tip.platformTipAmount || 0);
-
-  const baseAmounts = dates.map((dt, i) => {
+  const baseAmounts = dates.map((dt) => {
     const raw = Number(dt.amount || 0);
-    const computed = i === 0 ? Math.max(0, raw - addonsTotal - tipAmt) : raw;
-    return Math.round(computed * 100) / 100;
+    return Math.round(Math.max(0, raw) * 100) / 100;
   });
 
   const datesList = dates.map((dt) => String(dt.date));

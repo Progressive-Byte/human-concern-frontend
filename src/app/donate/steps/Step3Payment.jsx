@@ -112,7 +112,14 @@ const Step3Payment = () => {
     : 0;
 
   const addOnsTotal = Number(data.addOnsTotal ?? 0);
-  const grandTotal = baseDonation + addOnsTotal + tipAmount;
+  /*
+    For a recurring plan the tip is charged with every payment, so the running total is the
+    PER-PAYMENT figure ("what the next charge will be") rather than the whole commitment plus one
+    tip. A one-time donation has a single charge, where both readings are the same.
+  */
+  const grandTotal = isRecurring
+    ? Number((tipBasis + tipAmount).toFixed(2))
+    : Number((baseDonation + addOnsTotal + tipAmount).toFixed(2));
 
   const { amount: firstPaymentAmount, date: firstPaymentDate } = computeFirstPayment({
     isRecurring,

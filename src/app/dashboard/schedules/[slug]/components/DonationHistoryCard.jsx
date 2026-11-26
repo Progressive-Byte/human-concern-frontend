@@ -215,7 +215,7 @@ function HistoryRow({ row, currency, donationId, onError, onSaved, scheduleStatu
             {extras > 0 ? (
               <span
                 className="text-[11px] text-[#6B7280] whitespace-nowrap"
-                title="One-time tip and add-ons, charged with the first payment"
+                title="Add-ons are charged once with the first payment; the platform tip is added to every payment"
               >
                 incl. {formatCurrency(extras, cur)}
               </span>

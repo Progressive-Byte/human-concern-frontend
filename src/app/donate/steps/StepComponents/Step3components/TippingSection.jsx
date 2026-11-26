@@ -142,7 +142,7 @@ const TippingSection = ({
         </div>
 
         <p className="text-[11px] text-[#AEAEAE] mt-2">
-          {sliderValue}% of base donation ({sym}{Number(baseDonation.toFixed(2))})
+          {sliderValue}% of base donation ({sym}{Number(baseDonation.toFixed(2))}) — added to every payment
         </p>
       </div>
 

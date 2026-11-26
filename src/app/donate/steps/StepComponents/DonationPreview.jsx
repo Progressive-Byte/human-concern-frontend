@@ -6,7 +6,7 @@ import Section from "@/components/ui/Section";
 import { useDonation } from "@/context/DonationContext";
 import { generateDatesInRange } from "./countOccurrences";
 import { distributeAmount } from "@/utils/causeSplit";
-import { computeFirstPayment, resolveFirstInstallment } from "./firstPayment";
+import { computeFirstPayment, resolveFirstInstallment, tipOnBase } from "./firstPayment";
 
 const CURRENCY_SYMBOLS = { USD: "$", GBP: "£", EUR: "€", CAD: "CA$" };
 
@@ -41,11 +41,10 @@ const DonationPreview = ({ currentStep, showHeading = true }) => {
   // grandTotalBase: for recurring show per-payment amount, for one-time show full amount
   const grandTotalBase = isRecurring ? effectiveAmountTier : baseTotal;
 
-  const customTipParsed = data.customTipAmount !== "" && data.customTipAmount != null
-    ? Math.max(0, Number(data.customTipAmount) || 0)
-    : null;
-  // Recurring tips apply to the FIRST payment (the full tip is charged with installment #1),
-  // matching Step3Addons; one-time keeps using the total.
+  /*
+    The tip is charged with EVERY payment, so its amount is the per-payment figure, not a
+    one-time extra. `tipBasis` is what one payment's base is for a recurring plan.
+  */
   const tipBasis = isRecurring
     ? resolveFirstInstallment({
         isRecurring,
@@ -55,14 +54,12 @@ const DonationPreview = ({ currentStep, showHeading = true }) => {
       }).base
     : baseTotal;
 
-  const tipAmount = (currentStep >= 1 && enableTipping)
-    ? (customTipParsed !== null
-        ? customTipParsed
-        : data.tipPct
-          ? Math.round(tipBasis * data.tipPct) / 100
-          : 0)
+  const tipPerPayment = (currentStep >= 1 && enableTipping)
+    ? tipOnBase({ base: tipBasis, tipPct: data.tipPct, customTipAmount: data.customTipAmount })
     : 0;
-  const hasTip     = tipAmount > 0;
+  // One-time donations have a single payment, so its tip is simply the full charge's tip.
+  const tipAmount = tipPerPayment;
+  const hasTip = tipAmount > 0;
   const showAddons = currentStep >= 1 && (data.addOnBreakdown?.length > 0 || hasTip);
   const isSpecificDates  = isRecurring && data.scheduleType === "specific_dates";
   const isDateRange      = isRecurring && data.scheduleType === "date_range";
@@ -98,9 +95,8 @@ const DonationPreview = ({ currentStep, showHeading = true }) => {
     });
   }, [isDateRange, data.scheduleConfig, effectiveAmountTier]);
 
-  // The backend charges the first instalment plus ALL add-ons and the tip
-  // (installment1Amount = installments[0].baseAmount + extrasOnce). Show that exact
-  // first charge so the recurring summary isn't read as "every payment costs this".
+  // The first charge is the first instalment plus every one-time extra (add-ons) and that
+  // instalment's own tip. Show it so the recurring summary isn't read as "every payment costs this".
   const { amount: firstPayment, date: firstPaymentDate } = computeFirstPayment({
     isRecurring,
     scheduleType: data.scheduleType,
@@ -341,10 +337,12 @@ const DonationPreview = ({ currentStep, showHeading = true }) => {
           )}
 
           {showAddons && hasTip && (
-            <Section label="Tip">
+            <Section label={isRecurring ? "Tip (each payment)" : "Tip"}>
               <div className="flex items-center justify-between">
                 <p className="text-[12px] text-[#8C8C8C]">
-                  {customTipParsed !== null ? "Custom amount" : `${data.tipPct}% of ${isRecurring ? "first payment" : "donation"}`}
+                  {data.customTipAmount !== "" && data.customTipAmount != null
+                    ? "Custom amount"
+                    : `${data.tipPct}% of ${isRecurring ? "each payment" : "donation"}`}
                 </p>
                 <p className="text-[12px] font-medium text-[#383838]">
                   {sym}{tipAmount.toFixed(2)}
@@ -371,6 +369,7 @@ const DonationPreview = ({ currentStep, showHeading = true }) => {
                     (data.addOnsTotal ?? 0) > 0 ? `${sym}${Number(data.addOnsTotal).toFixed(2)} add-ons` : null,
                     tipAmount > 0 ? `${sym}${tipAmount.toFixed(2)} tip` : null,
                   ].filter(Boolean).join(" + ")}
+                  {tipAmount > 0 ? " · tip repeats on every payment" : ""}
                 </p>
               )}
             </div>

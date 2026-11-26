@@ -34,6 +34,27 @@ function amountForDate(key, { overrides, resolvedAmounts, amountTier }) {
   return Number(amountTier) || 0;
 }
 
+// Every scheduled date's base amount, in date order. The tip is charged per payment, so the
+// summary needs each row's own base rather than only the first one.
+export function resolveScheduleBases({ isRecurring, scheduleType, scheduleConfig, amountTier, resolvedAmounts }) {
+  if (!isRecurring) return [];
+  const cfg = scheduleConfig && typeof scheduleConfig === "object" ? scheduleConfig : {};
+  const overrides = cfg.dateAmounts ?? {};
+  return resolveScheduleDateKeys({ scheduleType, scheduleConfig })
+    .map((key) => amountForDate(key, { overrides, resolvedAmounts, amountTier }));
+}
+
+// The tip owed on one payment: a custom figure wins, otherwise the percentage of that base.
+export function tipOnBase({ base, tipPct, customTipAmount }) {
+  const amount = Number(base) || 0;
+  if (amount <= 0) return 0;
+  const custom = customTipAmount !== "" && customTipAmount != null ? Math.max(0, Number(customTipAmount) || 0) : null;
+  if (custom !== null) return custom;
+  const pct = Number(tipPct) || 0;
+  if (pct <= 0) return 0;
+  return Math.round((amount * pct)) / 100;
+}
+
 // The amount and date of the FIRST scheduled installment (excludes add-ons/tip).
 // Used for the "first payment" figure and as the basis for the platform tip — the
 // tip is charged in full with installment #1, so a % of the whole commitment would
