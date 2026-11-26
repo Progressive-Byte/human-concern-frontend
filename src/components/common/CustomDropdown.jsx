@@ -12,6 +12,7 @@ const CustomDropdown = ({
   icon,
   showDot = false,
   showFilterIcon = false,
+  hideSearch = false,
   maxHeight = "260px",
   width = "w-64",
   triggerHeight = "",
@@ -134,18 +135,20 @@ const CustomDropdown = ({
               : `left-2 right-2 sm:left-auto sm:right-0 ${width}`
           } ${dropUp ? "bottom-full mb-1" : "mt-1"}`}
         >
-          {/* Search input */}
-          <div className="sticky top-0 z-10 bg-white px-3 pt-2.5 pb-2 border-b border-gray-100">
-            <input
-              ref={searchRef}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={`Search ${label ?? ""}...`}
-              className="w-full text-sm px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#383838] transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
+          {/* Search input. Hidden for short lists where filtering only adds a step. */}
+          {!hideSearch && (
+            <div className="sticky top-0 z-10 bg-white px-3 pt-2.5 pb-2 border-b border-gray-100">
+              <input
+                ref={searchRef}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={`Search ${label ?? ""}...`}
+                className="w-full text-sm px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#383838] transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
 
           {label && (
             <div className="px-4 py-2 text-[11px] font-semibold tracking-wider text-gray-400 uppercase border-b border-gray-100">

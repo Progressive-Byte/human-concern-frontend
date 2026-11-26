@@ -384,7 +384,7 @@ const Step1Gift = ({ campaignSlug }) => {
 
         <div className="flex flex-col gap-3">
           <div className="flex items-start justify-between gap-2">
-            <SectionStep title="Donation Amount & Cause" />
+            <SectionStep title="Amount" />
             <select
               value={data.currency ?? "USD"}
               onChange={(e) => update({ currency: e.target.value })}

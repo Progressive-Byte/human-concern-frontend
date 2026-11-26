@@ -176,7 +176,11 @@ export function useGiftAmountSchedule({
   const [splitMode,       setSplitMode]       = useState(
     allowRecurringSplit ? (data.splitMode ?? "divide") : "repeat"
   );
-  const [activePreset,    setActivePreset]    = useState(data.schedulePreset ?? "custom");
+  // Restore a real stored choice only. "custom" is no longer a default, so a fresh visit
+  // starts with nothing picked and the schedule dropdown asks the donor to choose.
+  const [activePreset,    setActivePreset]    = useState(
+    data.schedulePreset && data.schedulePreset !== "custom" ? data.schedulePreset : ""
+  );
   const [scheduleState,   setScheduleState]   = useState({
     scheduleType:   data.scheduleType   ?? "specific_dates",
     scheduleConfig: data.scheduleConfig ?? {},

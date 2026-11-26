@@ -220,8 +220,9 @@ const AmountSelector = ({
               <span className="text-[22px] font-bold leading-none whitespace-nowrap text-[#EA3335]">
                 {sym}{formatDisplay(effectiveAmount)}
               </span>
+              {/* Hidden on a phone to keep the locked amount compact; shown from sm up. */}
               {currentDescription && (
-                <span className="text-[12px] leading-snug text-[#737373]">{currentDescription}</span>
+                <span className="hidden text-[12px] leading-snug text-[#737373] sm:block">{currentDescription}</span>
               )}
             </div>
           ) : recurringLabel ? (

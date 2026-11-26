@@ -174,13 +174,16 @@ const RecurringSchedule = ({
     }),
     [apiPresets, minDateStr, todayKey]
   );
-  const fallbackPresetId = showCustomOption
-    ? "custom"
-    : (defaultPresetId && visibleApiPresets.some((p) => p.id === defaultPresetId)
-        ? defaultPresetId
-        : (visibleApiPresets[0]?.id ?? "custom"));
+  /*
+    Only the admin's own default preset is auto-selected. "Custom" is no longer a fallback:
+    the dropdown then reads "Choose a schedule" and stays unselected until the donor picks,
+    which is clearer than silently starting them on an empty custom schedule.
+  */
+  const fallbackPresetId = defaultPresetId && visibleApiPresets.some((p) => p.id === defaultPresetId)
+    ? defaultPresetId
+    : "";
   const [activePreset,   setActivePreset]   = useState(
-    initialActivePreset && (initialActivePreset !== "custom" || showCustomOption)
+    initialActivePreset && initialActivePreset !== "custom"
       ? initialActivePreset
       : fallbackPresetId
   );
@@ -208,9 +211,11 @@ const RecurringSchedule = ({
 
   const hasPresets       = visibleApiPresets.length > 0;
 
-  // The dropdown's option list: every usable preset, plus Custom when the form allows it.
+  // The dropdown's option list. "Choose a schedule" is always first so the donor can always
+  // clear the selection, even when a preset was auto-applied.
   const presetOptions = useMemo(
     () => [
+      { value: "", label: "Choose a schedule" },
       ...visibleApiPresets.map((p) => ({ value: p.id, label: p.name })),
       ...(showCustomOption ? [{ value: "custom", label: "Custom" }] : []),
     ],
@@ -220,8 +225,10 @@ const RecurringSchedule = ({
   const activeApiPreset  = visibleApiPresets.find((p) => p.id === activePreset);
   const activeIsOpenEnded = isOpenEndedPreset(activeApiPreset);
   const isTemplateActive = activeApiPreset ? isTemplate(activeApiPreset) : false;
-  // Show full controls for: Custom pill, template presets, or no API presets at all
-  const showFullControls = isCustom || isTemplateActive || !hasPresets;
+  // Nothing picked yet: hide the date controls so the donor is not shown an empty editor
+  // before choosing. "Custom" and template presets open the full controls as before.
+  const nothingPicked = !activePreset;
+  const showFullControls = !nothingPicked && (isCustom || isTemplateActive || !hasPresets);
   const openEndedLocked = activeIsOpenEnded && !showFullControls;
   // Only snap monthly/yearly onto whole periods while the donor is editing the range. A
   // fixed admin preset keeps its exact anchor day (e.g. a monthly preset on the 15th).
@@ -374,8 +381,10 @@ const RecurringSchedule = ({
   };
 
   // A saved selection can point at a preset that is now hidden (expired without make-up).
-  // Fall back to the first visible preset, or to Custom when that option is enabled.
+  // When the form has no Custom option, fall back to the first visible preset; otherwise
+  // clear the selection so the dropdown asks the donor to choose.
   useEffect(() => {
+    if (!activePreset) return;                                        // nothing picked yet
     if (visibleApiPresets.some((p) => p.id === activePreset)) return;
     if (showCustomOption && activePreset === "custom") return;
 
@@ -386,13 +395,13 @@ const RecurringSchedule = ({
 
     if (!showCustomOption) return;
 
-    setActivePreset("custom");
+    setActivePreset("");
     setMakeUpMissedDates(false);
     setScheduleType("specific_dates");
     setSelectedDates([]);
     setDateAmounts({});
     setWeekDays([]);
-    notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, "custom");
+    notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePreset, visibleApiPresets, showCustomOption]);
 
@@ -563,9 +572,22 @@ const RecurringSchedule = ({
           variant="form"
           options={presetOptions}
           value={activePreset}
-          onChange={(next) => handlePreset(next)}
+          onChange={(next) => {
+            // Picking "Choose a schedule" clears the selection so nothing looks chosen.
+            if (!next) {
+              setActivePreset("");
+              setMakeUpMissedDates(false);
+              setSelectedDates([]);
+              setDateAmounts({});
+              setWeekDays([]);
+              notify("specific_dates", [], rangeStart, rangeEnd, rangeFreq, {}, customInterval, "");
+              return;
+            }
+            handlePreset(next);
+          }}
           placeholder="Choose a schedule"
           label="Schedules"
+          hideSearch
           maxHeight="260px"
         />
       )}
