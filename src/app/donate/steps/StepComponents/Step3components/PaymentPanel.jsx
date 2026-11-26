@@ -411,9 +411,10 @@ const PaymentPanel = ({ actionSlot }) => {
 
       {/*
         The "secured" note moved into the checkout form's action bar, where it sits above the pay
-        button like every other step. Rendering it here too duplicated it below the button.
+        button like every other step. Show it here only when that form is not rendering — a
+        non-Stripe gateway, or preview — otherwise it appears twice or vanishes.
       */}
-      {!isStripe && (
+      {(!isStripe || isPreview) && (
         <div className="mt-6 flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#F9F9F9] px-4 py-3">
           {NoticeIcon}
           <span className="text-[12px] text-[#AEAEAE]">Your payment is secured with 256-bit SSL encryption</span>

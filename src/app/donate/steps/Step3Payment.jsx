@@ -373,12 +373,15 @@ const Step3Payment = () => {
           </div>
 
           {/* The pay button lands here — under the total row, sticking to the bottom edge,
-              which is the order every other step uses. */}
-          <div
-            ref={setPayBarSlot}
-            className="lg:hidden sticky bottom-0 z-30 -mx-3 sm:-mx-4 mt-3 border-t border-[#EBEBEB] bg-white/95 px-3 sm:px-4 pt-2.5 backdrop-blur"
-            style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
-          />
+              which is the order every other step uses. Preview has no card form, so the slot
+              is not rendered there and would otherwise be an empty bar. */}
+          {!isPreview && (
+            <div
+              ref={setPayBarSlot}
+              className="lg:hidden sticky bottom-0 z-30 -mx-3 sm:-mx-4 mt-3 border-t border-[#EBEBEB] bg-white/95 px-3 sm:px-4 pt-2.5 backdrop-blur"
+              style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+            />
+          )}
 
           {summaryOpen ? (
             <div className="fixed inset-0 z-50 lg:hidden">

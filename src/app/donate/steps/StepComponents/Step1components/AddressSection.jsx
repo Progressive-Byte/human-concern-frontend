@@ -17,7 +17,12 @@ const AddressSection = ({ setError, addressExpanded, setAddressExpanded, address
   const { user } = useAuth();
   // null = the key is still loading, '' = loaded and not configured.
   const { googleMapsApiKey } = useBranding();
-  const noKey = googleMapsApiKey === "";
+  /*
+    `!key` rather than `=== ""`: the admin preview renders outside BrandingProvider, so the value
+    stays null there and the old check reported "key exists" — preview drew a search box that
+    could never work. Null, undefined and "" all mean nothing to search with.
+  */
+  const noKey = !googleMapsApiKey;
   // With no key there is nothing to search, so the full field set is the only usable mode.
   const isManual = addressManual || noKey;
 
