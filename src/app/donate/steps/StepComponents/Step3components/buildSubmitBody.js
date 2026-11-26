@@ -191,7 +191,13 @@ export function buildSubmitBody({
 
   if (isRecurring) {
     const allowRecurringSplit = campaignMeta?.goalsDates?.allowRecurringSplit !== false;
-    const howToSplit = allowRecurringSplit && (data.splitMode ?? "repeat") === "divide" ? "divide" : "each";
+    /*
+      "Divide" needs a fixed number of payments to divide across. A form with no end date is
+      open-ended, where the donor pays the chosen amount each date — the split choice is not even
+      shown in that case, so the payload must agree and send "each".
+    */
+    const hasFormEndDate = Boolean(campaignMeta?.goalsDates?.endAt);
+    const howToSplit = allowRecurringSplit && hasFormEndDate && (data.splitMode ?? "repeat") === "divide" ? "divide" : "each";
     body.payment = {
       paymentMode: "split",
       // Open-ended plans commit to one installment, not the whole horizon.

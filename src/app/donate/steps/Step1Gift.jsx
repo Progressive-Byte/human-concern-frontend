@@ -104,6 +104,7 @@ const Step1Gift = ({ campaignSlug }) => {
     defaultPerDate,
     makeUpMissedDates,
     causeLabelById,
+    showSplitChoice,
   } = useGiftAmountSchedule({
     urlAmount: searchParams.get("amount"),
     urlPaymentType: searchParams.get("paymentType"),
@@ -522,7 +523,11 @@ const Step1Gift = ({ campaignSlug }) => {
 
         {isRecurring && (
           <>
-            {allowRecurringSplit && (
+            {/*
+              Hidden when the form has no end date: an open-ended plan has no fixed number of
+              payments to divide, so "pay this amount each date" is the only honest choice.
+            */}
+            {showSplitChoice && (
               <div className="flex flex-col gap-3">
                 <SectionStep title="How to split?" />
                 <div className="flex flex-col sm:flex-row gap-2.5">

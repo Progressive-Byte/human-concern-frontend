@@ -369,19 +369,54 @@ const DonationPreview = ({ currentStep, showHeading = true }) => {
                     (data.addOnsTotal ?? 0) > 0 ? `${sym}${Number(data.addOnsTotal).toFixed(2)} add-ons` : null,
                     tipAmount > 0 ? `${sym}${tipAmount.toFixed(2)} tip` : null,
                   ].filter(Boolean).join(" + ")}
-                  {tipAmount > 0 ? " · tip repeats on every payment" : ""}
                 </p>
               )}
             </div>
           )}
 
+          {/*
+            Recurring: two figures, because there are two different questions.
+            "Due today" is what the card is charged now — it matches the sticky bar and the pink
+            first-payment box. The whole commitment sits underneath, named as a sum so it is never
+            read as a charge taken now.
+            One-time: a single charge, so one "Total" is enough.
+          */}
           {showPayment && (
-            <div className="flex items-center justify-between pt-3.5">
-              <p className="text-[13px] font-semibold text-[#383838]">Total</p>
-              <p className="text-[20px] font-bold text-[#EA3335] leading-none">
-                {sym}{(baseTotal + (data.addOnsTotal ?? 0) + tipAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
+            isRecurring ? (
+              <>
+                <div className="flex items-center justify-between pt-3.5">
+                  <p className="text-[13px] font-semibold text-[#383838]">Due today</p>
+                  <p className="text-[20px] font-bold text-[#EA3335] leading-none">
+                    {sym}{firstPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
+                {/*
+                  An open-ended plan has no fixed count — its horizon is only a scheduling window,
+                  so a "total over N" would state a commitment that was never made. Show the
+                  per-payment figure instead.
+                */}
+                <div className="mt-2 flex items-center justify-between border-t border-[#E5E5E5] pt-2">
+                  <p className="text-[11px] text-[#8C8C8C]">
+                    {data.openEnded
+                      ? "Then each payment"
+                      : `Total over ${data.installmentCount ?? 1} payment${(data.installmentCount ?? 1) !== 1 ? "s" : ""}`}
+                  </p>
+                  <p className="text-[12px] font-semibold text-[#383838] tabular-nums">
+                    {sym}{(data.openEnded
+                      ? effectiveAmountTier + tipAmount
+                      : baseTotal + (data.addOnsTotal ?? 0) + tipAmount * (data.installmentCount ?? 1)
+                    ).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-between pt-3.5">
+                <p className="text-[13px] font-semibold text-[#383838]">Total</p>
+                <p className="text-[20px] font-bold text-[#EA3335] leading-none">
+                  {sym}{(baseTotal + (data.addOnsTotal ?? 0) + tipAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+            )
           )}
 
         </div>

@@ -7,6 +7,7 @@ import { useBranding } from "@/context/BrandingContext";
 import StepProgress from "./StepProgress";
 import DonateFormHeader from "./DonateFormHeader";
 import DonationPreview from "./DonationPreview";
+import SummarySheet from "./SummarySheet";
 import { getCurrencySymbol } from "@/utils/money";
 import { ArrowNextIcon, ArrowPrevIcon, NoticeIcon } from "@/components/common/SvgIcon";
 
@@ -165,36 +166,15 @@ const StepLayout = ({
           {navRow}
         </div>
 
-        {showPreview && summaryOpen ? (
-          <div className="fixed inset-0 z-50 min-[1440px]:hidden">
-            <button
-              type="button"
-              aria-label="Close donation summary"
-              onClick={() => setSummaryOpen(false)}
-              className="absolute inset-0 bg-[#111827]/40 backdrop-blur-[2px]"
-            />
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Donation summary"
-              className="absolute inset-x-0 bottom-0 max-h-[82dvh] overflow-y-auto rounded-t-3xl border-t border-[#E5E5E5] bg-white pt-2 shadow-2xl"
-              style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
-            >
-              <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-[#E5E5E5]" />
-              <div className="flex items-center justify-between px-4 pb-1">
-                <p className="text-[13px] font-semibold text-[#383838]">Donation summary</p>
-                <button
-                  type="button"
-                  onClick={() => setSummaryOpen(false)}
-                  className="rounded-lg px-2 py-1 text-[12px] font-semibold text-[#737373] transition-colors hover:bg-[#F5F5F5] hover:text-[#383838] cursor-pointer"
-                >
-                  Close
-                </button>
-              </div>
-              <DonationPreview currentStep={step} showHeading={false} />
-            </div>
-          </div>
-        ) : null}
+        {showPreview && (
+          <SummarySheet
+            open={summaryOpen}
+            onClose={() => setSummaryOpen(false)}
+            hiddenClassName="min-[1440px]:hidden"
+          >
+            <DonationPreview currentStep={step} showHeading={false} />
+          </SummarySheet>
+        )}
 
         <p className="mt-4 hidden px-2 text-center text-[12px] text-[#AEAEAE] min-[1440px]:block">
           Step {displayStep} of {totalSteps} — Your information is secure and encrypted.

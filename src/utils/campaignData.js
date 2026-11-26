@@ -56,7 +56,12 @@ export function buildCampaignData(campaign, globalNote = [], causeDropdown = nul
       recurringPresets:        gd.recurringPresets        ?? [],
       showGlobalNote:          gd.showGlobalNote          ?? false,
       paymentMethods:          gd.paymentMethods          ?? [],
-      endAt:                   c.endAt                    ?? null,
+      /*
+        `goalsDates.endAt` is the real end date the form uses for its rules. The top-level
+        `endAt` is only the public DISPLAY value and is null whenever the admin hides the dates —
+        reading that alone made the donation form treat a dated campaign as open-ended.
+      */
+      endAt:                   gd.endAt ?? c.endAt ?? null,
     },
     causes: (Array.isArray(c.causes) ? c.causes : []).map((cause) => ({
       id:            cause.id,

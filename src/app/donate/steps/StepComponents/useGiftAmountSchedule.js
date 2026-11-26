@@ -170,12 +170,26 @@ export function useGiftAmountSchedule({
 
   const [effectiveAmount, setEffectiveAmount] = useState(initAmount);
   const [amountError,     setAmountError]     = useState(false);
+  /*
+    "How to split?" only makes sense when the plan has a fixed number of payments to divide
+    across. A form with no end date is open-ended — the donor commits to one payment at a time,
+    so the choice is hidden and the mode is forced to "repeat" (pay this amount each date).
+  */
+  const hasEndDate = Boolean(campaignEndDate);
+  const showSplitChoice = allowRecurringSplit && hasEndDate;
+
   const [occurrences,     setOccurrences]     = useState(isRecurring ? initOccurrences : 1);
   const [remainingOccurrences, setRemainingOccurrences] = useState(isRecurring ? initRemainingOccurrences : 1);
   const [makeUpMissedDates, setMakeUpMissedDates] = useState(Boolean(data.makeUpMissedDates));
   const [splitMode,       setSplitMode]       = useState(
-    allowRecurringSplit ? (data.splitMode ?? "divide") : "repeat"
+    showSplitChoice ? (data.splitMode ?? "divide") : "repeat"
   );
+
+  // A schedule restored from storage can carry "divide" from a form that had an end date. Once
+  // the choice is hidden, the stored value must not quietly keep dividing the whole amount.
+  useEffect(() => {
+    if (!showSplitChoice && splitMode !== "repeat") setSplitMode("repeat");
+  }, [showSplitChoice, splitMode]);
   // Restore a real stored choice only. "custom" is no longer a default, so a fresh visit
   // starts with nothing picked and the schedule dropdown asks the donor to choose.
   const [activePreset,    setActivePreset]    = useState(
@@ -299,7 +313,8 @@ export function useGiftAmountSchedule({
   };
 
   const handleSplitModeChange = (val) => {
-    if (!allowRecurringSplit && val !== "repeat") return;
+    // Same guard as the render: with no end date the choice is not offered, so it cannot be set.
+    if (!showSplitChoice && val !== "repeat") return;
     setSplitMode(val);
     // Switching to divide clears any per-date overrides so the new per-date
     // default (total ÷ count) applies evenly to all dates.
@@ -361,6 +376,7 @@ export function useGiftAmountSchedule({
     occurrences,
     splitMode,
     splitModes,
+    showSplitChoice,
     handleSplitModeChange,
     scheduleState,
     handleScheduleChange,
